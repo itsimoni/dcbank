@@ -26,7 +26,7 @@ export default function FixUsers() {
 
       for (const user of users) {
         // Check if profile exists
-        const { data: profile } = await supabase.from("profiles").select("id").eq("id", user.id).single()
+        const { data: profile } = await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle()
 
         if (!profile) {
           // Create missing profile

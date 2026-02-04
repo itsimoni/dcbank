@@ -756,12 +756,12 @@ export default function Dashboard() {
             .from("profiles")
             .select("*")
             .eq("id", userData.id)
-            .single();
+            .maybeSingle();
 
-          if (error?.code === "PGRST116") {
+          if (error) throw error;
+          if (!data) {
             return await createUserProfile(userData);
           }
-          if (error) throw error;
           return data;
         },
         { maxRetries: 2, timeoutMs: 8000 }

@@ -70,17 +70,17 @@ export default function TransfersSection() {
           .from("usd_balances")
           .select("balance")
           .eq("user_id", user.id)
-          .single(),
+          .maybeSingle(),
         supabase
           .from("euro_balances")
           .select("balance")
           .eq("user_id", user.id)
-          .single(),
+          .maybeSingle(),
         supabase
           .from("cad_balances")
           .select("balance")
           .eq("user_id", user.id)
-          .single(),
+          .maybeSingle(),
       ]);
 
       setBalances({

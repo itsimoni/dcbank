@@ -553,7 +553,7 @@ function DashboardContent({
           .from("users")
           .select("first_name, last_name, full_name, email")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("Error fetching user data:", error);
