@@ -856,32 +856,81 @@ export default function Dashboard() {
   );
 
   useEffect(() => {
-    if (initializationRef.current || !mountedRef.current) return;
+    console.log('[Mobile Debug] Mount effect running');
+    mountedRef.current = true;
+
+    return () => {
+      console.log("[Mobile Debug] Dashboard unmounting");
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log('[Mobile Debug] Init effect triggered', {
+      isInitialized: initializationRef.current,
+      isMounted: mountedRef.current,
+      hasDbManager: !!dbManager,
+      supabaseExists: !!supabase
+    });
+
+    if (initializationRef.current) {
+      console.warn('[Mobile Debug] Already initialized');
+      return;
+    }
+
+    if (!mountedRef.current) {
+      console.warn('[Mobile Debug] Not mounted yet');
+      return;
+    }
+
     initializationRef.current = true;
+    console.log("[Mobile Debug] Starting initialization");
 
-    console.log("Initializing dashboard");
+    const timeoutId = setTimeout(() => {
+      console.warn('[Mobile Debug] Initialization timeout - forcing retry');
+      if (!userProfile && mountedRef.current) {
+        console.log('[Mobile Debug] No user profile after 3s, retrying...');
+        fetchUserData().catch(err => {
+          console.error('[Mobile Debug] Retry failed:', err);
+        });
+      }
+    }, 3000);
 
-    const initPromises = [fetchUserData(), Promise.resolve(updateActivity())];
+    fetchUserData().catch(err => {
+      console.error('[Mobile Debug] fetchUserData failed:', err);
+      initializationRef.current = false;
+    });
 
-    Promise.allSettled(initPromises);
+    updateActivity();
 
     const cleanup = setupActivityTracking();
     const unsubscribe = dbManager.subscribe(setDbState);
 
     return () => {
+      clearTimeout(timeoutId);
       cleanup();
       unsubscribe();
     };
-  }, [fetchUserData, updateActivity, setupActivityTracking, dbManager]);
+  }, [fetchUserData, updateActivity, setupActivityTracking, dbManager, userProfile]);
 
   useEffect(() => {
-    mountedRef.current = true;
+    if (userProfile || !mountedRef.current) return;
 
-    return () => {
-      console.log("Dashboard unmounting");
-      mountedRef.current = false;
-    };
-  }, []);
+    console.log('[Mobile Debug] Failsafe effect - checking if data loaded');
+
+    const failsafeTimer = setTimeout(() => {
+      if (!userProfile && mountedRef.current && !loading) {
+        console.warn('[Mobile Debug] FAILSAFE TRIGGERED - No data after 5s, forcing fetch');
+        setError(null);
+        initializationRef.current = false;
+        fetchUserData().catch(err => {
+          console.error('[Mobile Debug] Failsafe fetch failed:', err);
+        });
+      }
+    }, 5000);
+
+    return () => clearTimeout(failsafeTimer);
+  }, [userProfile, loading, fetchUserData]);
 
   const LoadingComponent = useMemo(
     () => (
@@ -893,10 +942,21 @@ export default function Dashboard() {
               ? "Connecting to database..."
               : "Loading dashboard..."}
           </p>
+          <button
+            onClick={() => {
+              console.log('[Mobile Debug] Manual fetch triggered');
+              initializationRef.current = false;
+              setError(null);
+              fetchUserData();
+            }}
+            className="mt-4 px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+          >
+            Refresh
+          </button>
         </div>
       </div>
     ),
-    [dbState.isReconnecting]
+    [dbState.isReconnecting, fetchUserData]
   );
 
   const ErrorComponent = useMemo(

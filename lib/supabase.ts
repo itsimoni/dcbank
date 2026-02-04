@@ -6,18 +6,44 @@ let supabaseInstance: SupabaseClient | null = null
 
 function getSupabase() {
   if (typeof window === 'undefined') {
+    console.warn('[Supabase] Running on server, returning null')
     return null
   }
 
   if (supabaseInstance) {
+    console.log('[Supabase] Returning existing instance')
     return supabaseInstance
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+  console.log('[Supabase] Initializing client', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    userAgent: navigator.userAgent
+  })
+
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('[Supabase] Missing env variables')
     throw new Error('Missing Supabase environment variables')
+  }
+
+  let storage: any = undefined
+  try {
+    if (window.localStorage) {
+      window.localStorage.setItem('__test__', 'test')
+      window.localStorage.removeItem('__test__')
+      storage = window.localStorage
+      console.log('[Supabase] LocalStorage available')
+    }
+  } catch (e) {
+    console.warn('[Supabase] LocalStorage blocked, using memory storage')
+    storage = {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {}
+    }
   }
 
   supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
@@ -25,6 +51,8 @@ function getSupabase() {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
+      storage,
+      storageKey: 'supabase.auth.token',
     },
     realtime: {
       params: {
@@ -35,9 +63,17 @@ function getSupabase() {
       headers: {
         "x-application-name": "dashboard-app",
       },
+      fetch: (url, options = {}) => {
+        console.log('[Supabase] Fetch:', url.substring(0, 50))
+        return fetch(url, options).catch(err => {
+          console.error('[Supabase] Fetch error:', err)
+          throw err
+        })
+      },
     },
   })
 
+  console.log('[Supabase] Client initialized successfully')
   return supabaseInstance
 }
 
