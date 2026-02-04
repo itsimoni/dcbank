@@ -404,7 +404,7 @@ export default function AuthForm() {
               </div>
             </div>
 
-            <div className="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
+            <div className="flex-1 p-3 sm:p-6 lg:p-8 flex flex-col justify-center">
               {error && (
                 <Alert variant="destructive" className="mb-4">
                   <AlertCircle className="h-4 w-4" />
@@ -502,17 +502,17 @@ export default function AuthForm() {
                 </div>
               ) : (
                 <div className="max-w-md mx-auto w-full">
-                  <div className="mb-6 sm:mb-8">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  <div className="mb-3 sm:mb-8">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
                       {t.createAccountTitle}
                     </h2>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-xs sm:text-sm">
                       {t.createAccountSubtitle}
                     </p>
                   </div>
 
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <form onSubmit={handleSignUp} className="space-y-3 sm:space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <input
                           type="text"
@@ -525,7 +525,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                       <div>
@@ -540,7 +540,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                     </div>
@@ -558,7 +558,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                       <div>
@@ -573,7 +573,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                     </div>
@@ -590,7 +590,7 @@ export default function AuthForm() {
                           }))
                         }
                         required
-                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                        className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                       />
                       <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                         <Button
@@ -609,10 +609,10 @@ export default function AuthForm() {
                       </div>
                     </div>
 
-                    <div className="pt-6">
+                    <div className="pt-3 sm:pt-6">
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-[background-color,opacity] duration-300 disabled:opacity-50"
+                        className="w-full h-10 sm:h-12 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-[background-color,opacity] duration-300 disabled:opacity-50"
                         disabled={loading}
                       >
                         {loading ? t.creatingAccount : t.createAccount}
@@ -620,7 +620,7 @@ export default function AuthForm() {
                     </div>
                   </form>
 
-                  <div className="flex flex-col sm:flex-row justify-between items-center mt-6 sm:mt-8 text-xs gap-2 sm:gap-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-center mt-3 sm:mt-6 text-xs gap-2 sm:gap-0">
                     <button className="text-gray-500 hover:text-[#F26623] transition-colors">
                       {t.returnHome}
                     </button>
