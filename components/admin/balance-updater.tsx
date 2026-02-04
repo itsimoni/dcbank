@@ -161,7 +161,7 @@ export default function EnhancedBalanceUpdater() {
           .from("users")
           .select("id, is_admin, is_manager, is_superiormanager")
           .eq("id", sessionData.userId)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error("Failed to get admin data:", error);
@@ -687,7 +687,7 @@ export default function EnhancedBalanceUpdater() {
             .from(tableName)
             .select("balance")
             .eq("user_id", userId)
-            .single();
+            .maybeSingle();
 
           if (fetchError) {
             if (fetchError.code === "PGRST116") {

@@ -52,22 +52,22 @@ export function useRealtimeData(): RealtimeData {
             .from("usd_balances")
             .select("balance")
             .eq("user_id", userId)
-            .single(),
+            .maybeSingle(),
           supabase
             .from("euro_balances")
             .select("balance")
             .eq("user_id", userId)
-            .single(),
+            .maybeSingle(),
           supabase
             .from("cad_balances")
             .select("balance")
             .eq("user_id", userId)
-            .single(),
+            .maybeSingle(),
           supabase
             .from("crypto_balances")
             .select("balance")
             .eq("user_id", userId)
-            .single(),
+            .maybeSingle(),
         ]);
 
       return {

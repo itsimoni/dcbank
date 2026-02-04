@@ -197,7 +197,7 @@ export default function RealCryptoTransferSection({
         .from("newcrypto_balances")
         .select("btc_balance, eth_balance, usdt_balance")
         .eq("user_id", userProfile.id)
-        .single();
+        .maybeSingle();
 
       console.log("Supabase query response:", { data, error });
       console.log(
