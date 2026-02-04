@@ -355,14 +355,15 @@ export default function AuthForm() {
             <div className="flex flex-col sm:flex-row items-center justify-between px-4 bg-white gap-4 sm:gap-0">
               <div className="flex items-center">
                 <div className="flex items-center space-x-2">
-                  <img
-                    src="/logo.svg"
-                    alt="Logo"
-                    loading="lazy"
-                    decoding="async"
-                    className="w-36 h-36 object-contain"
-                  />
-                </div>
+  <img
+    src="/logo.svg"
+    alt="Logo"
+    loading="lazy"
+    decoding="async"
+    className="w-36 h-36 max-[500px]:h-20 object-contain"
+  />
+</div>
+
               </div>
 
               <div className="flex items-center gap-2">
