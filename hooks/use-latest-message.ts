@@ -42,12 +42,18 @@ export function useLatestMessage() {
         .single();
 
       if (error && error.code !== "PGRST116") {
+        if (error.message?.includes("aborted") || error.name === "AbortError") {
+          return;
+        }
         console.error("Error fetching latest message:", error.message || error);
         setError(error.message || "Failed to fetch message");
       } else {
         setLatestMessage(data || null);
       }
     } catch (err: any) {
+      if (err.message?.includes("aborted") || err.name === "AbortError") {
+        return;
+      }
       console.error("Error in fetchLatestMessage:", err.message || err);
       setError(err.message || "Failed to fetch message");
     } finally {

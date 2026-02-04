@@ -675,6 +675,9 @@ function DashboardContent({
           .eq("user_id", userProfile.id);
 
         if (error) {
+          if (error.message?.includes("aborted") || error.code === "ABORT_ERR") {
+            return;
+          }
           console.error("Error fetching crypto balances:", {
             message: error.message,
             details: error.details,

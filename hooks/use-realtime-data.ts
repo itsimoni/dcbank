@@ -128,12 +128,18 @@ export function useRealtimeData(): RealtimeData {
         .limit(10);
 
       if (error) {
+        if (error.message?.includes("aborted") || error.name === "AbortError") {
+          return [];
+        }
         console.error("Error fetching messages:", error.message || error);
         return [];
       }
 
       return data || [];
     } catch (error: any) {
+      if (error.message?.includes("aborted") || error.name === "AbortError") {
+        return [];
+      }
       console.error("Error fetching messages:", error.message || error);
       return [];
     }
@@ -149,12 +155,18 @@ export function useRealtimeData(): RealtimeData {
         .limit(10);
 
       if (error) {
+        if (error.message?.includes("aborted") || error.name === "AbortError") {
+          return [];
+        }
         console.error("Error fetching deposits:", error.message || error);
         return [];
       }
 
       return data || [];
     } catch (error: any) {
+      if (error.message?.includes("aborted") || error.name === "AbortError") {
+        return [];
+      }
       console.error("Error fetching deposits:", error.message || error);
       return [];
     }
@@ -170,6 +182,9 @@ export function useRealtimeData(): RealtimeData {
         .limit(10);
 
       if (error) {
+        if (error.message?.includes("aborted") || error.name === "AbortError") {
+          return [];
+        }
         console.error(
           "Error fetching crypto transactions:",
           error.message || error
@@ -179,6 +194,9 @@ export function useRealtimeData(): RealtimeData {
 
       return data || [];
     } catch (error: any) {
+      if (error.message?.includes("aborted") || error.name === "AbortError") {
+        return [];
+      }
       console.error(
         "Error fetching crypto transactions:",
         error.message || error
