@@ -73,6 +73,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
     de: "Deutsch",
     es: "Español",
     it: "Italiano",
+    el: "Ελληνικά",
   };
 
   useEffect(() => {

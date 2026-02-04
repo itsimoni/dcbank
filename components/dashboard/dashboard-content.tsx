@@ -323,6 +323,7 @@ function DashboardContent({
     de: "Deutsch",
     es: "Español",
     it: "Italiano",
+    el: "Ελληνικά",
   };
 
   // Memoized functions for better performance

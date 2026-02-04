@@ -30,6 +30,7 @@ const languageNames: Record<Language, string> = {
   de: "Deutsch",
   es: "Español",
   it: "Italiano",
+  el: "Ελληνικά",
 };
 
 export default function AuthForm() {

@@ -79,6 +79,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     { code: 'de', label: 'Deutsch' },
     { code: 'es', label: 'Español' },
     { code: 'it', label: 'Italiano' },
+    { code: 'el', label: 'Ελληνικά' },
   ];
 
   useEffect(() => {

@@ -64,6 +64,7 @@ export default function SupportSection({ userProfile }: SupportSectionProps) {
     de: "Deutsch",
     es: "Español",
     it: "Italiano",
+    el: "Ελληνικά",
   };
 
   useEffect(() => {

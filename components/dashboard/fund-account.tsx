@@ -19,6 +19,7 @@ export default function FundAccount() {
     { code: 'de', label: 'Deutsch' },
     { code: 'es', label: 'Español' },
     { code: 'it', label: 'Italiano' },
+    { code: 'el', label: 'Ελληνικά' },
   ];
 
   useEffect(() => {

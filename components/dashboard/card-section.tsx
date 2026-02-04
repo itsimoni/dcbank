@@ -61,6 +61,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     { code: 'de', label: 'Deutsch' },
     { code: 'es', label: 'Español' },
     { code: 'it', label: 'Italiano' },
+    { code: 'el', label: 'Ελληνικά' },
   ];
 
   useEffect(() => {

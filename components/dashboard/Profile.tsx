@@ -55,6 +55,7 @@ export default function Profile({ userProfile }: ProfileProps) {
     de: "Deutsch",
     es: "Español",
     it: "Italiano",
+    el: "Ελληνικά",
   };
 
   useEffect(() => {

@@ -106,6 +106,7 @@ export default function RealCryptoTransferSection({
     de: "Deutsch",
     es: "Español",
     it: "Italiano",
+    el: "Ελληνικά",
   };
 
   const [formData, setFormData] = useState({

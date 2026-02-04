@@ -44,6 +44,7 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
     de: "Deutsch",
     es: "Español",
     it: "Italiano",
+    el: "Ελληνικά",
   };
 
   useEffect(() => {

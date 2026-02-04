@@ -58,6 +58,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
     de: "Deutsch",
     es: "Español",
     it: "Italiano",
+    el: "Ελληνικά",
   };
 
   useEffect(() => {

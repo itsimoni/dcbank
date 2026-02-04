@@ -108,6 +108,7 @@ export default function LoansSection({}: LoansSectionProps) {
     { code: 'de', label: 'Deutsch' },
     { code: 'es', label: 'Español' },
     { code: 'it', label: 'Italiano' },
+    { code: 'el', label: 'Ελληνικά' },
   ];
 
   const loanTypes = [
