@@ -90,5 +90,8 @@
   "bugs": {
     "url": "https://github.com/webdeveloperALB/digitalchainBackEnd/issues"
   },
-  "homepage": "https://github.com/webdeveloperALB/digitalchainBackEnd#readme"
+  "homepage": "https://github.com/webdeveloperALB/digitalchainBackEnd#readme",
+  "optionalDependencies": {
+    "@next/swc-wasm-nodejs": "^16.1.6"
+  }
 }

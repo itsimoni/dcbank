@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    turbo: false,    // Disable Turbopack
+    useWasmBinary: true,
   },
   typescript: {
     ignoreBuildErrors: true,
