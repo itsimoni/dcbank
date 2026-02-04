@@ -52,6 +52,7 @@ const languageNames: Record<Language, string> = {
   de: "Deutsch",
   es: "Español",
   it: "Italiano",
+  el: "Ελληνικά",
 };
 
 const MENU_ITEMS: MenuItem[] = [
