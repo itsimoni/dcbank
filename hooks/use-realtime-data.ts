@@ -249,6 +249,9 @@ export function useRealtimeData(): RealtimeData {
         error: null,
       });
     } catch (error: any) {
+      if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+        return;
+      }
       console.error("Error initializing data:", error);
       setData((prev) => ({
         ...prev,
@@ -259,11 +262,12 @@ export function useRealtimeData(): RealtimeData {
   };
 
   const setupRealtimeSubscriptions = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) return;
+      if (!user) return;
 
     // Subscribe to balance changes
     const balanceSubscription = supabase
@@ -387,12 +391,18 @@ export function useRealtimeData(): RealtimeData {
       )
       .subscribe();
 
-    return () => {
-      balanceSubscription.unsubscribe();
-      messageSubscription.unsubscribe();
-      depositsSubscription.unsubscribe();
-      cryptoTransactionSubscription.unsubscribe();
-    };
+      return () => {
+        balanceSubscription.unsubscribe();
+        messageSubscription.unsubscribe();
+        depositsSubscription.unsubscribe();
+        cryptoTransactionSubscription.unsubscribe();
+      };
+    } catch (error: any) {
+      if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+        return;
+      }
+      console.error("Error setting up realtime subscriptions:", error);
+    }
   };
 
   // Update exchange rates and crypto prices every 30 seconds

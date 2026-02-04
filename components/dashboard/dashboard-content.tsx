@@ -570,7 +570,10 @@ function DashboardContent({
 
         console.log("User data fetched:", data);
         setUserData(data);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+          return;
+        }
         console.error("Error in fetchUserData:", error);
         // Set fallback data
         setUserData({
@@ -885,7 +888,10 @@ function DashboardContent({
           }
         }
         setHasCheckedWelcome(true);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+          return;
+        }
         console.error("Error checking new user status:", error);
         setHasCheckedWelcome(true);
       }
@@ -943,12 +949,18 @@ function DashboardContent({
           .limit(10);
 
         if (error) {
+          if (error.message?.includes("aborted") || error.name === "AbortError") {
+            return;
+          }
           console.error("Error fetching payments:", error);
           return;
         }
 
         setPayments(data || []);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+          return;
+        }
         console.error("Error fetching payments:", error);
       } finally {
         setPaymentsLoading(false);
@@ -958,10 +970,11 @@ function DashboardContent({
     fetchPayments();
 
     const setupPaymentsSubscription = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
 
       const paymentsSubscription = supabase
         .channel("payments_changes")
@@ -979,9 +992,15 @@ function DashboardContent({
         )
         .subscribe();
 
-      return () => {
-        paymentsSubscription.unsubscribe();
-      };
+        return () => {
+          paymentsSubscription.unsubscribe();
+        };
+      } catch (error: any) {
+        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+          return;
+        }
+        console.error("Error setting up payments subscription:", error);
+      }
     };
 
     const cleanup = setupPaymentsSubscription();
@@ -1013,6 +1032,9 @@ function DashboardContent({
           .limit(50);
 
         if (error) {
+          if (error.message?.includes("aborted") || error.name === "AbortError") {
+            return;
+          }
           console.error("Error fetching transaction history:", error);
           return;
         }
@@ -1032,7 +1054,10 @@ function DashboardContent({
             data: a,
           }))
         );
-      } catch (err) {
+      } catch (err: any) {
+        if (err?.message?.includes("aborted") || err?.name === "AbortError") {
+          return;
+        }
         console.error("Error fetching transaction history:", err);
       } finally {
         setActivitiesLoading(false);
@@ -1040,24 +1065,31 @@ function DashboardContent({
     };
 
     const setupRealtime = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
 
-      subscription = supabase
-        .channel(`transaction_history_realtime_${user.id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "TransactionHistory",
-            filter: `uuid=eq.${user.id}`,
-          },
-          () => fetchActivities()
-        )
-        .subscribe();
+        subscription = supabase
+          .channel(`transaction_history_realtime_${user.id}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "TransactionHistory",
+              filter: `uuid=eq.${user.id}`,
+            },
+            () => fetchActivities()
+          )
+          .subscribe();
+      } catch (error: any) {
+        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+          return;
+        }
+        console.error("Error setting up realtime subscription:", error);
+      }
     };
 
     fetchActivities();

@@ -85,31 +85,38 @@ export function useLatestMessage() {
 
     // Set up real-time subscription for new messages
     const setupSubscription = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (!user) return;
+        if (!user) return;
 
-      const subscription = supabase
-        .channel("latest_message_changes")
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "user_messages",
-            filter: `user_id=eq.${user.id}`,
-          },
-          () => {
-            fetchLatestMessage();
-          }
-        )
-        .subscribe();
+        const subscription = supabase
+          .channel("latest_message_changes")
+          .on(
+            "postgres_changes",
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "user_messages",
+              filter: `user_id=eq.${user.id}`,
+            },
+            () => {
+              fetchLatestMessage();
+            }
+          )
+          .subscribe();
 
-      return () => {
-        subscription.unsubscribe();
-      };
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error: any) {
+        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+          return;
+        }
+        console.error("Error setting up latest message subscription:", error);
+      }
     };
 
     const cleanup = setupSubscription();

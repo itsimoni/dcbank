@@ -226,8 +226,12 @@ class DatabaseManager {
       }
 
       this.notifyListeners();
-    } catch (error) {
+    } catch (error: any) {
       if (this.isDestroyed) return;
+
+      if (error?.message?.includes("aborted") || error?.name === "AbortError") {
+        return;
+      }
 
       console.error("Database health check failed:", error);
 
