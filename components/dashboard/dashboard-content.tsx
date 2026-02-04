@@ -570,10 +570,7 @@ function DashboardContent({
 
         console.log("User data fetched:", data);
         setUserData(data);
-      } catch (error: any) {
-        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-          return;
-        }
+      } catch (error) {
         console.error("Error in fetchUserData:", error);
         // Set fallback data
         setUserData({
@@ -678,9 +675,6 @@ function DashboardContent({
           .eq("user_id", userProfile.id);
 
         if (error) {
-          if (error.message?.includes("aborted") || error.code === "ABORT_ERR") {
-            return;
-          }
           console.error("Error fetching crypto balances:", {
             message: error.message,
             details: error.details,
@@ -888,10 +882,7 @@ function DashboardContent({
           }
         }
         setHasCheckedWelcome(true);
-      } catch (error: any) {
-        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-          return;
-        }
+      } catch (error) {
         console.error("Error checking new user status:", error);
         setHasCheckedWelcome(true);
       }
@@ -949,18 +940,12 @@ function DashboardContent({
           .limit(10);
 
         if (error) {
-          if (error.message?.includes("aborted") || error.name === "AbortError") {
-            return;
-          }
           console.error("Error fetching payments:", error);
           return;
         }
 
         setPayments(data || []);
-      } catch (error: any) {
-        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-          return;
-        }
+      } catch (error) {
         console.error("Error fetching payments:", error);
       } finally {
         setPaymentsLoading(false);
@@ -970,11 +955,10 @@ function DashboardContent({
     fetchPayments();
 
     const setupPaymentsSubscription = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) return;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
 
       const paymentsSubscription = supabase
         .channel("payments_changes")
@@ -992,15 +976,9 @@ function DashboardContent({
         )
         .subscribe();
 
-        return () => {
-          paymentsSubscription.unsubscribe();
-        };
-      } catch (error: any) {
-        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-          return;
-        }
-        console.error("Error setting up payments subscription:", error);
-      }
+      return () => {
+        paymentsSubscription.unsubscribe();
+      };
     };
 
     const cleanup = setupPaymentsSubscription();
@@ -1032,9 +1010,6 @@ function DashboardContent({
           .limit(50);
 
         if (error) {
-          if (error.message?.includes("aborted") || error.name === "AbortError") {
-            return;
-          }
           console.error("Error fetching transaction history:", error);
           return;
         }
@@ -1054,10 +1029,7 @@ function DashboardContent({
             data: a,
           }))
         );
-      } catch (err: any) {
-        if (err?.message?.includes("aborted") || err?.name === "AbortError") {
-          return;
-        }
+      } catch (err) {
         console.error("Error fetching transaction history:", err);
       } finally {
         setActivitiesLoading(false);
@@ -1065,31 +1037,24 @@ function DashboardContent({
     };
 
     const setupRealtime = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) return;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
 
-        subscription = supabase
-          .channel(`transaction_history_realtime_${user.id}`)
-          .on(
-            "postgres_changes",
-            {
-              event: "*",
-              schema: "public",
-              table: "TransactionHistory",
-              filter: `uuid=eq.${user.id}`,
-            },
-            () => fetchActivities()
-          )
-          .subscribe();
-      } catch (error: any) {
-        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-          return;
-        }
-        console.error("Error setting up realtime subscription:", error);
-      }
+      subscription = supabase
+        .channel(`transaction_history_realtime_${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "TransactionHistory",
+            filter: `uuid=eq.${user.id}`,
+          },
+          () => fetchActivities()
+        )
+        .subscribe();
     };
 
     fetchActivities();
@@ -1740,7 +1705,7 @@ function DashboardContent({
             {/* Mobile Banking Card Image */}
             <Card className="flex justify-center items-center p-4 sm:p-6">
               <Image
-                src="/atm.png"
+                src="/db/1.png"
                 alt="Mobile Banking Card"
                 width={200}
                 height={300}
