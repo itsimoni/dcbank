@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseServer } from "@/lib/supabase-server";
 import { extractIPFromRequest, getLocationData } from "@/lib/geolocation-fixed";
 
 export async function POST(request: NextRequest) {
@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Save to Supabase
+    const supabase = getSupabaseServer();
     const { data, error } = await supabase
       .from("user_presence")
       .upsert(updateData, { onConflict: "user_id" })

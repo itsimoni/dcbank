@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseServer } from "@/lib/supabase-server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user_presence record exists
+    const supabase = getSupabaseServer();
     const { data: existingRecord, error: selectError } = await supabase
       .from("user_presence")
       .select("*")

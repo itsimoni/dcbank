@@ -1,31 +1,8 @@
 'use client'
 
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClient } from './supabase-client'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 2,
-    },
-  },
-  global: {
-    headers: {
-      "x-application-name": "dashboard-app",
-    },
-  },
-})
+export const supabase = getSupabaseClient()
 
 export interface CryptoWallet {
   id: string;

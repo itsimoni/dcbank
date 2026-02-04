@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabaseServer } from "@/lib/supabase-server";
 import {
   extractIPFromRequest,
   getLocationData,
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const supabase = getSupabaseServer();
     const { error } = await supabase.from("user_presence").upsert(
       {
         user_id,
