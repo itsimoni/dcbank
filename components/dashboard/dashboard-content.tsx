@@ -536,34 +536,32 @@ function DashboardContent({
 
   // Fetch user data from users table
   useEffect(() => {
+    let mounted = true;
+
     const fetchUserData = async () => {
       try {
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
-
-        if (authError || !user) {
-          console.log("No authenticated user found:", authError);
+        if (!userProfile?.id) {
+          console.log("No userProfile.id available yet");
           return;
         }
 
-        console.log("Fetching user data for user:", user.id);
+        console.log("Fetching user data for user:", userProfile.id);
 
         const { data, error } = await supabase
           .from("users")
           .select("first_name, last_name, full_name, email")
-          .eq("id", user.id)
+          .eq("id", userProfile.id)
           .maybeSingle();
+
+        if (!mounted) return;
 
         if (error) {
           console.error("Error fetching user data:", error);
-          // Fallback to auth user email
           setUserData({
             first_name: null,
             last_name: null,
             full_name: null,
-            email: user.email || null,
+            email: userProfile.email || null,
           });
           return;
         }
@@ -571,98 +569,37 @@ function DashboardContent({
         console.log("User data fetched:", data);
         setUserData(data);
       } catch (error) {
-        console.error("Error in fetchUserData:", error);
-        // Set fallback data
-        setUserData({
-          first_name: null,
-          last_name: null,
-          full_name: null,
-          email: null,
-        });
+        if (mounted) {
+          console.error("Error in fetchUserData:", error);
+          setUserData({
+            first_name: null,
+            last_name: null,
+            full_name: null,
+            email: null,
+          });
+        }
       }
     };
 
     fetchUserData();
-  }, []);
+
+    return () => {
+      mounted = false;
+    };
+  }, [userProfile?.id, userProfile?.email]);
 
   // Fetch crypto balances from the correct table (newcrypto_balances)
   useEffect(() => {
+    let mounted = true;
+
     const fetchCryptoBalances = async () => {
-      // Check if userProfile.id is valid before making the request
-      if (
-        !userProfile?.id ||
-        userProfile.id === "unknown" ||
-        userProfile.id === ""
-      ) {
+      if (!userProfile?.id || userProfile.id === "unknown" || userProfile.id === "") {
         console.log("Invalid or missing user ID:", userProfile?.id);
-
-        // Try to get the user ID from Supabase auth instead
-        try {
-          const {
-            data: { user },
-            error: authError,
-          } = await supabase.auth.getUser();
-
-          if (authError || !user) {
-            console.log("No authenticated user found:", authError);
-            setCryptoBalances({
-              BTC: 0,
-              ETH: 0,
-              USDT: 0,
-            });
-            return;
-          }
-
-          console.log("Using auth user ID:", user.id);
-
-          const { data, error } = await supabase
-            .from("newcrypto_balances")
-            .select("btc_balance, eth_balance, usdt_balance")
-            .eq("user_id", user.id);
-
-          if (error) {
-            console.error("Error fetching crypto balances:", {
-              message: error.message,
-              details: error.details,
-              hint: error.hint,
-              code: error.code,
-            });
-            setCryptoBalances({
-              BTC: 0,
-              ETH: 0,
-              USDT: 0,
-            });
-            return;
-          }
-
-          console.log("Crypto balances data:", data);
-
-          if (data && data.length > 0) {
-            const userBalance = data[0];
-            const balances = {
-              BTC: Number(userBalance.btc_balance) || 0,
-              ETH: Number(userBalance.eth_balance) || 0,
-              USDT: Number(userBalance.usdt_balance) || 0,
-            };
-
-            console.log("Setting crypto balances:", balances);
-            setCryptoBalances(balances);
-          } else {
-            console.log("No crypto balance record found, setting all to 0");
-            setCryptoBalances({
-              BTC: 0,
-              ETH: 0,
-              USDT: 0,
-            });
-          }
-        } catch (error) {
-          console.error("Error getting authenticated user:", error);
-          setCryptoBalances({
-            BTC: 0,
-            ETH: 0,
-            USDT: 0,
-          });
-        }
+        setCryptoBalances({
+          BTC: 0,
+          ETH: 0,
+          USDT: 0,
+        });
         return;
       }
 
@@ -673,6 +610,8 @@ function DashboardContent({
           .from("newcrypto_balances")
           .select("btc_balance, eth_balance, usdt_balance")
           .eq("user_id", userProfile.id);
+
+        if (!mounted) return;
 
         if (error) {
           console.error("Error fetching crypto balances:", {
@@ -710,16 +649,18 @@ function DashboardContent({
           });
         }
       } catch (error) {
-        console.error("Error in fetchCryptoBalances:", {
-          error,
-          message: error instanceof Error ? error.message : "Unknown error",
-          stack: error instanceof Error ? error.stack : undefined,
-        });
-        setCryptoBalances({
-          BTC: 0,
-          ETH: 0,
-          USDT: 0,
-        });
+        if (mounted) {
+          console.error("Error in fetchCryptoBalances:", {
+            error,
+            message: error instanceof Error ? error.message : "Unknown error",
+            stack: error instanceof Error ? error.stack : undefined,
+          });
+          setCryptoBalances({
+            BTC: 0,
+            ETH: 0,
+            USDT: 0,
+          });
+        }
       }
     };
 
@@ -785,13 +726,10 @@ function DashboardContent({
       }
 
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!userProfile?.id) return;
 
         // Check if user was created in the last 24 hours
-        const userCreatedAt = new Date(user.created_at);
+        const userCreatedAt = new Date(userProfile.created_at || Date.now());
         const now = new Date();
         const hoursDiff =
           (now.getTime() - userCreatedAt.getTime()) / (1000 * 60 * 60);
@@ -801,13 +739,13 @@ function DashboardContent({
         const { data: existingTransfers } = await supabase
           .from("transfers")
           .select("id")
-          .eq("user_id", user.id)
+          .eq("user_id", userProfile.id)
           .limit(1);
 
         const { data: existingPayments } = await supabase
           .from("payments")
           .select("id")
-          .eq("user_id", user.id)
+          .eq("user_id", userProfile.id)
           .limit(1);
 
         // Check if welcome message already exists
@@ -927,15 +865,12 @@ function DashboardContent({
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!userProfile?.id) return;
 
         const { data, error } = await supabase
           .from("payments")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", userProfile.id)
           .order("created_at", { ascending: false })
           .limit(10);
 
@@ -955,10 +890,7 @@ function DashboardContent({
     fetchPayments();
 
     const setupPaymentsSubscription = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!userProfile?.id) return;
 
       const paymentsSubscription = supabase
         .channel("payments_changes")
@@ -968,7 +900,7 @@ function DashboardContent({
             event: "*",
             schema: "public",
             table: "payments",
-            filter: `user_id=eq.${user.id}`,
+            filter: `user_id=eq.${userProfile.id}`,
           },
           () => {
             fetchPayments();
@@ -993,19 +925,16 @@ function DashboardContent({
     const fetchActivities = async () => {
       setActivitiesLoading(true);
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!userProfile?.id) return;
 
         console.log("Fetching transaction history for:", {
-          user_id: user.id,
+          user_id: userProfile.id,
         });
 
         const { data, error } = await supabase
           .from("TransactionHistory")
           .select("*")
-          .eq("uuid", user.id)
+          .eq("uuid", userProfile.id)
           .order("created_at", { ascending: false })
           .limit(50);
 
@@ -1037,20 +966,17 @@ function DashboardContent({
     };
 
     const setupRealtime = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!userProfile?.id) return;
 
       subscription = supabase
-        .channel(`transaction_history_realtime_${user.id}`)
+        .channel(`transaction_history_realtime_${userProfile.id}`)
         .on(
           "postgres_changes",
           {
             event: "*",
             schema: "public",
             table: "TransactionHistory",
-            filter: `uuid=eq.${user.id}`,
+            filter: `uuid=eq.${userProfile.id}`,
           },
           () => fetchActivities()
         )

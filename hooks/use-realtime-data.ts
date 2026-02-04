@@ -190,12 +190,24 @@ export function useRealtimeData(): RealtimeData {
   const initializeData = async () => {
     try {
       setData((prev) => ({ ...prev, loading: true, error: null }));
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
 
-      if (userError || !user) {
+      let user;
+      try {
+        const result = await supabase.auth.getUser();
+        user = result.data?.user;
+        if (result.error && result.error.name !== 'AbortError') {
+          throw result.error;
+        }
+      } catch (err: any) {
+        if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
+          console.log('[Realtime] Auth call aborted, skipping initialization');
+          setData((prev) => ({ ...prev, loading: false }));
+          return;
+        }
+        throw err;
+      }
+
+      if (!user) {
         setData((prev) => ({
           ...prev,
           loading: false,
@@ -241,9 +253,18 @@ export function useRealtimeData(): RealtimeData {
   };
 
   const setupRealtimeSubscriptions = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    let user;
+    try {
+      const result = await supabase.auth.getUser();
+      user = result.data?.user;
+    } catch (err: any) {
+      if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
+        console.log('[Realtime] Auth call aborted during subscription setup');
+        return;
+      }
+      console.error('[Realtime] Error getting user:', err);
+      return;
+    }
 
     if (!user) return;
 
