@@ -537,6 +537,7 @@ function DashboardContent({
   // Fetch user data from users table
   useEffect(() => {
     let mounted = true;
+    const abortController = new AbortController();
 
     const fetchUserData = async () => {
       try {
@@ -551,11 +552,16 @@ function DashboardContent({
           .from("users")
           .select("first_name, last_name, full_name, email")
           .eq("id", userProfile.id)
+          .abortSignal(abortController.signal)
           .maybeSingle();
 
         if (!mounted) return;
 
         if (error) {
+          if (error.message?.includes('aborted') || error.name === 'AbortError') {
+            console.log('[UserData] Request aborted');
+            return;
+          }
           console.error("Error fetching user data:", error);
           setUserData({
             first_name: null,
@@ -568,7 +574,11 @@ function DashboardContent({
 
         console.log("User data fetched:", data);
         setUserData(data);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+          console.log('[UserData] Fetch aborted');
+          return;
+        }
         if (mounted) {
           console.error("Error in fetchUserData:", error);
           setUserData({
@@ -585,12 +595,14 @@ function DashboardContent({
 
     return () => {
       mounted = false;
+      abortController.abort();
     };
   }, [userProfile?.id, userProfile?.email]);
 
   // Fetch crypto balances from the correct table (newcrypto_balances)
   useEffect(() => {
     let mounted = true;
+    const abortController = new AbortController();
 
     const fetchCryptoBalances = async () => {
       if (!userProfile?.id || userProfile.id === "unknown" || userProfile.id === "") {
@@ -609,11 +621,16 @@ function DashboardContent({
         const { data, error } = await supabase
           .from("newcrypto_balances")
           .select("btc_balance, eth_balance, usdt_balance")
-          .eq("user_id", userProfile.id);
+          .eq("user_id", userProfile.id)
+          .abortSignal(abortController.signal);
 
         if (!mounted) return;
 
         if (error) {
+          if (error.message?.includes('aborted') || error.name === 'AbortError') {
+            console.log('[CryptoBalances] Request aborted');
+            return;
+          }
           console.error("Error fetching crypto balances:", {
             message: error.message,
             details: error.details,
@@ -648,7 +665,11 @@ function DashboardContent({
             USDT: 0,
           });
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+          console.log('[CryptoBalances] Fetch aborted');
+          return;
+        }
         if (mounted) {
           console.error("Error in fetchCryptoBalances:", {
             error,
@@ -700,7 +721,11 @@ function DashboardContent({
     };
 
     const cleanup = setupCryptoSubscription();
-    return cleanup;
+    return () => {
+      mounted = false;
+      abortController.abort();
+      cleanup();
+    };
   }, [userProfile?.id]);
 
   // Silent auto-reload every 2 seconds
@@ -863,6 +888,9 @@ function DashboardContent({
   }, [loading]);
 
   useEffect(() => {
+    let mounted = true;
+    const abortController = new AbortController();
+
     const fetchPayments = async () => {
       try {
         if (!userProfile?.id) return;
@@ -872,18 +900,31 @@ function DashboardContent({
           .select("*")
           .eq("user_id", userProfile.id)
           .order("created_at", { ascending: false })
-          .limit(10);
+          .limit(10)
+          .abortSignal(abortController.signal);
+
+        if (!mounted) return;
 
         if (error) {
+          if (error.message?.includes('aborted') || error.name === 'AbortError') {
+            console.log('[Payments] Request aborted');
+            return;
+          }
           console.error("Error fetching payments:", error);
           return;
         }
 
         setPayments(data || []);
-      } catch (error) {
+      } catch (error: any) {
+        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+          console.log('[Payments] Fetch aborted');
+          return;
+        }
         console.error("Error fetching payments:", error);
       } finally {
-        setPaymentsLoading(false);
+        if (mounted) {
+          setPaymentsLoading(false);
+        }
       }
     };
 
@@ -915,12 +956,16 @@ function DashboardContent({
 
     const cleanup = setupPaymentsSubscription();
     return () => {
+      mounted = false;
+      abortController.abort();
       cleanup?.then((fn) => fn?.());
     };
   }, []);
 
   useEffect(() => {
     let subscription: ReturnType<typeof supabase.channel> | null = null;
+    let mounted = true;
+    const abortController = new AbortController();
 
     const fetchActivities = async () => {
       setActivitiesLoading(true);
@@ -936,9 +981,16 @@ function DashboardContent({
           .select("*")
           .eq("uuid", userProfile.id)
           .order("created_at", { ascending: false })
-          .limit(50);
+          .limit(50)
+          .abortSignal(abortController.signal);
+
+        if (!mounted) return;
 
         if (error) {
+          if (error.message?.includes('aborted') || error.name === 'AbortError') {
+            console.log('[Activities] Request aborted');
+            return;
+          }
           console.error("Error fetching transaction history:", error);
           return;
         }
@@ -958,10 +1010,16 @@ function DashboardContent({
             data: a,
           }))
         );
-      } catch (err) {
+      } catch (err: any) {
+        if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
+          console.log('[Activities] Fetch aborted');
+          return;
+        }
         console.error("Error fetching transaction history:", err);
       } finally {
-        setActivitiesLoading(false);
+        if (mounted) {
+          setActivitiesLoading(false);
+        }
       }
     };
 
@@ -987,6 +1045,8 @@ function DashboardContent({
     setupRealtime();
 
     return () => {
+      mounted = false;
+      abortController.abort();
       if (subscription) subscription.unsubscribe();
     };
   }, [userProfile.client_id]);
