@@ -1740,7 +1740,7 @@ function DashboardContent({
             {/* Mobile Banking Card Image */}
             <Card className="flex justify-center items-center p-4 sm:p-6">
               <Image
-                src="/db/1.png"
+                src="/atm.png"
                 alt="Mobile Banking Card"
                 width={200}
                 height={300}

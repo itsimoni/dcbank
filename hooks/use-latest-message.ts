@@ -39,7 +39,7 @@ export function useLatestMessage() {
         .eq("is_read", false)
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== "PGRST116") {
         if (error.message?.includes("aborted") || error.name === "AbortError") {
