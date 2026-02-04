@@ -45,14 +45,12 @@ export default function AuthForm() {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    fullName: "",
-    firstName: "",
-    lastName: "",
-    age: "",
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [age, setAge] = useState("");
 
   const t = useMemo(() => getTranslations(language), [language]);
 
@@ -219,14 +217,14 @@ export default function AuthForm() {
 
       try {
         const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
+          email,
+          password,
           options: {
             data: {
-              first_name: formData.firstName,
-              last_name: formData.lastName,
-              full_name: `${formData.firstName} ${formData.lastName}`,
-              age: formData.age,
+              first_name: firstName,
+              last_name: lastName,
+              full_name: `${firstName} ${lastName}`,
+              age,
               bank_origin: BANK_ORIGIN,
             },
           },
@@ -240,11 +238,11 @@ export default function AuthForm() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userId: authData.user.id,
-              email: formData.email,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              password: formData.password,
-              age: formData.age,
+              email,
+              firstName,
+              lastName,
+              password,
+              age,
             }),
           });
 
@@ -264,11 +262,11 @@ export default function AuthForm() {
       }
     },
     [
-      formData.email,
-      formData.password,
-      formData.firstName,
-      formData.lastName,
-      formData.age,
+      email,
+      password,
+      firstName,
+      lastName,
+      age,
       setupPresenceTracking,
       t.accountCreatedSuccess,
       t.signupFailed,
@@ -285,8 +283,8 @@ export default function AuthForm() {
 
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
+          email,
+          password,
         });
 
         if (error) throw error;
@@ -297,7 +295,7 @@ export default function AuthForm() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               userId: data.user.id,
-              password: formData.password,
+              password,
             }),
           });
 
@@ -317,8 +315,8 @@ export default function AuthForm() {
       }
     },
     [
-      formData.email,
-      formData.password,
+      email,
+      password,
       setupPresenceTracking,
       t.signedInSuccess,
       t.signInFailed,
@@ -438,13 +436,8 @@ export default function AuthForm() {
                       <input
                         type="email"
                         placeholder={t.email}
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            email: e.target.value,
-                          }))
-                        }
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                         className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                       />
@@ -454,13 +447,8 @@ export default function AuthForm() {
                       <input
                         type={showPassword ? "text" : "password"}
                         placeholder={t.password}
-                        value={formData.password}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
-                        }
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                         className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                       />
@@ -518,13 +506,8 @@ export default function AuthForm() {
                         <input
                           type="text"
                           placeholder={t.firstName}
-                          value={formData.firstName}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              firstName: e.target.value,
-                            }))
-                          }
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
                           required
                           className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
@@ -533,13 +516,8 @@ export default function AuthForm() {
                         <input
                           type="text"
                           placeholder={t.lastName}
-                          value={formData.lastName}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              lastName: e.target.value,
-                            }))
-                          }
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
                           required
                           className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
@@ -551,13 +529,8 @@ export default function AuthForm() {
                         <input
                           type="email"
                           placeholder={t.email}
-                          value={formData.email}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              email: e.target.value,
-                            }))
-                          }
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           required
                           className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
@@ -566,13 +539,8 @@ export default function AuthForm() {
                         <input
                           type="number"
                           placeholder={t.age}
-                          value={formData.age}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              age: e.target.value,
-                            }))
-                          }
+                          value={age}
+                          onChange={(e) => setAge(e.target.value)}
                           required
                           className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                         />
@@ -583,13 +551,8 @@ export default function AuthForm() {
                       <input
                         type={showPassword ? "text" : "password"}
                         placeholder={t.password}
-                        value={formData.password}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
-                        }
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                         className="w-full h-8 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
                       />
