@@ -369,7 +369,7 @@ export default function AuthForm() {
                 <div className="relative">
                   <Button
                     variant="outline"
-                    className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-3 py-2 text-sm rounded-md transition-all duration-300 flex items-center gap-2"
+                    className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-3 py-2 text-sm rounded-md transition-[background-color,color,border-color] duration-300 flex items-center gap-2"
                     onClick={toggleLanguageMenu}
                   >
                     <Globe className="h-4 w-4" />
@@ -396,7 +396,7 @@ export default function AuthForm() {
 
                 <Button
                   variant="outline"
-                  className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-4 py-2 text-sm rounded-md transition-all duration-300 w-full sm:w-auto"
+                  className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-4 py-2 text-sm rounded-md transition-[background-color,color,border-color] duration-300 w-full sm:w-auto"
                   onClick={toggleSignUp}
                 >
                   {isSignUp ? t.signIn : t.createAccount}
@@ -493,7 +493,7 @@ export default function AuthForm() {
 
                     <Button
                       type="submit"
-                      className="w-24 h-10 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
+                      className="w-24 h-10 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-[background-color,opacity] duration-300 disabled:opacity-50"
                       disabled={loading}
                     >
                       {loading ? t.loading : t.signInButton}
@@ -612,7 +612,7 @@ export default function AuthForm() {
                     <div className="pt-6">
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
+                        className="w-full h-12 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-[background-color,opacity] duration-300 disabled:opacity-50"
                         disabled={loading}
                       >
                         {loading ? t.creatingAccount : t.createAccount}
