@@ -5,6 +5,7 @@ import AuthForm from "@/components/auth/auth-form";
 import Dashboard from "@/components/dashboard/dashboard";
 import KYCVerification from "@/components/auth/kyc-verification";
 import type { User } from "@supabase/supabase-js";
+import HomeClient from "./HomeClient";
 
 export default function Page() {
   const [user, setUser] = useState<User | null>(null);
@@ -521,5 +522,6 @@ export default function Page() {
   }
 
   console.log("🎯 Loading dashboard for user:", user.id);
+  return <HomeClient />;
   return <Dashboard />;
 }
