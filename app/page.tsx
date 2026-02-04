@@ -522,6 +522,5 @@ export default function Page() {
   }
 
   console.log("🎯 Loading dashboard for user:", user.id);
-  return <HomeClient />;
   return <Dashboard />;
 }
