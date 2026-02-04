@@ -128,18 +128,12 @@ export function useRealtimeData(): RealtimeData {
         .limit(10);
 
       if (error) {
-        if (error.message?.includes("aborted") || error.name === "AbortError") {
-          return [];
-        }
         console.error("Error fetching messages:", error.message || error);
         return [];
       }
 
       return data || [];
     } catch (error: any) {
-      if (error.message?.includes("aborted") || error.name === "AbortError") {
-        return [];
-      }
       console.error("Error fetching messages:", error.message || error);
       return [];
     }
@@ -155,18 +149,12 @@ export function useRealtimeData(): RealtimeData {
         .limit(10);
 
       if (error) {
-        if (error.message?.includes("aborted") || error.name === "AbortError") {
-          return [];
-        }
         console.error("Error fetching deposits:", error.message || error);
         return [];
       }
 
       return data || [];
     } catch (error: any) {
-      if (error.message?.includes("aborted") || error.name === "AbortError") {
-        return [];
-      }
       console.error("Error fetching deposits:", error.message || error);
       return [];
     }
@@ -182,9 +170,6 @@ export function useRealtimeData(): RealtimeData {
         .limit(10);
 
       if (error) {
-        if (error.message?.includes("aborted") || error.name === "AbortError") {
-          return [];
-        }
         console.error(
           "Error fetching crypto transactions:",
           error.message || error
@@ -194,9 +179,6 @@ export function useRealtimeData(): RealtimeData {
 
       return data || [];
     } catch (error: any) {
-      if (error.message?.includes("aborted") || error.name === "AbortError") {
-        return [];
-      }
       console.error(
         "Error fetching crypto transactions:",
         error.message || error
@@ -249,9 +231,6 @@ export function useRealtimeData(): RealtimeData {
         error: null,
       });
     } catch (error: any) {
-      if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-        return;
-      }
       console.error("Error initializing data:", error);
       setData((prev) => ({
         ...prev,
@@ -262,12 +241,11 @@ export function useRealtimeData(): RealtimeData {
   };
 
   const setupRealtimeSubscriptions = async () => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (!user) return;
+    if (!user) return;
 
     // Subscribe to balance changes
     const balanceSubscription = supabase
@@ -391,18 +369,12 @@ export function useRealtimeData(): RealtimeData {
       )
       .subscribe();
 
-      return () => {
-        balanceSubscription.unsubscribe();
-        messageSubscription.unsubscribe();
-        depositsSubscription.unsubscribe();
-        cryptoTransactionSubscription.unsubscribe();
-      };
-    } catch (error: any) {
-      if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-        return;
-      }
-      console.error("Error setting up realtime subscriptions:", error);
-    }
+    return () => {
+      balanceSubscription.unsubscribe();
+      messageSubscription.unsubscribe();
+      depositsSubscription.unsubscribe();
+      cryptoTransactionSubscription.unsubscribe();
+    };
   };
 
   // Update exchange rates and crypto prices every 30 seconds
