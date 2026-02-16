@@ -339,7 +339,7 @@ export default function AuthForm() {
               }}
             />
             <div className="h-full flex items-center justify-center p-2 sm:p-4 pb-0 overflow-visible">
-              <div className="transform -translate-x-4 sm:-translate-x-10 lg:-translate-x-20 translate-y-4 sm:translate-y-8 lg:translate-y-16 overflow-visible">
+              <div className="overflow-visible">
                 <img
                   src="/logo2.svg"
                   alt="Digital Chain Bank ATM"
