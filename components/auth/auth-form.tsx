@@ -354,15 +354,6 @@ export default function AuthForm() {
           <div className="w-full lg:w-3/5 flex flex-col rounded-2xl lg:rounded-r-2xl lg:rounded-l-none overflow-hidden">
             <div className="flex flex-col sm:flex-row items-center justify-between px-4 bg-white gap-4 sm:gap-0">
               <div className="flex items-center">
-                <div className="flex items-center space-x-2">
-                  <img
-                    src="/logo2.svg"
-                    alt="Logo"
-                    loading="lazy"
-                    decoding="async"
-                    className="w-36 h-36 object-contain"
-                  />
-                </div>
               </div>
 
               <div className="flex items-center gap-2">
