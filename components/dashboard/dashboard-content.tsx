@@ -74,6 +74,17 @@ interface WelcomeMessage {
   is_welcome: boolean;
 }
 
+interface TransactionHistory {
+  id: number;
+  created_at: string;
+  thType: string;
+  thDetails: string;
+  thPoi: string;
+  thStatus: string;
+  uuid: string;
+  thEmail: string | null;
+}
+
 interface UserData {
   first_name: string | null;
   last_name: string | null;
@@ -232,6 +243,8 @@ function DashboardContent({
   });
   // Add state for user data from users table
   const [userData, setUserData] = useState<UserData | null>(null);
+  // Add state for transaction history
+  const [transactionHistory, setTransactionHistory] = useState<TransactionHistory[]>([]);
   // Add language state
   const { language, setLanguage } = useLanguage();
   // Add language dropdown state
@@ -521,6 +534,86 @@ function DashboardContent({
     };
 
     const cleanup = setupCryptoSubscription();
+    return () => {
+      mounted = false;
+      abortController.abort();
+      cleanup();
+    };
+  }, [userProfile?.id]);
+
+  // Fetch transaction history
+  useEffect(() => {
+    let mounted = true;
+    const abortController = new AbortController();
+
+    const fetchTransactionHistory = async () => {
+      if (!userProfile?.id || userProfile.id === "unknown" || userProfile.id === "") {
+        setTransactionHistory([]);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("TransactionHistory")
+          .select("*")
+          .eq("uuid", userProfile.id)
+          .order("created_at", { ascending: false })
+          .limit(5)
+          .abortSignal(abortController.signal);
+
+        if (error) {
+          if (error.message?.includes('aborted') || error.name === 'AbortError') {
+            return;
+          }
+          console.error("Error fetching transaction history:", error);
+          setTransactionHistory([]);
+          return;
+        }
+
+        if (data && mounted) {
+          setTransactionHistory(data);
+        }
+      } catch (error: any) {
+        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+          return;
+        }
+        if (mounted) {
+          console.error("Error in fetchTransactionHistory:", error);
+          setTransactionHistory([]);
+        }
+      }
+    };
+
+    fetchTransactionHistory();
+
+    const setupTransactionSubscription = () => {
+      const userId = userProfile?.id;
+      if (!userId || userId === "unknown" || userId === "") {
+        return () => {};
+      }
+
+      const subscription = supabase
+        .channel(`transaction_history_${userId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "TransactionHistory",
+            filter: `uuid=eq.${userId}`,
+          },
+          (payload) => {
+            fetchTransactionHistory();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    const cleanup = setupTransactionSubscription();
     return () => {
       mounted = false;
       abortController.abort();
@@ -852,16 +945,77 @@ function DashboardContent({
           </Alert>
         )}
 
-        {/* Balance Circles - Traditional currencies on top row, crypto on bottom row */}
-        <div className="space-y-6 sm:space-y-8 mb-6 sm:mb-8">
-          {/* Traditional Currency Circles - USD, EUR, CAD */}
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
-            {traditionalBalanceCards}
+        {/* Balance Circles and Transaction History - Side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 sm:mb-8">
+          {/* Left side - Balance Circles */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Traditional Currency Circles - USD, EUR, CAD */}
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
+              {traditionalBalanceCards}
+            </div>
+
+            {/* Crypto Currency Circles - BTC, ETH, USDT */}
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
+              {cryptoBalanceCards}
+            </div>
           </div>
 
-          {/* Crypto Currency Circles - BTC, ETH, USDT */}
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
-            {cryptoBalanceCards}
+          {/* Right side - Transaction History Card */}
+          <div className="lg:col-span-1">
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Recent Transactions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {transactionHistory.length > 0 ? (
+                  transactionHistory.map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="border-l-4 border-l-[#b91c1c] pl-3 py-2 hover:bg-gray-50 transition-colors rounded-r"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">
+                            {transaction.thType}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+                            {transaction.thDetails}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1 truncate">
+                            {transaction.thPoi}
+                          </div>
+                        </div>
+                        <Badge
+                          variant={
+                            transaction.thStatus === "Successful"
+                              ? "default"
+                              : transaction.thStatus === "Pending"
+                              ? "secondary"
+                              : "destructive"
+                          }
+                          className="text-xs shrink-0"
+                        >
+                          {transaction.thStatus}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {new Date(transaction.created_at).toLocaleDateString()}{" "}
+                        {new Date(transaction.created_at).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Activity className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm">No transactions yet</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
 
