@@ -41,15 +41,15 @@ export default function BalanceGraph({
   const graphData = useMemo(() => {
     const BTCPrice = 50000;
     const ETHPrice = 3000;
-    const intervals = 30;
+    const intervals = 60;
     const dayMs = 24 * 60 * 60 * 1000;
 
-    const currentUSD = currentBalances.usd || 0;
-    const currentEUR = currentBalances.euro || 0;
-    const currentCAD = currentBalances.cad || 0;
-    const currentBTC = cryptoBalances.BTC || 0;
-    const currentETH = cryptoBalances.ETH || 0;
-    const currentUSDT = cryptoBalances.USDT || 0;
+    const baseUSD = currentBalances.usd || 10000;
+    const baseEUR = currentBalances.euro || 8000;
+    const baseCAD = currentBalances.cad || 6000;
+    const baseBTC = (cryptoBalances.BTC || 0.1) * BTCPrice;
+    const baseETH = (cryptoBalances.ETH || 1) * ETHPrice;
+    const baseUSDT = cryptoBalances.USDT || 5000;
 
     const sortedTransactions = [...transactionHistory].sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
@@ -61,17 +61,21 @@ export default function BalanceGraph({
       const date = new Date(Date.now() - (intervals - i) * dayMs);
       const progress = i / intervals;
 
-      const wave1 = Math.sin(i * 0.4) * 0.15;
-      const wave2 = Math.cos(i * 0.3) * 0.1;
-      const trend = progress * 0.3;
+      const fastWave = Math.sin(i * 0.8) * 0.25;
+      const mediumWave = Math.cos(i * 0.4) * 0.35;
+      const slowWave = Math.sin(i * 0.2) * 0.15;
+      const cryptoVolatility = Math.sin(i * 1.2) * 0.4 + Math.cos(i * 0.6) * 0.3;
 
-      const usdBalance = currentUSD * (0.7 + progress * 0.3 + wave1);
-      const eurBalance = currentEUR * (0.75 + progress * 0.25 + wave2);
-      const cadBalance = currentCAD * (0.8 + progress * 0.2 + wave1 * 0.5);
+      const trend = progress * 0.5;
+      const noise = (Math.random() - 0.5) * 0.1;
 
-      const btcValue = currentBTC * BTCPrice * (0.6 + progress * 0.4 + wave2 * 1.5);
-      const ethValue = currentETH * ETHPrice * (0.65 + progress * 0.35 + wave1 * 1.3);
-      const usdtValue = currentUSDT * (0.95 + progress * 0.05);
+      const usdBalance = baseUSD * (0.6 + trend + fastWave + slowWave + noise);
+      const eurBalance = baseEUR * (0.65 + trend + mediumWave + noise);
+      const cadBalance = baseCAD * (0.7 + trend + fastWave * 0.8 + noise);
+
+      const btcValue = baseBTC * (0.5 + trend + cryptoVolatility);
+      const ethValue = baseETH * (0.55 + trend + cryptoVolatility * 1.2);
+      const usdtValue = baseUSDT * (0.9 + trend * 0.2 + slowWave * 0.5);
 
       const txInPeriod = sortedTransactions.filter(tx => {
         const txDate = new Date(tx.created_at);
@@ -80,24 +84,28 @@ export default function BalanceGraph({
         return txDate >= periodStart && txDate <= periodEnd;
       });
 
+      const totalFiat = usdBalance + eurBalance + cadBalance;
+      const totalCrypto = btcValue + ethValue + usdtValue;
+      const totalAssets = totalFiat + totalCrypto;
+
       dataPoints.push({
         date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         fullDate: date.toISOString(),
-        usd: Math.max(1000, usdBalance),
-        eur: Math.max(800, eurBalance),
-        cad: Math.max(600, cadBalance),
-        totalFiat: Math.max(2400, usdBalance + eurBalance + cadBalance),
-        btc: Math.max(500, btcValue),
-        eth: Math.max(400, ethValue),
-        usdt: Math.max(300, usdtValue),
-        totalCrypto: Math.max(1200, btcValue + ethValue + usdtValue),
-        totalAssets: Math.max(3600, usdBalance + eurBalance + cadBalance + btcValue + ethValue + usdtValue),
-        transactionVolume: txInPeriod.length * 1500 + Math.random() * 500,
+        usd: Math.max(0, usdBalance),
+        eur: Math.max(0, eurBalance),
+        cad: Math.max(0, cadBalance),
+        totalFiat: Math.max(0, totalFiat),
+        btc: Math.max(0, btcValue),
+        eth: Math.max(0, ethValue),
+        usdt: Math.max(0, usdtValue),
+        totalCrypto: Math.max(0, totalCrypto),
+        totalAssets: Math.max(0, totalAssets),
+        transactionVolume: (txInPeriod.length * 2000) + (Math.sin(i * 0.5) * 1000) + 1000,
       });
     }
 
     if (showMovingAverage && dataPoints.length > 3) {
-      const windowSize = 5;
+      const windowSize = 7;
       dataPoints.forEach((point, index) => {
         const start = Math.max(0, index - windowSize + 1);
         const window = dataPoints.slice(start, index + 1);
