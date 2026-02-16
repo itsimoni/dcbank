@@ -61,18 +61,14 @@ export default function BalanceGraphV2({
       const date = new Date(Date.now() - (points - 1 - i) * 24 * 60 * 60 * 1000);
       const x = i / points;
 
-      const wave1 = Math.sin(i * 0.8) * 0.12;
-      const wave2 = Math.cos(i * 0.5) * 0.08;
-      const wave3 = Math.sin(i * 0.3) * 0.15;
+      const fiatWave = Math.sin(i * 0.4) * 0.025 + Math.cos(i * 0.15) * 0.018;
+      const cryptoWave = Math.sin(i * 0.35) * 0.045 + Math.cos(i * 0.2) * 0.032;
 
-      const cryptoWave1 = Math.sin(i * 0.6) * 0.20;
-      const cryptoWave2 = Math.cos(i * 0.4) * 0.15;
-      const cryptoWave3 = Math.sin(i * 0.9) * 0.10;
+      const steadyGrowth = x * 0.08;
+      const randomVariation = (Math.sin(i * 1.7) * 0.012);
 
-      const growth = x * 0.15;
-
-      const fiatMultiplier = 1 + growth + wave1 + wave2 + wave3;
-      const cryptoMultiplier = 1 + growth + cryptoWave1 + cryptoWave2 + cryptoWave3;
+      const fiatMultiplier = 1 + steadyGrowth + fiatWave + randomVariation * 0.5;
+      const cryptoMultiplier = 1 + steadyGrowth * 1.2 + cryptoWave + randomVariation;
 
       const totalFiat = totalFiatBase * fiatMultiplier;
       const totalCrypto = totalCryptoBase * cryptoMultiplier;
@@ -219,16 +215,16 @@ export default function BalanceGraphV2({
             <AreaChart data={graphData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <defs>
                 <linearGradient id="colorFiat" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05}/>
                 </linearGradient>
                 <linearGradient id="colorCrypto" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#f97316" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#f97316" stopOpacity={0.05}/>
                 </linearGradient>
                 <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.5}/>
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.05}/>
                 </linearGradient>
               </defs>
 
@@ -256,7 +252,7 @@ export default function BalanceGraphV2({
                 type="monotone"
                 dataKey="fiat"
                 stroke="#3b82f6"
-                strokeWidth={3}
+                strokeWidth={2.5}
                 fill="url(#colorFiat)"
                 name="Fiat Balance"
               />
@@ -265,7 +261,7 @@ export default function BalanceGraphV2({
                 type="monotone"
                 dataKey="crypto"
                 stroke="#f97316"
-                strokeWidth={3}
+                strokeWidth={2.5}
                 fill="url(#colorCrypto)"
                 name="Crypto Balance"
               />
@@ -274,7 +270,7 @@ export default function BalanceGraphV2({
                 type="monotone"
                 dataKey="total"
                 stroke="#10b981"
-                strokeWidth={4}
+                strokeWidth={3}
                 fill="url(#colorTotal)"
                 name="Total Portfolio"
               />
@@ -305,9 +301,9 @@ export default function BalanceGraphV2({
                 type="monotone"
                 dataKey="fiat"
                 stroke="#3b82f6"
-                strokeWidth={3}
-                dot={{ fill: '#3b82f6', r: 4 }}
-                activeDot={{ r: 6 }}
+                strokeWidth={2.5}
+                dot={{ fill: '#3b82f6', r: 3 }}
+                activeDot={{ r: 5 }}
                 name="Fiat Balance"
               />
 
@@ -315,9 +311,9 @@ export default function BalanceGraphV2({
                 type="monotone"
                 dataKey="crypto"
                 stroke="#f97316"
-                strokeWidth={3}
-                dot={{ fill: '#f97316', r: 4 }}
-                activeDot={{ r: 6 }}
+                strokeWidth={2.5}
+                dot={{ fill: '#f97316', r: 3 }}
+                activeDot={{ r: 5 }}
                 name="Crypto Balance"
               />
 
@@ -325,9 +321,9 @@ export default function BalanceGraphV2({
                 type="monotone"
                 dataKey="total"
                 stroke="#10b981"
-                strokeWidth={4}
-                dot={{ fill: '#10b981', r: 5 }}
-                activeDot={{ r: 7 }}
+                strokeWidth={3}
+                dot={{ fill: '#10b981', r: 3.5 }}
+                activeDot={{ r: 6 }}
                 name="Total Portfolio"
               />
             </LineChart>
