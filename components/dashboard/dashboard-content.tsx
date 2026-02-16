@@ -996,7 +996,11 @@ function DashboardContent({
                               ? "secondary"
                               : "destructive"
                           }
-                          className="text-xs shrink-0"
+                          className={`text-xs shrink-0 ${
+                            transaction.thStatus === "Successful"
+                              ? "bg-green-500 hover:bg-green-600 text-white"
+                              : ""
+                          }`}
                         >
                           {transaction.thStatus}
                         </Badge>
