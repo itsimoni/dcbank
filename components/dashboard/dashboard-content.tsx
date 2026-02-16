@@ -147,22 +147,19 @@ const BalanceCard = memo(
     formatCurrency: (amount: number, currency: string) => string;
     t: ReturnType<typeof getTranslations>;
   }) => (
-    <Card className="hover:shadow-md transition-all duration-200 bg-[#b91c1c] relative overflow-hidden h-[120px] sm:h-[140px]">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3 sm:p-4">
-        <CardTitle className="text-xs sm:text-sm text-white font-medium capitalize">
-          {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}{" "}
-          {t.balanceLabel}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-3 sm:p-4 pt-0">
-        <div className="text-base sm:text-lg font-bold text-white leading-tight">
+    <div className="flex flex-col items-center justify-center">
+      <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#b91c1c] hover:shadow-xl transition-all duration-200 flex flex-col items-center justify-center p-4 hover:scale-105">
+        <div className="text-xs sm:text-sm text-white font-medium capitalize mb-2">
+          {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
+        </div>
+        <div className="text-base sm:text-xl font-bold text-white leading-tight text-center">
           {formatCurrency(balance, currency)}
         </div>
-        <p className="text-xs text-white/80 mt-1">
-          {currency.toUpperCase()} {t.account}
+        <p className="text-xs text-white/80 mt-1 text-center">
+          {t.account}
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 );
 
@@ -181,34 +178,23 @@ const CryptoCard = memo(
     const config = cryptoConfigs[cryptoCurrency as keyof typeof cryptoConfigs];
 
     return (
-      <Card
-        className={`hover:shadow-md transition-all duration-200 relative overflow-hidden ${config.bgColor} ${config.borderColor} border rounded-lg h-[120px] sm:h-[140px]`}
-      >
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3 sm:p-4">
-          <CardTitle
-            className={`text-xs sm:text-sm font-medium ${config.color}`}
-          >
-            {config.name}
-          </CardTitle>
+      <div className="flex flex-col items-center justify-center">
+        <div className={`relative w-32 h-32 sm:w-40 sm:h-40 rounded-full ${config.bgColor} border-2 ${config.borderColor} hover:shadow-xl transition-all duration-200 flex flex-col items-center justify-center p-4 hover:scale-105`}>
           <Image
             src={config.iconUrl || "/placeholder.svg"}
             alt={`${config.name} icon`}
-            width={28}
-            height={28}
-            className={`w-7 h-7 sm:w-8 sm:h-8 ${config.color}`}
+            width={32}
+            height={32}
+            className="w-8 h-8 sm:w-10 sm:h-10 mb-2"
           />
-        </CardHeader>
-        <CardContent className="p-3 sm:p-4 pt-0">
-          <div
-            className={`text-base sm:text-lg font-bold leading-tight ${config.color}`}
-          >
+          <div className={`text-xs sm:text-sm font-medium ${config.color} mb-1`}>
+            {cryptoCurrency}
+          </div>
+          <div className={`text-sm sm:text-base font-bold leading-tight ${config.color} text-center`}>
             {formatCurrency(balance, cryptoCurrency)}
           </div>
-          <p className={`text-xs mt-1 ${config.color} opacity-70`}>
-            {cryptoCurrency} {t.wallet}
-          </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 );
@@ -866,15 +852,15 @@ function DashboardContent({
           </Alert>
         )}
 
-        {/* Balance Cards - Traditional currencies on top row, crypto on bottom row */}
-        <div className="space-y-3 sm:space-y-6 mb-6 sm:mb-8">
-          {/* Traditional Currency Cards - USD, EUR, CAD */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        {/* Balance Circles - Traditional currencies on top row, crypto on bottom row */}
+        <div className="space-y-6 sm:space-y-8 mb-6 sm:mb-8">
+          {/* Traditional Currency Circles - USD, EUR, CAD */}
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
             {traditionalBalanceCards}
           </div>
 
-          {/* Crypto Currency Cards - BTC, ETH, USDT */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+          {/* Crypto Currency Circles - BTC, ETH, USDT */}
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
             {cryptoBalanceCards}
           </div>
         </div>
