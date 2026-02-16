@@ -61,13 +61,53 @@ export default function BalanceGraphV2({
       const steadyGrowth = x * 0.08;
       const randomVariation = Math.sin(i * 1.7) * 0.012;
 
-      const usdWave = Math.sin(i * 0.38) * 0.022 + Math.cos(i * 0.16) * 0.015;
-      const eurWave = Math.sin(i * 0.42) * 0.024 + Math.cos(i * 0.14) * 0.017;
-      const cadWave = Math.sin(i * 0.36) * 0.026 + Math.cos(i * 0.18) * 0.019;
+      const usdWave =
+        Math.sin(i * 0.38) * 0.022 +
+        Math.cos(i * 0.16) * 0.015 +
+        Math.sin(i * 0.52) * 0.018 +
+        Math.cos(i * 0.24) * 0.012 +
+        Math.sin(i * 0.67) * 0.014 +
+        Math.cos(i * 0.33) * 0.010;
 
-      const btcWave = Math.sin(i * 0.32) * 0.055 + Math.cos(i * 0.22) * 0.038;
-      const ethWave = Math.sin(i * 0.40) * 0.048 + Math.cos(i * 0.19) * 0.035;
-      const usdtWave = Math.sin(i * 0.45) * 0.012 + Math.cos(i * 0.25) * 0.008;
+      const eurWave =
+        Math.sin(i * 0.42) * 0.024 +
+        Math.cos(i * 0.14) * 0.017 +
+        Math.sin(i * 0.58) * 0.019 +
+        Math.cos(i * 0.26) * 0.013 +
+        Math.sin(i * 0.71) * 0.015 +
+        Math.cos(i * 0.35) * 0.011;
+
+      const cadWave =
+        Math.sin(i * 0.36) * 0.026 +
+        Math.cos(i * 0.18) * 0.019 +
+        Math.sin(i * 0.48) * 0.021 +
+        Math.cos(i * 0.22) * 0.014 +
+        Math.sin(i * 0.63) * 0.016 +
+        Math.cos(i * 0.31) * 0.012;
+
+      const btcWave =
+        Math.sin(i * 0.32) * 0.055 +
+        Math.cos(i * 0.22) * 0.038 +
+        Math.sin(i * 0.44) * 0.042 +
+        Math.cos(i * 0.28) * 0.034 +
+        Math.sin(i * 0.59) * 0.028 +
+        Math.cos(i * 0.37) * 0.023;
+
+      const ethWave =
+        Math.sin(i * 0.40) * 0.048 +
+        Math.cos(i * 0.19) * 0.035 +
+        Math.sin(i * 0.54) * 0.039 +
+        Math.cos(i * 0.25) * 0.031 +
+        Math.sin(i * 0.69) * 0.025 +
+        Math.cos(i * 0.34) * 0.021;
+
+      const usdtWave =
+        Math.sin(i * 0.45) * 0.012 +
+        Math.cos(i * 0.25) * 0.008 +
+        Math.sin(i * 0.61) * 0.009 +
+        Math.cos(i * 0.29) * 0.007 +
+        Math.sin(i * 0.74) * 0.006 +
+        Math.cos(i * 0.38) * 0.005;
 
       const usdValue = baseUSD * (1 + steadyGrowth + usdWave + randomVariation * 0.4);
       const eurValue = baseEUR * (1 + steadyGrowth * 0.95 + eurWave + randomVariation * 0.45);
