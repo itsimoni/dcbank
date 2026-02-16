@@ -166,7 +166,7 @@ export default function BalanceGraphV2({
 
   return (
     <Card className="w-full shadow-lg">
-      <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-orange-50">
+      <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-red-50">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <CardTitle className="text-2xl font-bold flex items-center gap-2 text-gray-900">
@@ -233,9 +233,9 @@ export default function BalanceGraphV2({
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-4 border-l-4 border-orange-500 shadow">
+          <div className="bg-white rounded-lg p-4 border-l-4 border-red-600 shadow">
             <div className="text-sm text-gray-600 mb-1">Total Crypto</div>
-            <div className="text-2xl font-bold text-orange-700">
+            <div className="text-2xl font-bold text-red-700">
               ${((cryptoBalances.BTC * 50000) + (cryptoBalances.ETH * 3000) + cryptoBalances.USDT).toLocaleString()}
             </div>
           </div>
@@ -274,8 +274,8 @@ export default function BalanceGraphV2({
                   <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.05}/>
                 </linearGradient>
                 <linearGradient id="colorBTC" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.5}/>
-                  <stop offset="95%" stopColor="#f97316" stopOpacity={0.05}/>
+                  <stop offset="5%" stopColor="#b91c1c" stopOpacity={0.5}/>
+                  <stop offset="95%" stopColor="#b91c1c" stopOpacity={0.05}/>
                 </linearGradient>
                 <linearGradient id="colorETH" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.5}/>
@@ -337,7 +337,7 @@ export default function BalanceGraphV2({
               <Area
                 type="monotone"
                 dataKey="BTC"
-                stroke="#f97316"
+                stroke="#b91c1c"
                 strokeWidth={2.5}
                 fill="url(#colorBTC)"
                 name="BTC"
@@ -416,9 +416,9 @@ export default function BalanceGraphV2({
               <Line
                 type="monotone"
                 dataKey="BTC"
-                stroke="#f97316"
+                stroke="#b91c1c"
                 strokeWidth={2.5}
-                dot={{ fill: '#f97316', r: 3 }}
+                dot={{ fill: '#b91c1c', r: 3 }}
                 activeDot={{ r: 5 }}
                 name="BTC"
               />
