@@ -356,7 +356,7 @@ export default function AuthForm() {
               <div className="flex items-center">
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pt-4">
                 <div className="relative">
                   <Button
                     variant="outline"
