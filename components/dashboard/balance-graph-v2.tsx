@@ -170,8 +170,7 @@ export default function BalanceGraphV2({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <CardTitle className="text-2xl font-bold flex items-center gap-2 text-gray-900">
-              <Activity className="h-6 w-6 text-[#b91c1c]" />
-              Currency Portfolio Tracker
+              Statistics
             </CardTitle>
             <p className="text-sm text-gray-600 mt-1">Individual currency performance across fiat and crypto assets</p>
           </div>
