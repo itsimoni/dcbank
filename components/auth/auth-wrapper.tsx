@@ -45,7 +45,7 @@ export default function AuthWrapper() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -81,13 +81,13 @@ export default function AuthWrapper() {
               onClick={async () => {
                 await refreshSession();
               }}
-              className="block w-full bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="block w-full bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               Retry Connection
             </button>
             <button
               onClick={signOut}
-              className="block w-full text-[#F26623] hover:text-[#E55A1F] font-medium py-2"
+              className="block w-full text-[#b91c1c] hover:text-[#991b1b] font-medium py-2"
             >
               Sign In Again
             </button>
@@ -122,7 +122,7 @@ export default function AuthWrapper() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <SessionRefreshIndicator />
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto"></div>
           <p className="mt-2 text-gray-600">Checking verification status...</p>
         </div>
       </div>
@@ -183,7 +183,7 @@ export default function AuthWrapper() {
           </p>
           <button
             onClick={signOut}
-            className="text-[#F26623] hover:text-[#E55A1F] font-medium"
+            className="text-[#b91c1c] hover:text-[#991b1b] font-medium"
           >
             Sign Out
           </button>
@@ -226,13 +226,13 @@ export default function AuthWrapper() {
                 updateActivity();
                 window.location.reload();
               }}
-              className="block w-full bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="block w-full bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               Try Again
             </button>
             <button
               onClick={signOut}
-              className="block w-full text-[#F26623] hover:text-[#E55A1F] font-medium py-2"
+              className="block w-full text-[#b91c1c] hover:text-[#991b1b] font-medium py-2"
             >
               Sign Out
             </button>

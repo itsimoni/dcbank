@@ -150,7 +150,7 @@ export default function ResetPasswordPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto"></div>
           <p className="mt-2 text-gray-600">Validating reset link...</p>
         </div>
       </div>
@@ -176,7 +176,7 @@ export default function ResetPasswordPage() {
           <CardContent className="text-center">
             <Button
               onClick={() => router.push("/")}
-              className="w-full bg-[#F26623] hover:bg-[#E55A1F]"
+              className="w-full bg-[#b91c1c] hover:bg-[#991b1b]"
             ></Button>
           </CardContent>
         </Card>
@@ -188,8 +188,8 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-[#F26623] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-[#F26623]" />
+          <div className="w-16 h-16 bg-[#b91c1c] bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-[#b91c1c]" />
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
             Set New Password
@@ -217,7 +217,7 @@ export default function ResetPasswordPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="pr-10 focus:ring-[#F26623] focus:border-[#F26623]"
+                  className="pr-10 focus:ring-[#b91c1c] focus:border-[#b91c1c]"
                 />
                 <Button
                   type="button"
@@ -245,7 +245,7 @@ export default function ResetPasswordPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="pr-10 focus:ring-[#F26623] focus:border-[#F26623]"
+                  className="pr-10 focus:ring-[#b91c1c] focus:border-[#b91c1c]"
                 />
                 <Button
                   type="button"
@@ -267,7 +267,7 @@ export default function ResetPasswordPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#F26623] hover:bg-[#E55A1F]"
+                className="w-full bg-[#b91c1c] hover:bg-[#991b1b]"
               >
                 {loading ? "Updating Password..." : "Update Password"}
               </Button>
@@ -278,7 +278,7 @@ export default function ResetPasswordPage() {
             <Button
               variant="ghost"
               onClick={() => router.push("/")}
-              className="text-sm text-gray-500 hover:text-[#F26623]"
+              className="text-sm text-gray-500 hover:text-[#b91c1c]"
             >
               Back to Login
             </Button>

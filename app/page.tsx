@@ -349,7 +349,7 @@ export default function Page() {
 
   const LoadingScreen = ({ message }: { message: string }) => (
     <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-gradient-to-br from-orange-50 to-orange-100">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F26623]"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b91c1c]"></div>
       <p className="text-gray-600 text-lg text-center">{message}</p>
       {error && (
         <div className="text-center max-w-md">
@@ -357,7 +357,7 @@ export default function Page() {
           <div className="flex gap-2 justify-center">
             <button
               onClick={handleRetry}
-              className="bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               Retry
             </button>
@@ -396,7 +396,7 @@ export default function Page() {
       <div className="flex gap-2">
         <button
           onClick={handleRetry}
-          className="bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium py-2 px-4 rounded-md transition-colors"
+          className="bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium py-2 px-4 rounded-md transition-colors"
         >
           Try Again
         </button>
@@ -463,7 +463,7 @@ export default function Page() {
           <div className="space-y-2">
             <button
               onClick={() => supabase.auth.signOut()}
-              className="block w-full text-[#F26623] hover:text-[#E55A1F] font-medium py-2"
+              className="block w-full text-[#b91c1c] hover:text-[#991b1b] font-medium py-2"
             >
               Sign Out
             </button>
@@ -505,13 +505,13 @@ export default function Page() {
                 console.log("🔄 Retrying KYC verification");
                 setKycStatus("not_started");
               }}
-              className="block w-full bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium py-2 px-4 rounded-md transition-colors"
+              className="block w-full bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium py-2 px-4 rounded-md transition-colors"
             >
               Try Again
             </button>
             <button
               onClick={() => supabase.auth.signOut()}
-              className="block w-full text-[#F26623] hover:text-[#E55A1F] font-medium py-2"
+              className="block w-full text-[#b91c1c] hover:text-[#991b1b] font-medium py-2"
             >
               Sign Out
             </button>

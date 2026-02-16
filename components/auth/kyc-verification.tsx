@@ -317,7 +317,7 @@ export default function KYCVerification({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="shadow-lg max-w-md w-full">
           <CardContent className="flex flex-col items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mb-4"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mb-4"></div>
             <p className="text-gray-600">{t.checkingKycStatus}</p>
           </CardContent>
         </Card>
@@ -339,7 +339,7 @@ export default function KYCVerification({
             </p>
             <Button
               onClick={onKYCComplete}
-              className="bg-[#F26623] hover:bg-[#E55A1F] text-white px-6 py-2"
+              className="bg-[#b91c1c] hover:bg-[#991b1b] text-white px-6 py-2"
             >
               {t.continue}
             </Button>
@@ -383,7 +383,7 @@ export default function KYCVerification({
             </Alert>
             <Button
               onClick={() => setKycStatus("not_started")}
-              className="bg-[#F26623] hover:bg-[#E55A1F] text-white px-6 py-2"
+              className="bg-[#b91c1c] hover:bg-[#991b1b] text-white px-6 py-2"
             >
               {t.resubmitDocuments}
             </Button>
@@ -421,7 +421,7 @@ export default function KYCVerification({
                     onChange={(e) =>
                       setFormData({ ...formData, fullName: e.target.value })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     required
                     title={t.enterFullName}
                     placeholder={t.enterFullName}
@@ -438,7 +438,7 @@ export default function KYCVerification({
                     onChange={(e) =>
                       setFormData({ ...formData, dateOfBirth: e.target.value })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     required
                     title={t.dateOfBirth}
                     aria-describedby="dateOfBirth-description"
@@ -453,7 +453,7 @@ export default function KYCVerification({
                     onChange={(e) =>
                       setFormData({ ...formData, documentType: e.target.value })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     required
                     title={t.documentType}
                     aria-describedby="documentType-description"
@@ -475,7 +475,7 @@ export default function KYCVerification({
                         documentNumber: e.target.value,
                       })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     required
                     title={t.enterDocumentNumber}
                     placeholder={t.enterDocumentNumber}
@@ -492,7 +492,7 @@ export default function KYCVerification({
                     onChange={(e) =>
                       setFormData({ ...formData, address: e.target.value })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     required
                     title={t.enterAddress}
                     placeholder={t.enterAddress}
@@ -509,7 +509,7 @@ export default function KYCVerification({
                     onChange={(e) =>
                       setFormData({ ...formData, city: e.target.value })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     required
                     title={t.enterCity}
                     placeholder={t.enterCity}
@@ -526,7 +526,7 @@ export default function KYCVerification({
                     onChange={(e) =>
                       setFormData({ ...formData, country: e.target.value })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     required
                     title={t.enterCountry}
                     placeholder={t.enterCountry}
@@ -543,7 +543,7 @@ export default function KYCVerification({
                     onChange={(e) =>
                       setFormData({ ...formData, postalCode: e.target.value })
                     }
-                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+                    className="w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent"
                     title={t.enterPostalCode}
                     placeholder={t.enterPostalCode}
                     aria-describedby="postalCode-description"
@@ -601,7 +601,7 @@ export default function KYCVerification({
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full md:w-auto px-8 py-3 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
+                  className="w-full md:w-auto px-8 py-3 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
                 >
                   {loading ? t.submittingKyc : t.submitKycVerification}
                 </Button>
@@ -628,7 +628,7 @@ export default function KYCVerification({
                 <div className="relative">
                   <Button
                     variant="outline"
-                    className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-3 py-2 text-sm rounded-md transition-all duration-300 flex items-center gap-2"
+                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-3 py-2 text-sm rounded-md transition-all duration-300 flex items-center gap-2"
                     onClick={() => setShowLanguageMenu(!showLanguageMenu)}
                   >
                     <Globe className="h-4 w-4" />
@@ -715,7 +715,7 @@ function DocumentUpload({
       </div>
 
       {!file ? (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#F26623] transition-colors relative">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#b91c1c] transition-colors relative">
           <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
           <div className="text-sm text-gray-600 mb-2">
             {clickToUpload}

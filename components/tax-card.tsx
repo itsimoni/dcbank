@@ -225,7 +225,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
 
   return (
     <Card className="bg-gradient-to-br from-slate-50 to-gray-100 border-0 shadow-lg">
-      <CardHeader className="bg-[#F26623] text-white rounded-t-lg">
+      <CardHeader className="bg-[#b91c1c] text-white rounded-t-lg">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Calculator className="h-5 w-5" />
@@ -263,7 +263,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
                         }}
                         className={`w-full text-left px-3 py-2 text-xs transition-colors duration-150 ${
                           language === code
-                            ? 'bg-[#F26623] text-white font-medium'
+                            ? 'bg-[#b91c1c] text-white font-medium'
                             : 'text-gray-700 hover:bg-gray-50'
                         }`}
                       >

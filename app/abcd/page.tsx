@@ -781,7 +781,7 @@ export default function SecureAdminPage() {
   if (isAuthenticated) {
     return (
       <div>
-        <div className="bg-[#F26623] text-white p-4 flex justify-between items-center">
+        <div className="bg-[#b91c1c] text-white p-4 flex justify-between items-center">
           <div className="flex flex-row items-center justify-between text-orange-100">
             <h1 className="text-2xl font-bold pr-14">
               Admin Panel - Digital Chain Bank
@@ -807,7 +807,7 @@ export default function SecureAdminPage() {
             <Button
               variant="outline"
               onClick={handleLogout}
-              className="text-white border-white hover:bg-white hover:text-[#F26623] bg-transparent"
+              className="text-white border-white hover:bg-white hover:text-[#b91c1c] bg-transparent"
             >
               Secure Logout
             </Button>
@@ -831,7 +831,7 @@ export default function SecureAdminPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-[#F26623] rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-[#b91c1c] rounded-lg flex items-center justify-center">
               <Shield className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -908,7 +908,7 @@ export default function SecureAdminPage() {
 
           <Button
             onClick={handleLogin}
-            className="w-full bg-[#F26623] hover:bg-[#E55A1F]"
+            className="w-full bg-[#b91c1c] hover:bg-[#991b1b]"
             disabled={Boolean(
               loading ||
                 isAccountLocked() ||

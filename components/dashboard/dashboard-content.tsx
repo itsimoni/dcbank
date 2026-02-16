@@ -1619,7 +1619,7 @@ function DashboardContent({
                   <div
                     className={`p-3 sm:p-4 rounded-lg border-l-4 transition-opacity ${
                       currentMessage.message_type === "welcome"
-                        ? "border-[#b91c1c] bg-gradient-to-r from-orange-50 to-yellow-50"
+                        ? "border-[#b91c1c] bg-gradient-to-r from-red-50 to-red-100"
                         : currentMessage.message_type === "success"
                         ? "border-green-500 bg-green-50"
                         : currentMessage.message_type === "alert"
@@ -1686,17 +1686,6 @@ function DashboardContent({
                   </div>
                 )}
               </CardContent>
-            </Card>
-
-            {/* Mobile Banking Card Image */}
-            <Card className="flex justify-center items-center p-4 sm:p-6">
-              <Image
-                src="/db/1.png"
-                alt="Mobile Banking Card"
-                width={200}
-                height={300}
-                className="object-contain max-w-full h-auto"
-              />
             </Card>
           </div>
         </div>
