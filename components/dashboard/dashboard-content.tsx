@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import TaxCard from "../tax-card";
+import BalanceGraph from "./balance-graph";
 if (process.env.NODE_ENV === "production") {
   console.log = () => {};
   console.warn = () => {};
@@ -1021,6 +1022,15 @@ function DashboardContent({
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Balance Graph Statistics */}
+        <div className="mb-6 sm:mb-8">
+          <BalanceGraph
+            transactionHistory={transactionHistory}
+            currentBalances={realtimeBalances || { usd: 0, euro: 0, cad: 0 }}
+            cryptoBalances={cryptoBalances}
+          />
         </div>
 
         {/* Quick Actions */}
