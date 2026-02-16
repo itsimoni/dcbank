@@ -328,7 +328,7 @@ export default function AuthForm() {
 
   return (
     <>
-      <div className="h-screen bg-[#F26623] flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+      <div className="h-screen bg-[#b91c1c] flex items-center justify-center p-2 sm:p-4 overflow-hidden">
         <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-auto sm:h-[600px] flex flex-col lg:flex-row overflow-visible">
           <div className="relative w-full lg:w-2/5 h-32 sm:h-48 lg:h-full overflow-visible rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none hidden sm:block">
             <div
@@ -360,7 +360,7 @@ export default function AuthForm() {
                 <div className="relative">
                   <Button
                     variant="outline"
-                    className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-3 py-2 text-sm rounded-md transition-all duration-300 flex items-center gap-2"
+                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-3 py-2 text-sm rounded-md transition-all duration-300 flex items-center gap-2"
                     onClick={toggleLanguageMenu}
                   >
                     <Globe className="h-4 w-4" />
@@ -387,7 +387,7 @@ export default function AuthForm() {
 
                 <Button
                   variant="outline"
-                  className="bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white px-4 py-2 text-sm rounded-md transition-all duration-300 w-full sm:w-auto"
+                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-4 py-2 text-sm rounded-md transition-all duration-300 w-full sm:w-auto"
                   onClick={toggleSignUp}
                 >
                   {isSignUp ? t.signIn : t.createAccount}
@@ -436,7 +436,7 @@ export default function AuthForm() {
                           }))
                         }
                         required
-                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
                       />
                     </div>
 
@@ -452,7 +452,7 @@ export default function AuthForm() {
                           }))
                         }
                         required
-                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
                       />
                       <Button
                         type="button"
@@ -472,7 +472,7 @@ export default function AuthForm() {
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="remember"
-                        className="w-4 h-4 border-2 border-gray-300 data-[state=checked]:bg-[#F26623] data-[state=checked]:border-[#F26623]"
+                        className="w-4 h-4 border-2 border-gray-300 data-[state=checked]:bg-[#b91c1c] data-[state=checked]:border-[#b91c1c]"
                       />
                       <Label
                         htmlFor="remember"
@@ -484,7 +484,7 @@ export default function AuthForm() {
 
                     <Button
                       type="submit"
-                      className="w-24 h-10 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
+                      className="w-24 h-10 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
                       disabled={loading}
                     >
                       {loading ? t.loading : t.signInButton}
@@ -516,7 +516,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
                         />
                       </div>
                       <div>
@@ -531,7 +531,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
                         />
                       </div>
                     </div>
@@ -549,7 +549,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
                         />
                       </div>
                       <div>
@@ -564,7 +564,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
                         />
                       </div>
                     </div>
@@ -581,7 +581,7 @@ export default function AuthForm() {
                           }))
                         }
                         required
-                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#F26623]"
+                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
                       />
                       <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                         <Button
@@ -603,7 +603,7 @@ export default function AuthForm() {
                     <div className="pt-6">
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-[#F26623] hover:bg-[#E55A1F] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
+                        className="w-full h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
                         disabled={loading}
                       >
                         {loading ? t.creatingAccount : t.createAccount}
@@ -612,7 +612,7 @@ export default function AuthForm() {
                   </form>
 
                   <div className="flex flex-col sm:flex-row justify-between items-center mt-6 sm:mt-8 text-xs gap-2 sm:gap-0">
-                    <button className="text-gray-500 hover:text-[#F26623] transition-colors">
+                    <button className="text-gray-500 hover:text-[#b91c1c] transition-colors">
                       {t.returnHome}
                     </button>
                     <span className="text-gray-400 text-center sm:text-right">
@@ -630,7 +630,7 @@ export default function AuthForm() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-[#F26623]" />
+              <Mail className="h-5 w-5 text-[#b91c1c]" />
               {t.resetPassword}
             </DialogTitle>
             <DialogDescription>{t.resetPasswordDescription}</DialogDescription>
@@ -646,7 +646,7 @@ export default function AuthForm() {
                 value={forgotPasswordEmail}
                 onChange={(e) => setForgotPasswordEmail(e.target.value)}
                 required
-                className="focus:ring-[#F26623] focus:border-[#F26623]"
+                className="focus:ring-[#b91c1c] focus:border-[#b91c1c]"
               />
             </div>
 
@@ -662,7 +662,7 @@ export default function AuthForm() {
               <Button
                 type="submit"
                 disabled={forgotPasswordLoading}
-                className="flex-1 bg-[#F26623] hover:bg-[#E55A1F]"
+                className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b]"
               >
                 {forgotPasswordLoading ? t.sending : t.sendResetLink}
               </Button>
