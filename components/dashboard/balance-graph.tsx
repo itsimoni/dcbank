@@ -61,21 +61,22 @@ export default function BalanceGraph({
       const date = new Date(Date.now() - (intervals - i) * dayMs);
       const progress = i / intervals;
 
-      const fastWave = Math.sin(i * 0.8) * 0.25;
-      const mediumWave = Math.cos(i * 0.4) * 0.35;
-      const slowWave = Math.sin(i * 0.2) * 0.15;
-      const cryptoVolatility = Math.sin(i * 1.2) * 0.4 + Math.cos(i * 0.6) * 0.3;
+      const fastWave = Math.sin(i * 1.2) * 0.6;
+      const mediumWave = Math.cos(i * 0.8) * 0.7;
+      const slowWave = Math.sin(i * 0.5) * 0.4;
+      const sharpWave = Math.sin(i * 2.0) * 0.3;
+      const cryptoVolatility = Math.sin(i * 1.8) * 0.9 + Math.cos(i * 1.0) * 0.8;
 
-      const trend = progress * 0.5;
-      const noise = (Math.random() - 0.5) * 0.1;
+      const trend = progress * 0.3;
+      const noise = (Math.random() - 0.5) * 0.15;
 
-      const usdBalance = baseUSD * (0.6 + trend + fastWave + slowWave + noise);
-      const eurBalance = baseEUR * (0.65 + trend + mediumWave + noise);
-      const cadBalance = baseCAD * (0.7 + trend + fastWave * 0.8 + noise);
+      const usdBalance = baseUSD * (0.4 + trend + fastWave + slowWave + sharpWave + noise);
+      const eurBalance = baseEUR * (0.35 + trend + mediumWave + sharpWave * 0.7 + noise);
+      const cadBalance = baseCAD * (0.45 + trend + fastWave * 1.2 + slowWave * 0.8 + noise);
 
-      const btcValue = baseBTC * (0.5 + trend + cryptoVolatility);
-      const ethValue = baseETH * (0.55 + trend + cryptoVolatility * 1.2);
-      const usdtValue = baseUSDT * (0.9 + trend * 0.2 + slowWave * 0.5);
+      const btcValue = baseBTC * (0.2 + trend + cryptoVolatility);
+      const ethValue = baseETH * (0.25 + trend + cryptoVolatility * 1.5);
+      const usdtValue = baseUSDT * (0.8 + trend * 0.3 + slowWave * 0.8 + fastWave * 0.4);
 
       const txInPeriod = sortedTransactions.filter(tx => {
         const txDate = new Date(tx.created_at);
@@ -350,20 +351,20 @@ export default function BalanceGraph({
             {viewMode === 'combined' ? (
               <>
                 <Area
-                  type="monotone"
+                  type="natural"
                   dataKey="totalFiat"
                   stroke="#3b82f6"
-                  strokeWidth={2.5}
+                  strokeWidth={3.5}
                   fillOpacity={1}
                   fill="url(#colorTotalFiat)"
                   name="Total Fiat"
                 />
 
                 <Area
-                  type="monotone"
+                  type="natural"
                   dataKey="totalCrypto"
                   stroke="#f97316"
-                  strokeWidth={2.5}
+                  strokeWidth={3.5}
                   fillOpacity={1}
                   fill="url(#colorTotalCrypto)"
                   name="Total Crypto"
@@ -372,20 +373,20 @@ export default function BalanceGraph({
                 {showMovingAverage && (
                   <>
                     <Line
-                      type="monotone"
+                      type="natural"
                       dataKey="movingAvgFiat"
                       stroke="#1e40af"
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
+                      strokeWidth={3}
+                      strokeDasharray="8 4"
                       dot={false}
                       name="Fiat Trend"
                     />
                     <Line
-                      type="monotone"
+                      type="natural"
                       dataKey="movingAvgCrypto"
                       stroke="#c2410c"
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
+                      strokeWidth={3}
+                      strokeDasharray="8 4"
                       dot={false}
                       name="Crypto Trend"
                     />
@@ -393,70 +394,70 @@ export default function BalanceGraph({
                 )}
 
                 <Line
-                  type="monotone"
+                  type="natural"
                   dataKey="totalAssets"
                   stroke="#7c3aed"
-                  strokeWidth={3}
-                  dot={{ fill: '#7c3aed', r: 3 }}
+                  strokeWidth={4}
+                  dot={{ fill: '#7c3aed', r: 4 }}
                   name="Total Assets"
                 />
               </>
             ) : (
               <>
                 <Area
-                  type="monotone"
+                  type="natural"
                   dataKey="usd"
                   stroke="#10b981"
-                  strokeWidth={2}
+                  strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorUSD)"
                   name="USD"
                 />
 
                 <Area
-                  type="monotone"
+                  type="natural"
                   dataKey="eur"
                   stroke="#8b5cf6"
-                  strokeWidth={2}
+                  strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorEUR)"
                   name="EUR"
                 />
 
                 <Area
-                  type="monotone"
+                  type="natural"
                   dataKey="cad"
                   stroke="#ec4899"
-                  strokeWidth={2}
+                  strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorCAD)"
                   name="CAD"
                 />
 
                 <Line
-                  type="monotone"
+                  type="natural"
                   dataKey="btc"
                   stroke="#f59e0b"
-                  strokeWidth={2.5}
-                  dot={{ fill: '#f59e0b', r: 3 }}
+                  strokeWidth={3.5}
+                  dot={{ fill: '#f59e0b', r: 4 }}
                   name="BTC Value"
                 />
 
                 <Line
-                  type="monotone"
+                  type="natural"
                   dataKey="eth"
                   stroke="#6366f1"
-                  strokeWidth={2.5}
-                  dot={{ fill: '#6366f1', r: 3 }}
+                  strokeWidth={3.5}
+                  dot={{ fill: '#6366f1', r: 4 }}
                   name="ETH Value"
                 />
 
                 <Line
-                  type="monotone"
+                  type="natural"
                   dataKey="usdt"
                   stroke="#14b8a6"
-                  strokeWidth={2.5}
-                  dot={{ fill: '#14b8a6', r: 3 }}
+                  strokeWidth={3.5}
+                  dot={{ fill: '#14b8a6', r: 4 }}
                   name="USDT"
                 />
               </>
