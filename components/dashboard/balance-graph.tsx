@@ -61,15 +61,6 @@ export default function BalanceGraph({
       const date = new Date(Date.now() - (intervals - i) * dayMs);
       const progress = i / intervals;
 
-      const balanceScale = (baseUSD + baseEUR + baseCAD) / 30000;
-      const cryptoScale = (baseBTC + baseETH + baseUSDT) / 20000;
-
-      const fastWave = Math.sin(i * 1.2) * (0.15 * balanceScale);
-      const mediumWave = Math.cos(i * 0.8) * (0.2 * balanceScale);
-      const slowWave = Math.sin(i * 0.5) * (0.12 * balanceScale);
-      const sharpWave = Math.sin(i * 2.0) * (0.08 * balanceScale);
-      const cryptoVolatility = (Math.sin(i * 1.8) * 0.25 + Math.cos(i * 1.0) * 0.2) * cryptoScale;
-
       const txInPeriod = sortedTransactions.filter(tx => {
         const txDate = new Date(tx.created_at);
         const periodStart = new Date(Date.now() - (intervals - i + 1) * dayMs);
@@ -77,25 +68,27 @@ export default function BalanceGraph({
         return txDate >= periodStart && txDate <= periodEnd;
       });
 
-      const txImpact = txInPeriod.length * 0.02;
-      const trend = progress * 0.25;
-      const noise = (Math.random() - 0.5) * 0.08;
+      const txImpact = txInPeriod.length * 0.03;
 
-      const usdWaveAmplitude = baseUSD * (fastWave + slowWave + sharpWave);
-      const eurWaveAmplitude = baseEUR * (mediumWave + sharpWave * 0.7);
-      const cadWaveAmplitude = baseCAD * (fastWave * 1.2 + slowWave * 0.8);
+      const fastWave = Math.sin(i * 0.8) * 0.10;
+      const mediumWave = Math.cos(i * 0.5) * 0.12;
+      const slowWave = Math.sin(i * 0.3) * 0.08;
+      const sharpWave = Math.sin(i * 1.5) * 0.06;
 
-      const usdBalance = baseUSD * (0.7 + trend + txImpact + noise) + usdWaveAmplitude;
-      const eurBalance = baseEUR * (0.7 + trend + txImpact * 0.8 + noise) + eurWaveAmplitude;
-      const cadBalance = baseCAD * (0.7 + trend + txImpact * 0.9 + noise) + cadWaveAmplitude;
+      const cryptoFastWave = Math.sin(i * 1.2) * 0.15;
+      const cryptoSlowWave = Math.cos(i * 0.6) * 0.12;
+      const cryptoVolatility = Math.sin(i * 1.8) * 0.18 + Math.cos(i * 0.9) * 0.14;
 
-      const btcWaveAmplitude = baseBTC * cryptoVolatility;
-      const ethWaveAmplitude = baseETH * cryptoVolatility * 1.3;
-      const usdtWaveAmplitude = baseUSDT * (slowWave * 0.6 + fastWave * 0.3);
+      const trend = progress * 0.15;
+      const noise = (Math.random() - 0.5) * 0.04;
 
-      const btcValue = baseBTC * (0.7 + trend + txImpact * 1.2) + btcWaveAmplitude;
-      const ethValue = baseETH * (0.7 + trend + txImpact * 1.5) + ethWaveAmplitude;
-      const usdtValue = baseUSDT * (0.85 + trend * 0.4 + txImpact * 0.5) + usdtWaveAmplitude;
+      const usdBalance = baseUSD * (0.75 + trend + fastWave + slowWave + sharpWave + txImpact + noise);
+      const eurBalance = baseEUR * (0.75 + trend + mediumWave + sharpWave * 0.8 + txImpact * 0.9 + noise);
+      const cadBalance = baseCAD * (0.75 + trend + fastWave * 1.1 + slowWave * 0.9 + txImpact * 0.95 + noise);
+
+      const btcValue = baseBTC * (0.7 + trend + cryptoFastWave + cryptoVolatility + txImpact * 1.3 + noise * 1.5);
+      const ethValue = baseETH * (0.7 + trend + cryptoSlowWave * 1.2 + cryptoVolatility * 1.4 + txImpact * 1.5 + noise * 1.8);
+      const usdtValue = baseUSDT * (0.88 + trend * 0.5 + slowWave * 0.7 + fastWave * 0.4 + txImpact * 0.6 + noise * 0.3);
 
       const totalFiat = usdBalance + eurBalance + cadBalance;
       const totalCrypto = btcValue + ethValue + usdtValue;
