@@ -196,7 +196,7 @@ const BalanceCard = memo(
     formatCurrency: (amount: number, currency: string) => string;
     t: ReturnType<typeof getTranslations>;
   }) => (
-    <Card className="hover:shadow-md transition-all duration-200 bg-[#F26623] relative overflow-hidden h-[120px] sm:h-[140px]">
+    <Card className="hover:shadow-md transition-all duration-200 bg-[#b91c1c] relative overflow-hidden h-[120px] sm:h-[140px]">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3 sm:p-4">
         <CardTitle className="text-xs sm:text-sm text-white font-medium capitalize">
           {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}{" "}
@@ -454,16 +454,16 @@ function DashboardContent({
   }, []);
 
   const getActivityColor = useCallback((activity: CombinedActivity) => {
-    // Use neutral colors with #F26623 accent
-    return "border-gray-200 bg-gray-50/30 hover:border-[#F26623]/30";
+    // Use neutral colors with #b91c1c accent
+    return "border-gray-200 bg-gray-50/30 hover:border-[#b91c1c]/30";
   }, []);
 
   const getPriorityColor = useCallback((priority: string) => {
     switch (priority) {
       case "urgent":
-        return "bg-[#F26623] text-white border-[#F26623]";
+        return "bg-[#b91c1c] text-white border-[#b91c1c]";
       case "high":
-        return "bg-[#F26623]/20 text-[#F26623] border-[#F26623]/30";
+        return "bg-[#b91c1c]/20 text-[#b91c1c] border-[#b91c1c]/30";
       case "normal":
         return "bg-gray-100 text-gray-800 border-gray-200";
       case "low":
@@ -1165,7 +1165,7 @@ function DashboardContent({
       return (
         <div
           key={activity.id}
-          className={`transition-all duration-200 hover:bg-gray-50/50 border-gray-200 bg-gray-50/30 hover:border-[#F26623]/30 border-l-4 hover:border-l-[#F26623]`}
+          className={`transition-all duration-200 hover:bg-gray-50/50 border-gray-200 bg-gray-50/30 hover:border-[#b91c1c]/30 border-l-4 hover:border-l-[#b91c1c]`}
         >
           <div className="p-3 sm:p-4 lg:p-6">
             <div className="flex items-start justify-between gap-3">
@@ -1205,7 +1205,7 @@ function DashboardContent({
                           variant="ghost"
                           size="sm"
                           onClick={() => toggleActivityExpansion(activity.id)}
-                          className="mt-2 text-[#F26623] hover:text-[#F26623] hover:bg-[#F26623]/10 p-0 h-auto font-medium text-xs sm:text-sm"
+                          className="mt-2 text-[#b91c1c] hover:text-[#b91c1c] hover:bg-[#b91c1c]/10 p-0 h-auto font-medium text-xs sm:text-sm"
                         >
                           {isExpanded ? (
                             <>
@@ -1331,9 +1331,9 @@ function DashboardContent({
           <div className="relative">
             <button
               onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-              className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
             >
-              <Languages className="h-4 w-4 text-[#F26623]" />
+              <Languages className="h-4 w-4 text-[#b91c1c]" />
               <span>{languageNames[language]}</span>
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -1354,7 +1354,7 @@ function DashboardContent({
                       }}
                       className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
                         language === code
-                          ? 'bg-[#F26623] text-white font-medium'
+                          ? 'bg-[#b91c1c] text-white font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
@@ -1399,7 +1399,7 @@ function DashboardContent({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Button
             onClick={handleTransferClick}
-            className="h-12 sm:h-16 bg-[#F26623] hover:bg-[#E55A1F] text-white text-sm sm:text-base"
+            className="h-12 sm:h-16 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-sm sm:text-base"
           >
             <Send className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {t.transferMoney}
@@ -1431,7 +1431,7 @@ function DashboardContent({
           <Button
             onClick={() => setActiveTab("loans")}
             variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent border-[#F26623] text-[#F26623] hover:bg-[#F26623] hover:text-white"
+            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white"
           >
             <Banknote className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {t.applyForLoan}
@@ -1442,9 +1442,9 @@ function DashboardContent({
           <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             {/* Account Activity Card */}
             <Card className="shadow-lg border-0">
-              <CardHeader className="bg-[#F5F0F0] border-b p-4 sm:p-6">
+              <CardHeader className="bg-[#fef2f2] border-b p-4 sm:p-6">
                 <CardTitle className="flex items-center text-base sm:text-lg">
-                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#F26623]" />
+                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#b91c1c]" />
                   {t.accountActivity}
                 </CardTitle>
               </CardHeader>
@@ -1479,7 +1479,7 @@ function DashboardContent({
                           onClick={() =>
                             setShowAllActivities(!showAllActivities)
                           }
-                          className="text-[#F26623] hover:text-[#F26623] hover:bg-[#F26623]/10 font-medium"
+                          className="text-[#b91c1c] hover:text-[#b91c1c] hover:bg-[#b91c1c]/10 font-medium"
                         >
                           {showAllActivities ? (
                             <>
@@ -1594,7 +1594,7 @@ function DashboardContent({
                           className={`ml-2 text-xs flex-shrink-0 ${
                             welcomeMessage &&
                             currentMessage.id === welcomeMessage.id
-                              ? "bg-[#F26623]"
+                              ? "bg-[#b91c1c]"
                               : ""
                           }`}
                         >
@@ -1619,7 +1619,7 @@ function DashboardContent({
                   <div
                     className={`p-3 sm:p-4 rounded-lg border-l-4 transition-opacity ${
                       currentMessage.message_type === "welcome"
-                        ? "border-[#F26623] bg-gradient-to-r from-orange-50 to-yellow-50"
+                        ? "border-[#b91c1c] bg-gradient-to-r from-orange-50 to-yellow-50"
                         : currentMessage.message_type === "success"
                         ? "border-green-500 bg-green-50"
                         : currentMessage.message_type === "alert"
@@ -1652,7 +1652,7 @@ function DashboardContent({
                                 <Button
                                   size="sm"
                                   onClick={handleSupportClick}
-                                  className="bg-[#F26623] hover:bg-[#E55A1F] text-white text-xs"
+                                  className="bg-[#b91c1c] hover:bg-[#991b1b] text-white text-xs"
                                 >
                                   <Shield className="h-3 w-3 mr-1" />
                                   {t.getSupport}
@@ -1672,7 +1672,7 @@ function DashboardContent({
                         </div>
                       </div>
                       {!currentMessage.is_read && !welcomeMessage && (
-                        <div className="w-2 h-2 bg-[#F26623] rounded-full mt-1 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-[#b91c1c] rounded-full mt-1 flex-shrink-0"></div>
                       )}
                     </div>
                   </div>
