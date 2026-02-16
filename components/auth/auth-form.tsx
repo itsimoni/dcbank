@@ -329,7 +329,7 @@ export default function AuthForm() {
   return (
     <>
       <div className="h-screen bg-[#b91c1c] flex items-center justify-center p-2 sm:p-4 overflow-hidden">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-auto sm:h-[600px] flex flex-col lg:flex-row overflow-visible">
+        <div className="bg-white shadow-2xl max-w-5xl w-full h-auto sm:h-[600px] flex flex-col lg:flex-row overflow-visible">
           <div className="relative w-full lg:w-2/5 h-32 sm:h-48 lg:h-full overflow-visible rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none hidden sm:block">
             <div
               className="absolute inset-y-0 right-0 w-4 pointer-events-none hidden lg:block"
