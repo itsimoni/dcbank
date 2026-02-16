@@ -224,21 +224,7 @@ export default function BalanceGraphV2({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div className="bg-white rounded-none p-4 border-l-4 border-blue-500 shadow">
-            <div className="text-sm text-gray-600 mb-1">Total Fiat</div>
-            <div className="text-2xl font-bold text-blue-700">
-              ${(currentBalances.usd + currentBalances.euro + currentBalances.cad).toLocaleString()}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-none p-4 border-l-4 border-red-600 shadow">
-            <div className="text-sm text-gray-600 mb-1">Total Crypto</div>
-            <div className="text-2xl font-bold text-red-700">
-              ${((cryptoBalances.BTC * 50000) + (cryptoBalances.ETH * 3000) + cryptoBalances.USDT).toLocaleString()}
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-6">
           <div className="bg-white rounded-none p-4 border-l-4 border-green-500 shadow">
             <div className="text-sm text-gray-600 mb-1 flex items-center gap-2">
               Performance
@@ -444,30 +430,6 @@ export default function BalanceGraphV2({
             </LineChart>
           )}
         </ResponsiveContainer>
-
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-gray-50 rounded-none p-3 text-center border">
-            <div className="text-xs text-gray-600 mb-1">Peak Value</div>
-            <div className="text-lg font-bold text-gray-900">${stats.high.toLocaleString()}</div>
-          </div>
-
-          <div className="bg-gray-50 rounded-none p-3 text-center border">
-            <div className="text-xs text-gray-600 mb-1">Lowest Value</div>
-            <div className="text-lg font-bold text-gray-900">${stats.low.toLocaleString()}</div>
-          </div>
-
-          <div className="bg-gray-50 rounded-none p-3 text-center border">
-            <div className="text-xs text-gray-600 mb-1">Volatility</div>
-            <div className="text-lg font-bold text-gray-900">
-              ${((stats.high - stats.low) / 1000).toFixed(1)}k
-            </div>
-          </div>
-
-          <div className="bg-gray-50 rounded-none p-3 text-center border">
-            <div className="text-xs text-gray-600 mb-1">Data Points</div>
-            <div className="text-lg font-bold text-gray-900">{graphData.length}</div>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
