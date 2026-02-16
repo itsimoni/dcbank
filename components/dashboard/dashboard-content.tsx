@@ -126,7 +126,7 @@ const cryptoConfigs = {
 
 // Memoized components for better performance
 const LoadingCard = memo(() => (
-  <div className="bg-white p-4 sm:p-6 rounded-lg shadow animate-pulse">
+  <div className="bg-white p-4 sm:p-6 shadow animate-pulse">
     <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2 mb-3 sm:mb-4"></div>
     <div className="h-6 sm:h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
     <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/2"></div>
@@ -863,7 +863,7 @@ function DashboardContent({
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="bg-white p-4 sm:p-6 rounded-lg shadow animate-pulse"
+                className="bg-white p-4 sm:p-6 shadow animate-pulse"
               >
                 <div className="h-5 sm:h-6 bg-gray-200 rounded w-1/3 mb-2"></div>
                 <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -1123,13 +1123,13 @@ function DashboardContent({
               </CardHeader>
               <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
                 {loading ? (
-                  <div className="p-3 rounded-lg bg-gray-100 animate-pulse">
+                  <div className="p-3 bg-gray-100 animate-pulse">
                     <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                     <div className="h-2 sm:h-3 bg-gray-200 rounded w-1/2"></div>
                   </div>
                 ) : currentMessage ? (
                   <div
-                    className={`p-3 sm:p-4 rounded-lg border-l-4 transition-opacity ${
+                    className={`p-3 sm:p-4 border-l-4 transition-opacity ${
                       currentMessage.message_type === "welcome"
                         ? "border-[#b91c1c] bg-gradient-to-r from-red-50 to-red-100"
                         : currentMessage.message_type === "success"

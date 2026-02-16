@@ -225,7 +225,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
 
   return (
     <Card className="bg-gradient-to-br from-slate-50 to-gray-100 border-0 shadow-lg">
-      <CardHeader className="bg-[#b91c1c] text-white rounded-t-lg">
+      <CardHeader className="bg-[#b91c1c] text-white">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Calculator className="h-5 w-5" />
@@ -306,7 +306,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4 mt-6">
-            <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+            <div className="bg-white p-4 border border-gray-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-xl font-bold text-black mt-1">
@@ -316,7 +316,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                <div className="bg-yellow-50 p-3 border border-yellow-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-sm font-medium text-yellow-700">
                       {t.pending}
@@ -327,7 +327,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
                   </p>
                 </div>
 
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                <div className="bg-blue-50 p-3 border border-blue-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-sm font-medium text-blue-700">
                       {t.onHold}
@@ -338,7 +338,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
                   </p>
                 </div>
 
-                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                <div className="bg-green-50 p-3 border border-green-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-sm font-medium text-green-700">
                       {t.paid}
@@ -354,7 +354,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
 
           {/* History Tab */}
           <TabsContent value="history" className="space-y-4 mt-6">
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <div className="bg-white p-4 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
