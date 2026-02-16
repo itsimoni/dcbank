@@ -356,7 +356,7 @@ export default function AuthForm() {
               <div className="flex items-center">
                 <div className="flex items-center space-x-2">
                   <img
-                    src="/logo.svg"
+                    src="/logo2.svg"
                     alt="Logo"
                     loading="lazy"
                     decoding="async"
