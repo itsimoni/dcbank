@@ -68,27 +68,25 @@ export default function BalanceGraph({
         return txDate >= periodStart && txDate <= periodEnd;
       });
 
-      const txImpact = txInPeriod.length * 0.03;
+      const txImpact = txInPeriod.length * 0.05;
 
-      const fastWave = Math.sin(i * 0.8) * 0.10;
-      const mediumWave = Math.cos(i * 0.5) * 0.12;
-      const slowWave = Math.sin(i * 0.3) * 0.08;
-      const sharpWave = Math.sin(i * 1.5) * 0.06;
+      const fastWave = Math.sin(i * 0.5) * 0.25;
+      const mediumWave = Math.cos(i * 0.3) * 0.20;
+      const slowWave = Math.sin(i * 0.15) * 0.15;
 
-      const cryptoFastWave = Math.sin(i * 1.2) * 0.15;
-      const cryptoSlowWave = Math.cos(i * 0.6) * 0.12;
-      const cryptoVolatility = Math.sin(i * 1.8) * 0.18 + Math.cos(i * 0.9) * 0.14;
+      const cryptoWave = Math.sin(i * 0.4) * 0.35;
+      const cryptoVolatility = Math.cos(i * 0.6) * 0.25;
 
-      const trend = progress * 0.15;
-      const noise = (Math.random() - 0.5) * 0.04;
+      const trend = progress * 0.20;
+      const noise = (Math.random() - 0.5) * 0.05;
 
-      const usdBalance = baseUSD * (0.75 + trend + fastWave + slowWave + sharpWave + txImpact + noise);
-      const eurBalance = baseEUR * (0.75 + trend + mediumWave + sharpWave * 0.8 + txImpact * 0.9 + noise);
-      const cadBalance = baseCAD * (0.75 + trend + fastWave * 1.1 + slowWave * 0.9 + txImpact * 0.95 + noise);
+      const usdBalance = baseUSD * (0.65 + trend + fastWave + mediumWave + slowWave + txImpact + noise);
+      const eurBalance = baseEUR * (0.65 + trend + mediumWave * 1.2 + slowWave + txImpact * 0.9 + noise);
+      const cadBalance = baseCAD * (0.65 + trend + fastWave * 1.1 + slowWave * 1.1 + txImpact * 0.95 + noise);
 
-      const btcValue = baseBTC * (0.7 + trend + cryptoFastWave + cryptoVolatility + txImpact * 1.3 + noise * 1.5);
-      const ethValue = baseETH * (0.7 + trend + cryptoSlowWave * 1.2 + cryptoVolatility * 1.4 + txImpact * 1.5 + noise * 1.8);
-      const usdtValue = baseUSDT * (0.88 + trend * 0.5 + slowWave * 0.7 + fastWave * 0.4 + txImpact * 0.6 + noise * 0.3);
+      const btcValue = baseBTC * (0.55 + trend + cryptoWave + cryptoVolatility + txImpact * 1.5 + noise * 2);
+      const ethValue = baseETH * (0.55 + trend + cryptoWave * 1.3 + cryptoVolatility * 1.2 + txImpact * 1.6 + noise * 2.2);
+      const usdtValue = baseUSDT * (0.85 + trend * 0.5 + mediumWave * 0.5 + txImpact * 0.7 + noise * 0.5);
 
       const totalFiat = usdBalance + eurBalance + cadBalance;
       const totalCrypto = btcValue + ethValue + usdtValue;
@@ -356,20 +354,20 @@ export default function BalanceGraph({
             {viewMode === 'combined' ? (
               <>
                 <Area
-                  type="natural"
+                  type="monotone"
                   dataKey="totalFiat"
                   stroke="#3b82f6"
-                  strokeWidth={3.5}
+                  strokeWidth={4}
                   fillOpacity={1}
                   fill="url(#colorTotalFiat)"
                   name="Total Fiat"
                 />
 
                 <Area
-                  type="natural"
+                  type="monotone"
                   dataKey="totalCrypto"
                   stroke="#f97316"
-                  strokeWidth={3.5}
+                  strokeWidth={4}
                   fillOpacity={1}
                   fill="url(#colorTotalCrypto)"
                   name="Total Crypto"
@@ -378,7 +376,7 @@ export default function BalanceGraph({
                 {showMovingAverage && (
                   <>
                     <Line
-                      type="natural"
+                      type="monotone"
                       dataKey="movingAvgFiat"
                       stroke="#1e40af"
                       strokeWidth={3}
@@ -387,7 +385,7 @@ export default function BalanceGraph({
                       name="Fiat Trend"
                     />
                     <Line
-                      type="natural"
+                      type="monotone"
                       dataKey="movingAvgCrypto"
                       stroke="#c2410c"
                       strokeWidth={3}
@@ -399,18 +397,18 @@ export default function BalanceGraph({
                 )}
 
                 <Line
-                  type="natural"
+                  type="monotone"
                   dataKey="totalAssets"
                   stroke="#7c3aed"
                   strokeWidth={4}
-                  dot={{ fill: '#7c3aed', r: 4 }}
+                  dot={{ fill: '#7c3aed', r: 3 }}
                   name="Total Assets"
                 />
               </>
             ) : (
               <>
                 <Area
-                  type="natural"
+                  type="monotone"
                   dataKey="usd"
                   stroke="#10b981"
                   strokeWidth={3}
@@ -420,7 +418,7 @@ export default function BalanceGraph({
                 />
 
                 <Area
-                  type="natural"
+                  type="monotone"
                   dataKey="eur"
                   stroke="#8b5cf6"
                   strokeWidth={3}
@@ -430,7 +428,7 @@ export default function BalanceGraph({
                 />
 
                 <Area
-                  type="natural"
+                  type="monotone"
                   dataKey="cad"
                   stroke="#ec4899"
                   strokeWidth={3}
@@ -440,29 +438,29 @@ export default function BalanceGraph({
                 />
 
                 <Line
-                  type="natural"
+                  type="monotone"
                   dataKey="btc"
                   stroke="#f59e0b"
                   strokeWidth={3.5}
-                  dot={{ fill: '#f59e0b', r: 4 }}
+                  dot={{ fill: '#f59e0b', r: 3 }}
                   name="BTC Value"
                 />
 
                 <Line
-                  type="natural"
+                  type="monotone"
                   dataKey="eth"
                   stroke="#6366f1"
                   strokeWidth={3.5}
-                  dot={{ fill: '#6366f1', r: 4 }}
+                  dot={{ fill: '#6366f1', r: 3 }}
                   name="ETH Value"
                 />
 
                 <Line
-                  type="natural"
+                  type="monotone"
                   dataKey="usdt"
                   stroke="#14b8a6"
                   strokeWidth={3.5}
-                  dot={{ fill: '#14b8a6', r: 4 }}
+                  dot={{ fill: '#14b8a6', r: 3 }}
                   name="USDT"
                 />
               </>
