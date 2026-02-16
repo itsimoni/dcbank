@@ -276,7 +276,7 @@ export default function Sidebar({
       <div
         className={`
           fixed md:relative
-          w-64 bg-[#F5F0F0] h-screen flex flex-col
+          w-64 bg-[#fef2f2] h-screen flex flex-col
           transform transition-transform duration-300 ease-in-out z-50
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0
@@ -296,7 +296,7 @@ export default function Sidebar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-gray-600 hover:text-[#F26623] hover:bg-gray-100"
+                className="text-gray-600 hover:text-[#b91c1c] hover:bg-gray-100"
                 onClick={() => setShowLanguageMenu(!showLanguageMenu)}
               >
                 <Globe className="h-5 w-5" />
@@ -334,9 +334,9 @@ export default function Sidebar({
                     disabled={!item.isEnabled}
                     className={`w-full flex items-center px-0 py-4 text-left transition-all duration-200 relative ${
                       activeTab === item.id
-                        ? "text-[#F26623]"
+                        ? "text-[#b91c1c]"
                         : item.isEnabled
-                        ? "text-gray-800 hover:text-[#F26623]"
+                        ? "text-gray-800 hover:text-[#b91c1c]"
                         : "text-gray-400 cursor-not-allowed"
                     }`}
                   >
@@ -359,7 +359,7 @@ export default function Sidebar({
         </nav>
 
         <div className="p-6 flex-shrink-0 border-t border-gray-200/50">
-          <div className="bg-[#F26623] rounded-2xl px-4 py-3 text-white relative">
+          <div className="bg-[#b91c1c] rounded-2xl px-4 py-3 text-white relative">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <span className="font-medium text-base">
