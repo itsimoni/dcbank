@@ -64,43 +64,6 @@ interface LatestMessage {
   is_welcome?: boolean;
 }
 
-interface AccountActivity {
-  id: string;
-  user_id: string;
-  client_id: string;
-  activity_type: string;
-  title: string;
-  description: string | null;
-  currency: string;
-  display_amount: number;
-  status: string;
-  priority: string;
-  is_read: boolean;
-  created_by: string | null;
-  created_at: string;
-  updated_at: string;
-  expires_at: string | null;
-  metadata: any;
-}
-
-interface TransactionHistory {
-  id: number;
-  created_at: string;
-  thType: string;
-  thDetails: string;
-  thPoi: string;
-  thStatus: string;
-  uuid: string | null;
-  thEmail: string | null;
-}
-
-interface CombinedActivity {
-  id: string;
-  type: "account_activity";
-  created_at: string;
-  data: AccountActivity | TransactionHistory;
-}
-
 interface WelcomeMessage {
   id: string;
   title: string;
@@ -267,13 +230,6 @@ function DashboardContent({
   const [showMessage, setShowMessage] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const loadingRef = useRef(false);
-  const [accountActivities, setAccountActivities] = useState<AccountActivity[]>(
-    []
-  );
-  const [combinedActivities, setCombinedActivities] = useState<
-    CombinedActivity[]
-  >([]);
-  const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [welcomeMessage, setWelcomeMessage] = useState<WelcomeMessage | null>(
     null
   );
@@ -282,10 +238,6 @@ function DashboardContent({
   const [currentMessage, setCurrentMessage] = useState<
     LatestMessage | WelcomeMessage | null
   >(null);
-  const [expandedActivities, setExpandedActivities] = useState<Set<string>>(
-    new Set()
-  );
-  const [showAllActivities, setShowAllActivities] = useState(false);
   // Add state for crypto balances
   const [cryptoBalances, setCryptoBalances] = useState<Record<string, number>>({
     BTC: 0,
@@ -345,130 +297,6 @@ function DashboardContent({
       default:
         return <MessageSquare className="h-4 w-4" />;
     }
-  }, []);
-
-  const getActivityIcon = useCallback((activity: CombinedActivity) => {
-    const a = activity.data as AccountActivity;
-    switch (a.activity_type) {
-      case "admin_notification":
-        return <Building2 className="h-5 w-5" />;
-      case "system_update":
-        return <Activity className="h-5 w-5" />;
-      case "security_alert":
-        return <AlertTriangle className="h-5 w-5" />;
-      case "account_notice":
-        return <Info className="h-5 w-5" />;
-      case "service_announcement":
-        return <Send className="h-5 w-5" />;
-      case "account_credit":
-        return <ArrowDownLeft className="h-5 w-5" />;
-      case "account_debit":
-        return <ArrowUpRight className="h-5 w-5" />;
-      case "wire_transfer":
-        return <ArrowUpRight className="h-5 w-5" />;
-      case "fraud_alert":
-        return <Shield className="h-5 w-5" />;
-      default:
-        return <Bell className="h-5 w-5" />;
-    }
-  }, []);
-
-  const getActivityDescription = useCallback((activity: CombinedActivity, t: ReturnType<typeof getTranslations>) => {
-    const accountActivity = activity.data as AccountActivity;
-
-    const title = accountActivity.title?.toLowerCase() || "";
-
-    if (title.includes("administrative balance adjustment")) {
-      return t.balanceUpdated;
-    }
-    if (title.includes("administrative credit")) {
-      return "Manual Credit";
-    }
-    if (title.includes("administrative debit")) {
-      return "Manual Debit";
-    }
-    if (title.includes("administrative crypto deposit")) {
-      return t.cryptoDeposit;
-    }
-    if (title.includes("administrative crypto debit")) {
-      return t.cryptoWithdrawal;
-    }
-
-    switch (accountActivity.activity_type) {
-      case "admin_notification":
-        return "Administrative Notice";
-      case "system_update":
-        return "System Update";
-      case "security_alert":
-        return "Security Alert";
-      case "account_notice":
-        return "Account Notice";
-      case "service_announcement":
-        return "Service Announcement";
-      case "account_credit":
-        return "Account Credited";
-      case "account_debit":
-        return "Account Debited";
-      case "wire_transfer":
-        return "Wire Transfer";
-      case "fraud_alert":
-        return "Fraud Alert";
-      case "statement_ready":
-        return "Statement Ready";
-      default:
-        return (
-          accountActivity.title
-            ?.replace(/^Administrative\s*/i, "")
-            ?.replace(/ - .*/g, "")
-            ?.trim() || "Account Activity"
-        );
-    }
-  }, []);
-
-  const getActivityAmount = useCallback((activity: CombinedActivity) => {
-    const accountActivity = activity.data as AccountActivity;
-    if (
-      accountActivity.display_amount &&
-      accountActivity.display_amount !== 0
-    ) {
-      const sign = accountActivity.display_amount > 0 ? "+" : "";
-      return `${sign}${Number(
-        accountActivity.display_amount
-      ).toLocaleString()} ${accountActivity.currency.toUpperCase()}`;
-    }
-    return null;
-  }, []);
-
-  const getActivityColor = useCallback((activity: CombinedActivity) => {
-    // Use neutral colors with #b91c1c accent
-    return "border-gray-200 bg-gray-50/30 hover:border-[#b91c1c]/30";
-  }, []);
-
-  const getPriorityColor = useCallback((priority: string) => {
-    switch (priority) {
-      case "urgent":
-        return "bg-[#b91c1c] text-white border-[#b91c1c]";
-      case "high":
-        return "bg-[#b91c1c]/20 text-[#b91c1c] border-[#b91c1c]/30";
-      case "normal":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      case "low":
-        return "bg-gray-50 text-gray-600 border-gray-100";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  }, []);
-
-  const toggleActivityExpansion = useCallback((activityId: string) => {
-    setExpandedActivities((prev) => {
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(activityId)) {
-        newExpanded.delete(activityId);
-      } else {
-        newExpanded.add(activityId);
-      }
-      return newExpanded;
-    });
   }, []);
 
   const handleDismissMessage = useCallback(async () => {
@@ -866,94 +694,6 @@ function DashboardContent({
     }
   }, [loading]);
 
-  useEffect(() => {
-    let subscription: ReturnType<typeof supabase.channel> | null = null;
-    let mounted = true;
-    const abortController = new AbortController();
-
-    const fetchActivities = async () => {
-      setActivitiesLoading(true);
-      try {
-        if (!userProfile?.id) return;
-
-        console.log("Fetching transaction history for:", {
-          user_id: userProfile.id,
-        });
-
-        const { data, error } = await supabase
-          .from("TransactionHistory")
-          .select("*")
-          .eq("uuid", userProfile.id)
-          .order("created_at", { ascending: false })
-          .limit(50)
-          .abortSignal(abortController.signal);
-
-        if (!mounted) return;
-
-        if (error) {
-          if (error.message?.includes('aborted') || error.name === 'AbortError') {
-            console.log('[Activities] Request aborted');
-            return;
-          }
-          console.error("Error fetching transaction history:", error);
-          return;
-        }
-
-        console.log("Fetched transaction history:", data);
-
-        const sorted = (data || []).sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-
-        setCombinedActivities(
-          sorted.map((a) => ({
-            id: String(a.id),
-            type: "account_activity" as const,
-            created_at: a.created_at,
-            data: a,
-          }))
-        );
-      } catch (err: any) {
-        if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
-          console.log('[Activities] Fetch aborted');
-          return;
-        }
-        console.error("Error fetching transaction history:", err);
-      } finally {
-        if (mounted) {
-          setActivitiesLoading(false);
-        }
-      }
-    };
-
-    const setupRealtime = async () => {
-      if (!userProfile?.id) return;
-
-      subscription = supabase
-        .channel(`transaction_history_realtime_${userProfile.id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "TransactionHistory",
-            filter: `uuid=eq.${userProfile.id}`,
-          },
-          () => fetchActivities()
-        )
-        .subscribe();
-    };
-
-    fetchActivities();
-    setupRealtime();
-
-    return () => {
-      mounted = false;
-      abortController.abort();
-      if (subscription) subscription.unsubscribe();
-    };
-  }, [userProfile.client_id]);
 
   useEffect(() => {
     const checkForNewAdminMessages = async () => {
@@ -1017,166 +757,6 @@ function DashboardContent({
       />
     ));
   }, [cryptoBalances, formatCurrency, t]);
-  const deferredActivities = useDeferredValue(combinedActivities);
-  // Memoized activities display
-  const activitiesDisplay = useMemo(() => {
-    const displayActivities = showAllActivities
-      ? deferredActivities
-      : deferredActivities.slice(0, 3);
-
-    return displayActivities.map((activity) => {
-      const isExpanded = expandedActivities.has(activity.id);
-      const activityData = activity.data;
-
-      const isTransactionHistory = "thType" in activityData;
-
-      const title = isTransactionHistory
-        ? (activityData as TransactionHistory).thType
-        : (() => {
-            const text = getActivityDescription(activity, t);
-            switch (text) {
-              case "Manual Credit":
-              case "Account Credited":
-                return t.depositReceived;
-              case "Manual Debit":
-              case "Account Debited":
-                return t.fundsWithdrawn;
-              case t.balanceUpdated:
-                return t.balanceUpdated;
-              case t.cryptoDeposit:
-                return t.cryptoDeposit;
-              case t.cryptoWithdrawal:
-                return t.cryptoWithdrawal;
-              default:
-                return text;
-            }
-          })();
-
-      const description = isTransactionHistory
-        ? (activityData as TransactionHistory).thDetails
-        : null;
-
-      const pointOfInteraction = isTransactionHistory
-        ? (activityData as TransactionHistory).thPoi
-        : null;
-
-      const status = isTransactionHistory
-        ? (activityData as TransactionHistory).thStatus
-        : null;
-
-      const shouldShowExpand = description && description.length > 100;
-
-      return (
-        <div
-          key={activity.id}
-          className={`transition-all duration-200 hover:bg-gray-50/50 border-gray-200 bg-gray-50/30 hover:border-[#b91c1c]/30 border-l-4 hover:border-l-[#b91c1c]`}
-        >
-          <div className="p-3 sm:p-4 lg:p-6">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start space-x-3 flex-1 min-w-0">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2 sm:mb-3">
-                    <h4 className="font-bold text-sm sm:text-base lg:text-lg text-gray-900 leading-tight">
-                      {title}
-                    </h4>
-                    {status && (
-                      <Badge
-                        className={`text-xs font-medium border mt-1 sm:mt-0 self-start ${
-                          status.toLowerCase() === "successful"
-                            ? "bg-green-100 text-green-800 border-green-200"
-                            : "bg-gray-100 text-gray-800 border-gray-200"
-                        }`}
-                      >
-                        {status.toUpperCase()}
-                      </Badge>
-                    )}
-                  </div>
-                  {description && (
-                    <div className="mb-3 sm:mb-4">
-                      <div
-                        className={`text-xs sm:text-sm text-gray-700 leading-relaxed ${
-                          !isExpanded && shouldShowExpand ? "line-clamp-3" : ""
-                        }`}
-                      >
-                        {description.split("\n").map((line, index) => (
-                          <div key={index} className={index > 0 ? "mt-2" : ""}>
-                            {line}
-                          </div>
-                        ))}
-                      </div>
-                      {shouldShowExpand && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleActivityExpansion(activity.id)}
-                          className="mt-2 text-[#b91c1c] hover:text-[#b91c1c] hover:bg-[#b91c1c]/10 p-0 h-auto font-medium text-xs sm:text-sm"
-                        >
-                          {isExpanded ? (
-                            <>
-                              <ChevronUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                              {t.showLess}
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                              {t.readMore}
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                  {pointOfInteraction && (
-                    <div className="mb-2 sm:mb-3">
-                      <span className="text-xs text-gray-600">
-                        <strong>{t.pointOfInteraction}:</strong>{" "}
-                        {pointOfInteraction}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-1 sm:space-y-0 text-xs text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <Clock className="h-3 w-3" />
-                      <span className="font-medium">
-                        {new Date(activity.created_at).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          }
-                        )}{" "}
-                        at{" "}
-                        {new Date(activity.created_at).toLocaleTimeString(
-                          "en-US",
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end space-y-2 flex-shrink-0">
-                <Badge className="text-xs px-2 sm:px-3 py-1 rounded-full font-medium bg-gray-100 text-gray-800 border border-gray-200 hover:bg-gray-200">
-                  {status || t.active}
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    });
-  }, [
-    combinedActivities,
-    showAllActivities,
-    expandedActivities,
-    toggleActivityExpansion,
-    getActivityDescription,
-    t,
-  ]);
 
   if (loading && !hasLoaded) {
     return (
@@ -1343,74 +923,13 @@ function DashboardContent({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
-          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-            {/* Account Activity Card */}
-            <Card className="shadow-lg border-0">
-              <CardHeader className="bg-[#fef2f2] border-b p-4 sm:p-6">
-                <CardTitle className="flex items-center text-base sm:text-lg">
-                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-[#b91c1c]" />
-                  {t.accountActivity}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                {activitiesLoading ? (
-                  <div className="space-y-2 p-4 sm:p-6">
-                    {[1, 2, 3].map((i) => (
-                      <LoadingActivity key={i} />
-                    ))}
-                  </div>
-                ) : combinedActivities.length === 0 ? (
-                  <div className="text-center py-8 sm:py-12 text-gray-500 p-4 sm:p-6">
-                    <Send className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
-                    <p className="text-sm">
-                      {isNewUser
-                        ? t.firstTransactionMessage
-                        : t.noAccountActivity}
-                    </p>
-                    <p className="text-xs mt-1">
-                      {isNewUser
-                        ? t.startDepositMessage
-                        : t.transactionsAppearMessage}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-100">
-                    {activitiesDisplay}
-                    {combinedActivities.length > 3 && (
-                      <div className="p-4 text-center border-t border-gray-100">
-                        <Button
-                          variant="ghost"
-                          onClick={() =>
-                            setShowAllActivities(!showAllActivities)
-                          }
-                          className="text-[#b91c1c] hover:text-[#b91c1c] hover:bg-[#b91c1c]/10 font-medium"
-                        >
-                          {showAllActivities ? (
-                            <>
-                              <ChevronUp className="h-4 w-4 mr-2" />
-                              {t.showLess}
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="h-4 w-4 mr-2" />
-                              {t.readMore} ({combinedActivities.length - 3} {t.more})
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          {/* Tax Card */}
+          <div className="lg:col-span-1">
+            <TaxCard userProfile={userProfile} setActiveTab={setActiveTab} />
           </div>
 
-          {/* Right Sidebar - Tax Card and Latest Message */}
-          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-            {/* Tax Card */}
-            <TaxCard userProfile={userProfile} setActiveTab={setActiveTab} />
-
-            {/* Latest Message Card - Now positioned between Activity and Payments */}
+          {/* Latest Message Card */}
+          <div className="lg:col-span-1">
             <Card>
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="flex items-center justify-between text-base sm:text-lg">
