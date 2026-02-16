@@ -143,28 +143,6 @@ export default function BalanceGraphV2({
           Balance Statistics
         </CardTitle>
         <p className="text-sm text-gray-600 mt-1">Detailed breakdown of your holdings across all currencies</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div className="bg-white p-4 border-l-4 border-[#b91c1c] shadow">
-            <div className="text-sm text-gray-600 mb-1 flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              Total Portfolio Value
-            </div>
-            <div className="text-3xl font-bold text-gray-900">
-              ${balanceStats.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          <div className="bg-white p-4 border-l-4 border-green-500 shadow">
-            <div className="text-sm text-gray-600 mb-1 flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Active Currencies
-            </div>
-            <div className="text-3xl font-bold text-gray-900">
-              {balanceStats.currencies.filter(c => c.value > 0).length} / 6
-            </div>
-          </div>
-        </div>
       </CardHeader>
 
       <CardContent className="pt-6">
