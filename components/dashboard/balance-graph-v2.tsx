@@ -43,88 +43,71 @@ export default function BalanceGraphV2({
     const ETHPrice = 3000;
 
     const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 60;
-    const points = days;
+    const endDate = new Date();
+    const startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
 
-    const baseUSD = currentBalances.usd || 10000;
-    const baseEUR = currentBalances.euro || 8000;
-    const baseCAD = currentBalances.cad || 6000;
-    const baseBTC = (cryptoBalances.BTC || 0.1) * BTCPrice;
-    const baseETH = (cryptoBalances.ETH || 1) * ETHPrice;
-    const baseUSDT = cryptoBalances.USDT || 5000;
+    const relevantTransactions = transactionHistory
+      .filter(tx => {
+        const txDate = new Date(tx.created_at);
+        return txDate >= startDate && txDate <= endDate;
+      })
+      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+
+    const balances = {
+      USD: currentBalances.usd || 0,
+      EUR: currentBalances.euro || 0,
+      CAD: currentBalances.cad || 0,
+      BTC: (cryptoBalances.BTC || 0) * BTCPrice,
+      ETH: (cryptoBalances.ETH || 0) * ETHPrice,
+      USDT: cryptoBalances.USDT || 0,
+    };
 
     const dataPoints = [];
+    const dailyBalances = new Map<string, typeof balances>();
 
-    for (let i = 0; i < points; i++) {
-      const date = new Date(Date.now() - (points - 1 - i) * 24 * 60 * 60 * 1000);
-      const x = i / points;
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+      const dateStr = date.toISOString().split('T')[0];
+      dailyBalances.set(dateStr, { ...balances });
+    }
 
-      const steadyGrowth = x * 0.08;
-      const randomVariation = Math.sin(i * 1.7) * 0.012;
+    relevantTransactions.forEach(tx => {
+      const txDate = new Date(tx.created_at);
+      const dateStr = txDate.toISOString().split('T')[0];
 
-      const usdWave =
-        Math.sin(i * 0.38) * 0.022 +
-        Math.cos(i * 0.16) * 0.015 +
-        Math.sin(i * 0.52) * 0.018 +
-        Math.cos(i * 0.24) * 0.012 +
-        Math.sin(i * 0.67) * 0.014 +
-        Math.cos(i * 0.33) * 0.010;
+      try {
+        const details = JSON.parse(tx.thDetails);
+        const amount = parseFloat(details.amount || 0);
+        const currency = details.currency?.toUpperCase() || 'USD';
 
-      const eurWave =
-        Math.sin(i * 0.42) * 0.024 +
-        Math.cos(i * 0.14) * 0.017 +
-        Math.sin(i * 0.58) * 0.019 +
-        Math.cos(i * 0.26) * 0.013 +
-        Math.sin(i * 0.71) * 0.015 +
-        Math.cos(i * 0.35) * 0.011;
+        for (let i = 0; i < days; i++) {
+          const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+          const currentDateStr = date.toISOString().split('T')[0];
 
-      const cadWave =
-        Math.sin(i * 0.36) * 0.026 +
-        Math.cos(i * 0.18) * 0.019 +
-        Math.sin(i * 0.48) * 0.021 +
-        Math.cos(i * 0.22) * 0.014 +
-        Math.sin(i * 0.63) * 0.016 +
-        Math.cos(i * 0.31) * 0.012;
+          if (currentDateStr < dateStr) {
+            const currentBalances = dailyBalances.get(currentDateStr);
+            if (currentBalances && currentBalances[currency as keyof typeof balances] !== undefined) {
+              currentBalances[currency as keyof typeof balances] -= amount;
+            }
+          }
+        }
+      } catch (e) {
+      }
+    });
 
-      const btcWave =
-        Math.sin(i * 0.32) * 0.055 +
-        Math.cos(i * 0.22) * 0.038 +
-        Math.sin(i * 0.44) * 0.042 +
-        Math.cos(i * 0.28) * 0.034 +
-        Math.sin(i * 0.59) * 0.028 +
-        Math.cos(i * 0.37) * 0.023;
-
-      const ethWave =
-        Math.sin(i * 0.40) * 0.048 +
-        Math.cos(i * 0.19) * 0.035 +
-        Math.sin(i * 0.54) * 0.039 +
-        Math.cos(i * 0.25) * 0.031 +
-        Math.sin(i * 0.69) * 0.025 +
-        Math.cos(i * 0.34) * 0.021;
-
-      const usdtWave =
-        Math.sin(i * 0.45) * 0.012 +
-        Math.cos(i * 0.25) * 0.008 +
-        Math.sin(i * 0.61) * 0.009 +
-        Math.cos(i * 0.29) * 0.007 +
-        Math.sin(i * 0.74) * 0.006 +
-        Math.cos(i * 0.38) * 0.005;
-
-      const usdValue = baseUSD * (1 + steadyGrowth + usdWave + randomVariation * 0.4);
-      const eurValue = baseEUR * (1 + steadyGrowth * 0.95 + eurWave + randomVariation * 0.45);
-      const cadValue = baseCAD * (1 + steadyGrowth * 1.05 + cadWave + randomVariation * 0.5);
-
-      const btcValue = baseBTC * (1 + steadyGrowth * 1.3 + btcWave + randomVariation * 1.2);
-      const ethValue = baseETH * (1 + steadyGrowth * 1.25 + ethWave + randomVariation * 1.1);
-      const usdtValue = baseUSDT * (1 + steadyGrowth * 0.02 + usdtWave + randomVariation * 0.1);
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayBalances = dailyBalances.get(dateStr) || balances;
 
       dataPoints.push({
         date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        USD: Math.round(usdValue),
-        EUR: Math.round(eurValue),
-        CAD: Math.round(cadValue),
-        BTC: Math.round(btcValue),
-        ETH: Math.round(ethValue),
-        USDT: Math.round(usdtValue),
+        USD: Math.max(0, Math.round(dayBalances.USD)),
+        EUR: Math.max(0, Math.round(dayBalances.EUR)),
+        CAD: Math.max(0, Math.round(dayBalances.CAD)),
+        BTC: Math.max(0, Math.round(dayBalances.BTC)),
+        ETH: Math.max(0, Math.round(dayBalances.ETH)),
+        USDT: Math.max(0, Math.round(dayBalances.USDT)),
       });
     }
 

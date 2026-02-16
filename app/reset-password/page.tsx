@@ -177,7 +177,9 @@ export default function ResetPasswordPage() {
             <Button
               onClick={() => router.push("/")}
               className="w-full bg-[#b91c1c] hover:bg-[#991b1b]"
-            ></Button>
+            >
+              Go to Dashboard
+            </Button>
           </CardContent>
         </Card>
       </div>
