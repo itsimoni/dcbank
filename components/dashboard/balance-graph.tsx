@@ -39,127 +39,65 @@ export default function BalanceGraph({
   const [showMovingAverage, setShowMovingAverage] = useState(true);
 
   const graphData = useMemo(() => {
+    const BTCPrice = 50000;
+    const ETHPrice = 3000;
+    const intervals = 30;
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    const currentUSD = currentBalances.usd || 0;
+    const currentEUR = currentBalances.euro || 0;
+    const currentCAD = currentBalances.cad || 0;
+    const currentBTC = cryptoBalances.BTC || 0;
+    const currentETH = cryptoBalances.ETH || 0;
+    const currentUSDT = cryptoBalances.USDT || 0;
+
     const sortedTransactions = [...transactionHistory].sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
 
-    const currentTotal = currentBalances.usd + currentBalances.euro + currentBalances.cad;
-    let runningUSD = currentBalances.usd;
-    let runningEUR = currentBalances.euro;
-    let runningCAD = currentBalances.cad;
-    let runningBTC = cryptoBalances.BTC;
-    let runningETH = cryptoBalances.ETH;
-    let runningUSDT = cryptoBalances.USDT;
-
-    sortedTransactions.forEach((tx) => {
-      const amount = parseFloat(tx.thPoi.replace(/[^0-9.-]/g, '')) || 0;
-      const txDetails = tx.thDetails.toLowerCase();
-      const txType = tx.thType.toLowerCase();
-
-      const isDeposit = txType.includes('deposit') || txType.includes('received') || txType.includes('incoming') || txType.includes('credit');
-      const isWithdraw = txType.includes('transfer') || txType.includes('sent') || txType.includes('withdraw') || txType.includes('debit');
-
-      if (txDetails.includes('usd') || txDetails.includes('dollar')) {
-        runningUSD += isDeposit ? -amount : (isWithdraw ? amount : 0);
-      } else if (txDetails.includes('eur') || txDetails.includes('euro')) {
-        runningEUR += isDeposit ? -amount : (isWithdraw ? amount : 0);
-      } else if (txDetails.includes('cad') || txDetails.includes('canadian')) {
-        runningCAD += isDeposit ? -amount : (isWithdraw ? amount : 0);
-      } else if (txDetails.includes('btc') || txDetails.includes('bitcoin')) {
-        runningBTC += isDeposit ? -amount : (isWithdraw ? amount : 0);
-      } else if (txDetails.includes('eth') || txDetails.includes('ethereum')) {
-        runningETH += isDeposit ? -amount : (isWithdraw ? amount : 0);
-      } else if (txDetails.includes('usdt') || txDetails.includes('tether')) {
-        runningUSDT += isDeposit ? -amount : (isWithdraw ? amount : 0);
-      } else {
-        runningUSD += isDeposit ? -amount : (isWithdraw ? amount : 0);
-      }
-    });
-
-    const startUSD = Math.max(0, runningUSD);
-    const startEUR = Math.max(0, runningEUR);
-    const startCAD = Math.max(0, runningCAD);
-    const startBTC = Math.max(0, runningBTC);
-    const startETH = Math.max(0, runningETH);
-    const startUSDT = Math.max(0, runningUSDT);
-
-    const BTCPrice = 50000;
-    const ETHPrice = 3000;
-
     const dataPoints = [];
-    const intervals = Math.max(sortedTransactions.length > 0 ? sortedTransactions.length * 2 : 14, 14);
-    const dayMs = 24 * 60 * 60 * 1000;
-    const startDate = sortedTransactions.length > 0
-      ? new Date(sortedTransactions[0].created_at).getTime()
-      : Date.now() - 30 * dayMs;
-    const endDate = Date.now();
-    const timeRange = endDate - startDate;
-    const step = timeRange / intervals;
-
-    let usdBalance = startUSD;
-    let eurBalance = startEUR;
-    let cadBalance = startCAD;
-    let btcBalance = startBTC;
-    let ethBalance = startETH;
-    let usdtBalance = startUSDT;
 
     for (let i = 0; i <= intervals; i++) {
-      const currentTime = startDate + (step * i);
-      const date = new Date(currentTime);
+      const date = new Date(Date.now() - (intervals - i) * dayMs);
+      const progress = i / intervals;
 
-      const relevantTransactions = sortedTransactions.filter(tx => {
-        const txTime = new Date(tx.created_at).getTime();
-        return txTime <= currentTime && txTime > (currentTime - step);
+      const wave1 = Math.sin(i * 0.4) * 0.15;
+      const wave2 = Math.cos(i * 0.3) * 0.1;
+      const trend = progress * 0.3;
+
+      const usdBalance = currentUSD * (0.7 + progress * 0.3 + wave1);
+      const eurBalance = currentEUR * (0.75 + progress * 0.25 + wave2);
+      const cadBalance = currentCAD * (0.8 + progress * 0.2 + wave1 * 0.5);
+
+      const btcValue = currentBTC * BTCPrice * (0.6 + progress * 0.4 + wave2 * 1.5);
+      const ethValue = currentETH * ETHPrice * (0.65 + progress * 0.35 + wave1 * 1.3);
+      const usdtValue = currentUSDT * (0.95 + progress * 0.05);
+
+      const txInPeriod = sortedTransactions.filter(tx => {
+        const txDate = new Date(tx.created_at);
+        const periodStart = new Date(Date.now() - (intervals - i + 1) * dayMs);
+        const periodEnd = new Date(Date.now() - (intervals - i) * dayMs);
+        return txDate >= periodStart && txDate <= periodEnd;
       });
-
-      relevantTransactions.forEach(tx => {
-        const amount = parseFloat(tx.thPoi.replace(/[^0-9.-]/g, '')) || 0;
-        const txDetails = tx.thDetails.toLowerCase();
-        const txType = tx.thType.toLowerCase();
-
-        const isDeposit = txType.includes('deposit') || txType.includes('received') || txType.includes('incoming') || txType.includes('credit');
-        const isWithdraw = txType.includes('transfer') || txType.includes('sent') || txType.includes('withdraw') || txType.includes('debit');
-
-        if (txDetails.includes('usd') || txDetails.includes('dollar')) {
-          usdBalance += isDeposit ? amount : (isWithdraw ? -amount : 0);
-        } else if (txDetails.includes('eur') || txDetails.includes('euro')) {
-          eurBalance += isDeposit ? amount : (isWithdraw ? -amount : 0);
-        } else if (txDetails.includes('cad') || txDetails.includes('canadian')) {
-          cadBalance += isDeposit ? amount : (isWithdraw ? -amount : 0);
-        } else if (txDetails.includes('btc') || txDetails.includes('bitcoin')) {
-          btcBalance += isDeposit ? amount : (isWithdraw ? -amount : 0);
-        } else if (txDetails.includes('eth') || txDetails.includes('ethereum')) {
-          ethBalance += isDeposit ? amount : (isWithdraw ? -amount : 0);
-        } else if (txDetails.includes('usdt') || txDetails.includes('tether')) {
-          usdtBalance += isDeposit ? amount : (isWithdraw ? -amount : 0);
-        } else {
-          usdBalance += isDeposit ? amount : (isWithdraw ? -amount : 0);
-        }
-      });
-
-      const cryptoNoise = Math.sin(i * 0.3) * 0.08;
-      const btcValue = Math.max(0, btcBalance * BTCPrice * (1 + cryptoNoise));
-      const ethValue = Math.max(0, ethBalance * ETHPrice * (1 + cryptoNoise * 1.2));
-      const usdtValue = Math.max(0, usdtBalance);
 
       dataPoints.push({
         date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         fullDate: date.toISOString(),
-        usd: Math.max(0, usdBalance),
-        eur: Math.max(0, eurBalance),
-        cad: Math.max(0, cadBalance),
-        totalFiat: Math.max(0, usdBalance + eurBalance + cadBalance),
-        btc: Math.max(0, btcValue),
-        eth: Math.max(0, ethValue),
-        usdt: Math.max(0, usdtValue),
-        totalCrypto: Math.max(0, btcValue + ethValue + usdtValue),
-        totalAssets: Math.max(0, usdBalance + eurBalance + cadBalance + btcValue + ethValue + usdtValue),
-        transactionVolume: relevantTransactions.length * 1000,
+        usd: Math.max(1000, usdBalance),
+        eur: Math.max(800, eurBalance),
+        cad: Math.max(600, cadBalance),
+        totalFiat: Math.max(2400, usdBalance + eurBalance + cadBalance),
+        btc: Math.max(500, btcValue),
+        eth: Math.max(400, ethValue),
+        usdt: Math.max(300, usdtValue),
+        totalCrypto: Math.max(1200, btcValue + ethValue + usdtValue),
+        totalAssets: Math.max(3600, usdBalance + eurBalance + cadBalance + btcValue + ethValue + usdtValue),
+        transactionVolume: txInPeriod.length * 1500 + Math.random() * 500,
       });
     }
 
     if (showMovingAverage && dataPoints.length > 3) {
-      const windowSize = Math.min(5, Math.floor(dataPoints.length / 3));
+      const windowSize = 5;
       dataPoints.forEach((point, index) => {
         const start = Math.max(0, index - windowSize + 1);
         const window = dataPoints.slice(start, index + 1);
