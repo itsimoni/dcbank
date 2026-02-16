@@ -64,18 +64,6 @@ interface LatestMessage {
   is_welcome?: boolean;
 }
 
-interface Payment {
-  id: string;
-  user_id: string;
-  payment_type: string;
-  amount: number;
-  currency: string;
-  status: string;
-  description?: string;
-  due_date?: string;
-  created_at: string;
-}
-
 interface AccountActivity {
   id: string;
   user_id: string;
@@ -276,8 +264,6 @@ function DashboardContent({
     error,
   } = useRealtimeData();
   const { latestMessage, markAsRead } = useLatestMessage();
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [paymentsLoading, setPaymentsLoading] = useState(true);
   const [showMessage, setShowMessage] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const loadingRef = useRef(false);
@@ -767,12 +753,6 @@ function DashboardContent({
           .eq("user_id", userProfile.id)
           .limit(1);
 
-        const { data: existingPayments } = await supabase
-          .from("payments")
-          .select("id")
-          .eq("user_id", userProfile.id)
-          .limit(1);
-
         // Check if welcome message already exists
         const { data: existingWelcome } = await supabase
           .from("messages")
@@ -782,8 +762,7 @@ function DashboardContent({
           .limit(1);
 
         const hasActivity =
-          (existingTransfers && existingTransfers.length > 0) ||
-          (existingPayments && existingPayments.length > 0);
+          (existingTransfers && existingTransfers.length > 0);
 
         const shouldShowWelcome =
           isRecentUser && !hasActivity && !existingWelcome?.length;
@@ -886,81 +865,6 @@ function DashboardContent({
       setHasLoaded(true);
     }
   }, [loading]);
-
-  useEffect(() => {
-    let mounted = true;
-    const abortController = new AbortController();
-
-    const fetchPayments = async () => {
-      try {
-        if (!userProfile?.id) return;
-
-        const { data, error } = await supabase
-          .from("payments")
-          .select("*")
-          .eq("user_id", userProfile.id)
-          .order("created_at", { ascending: false })
-          .limit(10)
-          .abortSignal(abortController.signal);
-
-        if (!mounted) return;
-
-        if (error) {
-          if (error.message?.includes('aborted') || error.name === 'AbortError') {
-            console.log('[Payments] Request aborted');
-            return;
-          }
-          console.error("Error fetching payments:", error);
-          return;
-        }
-
-        setPayments(data || []);
-      } catch (error: any) {
-        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
-          console.log('[Payments] Fetch aborted');
-          return;
-        }
-        console.error("Error fetching payments:", error);
-      } finally {
-        if (mounted) {
-          setPaymentsLoading(false);
-        }
-      }
-    };
-
-    fetchPayments();
-
-    const setupPaymentsSubscription = async () => {
-      if (!userProfile?.id) return;
-
-      const paymentsSubscription = supabase
-        .channel("payments_changes")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "payments",
-            filter: `user_id=eq.${userProfile.id}`,
-          },
-          () => {
-            fetchPayments();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        paymentsSubscription.unsubscribe();
-      };
-    };
-
-    const cleanup = setupPaymentsSubscription();
-    return () => {
-      mounted = false;
-      abortController.abort();
-      cleanup?.then((fn) => fn?.());
-    };
-  }, []);
 
   useEffect(() => {
     let subscription: ReturnType<typeof supabase.channel> | null = null;
@@ -1499,74 +1403,9 @@ function DashboardContent({
                 )}
               </CardContent>
             </Card>
-            {/* Payments Card */}
-            <Card>
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="flex items-center text-base sm:text-lg">
-                  <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                  {t.payments}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
-                {paymentsLoading ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3, 4].map((i) => (
-                      <LoadingActivity key={i} />
-                    ))}
-                  </div>
-                ) : payments.length === 0 ? (
-                  <div className="text-center py-6 sm:py-8 text-gray-500">
-                    <CreditCard className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
-                    <p className="text-sm">
-                      {isNewUser ? t.noPaymentsYet : t.noRecentPayments}
-                    </p>
-                    <p className="text-xs mt-1">
-                      {isNewUser
-                        ? t.paymentHistoryAppearMessage
-                        : t.paymentHistoryMessage}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {payments.slice(0, 6).map((payment) => (
-                      <div
-                        key={payment.id}
-                        className="py-2 border-b border-gray-100 last:border-b-0"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <span className="text-sm font-medium block truncate">
-                              {payment.payment_type}
-                            </span>
-                            <span className="text-xs text-gray-600 block truncate">
-                              {payment.description || "Payment transaction"}
-                            </span>
-                          </div>
-                          <div className="text-right flex-shrink-0 ml-2">
-                            <span className="text-sm font-medium block">
-                              {formatCurrency(payment.amount, payment.currency)}
-                            </span>
-                            <Badge
-                              variant={
-                                payment.status === "completed"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                              className="text-xs mt-1"
-                            >
-                              {payment.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           </div>
 
-          {/* Right Sidebar - Now only contains Tax Card and Mobile Banking Card */}
+          {/* Right Sidebar - Tax Card and Latest Message */}
           <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             {/* Tax Card */}
             <TaxCard userProfile={userProfile} setActiveTab={setActiveTab} />
