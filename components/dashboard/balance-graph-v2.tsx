@@ -52,33 +52,39 @@ export default function BalanceGraphV2({
     const baseETH = (cryptoBalances.ETH || 1) * ETHPrice;
     const baseUSDT = cryptoBalances.USDT || 5000;
 
-    const totalFiatBase = baseUSD + baseEUR + baseCAD;
-    const totalCryptoBase = baseBTC + baseETH + baseUSDT;
-
     const dataPoints = [];
 
     for (let i = 0; i < points; i++) {
       const date = new Date(Date.now() - (points - 1 - i) * 24 * 60 * 60 * 1000);
       const x = i / points;
 
-      const fiatWave = Math.sin(i * 0.4) * 0.025 + Math.cos(i * 0.15) * 0.018;
-      const cryptoWave = Math.sin(i * 0.35) * 0.045 + Math.cos(i * 0.2) * 0.032;
-
       const steadyGrowth = x * 0.08;
-      const randomVariation = (Math.sin(i * 1.7) * 0.012);
+      const randomVariation = Math.sin(i * 1.7) * 0.012;
 
-      const fiatMultiplier = 1 + steadyGrowth + fiatWave + randomVariation * 0.5;
-      const cryptoMultiplier = 1 + steadyGrowth * 1.2 + cryptoWave + randomVariation;
+      const usdWave = Math.sin(i * 0.38) * 0.022 + Math.cos(i * 0.16) * 0.015;
+      const eurWave = Math.sin(i * 0.42) * 0.024 + Math.cos(i * 0.14) * 0.017;
+      const cadWave = Math.sin(i * 0.36) * 0.026 + Math.cos(i * 0.18) * 0.019;
 
-      const totalFiat = totalFiatBase * fiatMultiplier;
-      const totalCrypto = totalCryptoBase * cryptoMultiplier;
-      const totalAssets = totalFiat + totalCrypto;
+      const btcWave = Math.sin(i * 0.32) * 0.055 + Math.cos(i * 0.22) * 0.038;
+      const ethWave = Math.sin(i * 0.40) * 0.048 + Math.cos(i * 0.19) * 0.035;
+      const usdtWave = Math.sin(i * 0.45) * 0.012 + Math.cos(i * 0.25) * 0.008;
+
+      const usdValue = baseUSD * (1 + steadyGrowth + usdWave + randomVariation * 0.4);
+      const eurValue = baseEUR * (1 + steadyGrowth * 0.95 + eurWave + randomVariation * 0.45);
+      const cadValue = baseCAD * (1 + steadyGrowth * 1.05 + cadWave + randomVariation * 0.5);
+
+      const btcValue = baseBTC * (1 + steadyGrowth * 1.3 + btcWave + randomVariation * 1.2);
+      const ethValue = baseETH * (1 + steadyGrowth * 1.25 + ethWave + randomVariation * 1.1);
+      const usdtValue = baseUSDT * (1 + steadyGrowth * 0.02 + usdtWave + randomVariation * 0.1);
 
       dataPoints.push({
         date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        fiat: Math.round(totalFiat),
-        crypto: Math.round(totalCrypto),
-        total: Math.round(totalAssets),
+        USD: Math.round(usdValue),
+        EUR: Math.round(eurValue),
+        CAD: Math.round(cadValue),
+        BTC: Math.round(btcValue),
+        ETH: Math.round(ethValue),
+        USDT: Math.round(usdtValue),
       });
     }
 
@@ -88,14 +94,15 @@ export default function BalanceGraphV2({
   const stats = useMemo(() => {
     if (graphData.length < 2) return { change: 0, direction: 'neutral', high: 0, low: 0 };
 
-    const first = graphData[0].total;
-    const last = graphData[graphData.length - 1].total;
-    const change = ((last - first) / first) * 100;
+    const firstTotal = graphData[0].USD + graphData[0].EUR + graphData[0].CAD + graphData[0].BTC + graphData[0].ETH + graphData[0].USDT;
+    const lastTotal = graphData[graphData.length - 1].USD + graphData[graphData.length - 1].EUR + graphData[graphData.length - 1].CAD +
+                      graphData[graphData.length - 1].BTC + graphData[graphData.length - 1].ETH + graphData[graphData.length - 1].USDT;
+    const change = ((lastTotal - firstTotal) / firstTotal) * 100;
     const direction = change > 0 ? 'up' : change < 0 ? 'down' : 'neutral';
 
-    const allValues = graphData.map(d => d.total);
-    const high = Math.max(...allValues);
-    const low = Math.min(...allValues);
+    const allTotals = graphData.map(d => d.USD + d.EUR + d.CAD + d.BTC + d.ETH + d.USDT);
+    const high = Math.max(...allTotals);
+    const low = Math.min(...allTotals);
 
     return { change, direction, high, low };
   }, [graphData]);
@@ -124,9 +131,9 @@ export default function BalanceGraphV2({
           <div>
             <CardTitle className="text-2xl font-bold flex items-center gap-2 text-gray-900">
               <Activity className="h-6 w-6 text-[#b91c1c]" />
-              Portfolio Balance Tracker
+              Currency Portfolio Tracker
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">Real-time balance fluctuations and trends</p>
+            <p className="text-sm text-gray-600 mt-1">Individual currency performance across fiat and crypto assets</p>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -214,17 +221,29 @@ export default function BalanceGraphV2({
           {chartType === 'area' ? (
             <AreaChart data={graphData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <defs>
-                <linearGradient id="colorFiat" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorUSD" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05}/>
                 </linearGradient>
-                <linearGradient id="colorCrypto" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.4}/>
+                <linearGradient id="colorEUR" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.05}/>
+                </linearGradient>
+                <linearGradient id="colorCAD" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.05}/>
+                </linearGradient>
+                <linearGradient id="colorBTC" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.5}/>
                   <stop offset="95%" stopColor="#f97316" stopOpacity={0.05}/>
                 </linearGradient>
-                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorETH" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.5}/>
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0.05}/>
+                </linearGradient>
+                <linearGradient id="colorUSDT" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0.05}/>
                 </linearGradient>
               </defs>
 
@@ -245,34 +264,61 @@ export default function BalanceGraphV2({
               <Tooltip content={<CustomTooltip />} />
 
               <Legend
-                wrapperStyle={{ paddingTop: '20px', fontSize: '13px', fontWeight: 600 }}
+                wrapperStyle={{ paddingTop: '20px', fontSize: '12px', fontWeight: 600 }}
               />
 
               <Area
                 type="monotone"
-                dataKey="fiat"
+                dataKey="USD"
                 stroke="#3b82f6"
                 strokeWidth={2.5}
-                fill="url(#colorFiat)"
-                name="Fiat Balance"
+                fill="url(#colorUSD)"
+                name="USD"
               />
 
               <Area
                 type="monotone"
-                dataKey="crypto"
+                dataKey="EUR"
+                stroke="#8b5cf6"
+                strokeWidth={2.5}
+                fill="url(#colorEUR)"
+                name="EUR"
+              />
+
+              <Area
+                type="monotone"
+                dataKey="CAD"
+                stroke="#06b6d4"
+                strokeWidth={2.5}
+                fill="url(#colorCAD)"
+                name="CAD"
+              />
+
+              <Area
+                type="monotone"
+                dataKey="BTC"
                 stroke="#f97316"
                 strokeWidth={2.5}
-                fill="url(#colorCrypto)"
-                name="Crypto Balance"
+                fill="url(#colorBTC)"
+                name="BTC"
               />
 
               <Area
                 type="monotone"
-                dataKey="total"
+                dataKey="ETH"
                 stroke="#10b981"
-                strokeWidth={3}
-                fill="url(#colorTotal)"
-                name="Total Portfolio"
+                strokeWidth={2.5}
+                fill="url(#colorETH)"
+                name="ETH"
+              />
+
+              <Area
+                type="monotone"
+                dataKey="USDT"
+                stroke="#22c55e"
+                strokeWidth={2.5}
+                fill="url(#colorUSDT)"
+                name="USDT"
               />
             </AreaChart>
           ) : (
@@ -294,37 +340,67 @@ export default function BalanceGraphV2({
               <Tooltip content={<CustomTooltip />} />
 
               <Legend
-                wrapperStyle={{ paddingTop: '20px', fontSize: '13px', fontWeight: 600 }}
+                wrapperStyle={{ paddingTop: '20px', fontSize: '12px', fontWeight: 600 }}
               />
 
               <Line
                 type="monotone"
-                dataKey="fiat"
+                dataKey="USD"
                 stroke="#3b82f6"
                 strokeWidth={2.5}
                 dot={{ fill: '#3b82f6', r: 3 }}
                 activeDot={{ r: 5 }}
-                name="Fiat Balance"
+                name="USD"
               />
 
               <Line
                 type="monotone"
-                dataKey="crypto"
+                dataKey="EUR"
+                stroke="#8b5cf6"
+                strokeWidth={2.5}
+                dot={{ fill: '#8b5cf6', r: 3 }}
+                activeDot={{ r: 5 }}
+                name="EUR"
+              />
+
+              <Line
+                type="monotone"
+                dataKey="CAD"
+                stroke="#06b6d4"
+                strokeWidth={2.5}
+                dot={{ fill: '#06b6d4', r: 3 }}
+                activeDot={{ r: 5 }}
+                name="CAD"
+              />
+
+              <Line
+                type="monotone"
+                dataKey="BTC"
                 stroke="#f97316"
                 strokeWidth={2.5}
                 dot={{ fill: '#f97316', r: 3 }}
                 activeDot={{ r: 5 }}
-                name="Crypto Balance"
+                name="BTC"
               />
 
               <Line
                 type="monotone"
-                dataKey="total"
+                dataKey="ETH"
                 stroke="#10b981"
-                strokeWidth={3}
-                dot={{ fill: '#10b981', r: 3.5 }}
-                activeDot={{ r: 6 }}
-                name="Total Portfolio"
+                strokeWidth={2.5}
+                dot={{ fill: '#10b981', r: 3 }}
+                activeDot={{ r: 5 }}
+                name="ETH"
+              />
+
+              <Line
+                type="monotone"
+                dataKey="USDT"
+                stroke="#22c55e"
+                strokeWidth={2.5}
+                dot={{ fill: '#22c55e', r: 3 }}
+                activeDot={{ r: 5 }}
+                name="USDT"
               />
             </LineChart>
           )}
