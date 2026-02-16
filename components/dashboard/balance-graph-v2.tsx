@@ -168,63 +168,7 @@ export default function BalanceGraphV2({
       </CardHeader>
 
       <CardContent className="pt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 mb-8">
-          {balanceStats.currencies.map((currency) => (
-            <div
-              key={currency.name}
-              className="bg-white border-2 shadow-md hover:shadow-lg transition-shadow p-5"
-              style={{ borderLeftColor: currency.color, borderLeftWidth: '6px' }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
-                    style={{ backgroundColor: currency.color }}
-                  >
-                    {currency.symbol}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900">{currency.name}</h3>
-                    <p className="text-xs text-gray-500">{currency.type}</p>
-                  </div>
-                </div>
-                <div className={`text-sm font-semibold ${currency.value > 0 ? 'text-green-600' : 'text-gray-400'}`}>
-                  {currency.percentage.toFixed(1)}%
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-sm text-gray-600">Balance:</span>
-                  <span className="text-lg font-bold text-gray-900">
-                    {currency.name === 'BTC' || currency.name === 'ETH' || currency.name === 'USDT'
-                      ? currency.balance.toFixed(8)
-                      : currency.balance.toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-baseline">
-                  <span className="text-sm text-gray-600">USD Value:</span>
-                  <span className="text-xl font-bold" style={{ color: currency.color }}>
-                    ${currency.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-
-                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                  <div
-                    className="h-2 rounded-full transition-all"
-                    style={{
-                      width: `${currency.percentage}%`,
-                      backgroundColor: currency.color
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-white border shadow-lg p-6 mt-6">
+        <div className="bg-white border shadow-lg p-6">
           <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-[#b91c1c]" />
             Balance Trends (Wave View)
