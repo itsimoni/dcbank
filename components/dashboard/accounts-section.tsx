@@ -147,8 +147,8 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
     account_name: "",
     bank_name: "",
     account_holder_name: "",
-    country: "US",
-    payment_rail: "ACH" as PaymentRail,
+    country: "",
+    payment_rail: "SWIFT" as PaymentRail,
 
     // ACH fields
     account_number: "",
@@ -184,36 +184,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
       fetchAccounts();
     }
   }, [userProfile?.id]);
-
-  // Update payment rail and currency when country changes
-  useEffect(() => {
-    if (formData.country.length === 2) {
-      const countryUpper = formData.country.toUpperCase();
-      const availableRails = COUNTRY_RAILS[countryUpper] || ["SWIFT"];
-
-      if (!availableRails.includes(formData.payment_rail)) {
-        setFormData(prev => ({ ...prev, payment_rail: availableRails[0] }));
-      }
-
-      // Update default currency based on country
-      let newCurrency = formData.currency;
-      if (countryUpper === "US") {
-        newCurrency = "USD";
-      } else if (countryUpper === "CA") {
-        newCurrency = "CAD";
-      } else if (["FR", "DE", "IT", "ES", "NL", "BE", "AT", "PT", "GR"].includes(countryUpper)) {
-        newCurrency = "EUR";
-      } else if (countryUpper === "GB") {
-        newCurrency = "GBP";
-      } else if (countryUpper === "CH") {
-        newCurrency = "CHF";
-      }
-
-      if (newCurrency !== formData.currency) {
-        setFormData(prev => ({ ...prev, currency: newCurrency }));
-      }
-    }
-  }, [formData.country]);
 
   const fetchAccounts = async () => {
     if (!userProfile?.id) return;
@@ -254,8 +224,8 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
       account_name: "",
       bank_name: "",
       account_holder_name: "",
-      country: "US",
-      payment_rail: "ACH" as PaymentRail,
+      country: "",
+      payment_rail: "SWIFT" as PaymentRail,
       account_number: "",
       routing_number: "",
       account_type: "Checking",
@@ -600,10 +570,8 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   <Input
                     id="country"
                     value={formData.country}
-                    onChange={(e) => setFormData({ ...formData, country: e.target.value.toUpperCase() })}
-                    placeholder="US"
-                    maxLength={2}
-                    className="uppercase"
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                    placeholder="United States"
                   />
                 </div>
 
@@ -620,7 +588,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {(COUNTRY_RAILS[formData.country] || ["SWIFT"]).map((rail) => (
+                      {(["ACH", "SEPA", "SWIFT", "WIRE", "FPS", "OTHER"] as PaymentRail[]).map((rail) => (
                         <SelectItem key={rail} value={rail}>
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${RAIL_COLORS[rail]}`}>
                             {rail}
@@ -788,10 +756,8 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                     <Input
                       id="bank_country"
                       value={formData.bank_country}
-                      onChange={(e) => setFormData({ ...formData, bank_country: e.target.value.toUpperCase() })}
-                      placeholder="US"
-                      maxLength={2}
-                      className="uppercase"
+                      onChange={(e) => setFormData({ ...formData, bank_country: e.target.value })}
+                      placeholder="United States"
                     />
                   </div>
 
@@ -903,7 +869,8 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                         {/* Middle: Country, Rail, Identifier */}
                         <div className="flex items-center gap-4 flex-1 justify-center">
                           <Badge variant="outline" className="text-sm">
-                            {COUNTRY_FLAGS[account.country || "US"]} {account.country || "US"}
+                            <Globe className="h-3 w-3 mr-1" />
+                            {account.country || "N/A"}
                           </Badge>
                           <Badge className={RAIL_COLORS[account.payment_rail as PaymentRail]}>
                             {account.payment_rail}
