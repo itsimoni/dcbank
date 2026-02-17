@@ -412,7 +412,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                     Country
                   </Label>
                   <Input
-                    className="pt-4"
                     id="country"
                     value={formData.country}
                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
@@ -420,7 +419,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   />
                 </div>
 
-                <div className="pt-4">
+                <div>
                   <Label htmlFor="payment_rail" className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-[#b91c1c]" />
                     Payment Rail
