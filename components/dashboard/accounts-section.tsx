@@ -34,7 +34,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(true);
   const [formData, setFormData] = useState({
     account_name: "",
     bank_name: "",
@@ -116,7 +116,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
         account_type: "Checking",
         currency: "USD",
       });
-      setShowAddForm(false);
       fetchAccounts();
       alert(t.accountAddedSuccess);
     } catch (error: any) {
@@ -147,7 +146,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623]"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c]"></div>
             <span className="ml-2">{t.loadingAccounts}</span>
           </div>
         </div>
@@ -191,22 +190,15 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-4">
             <h2 className="text-2xl font-bold">{t.externalBankAccounts}</h2>
-            <Button
-              onClick={() => setShowAddForm(true)}
-              className="bg-[#F26623] hover:bg-[#E55A1F]"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t.addAccount}
-            </Button>
           </div>
 
           {/* Language Selector */}
           <div className="relative">
             <button
               onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-              className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
             >
-              <Languages className="h-4 w-4 text-[#F26623]" />
+              <Languages className="h-4 w-4 text-[#b91c1c]" />
               <span>{languageNames[language]}</span>
               <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -227,7 +219,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                       }}
                       className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
                         language === code
-                          ? 'bg-[#F26623] text-white font-medium'
+                          ? 'bg-[#b91c1c] text-white font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
@@ -247,11 +239,10 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           </div>
         </div>
 
-        {showAddForm && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.addNewBankAccount}</CardTitle>
-            </CardHeader>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t.addNewBankAccount}</CardTitle>
+          </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -343,17 +334,13 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
               <div className="flex gap-2">
                 <Button
                   onClick={addAccount}
-                  className="bg-[#F26623] hover:bg-[#E55A1F]"
+                  className="bg-[#b91c1c] hover:bg-[#991b1b]"
                 >
                   {t.addAccount}
                 </Button>
-                <Button variant="outline" onClick={() => setShowAddForm(false)}>
-                  {t.cancel}
-                </Button>
               </div>
             </CardContent>
-          </Card>
-        )}
+        </Card>
 
         <div className="grid gap-4">
           {accounts.length === 0 ? (
