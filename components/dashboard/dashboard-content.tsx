@@ -990,21 +990,22 @@ function DashboardContent({
                             </div>
                           </div>
                           <Badge
-                            variant={
-                              transaction.thStatus === "Successful"
-                                ? "default"
-                                : transaction.thStatus === "Pending"
-                                ? "secondary"
-                                : "destructive"
-                            }
-                            className={`text-xs shrink-0 ${
-                              transaction.thStatus === "Successful"
-                                ? "bg-green-500 hover:bg-green-600 text-white"
-                                : ""
-                            }`}
-                          >
-                            {getTranslatedStatus(transaction.thStatus)}
-                          </Badge>
+  variant={
+    transaction.thStatus === "Successful"
+      ? "default"
+      : transaction.thStatus === "Pending"
+      ? "secondary"
+      : "destructive"
+  }
+  className={`text-xs shrink-0 rounded-none ${
+    transaction.thStatus === "Successful"
+      ? "bg-green-500 hover:bg-green-600 text-white"
+      : ""
+  }`}
+>
+  {getTranslatedStatus(transaction.thStatus)}
+</Badge>
+
                         </div>
                         <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                           <Clock className="h-3 w-3" />
