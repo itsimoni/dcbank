@@ -37,6 +37,7 @@ import {
 import Image from "next/image";
 import TaxCard from "../tax-card";
 import LiveRatesCard from "./live-rates-card";
+import BalanceComparisonGraph from "./balance-comparison-graph";
 if (process.env.NODE_ENV === "production") {
   console.log = () => {};
   console.warn = () => {};
@@ -1021,6 +1022,11 @@ function DashboardContent({
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Balance Comparison Graph */}
+        <div className="mb-6 sm:mb-8">
+          <BalanceComparisonGraph userId={userProfile.id} />
         </div>
 
         {/* Quick Actions */}
