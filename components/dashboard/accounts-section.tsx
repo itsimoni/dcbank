@@ -115,13 +115,13 @@ const RAIL_COLORS: Record<PaymentRail, string> = {
   OTHER: "bg-[#b91c1c] text-white border-[#b91c1c]",
 };
 
-const STATUS_CONFIG = {
-  verified: { color: "bg-green-100 text-green-700 border-green-300", icon: CheckCircle, label: "Verified" },
-  pending: { color: "bg-yellow-100 text-yellow-700 border-yellow-300", icon: AlertCircle, label: "Pending" },
-  requires_action: { color: "bg-orange-100 text-orange-700 border-orange-300", icon: AlertTriangle, label: "Requires Action" },
-  failed: { color: "bg-red-100 text-red-700 border-red-300", icon: XCircle, label: "Failed" },
-  rejected: { color: "bg-red-100 text-red-700 border-red-300", icon: XCircle, label: "Rejected" },
-};
+const getStatusConfig = (t: any) => ({
+  verified: { color: "bg-green-100 text-green-700 border-green-300", icon: CheckCircle, label: t.verified },
+  pending: { color: "bg-yellow-100 text-yellow-700 border-yellow-300", icon: AlertCircle, label: t.kycUnderReview },
+  requires_action: { color: "bg-orange-100 text-orange-700 border-orange-300", icon: AlertTriangle, label: t.kycUnderReview },
+  failed: { color: "bg-red-100 text-red-700 border-red-300", icon: XCircle, label: t.verificationFailed },
+  rejected: { color: "bg-red-100 text-red-700 border-red-300", icon: XCircle, label: t.kycVerificationFailed },
+});
 
 export default function AccountsSection({ userProfile }: AccountsSectionProps) {
   const [accounts, setAccounts] = useState<ExternalAccount[]>([]);
@@ -280,22 +280,22 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           .eq("id", editingAccount.id);
 
         if (error) throw error;
-        toast.success("Account updated successfully");
+        toast.success(t.accountUpdatedSuccess);
       } else {
         const { error } = await supabase
           .from("external_accounts")
           .insert(accountData);
 
         if (error) throw error;
-        toast.success("Account added successfully");
+        toast.success(t.accountAddedSuccess);
       }
 
       resetForm();
       fetchAccounts();
     } catch (error: any) {
       console.error("Error saving account:", error);
-      setError(error.message || "Failed to save account");
-      toast.error(error.message || "Failed to save account");
+      setError(error.message || t.failedToSaveAccount);
+      toast.error(error.message || t.failedToSaveAccount);
     }
   };
 
@@ -315,11 +315,11 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
 
       if (error) throw error;
 
-      toast.success("Default account updated");
+      toast.success(t.defaultAccountUpdated);
       fetchAccounts();
     } catch (error: any) {
       console.error("Error setting default account:", error);
-      toast.error(error.message || "Failed to set default account");
+      toast.error(error.message || t.failedToSetDefault);
     }
   };
 
@@ -397,10 +397,10 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           <CardHeader className="bg-white border-b border-gray-200">
             <CardTitle className="flex items-center gap-2 text-gray-900">
               <Plus className="h-5 w-5 text-[#b91c1c]" />
-              {editingAccount ? "Edit Bank Account" : "Add New Bank Account"}
+              {editingAccount ? t.editBankAccount : t.addNewBankAccount}
             </CardTitle>
             <CardDescription className="text-gray-600">
-              {editingAccount ? "Update your bank account details" : "Connect a new external bank account for withdrawals"}
+              {editingAccount ? t.updateBankDetails : t.connectNewBankAccount}
             </CardDescription>
           </CardHeader>
             <CardContent className="space-y-6 pt-6">
@@ -409,20 +409,20 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                 <div>
                   <Label htmlFor="country" className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-[#b91c1c]" />
-                    Country
+                    {t.country}
                   </Label>
                   <Input
                     id="country"
                     value={formData.country}
                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                    placeholder="United States"
+                    placeholder={t.enterCountry}
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="payment_rail" className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-[#b91c1c]" />
-                    Payment Rail
+                    {t.paymentRail}
                   </Label>
                   <Select
                     value={formData.payment_rail}
@@ -447,32 +447,32 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="account_name">Account Nickname</Label>
+                  <Label htmlFor="account_name">{t.accountNickname}</Label>
                   <Input
                     id="account_name"
                     value={formData.account_name}
                     onChange={(e) => setFormData({ ...formData, account_name: e.target.value })}
-                    placeholder="My Business Account"
+                    placeholder={t.myCheckingAccount}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="bank_name">Bank Name</Label>
+                  <Label htmlFor="bank_name">{t.bankName}</Label>
                   <Input
                     id="bank_name"
                     value={formData.bank_name}
                     onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
-                    placeholder="Bank of America"
+                    placeholder={t.chaseBankPlaceholder}
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label htmlFor="account_holder_name">Account Holder Name</Label>
+                  <Label htmlFor="account_holder_name">{t.accountHolderName}</Label>
                   <Input
                     id="account_holder_name"
                     value={formData.account_holder_name}
                     onChange={(e) => setFormData({ ...formData, account_holder_name: e.target.value })}
-                    placeholder="John Doe"
+                    placeholder={t.enterAccountHolderName}
                   />
                 </div>
               </div>
@@ -483,32 +483,32 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   <div className="md:col-span-2">
                     <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
-                      ACH Account Details
+                      {t.achAccountDetails}
                     </h4>
                   </div>
 
                   <div>
-                    <Label htmlFor="account_number">Account Number</Label>
+                    <Label htmlFor="account_number">{t.accountNumber}</Label>
                     <Input
                       id="account_number"
                       value={formData.account_number}
                       onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
-                      placeholder="123456789"
+                      placeholder={t.enterAccountNumber}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="routing_number">Routing Number</Label>
+                    <Label htmlFor="routing_number">{t.routingNumber}</Label>
                     <Input
                       id="routing_number"
                       value={formData.routing_number}
                       onChange={(e) => setFormData({ ...formData, routing_number: e.target.value })}
-                      placeholder="021000021"
+                      placeholder={t.enterRoutingNumber}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="account_type">Account Type</Label>
+                    <Label htmlFor="account_type">{t.accountType}</Label>
                     <Select
                       value={formData.account_type}
                       onValueChange={(value) => setFormData({ ...formData, account_type: value })}
@@ -517,14 +517,14 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Checking">Checking</SelectItem>
-                        <SelectItem value="Savings">Savings</SelectItem>
+                        <SelectItem value="Checking">{t.checking}</SelectItem>
+                        <SelectItem value="Savings">{t.savings}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div>
-                    <Label htmlFor="currency">Currency</Label>
+                    <Label htmlFor="currency">{t.currency}</Label>
                     <Input
                       id="currency"
                       value={formData.currency}
@@ -540,32 +540,32 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   <div className="md:col-span-2">
                     <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
-                      SEPA Account Details
+                      {t.sepaAccountDetails}
                     </h4>
                   </div>
 
                   <div className="md:col-span-2">
-                    <Label htmlFor="iban">IBAN (Required)</Label>
+                    <Label htmlFor="iban">{t.ibanRequired}</Label>
                     <Input
                       id="iban"
                       value={formData.iban}
                       onChange={(e) => setFormData({ ...formData, iban: e.target.value })}
-                      placeholder="DE89370400440532013000"
+                      placeholder={t.enterIban}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="swift_bic">BIC/SWIFT (Optional)</Label>
+                    <Label htmlFor="swift_bic">{t.bicSwiftOptional}</Label>
                     <Input
                       id="swift_bic"
                       value={formData.swift_bic}
                       onChange={(e) => setFormData({ ...formData, swift_bic: e.target.value })}
-                      placeholder="COBADEFFXXX"
+                      placeholder={t.enterSwiftCode}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="currency">Currency</Label>
+                    <Label htmlFor="currency">{t.currency}</Label>
                     <Input
                       id="currency"
                       value={formData.currency}
@@ -581,52 +581,52 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   <div className="md:col-span-2">
                     <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
-                      SWIFT Account Details
+                      {t.swiftAccountDetails}
                     </h4>
                   </div>
 
                   <div>
-                    <Label htmlFor="swift_bic">SWIFT/BIC (Required)</Label>
+                    <Label htmlFor="swift_bic">{t.swiftBicRequired}</Label>
                     <Input
                       id="swift_bic"
                       value={formData.swift_bic}
                       onChange={(e) => setFormData({ ...formData, swift_bic: e.target.value })}
-                      placeholder="CHASUS33XXX"
+                      placeholder={t.enterSwiftCode}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="bank_country">Bank Country</Label>
+                    <Label htmlFor="bank_country">{t.bankCountry}</Label>
                     <Input
                       id="bank_country"
                       value={formData.bank_country}
                       onChange={(e) => setFormData({ ...formData, bank_country: e.target.value })}
-                      placeholder="United States"
+                      placeholder={t.enterCountry}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="iban">IBAN (if available)</Label>
+                    <Label htmlFor="iban">{t.ibanIfAvailable}</Label>
                     <Input
                       id="iban"
                       value={formData.iban}
                       onChange={(e) => setFormData({ ...formData, iban: e.target.value })}
-                      placeholder="Optional"
+                      placeholder={t.ibanIfAvailable}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="account_number">Account Number (if no IBAN)</Label>
+                    <Label htmlFor="account_number">{t.accountNumberIfNoIban}</Label>
                     <Input
                       id="account_number"
                       value={formData.account_number}
                       onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
-                      placeholder="Required if no IBAN"
+                      placeholder={t.requiredIfNoIban}
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <Label htmlFor="currency">Currency</Label>
+                    <Label htmlFor="currency">{t.currency}</Label>
                     <Select
                       value={formData.currency}
                       onValueChange={(value) => setFormData({ ...formData, currency: value })}
@@ -652,14 +652,14 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   className="bg-[#b91c1c] hover:bg-[#991b1b] text-white"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  {editingAccount ? "Update Account" : "Add Account"}
+                  {editingAccount ? t.updateAccount : t.addAccount}
                 </Button>
                 {editingAccount && (
                   <Button
                     onClick={resetForm}
                     variant="outline"
                   >
-                    Cancel
+                    {t.cancel}
                   </Button>
                 )}
               </div>
@@ -670,20 +670,21 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
         <Card className="bg-white">
           <CardHeader className="bg-white border-b border-gray-200">
             <div>
-              <CardTitle className="text-gray-900">Linked Bank Accounts</CardTitle>
-              <CardDescription className="text-gray-600">Manage your external bank accounts</CardDescription>
+              <CardTitle className="text-gray-900">{t.linkedBankAccounts}</CardTitle>
+              <CardDescription className="text-gray-600">{t.manageExternalAccounts}</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
             {accounts.length === 0 ? (
               <div className="text-center py-12">
                 <Landmark className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No bank accounts yet</h3>
-                <p className="text-gray-500">Use the form above to add your first external bank account and enable withdrawals</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.noBankAccountsYet}</h3>
+                <p className="text-gray-500">{t.addFirstBankAccount}</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {accounts.map((account) => {
+                  const STATUS_CONFIG = getStatusConfig(t);
                   const statusInfo = STATUS_CONFIG[account.verification_status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
                   const StatusIcon = statusInfo.icon;
 
@@ -704,7 +705,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                             {account.is_default && (
                               <Badge className="bg-[#b91c1c] text-white">
                                 <Star className="h-3 w-3 mr-1 fill-current" />
-                                Default
+                                {t.defaultAccount}
                               </Badge>
                             )}
                           </div>
@@ -742,7 +743,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                                 className="text-purple-600 border-purple-600 hover:bg-purple-50"
                               >
                                 <Star className="h-3 w-3 mr-1" />
-                                Set Default
+                                {t.setDefault}
                               </Button>
                             )}
                           </div>
@@ -754,7 +755,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                         <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 ">
                           <p className="text-sm text-yellow-800">
                             <AlertTriangle className="h-4 w-4 inline mr-2" />
-                            Your account is pending verification. Our team will review and verify your bank account details shortly.
+                            {t.pendingVerificationMessage}
                           </p>
                         </div>
                       )}
@@ -763,10 +764,10 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                         <div className="mt-4 p-3 bg-red-50 border border-red-200 ">
                           <p className="text-sm text-red-800 font-medium mb-1">
                             <XCircle className="h-4 w-4 inline mr-2" />
-                            Verification Failed
+                            {t.verificationFailed}
                           </p>
                           <p className="text-sm text-red-700">{account.failure_reason}</p>
-                          <p className="text-sm text-red-600 mt-2">Please contact support to update your account details.</p>
+                          <p className="text-sm text-red-600 mt-2">{t.contactSupportMessage}</p>
                         </div>
                       )}
                     </div>
@@ -782,10 +783,10 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           <CardHeader className="bg-white border-b border-gray-200">
             <CardTitle className="flex items-center gap-2 text-gray-900">
               <Info className="h-5 w-5 text-[#b91c1c]" />
-              Understanding Payment Rails
+              {t.understandingPaymentRails}
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Choose the right payment method for your international transfers and withdrawals
+              {t.choosePaymentMethod}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -793,24 +794,23 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <div className="p-4 border-l-4 border-l-[#b91c1c] bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.ACH}>ACH</Badge>
-                <h4 className="font-semibold text-gray-900">Automated Clearing House</h4>
+                <h4 className="font-semibold text-gray-900">{t.automatedClearingHouse}</h4>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                The primary electronic payment system for domestic transfers in the United States and Canada.
-                ACH is ideal for routine, scheduled payments and direct deposits.
+                {t.achDescription}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
-                  <p className="text-sm text-gray-800">United States, Canada</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.regions}</p>
+                  <p className="text-sm text-gray-800">{t.unitedStatesCanada}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
-                  <p className="text-sm text-gray-800">1-3 business days</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.processingTime}</p>
+                  <p className="text-sm text-gray-800">{t.oneToThreeDays}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
-                  <p className="text-sm text-gray-800">Payroll, bill payments, recurring transfers</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.bestFor}</p>
+                  <p className="text-sm text-gray-800">{t.payrollBillPayments}</p>
                 </div>
               </div>
             </div>
@@ -819,24 +819,23 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <div className="p-4 border-l-4 border-l-[#b91c1c] bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.SEPA}>SEPA</Badge>
-                <h4 className="font-semibold text-gray-900">Single Euro Payments Area</h4>
+                <h4 className="font-semibold text-gray-900">{t.singleEuroPaymentsArea}</h4>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                The standardized payment system for euro-denominated transfers across 36 European countries.
-                SEPA enables seamless, low-cost transfers throughout the Eurozone with the same ease as domestic payments.
+                {t.sepaDescription}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
-                  <p className="text-sm text-gray-800">EU member states, EEA countries, Switzerland</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.regions}</p>
+                  <p className="text-sm text-gray-800">{t.euMemberStates}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
-                  <p className="text-sm text-gray-800">1 business day</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.processingTime}</p>
+                  <p className="text-sm text-gray-800">{t.oneBusinessDay}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
-                  <p className="text-sm text-gray-800">Euro transfers within Europe, low fees</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.bestFor}</p>
+                  <p className="text-sm text-gray-800">{t.euroTransfersLowFees}</p>
                 </div>
               </div>
             </div>
@@ -845,25 +844,23 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <div className="p-4 border-l-4 border-l-[#b91c1c] bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.SWIFT}>SWIFT</Badge>
-                <h4 className="font-semibold text-gray-900">Society for Worldwide Interbank Financial Telecommunication</h4>
+                <h4 className="font-semibold text-gray-900">{t.societyWorldwideInterbank}</h4>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                The global standard for international money and security transfers between banks worldwide.
-                SWIFT connects over 11,000 financial institutions across 200+ countries, making it the most widely used
-                network for cross-border transactions.
+                {t.swiftDescription}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
-                  <p className="text-sm text-gray-800">Worldwide (200+ countries)</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.regions}</p>
+                  <p className="text-sm text-gray-800">{t.worldwideCountries}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
-                  <p className="text-sm text-gray-800">1-5 business days</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.processingTime}</p>
+                  <p className="text-sm text-gray-800">{t.oneToFiveDays}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
-                  <p className="text-sm text-gray-800">International transfers, multiple currencies</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.bestFor}</p>
+                  <p className="text-sm text-gray-800">{t.internationalTransfers}</p>
                 </div>
               </div>
             </div>
@@ -872,24 +869,23 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <div className="p-4 border-l-4 border-l-[#b91c1c] bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.WIRE}>WIRE</Badge>
-                <h4 className="font-semibold text-gray-900">Wire Transfer</h4>
+                <h4 className="font-semibold text-gray-900">{t.wireTransfer}</h4>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                A fast, direct bank-to-bank electronic transfer method that ensures immediate, irrevocable fund movement.
-                Wire transfers are processed individually and guaranteed, making them ideal for urgent or large-value transactions.
+                {t.wireDescription}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
-                  <p className="text-sm text-gray-800">Domestic and International</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.regions}</p>
+                  <p className="text-sm text-gray-800">{t.domesticInternational}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
-                  <p className="text-sm text-gray-800">Same day to 1 business day</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.processingTime}</p>
+                  <p className="text-sm text-gray-800">{t.sameDayToOneDay}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
-                  <p className="text-sm text-gray-800">Urgent transfers, large amounts, real estate</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.bestFor}</p>
+                  <p className="text-sm text-gray-800">{t.urgentTransfersLargeAmounts}</p>
                 </div>
               </div>
             </div>
@@ -898,24 +894,23 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <div className="p-4 border-l-4 border-l-[#b91c1c] bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.FPS}>FPS</Badge>
-                <h4 className="font-semibold text-gray-900">Faster Payments Service</h4>
+                <h4 className="font-semibold text-gray-900">{t.fasterPaymentsService}</h4>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                The United Kingdom's innovative payment system enabling near-instantaneous transfers between UK bank accounts.
-                FPS operates 24/7/365, allowing payments to be processed and received within seconds.
+                {t.fpsDescription}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
-                  <p className="text-sm text-gray-800">United Kingdom</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.regions}</p>
+                  <p className="text-sm text-gray-800">{t.unitedKingdom}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
-                  <p className="text-sm text-gray-800">Real-time (seconds)</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.processingTime}</p>
+                  <p className="text-sm text-gray-800">{t.realTimeSeconds}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
-                  <p className="text-sm text-gray-800">Immediate UK transfers, 24/7 availability</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.bestFor}</p>
+                  <p className="text-sm text-gray-800">{t.immediateUkTransfers}</p>
                 </div>
               </div>
             </div>
@@ -924,24 +919,23 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <div className="p-4 border-l-4 border-l-[#b91c1c] bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.OTHER}>OTHER</Badge>
-                <h4 className="font-semibold text-gray-900">Alternative Payment Methods</h4>
+                <h4 className="font-semibold text-gray-900">{t.alternativePaymentMethods}</h4>
               </div>
               <p className="text-sm text-gray-700 mb-2">
-                Regional or specialized payment networks that may include local clearing systems, real-time payment platforms,
-                or emerging payment technologies specific to certain countries or regions.
+                {t.otherDescription}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
-                  <p className="text-sm text-gray-800">Varies by system</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.regions}</p>
+                  <p className="text-sm text-gray-800">{t.variesBySystem}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
-                  <p className="text-sm text-gray-800">Varies by system</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.processingTime}</p>
+                  <p className="text-sm text-gray-800">{t.variesBySystem}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
-                  <p className="text-sm text-gray-800">Region-specific needs</p>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">{t.bestFor}</p>
+                  <p className="text-sm text-gray-800">{t.regionSpecificNeeds}</p>
                 </div>
               </div>
             </div>
@@ -950,28 +944,28 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200">
               <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-[#b91c1c]" />
-                Important Considerations
+                {t.importantConsiderations}
               </h4>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-[#b91c1c] font-bold">•</span>
-                  <span><strong>Processing times</strong> are estimates and may vary based on bank policies, holidays, and cut-off times.</span>
+                  <span>{t.processingTimesNote}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[#b91c1c] font-bold">•</span>
-                  <span><strong>Transaction fees</strong> differ by payment rail and may include intermediary bank charges for international transfers.</span>
+                  <span>{t.transactionFeesNote}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[#b91c1c] font-bold">•</span>
-                  <span><strong>Currency conversion</strong> rates apply when sending or receiving funds in different currencies.</span>
+                  <span>{t.currencyConversionNote}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[#b91c1c] font-bold">•</span>
-                  <span><strong>Account verification</strong> is required before initiating withdrawals to ensure security and compliance.</span>
+                  <span>{t.accountVerificationNote}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[#b91c1c] font-bold">•</span>
-                  <span><strong>Daily and monthly limits</strong> may apply based on your account verification level and regulatory requirements.</span>
+                  <span>{t.dailyMonthlyLimitsNote}</span>
                 </li>
               </ul>
             </div>
