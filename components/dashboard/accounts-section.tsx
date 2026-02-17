@@ -139,7 +139,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
   const [accounts, setAccounts] = useState<ExternalAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<ExternalAccount | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState<string | null>(null);
@@ -325,7 +324,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
       }
 
       resetForm();
-      setShowAddForm(false);
       fetchAccounts();
     } catch (error: any) {
       console.error("Error saving account:", error);
@@ -350,7 +348,8 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
       bank_country: account.bank_country || "",
       currency: account.currency,
     });
-    setShowAddForm(true);
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const setDefaultAccount = async (id: string) => {
@@ -569,17 +568,16 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
         )}
 
         {/* Add/Edit Account Form */}
-        {showAddForm && (
-          <Card className="border-2 border-[#b91c1c] shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-[#b91c1c] to-[#991b1b] text-white">
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                {editingAccount ? "Edit Bank Account" : "Add New Bank Account"}
-              </CardTitle>
-              <CardDescription className="text-gray-100">
-                {editingAccount ? "Update your bank account details" : "Connect a new external bank account for withdrawals"}
-              </CardDescription>
-            </CardHeader>
+        <Card className="border-2 border-[#b91c1c] shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-[#b91c1c] to-[#991b1b] text-white">
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              {editingAccount ? "Edit Bank Account" : "Add New Bank Account"}
+            </CardTitle>
+            <CardDescription className="text-gray-100">
+              {editingAccount ? "Update your bank account details" : "Connect a new external bank account for withdrawals"}
+            </CardDescription>
+          </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {/* Country and Payment Rail Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -849,37 +847,24 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   <CheckCircle className="h-4 w-4 mr-2" />
                   {editingAccount ? "Update Account" : "Add Account"}
                 </Button>
-                <Button
-                  onClick={() => {
-                    resetForm();
-                    setShowAddForm(false);
-                  }}
-                  variant="outline"
-                >
-                  Cancel
-                </Button>
+                {editingAccount && (
+                  <Button
+                    onClick={resetForm}
+                    variant="outline"
+                  >
+                    Cancel
+                  </Button>
+                )}
               </div>
             </CardContent>
-          </Card>
-        )}
+        </Card>
 
         {/* Linked Accounts List */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Linked Bank Accounts</CardTitle>
-                <CardDescription>Manage your external bank accounts</CardDescription>
-              </div>
-              {!showAddForm && (
-                <Button
-                  onClick={() => setShowAddForm(true)}
-                  className="bg-[#b91c1c] hover:bg-[#991b1b]"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Account
-                </Button>
-              )}
+            <div>
+              <CardTitle>Linked Bank Accounts</CardTitle>
+              <CardDescription>Manage your external bank accounts</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
@@ -887,14 +872,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
               <div className="text-center py-12">
                 <Landmark className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No bank accounts yet</h3>
-                <p className="text-gray-500 mb-6">Add your first external bank account to enable withdrawals</p>
-                <Button
-                  onClick={() => setShowAddForm(true)}
-                  className="bg-[#b91c1c] hover:bg-[#991b1b]"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Your First Account
-                </Button>
+                <p className="text-gray-500">Use the form above to add your first external bank account and enable withdrawals</p>
               </div>
             ) : (
               <div className="space-y-4">
