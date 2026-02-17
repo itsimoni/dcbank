@@ -237,47 +237,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
             </Badge>
 
             {/* Language Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                className="flex items-center space-x-1 bg-white/20 border border-white/30 px-2 py-1.5 text-xs font-medium text-white hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-200"
-              >
-                <Languages className="h-3 w-3" />
-                <span className="hidden sm:inline">{languageNames[language]}</span>
-                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isLanguageDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsLanguageDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
-                    {Object.entries(languageNames).map(([code, name]) => (
-                      <button
-                        key={code}
-                        onClick={() => {
-                          setLanguage(code as Language);
-                          setIsLanguageDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-xs transition-colors duration-150 ${
-                          language === code
-                            ? 'bg-[#b91c1c] text-white font-medium'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{name}</span>
-                          {language === code && (
-                            <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+           
                 </>
               )}
             </div>
