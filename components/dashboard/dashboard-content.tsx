@@ -101,7 +101,7 @@ const cryptoConfigs = {
     iconUrl:
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg",
     color: "text-orange-500",
-    bgColor: "bg-orange-50",
+    bgColor: "bg-white",
     borderColor: "border-orange-200",
     decimals: 8,
   },
@@ -110,7 +110,7 @@ const cryptoConfigs = {
     iconUrl:
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg",
     color: "text-blue-500",
-    bgColor: "bg-blue-50",
+    bgColor: "bg-white",
     borderColor: "border-blue-200",
     decimals: 6,
   },
@@ -119,7 +119,7 @@ const cryptoConfigs = {
     iconUrl:
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "text-green-500",
-    bgColor: "bg-green-50",
+    bgColor: "bg-white",
     borderColor: "border-green-200",
     decimals: 2,
   },
