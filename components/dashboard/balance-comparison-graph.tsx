@@ -189,25 +189,15 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
         { name: 'USDT', value: balancesInEur.usdt },
       ];
     } else {
-      // For "All" view - show combined total balance over time
-      const totalBalance = totalFiat + totalCrypto;
-      const points = [
-        { name: 'Jan', multiplier: 0.85 },
-        { name: 'Feb', multiplier: 0.88 },
-        { name: 'Mar', multiplier: 0.92 },
-        { name: 'Apr', multiplier: 0.95 },
-        { name: 'May', multiplier: 0.97 },
-        { name: 'Jun', multiplier: 0.98 },
-        { name: 'Jul', multiplier: 0.99 },
-        { name: 'Aug', multiplier: 1.01 },
-        { name: 'Sep', multiplier: 1.02 },
-        { name: 'Oct', multiplier: 1.0 },
+      // For "All" view - show all 6 currencies
+      return [
+        { name: 'USD', value: balancesInEur.usd },
+        { name: 'EUR', value: balancesInEur.euro },
+        { name: 'CAD', value: balancesInEur.cad },
+        { name: 'BTC', value: balancesInEur.btc },
+        { name: 'ETH', value: balancesInEur.eth },
+        { name: 'USDT', value: balancesInEur.usdt },
       ];
-
-      return points.map(point => ({
-        name: point.name,
-        value: totalBalance * point.multiplier,
-      }));
     }
   };
 
