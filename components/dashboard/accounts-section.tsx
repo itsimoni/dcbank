@@ -406,8 +406,8 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             <CardContent className="space-y-6 pt-6">
               {/* Country and Payment Rail Selection */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white  border border-gray-200">
-                <div className="pb-4">
-                  <Label htmlFor="country" className="flex items-center gap-2">
+                <div>
+                  <Label htmlFor="country" className="flex items-center gap-2 pb-4">
                     <Globe className="h-4 w-4 text-[#b91c1c]" />
                     Country
                   </Label>
