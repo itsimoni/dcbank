@@ -102,7 +102,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg",
     color: "text-orange-500",
     bgColor: "bg-white",
-    borderColor: "border-gray-200",
+    borderColor: "border-[#b91c1c]",
     decimals: 8,
   },
   ETH: {
@@ -111,7 +111,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg",
     color: "text-blue-500",
     bgColor: "bg-white",
-    borderColor: "border-gray-200",
+    borderColor: "border-[#b91c1c]",
     decimals: 6,
   },
   USDT: {
@@ -120,7 +120,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "text-green-500",
     bgColor: "bg-white",
-    borderColor: "border-gray-200",
+    borderColor: "border-[#b91c1c]",
     decimals: 2,
   },
 } as const;
@@ -164,8 +164,8 @@ const BalanceCard = memo(
       <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
         {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
       </div>
-      <div className="relative w-32 h-20 sm:w-40 sm:h-24 bg-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-4">
-        <div className="text-base sm:text-2xl font-bold text-white leading-tight text-center">
+      <div className="relative w-32 h-20 sm:w-40 sm:h-24 bg-white border-2 border-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-4">
+        <div className="text-base sm:text-2xl font-bold text-black leading-tight text-center">
           {formatCurrency(balance, currency)}
         </div>
       </div>
