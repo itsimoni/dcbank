@@ -102,7 +102,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg",
     color: "text-orange-500",
     bgColor: "bg-white",
-    borderColor: "border-transparent",
+    borderColor: "border-gray-200",
     decimals: 8,
   },
   ETH: {
@@ -111,7 +111,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg",
     color: "text-blue-500",
     bgColor: "bg-white",
-    borderColor: "border-transparent",
+    borderColor: "border-gray-200",
     decimals: 6,
   },
   USDT: {
@@ -120,7 +120,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "text-green-500",
     bgColor: "bg-white",
-    borderColor: "border-transparent",
+    borderColor: "border-gray-200",
     decimals: 2,
   },
 } as const;
@@ -193,7 +193,7 @@ const CryptoCard = memo(
           {cryptoCurrency}
         </div>
         <div className={`relative w-32 h-20 sm:w-40 sm:h-24 ${config.bgColor} border-2 ${config.borderColor} transition-all duration-200 flex flex-col items-center justify-center p-4`}>
-          <div className={`text-sm sm:text-2xl font-bold leading-tight ${config.color} text-center`}>
+          <div className="text-sm sm:text-2xl font-bold leading-tight text-black text-center">
             {formatCurrency(balance, cryptoCurrency)}
           </div>
         </div>
