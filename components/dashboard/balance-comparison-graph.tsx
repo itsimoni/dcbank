@@ -274,7 +274,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-[#b91c1c] to-[#991b1b] p-4 text-white rounded-lg">
+          <div className="bg-gradient-to-br from-[#b91c1c] to-[#991b1b] p-4 text-white">
             <div className="text-sm opacity-90 mb-1">{t.totalFiatBalance}</div>
             <div className="text-2xl font-bold mb-2">{formatCurrency(totalFiat)}</div>
             <div className="text-xs opacity-80 space-y-1">
@@ -288,7 +288,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 text-white rounded-lg">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 text-white">
             <div className="text-sm opacity-90 mb-1">{t.totalCryptoBalance}</div>
             <div className="text-2xl font-bold mb-2">{formatCurrency(totalCrypto)}</div>
             <div className="text-xs opacity-80 space-y-1">
@@ -302,7 +302,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 text-white rounded-lg">
+          <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 text-white">
             <div className="text-sm opacity-90 mb-1">{t.combinedTotal}</div>
             <div className="text-2xl font-bold mb-2">
               {formatCurrency(totalFiat + totalCrypto)}
