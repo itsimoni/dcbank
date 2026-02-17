@@ -189,24 +189,29 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
         { name: 'USDT', value: balancesInEur.usdt },
       ];
     } else {
-      // For "All" view - create smooth wave patterns with multiple data points
-      const points = 10;
-      const result: ChartDataPoint[] = [];
+      // For "All" view - create data points for visualization
+      const points = [
+        { name: 'Jan', multiplier: 0.95 },
+        { name: 'Feb', multiplier: 0.97 },
+        { name: 'Mar', multiplier: 1.02 },
+        { name: 'Apr', multiplier: 0.99 },
+        { name: 'May', multiplier: 1.03 },
+        { name: 'Jun', multiplier: 1.01 },
+        { name: 'Jul', multiplier: 0.98 },
+        { name: 'Aug', multiplier: 1.05 },
+        { name: 'Sep', multiplier: 1.0 },
+        { name: 'Oct', multiplier: 1.02 },
+      ];
 
-      for (let i = 0; i < points; i++) {
-        const angle = (i / (points - 1)) * Math.PI * 2; // Full wave cycle
-        result.push({
-          name: `P${i + 1}`,
-          usd: balancesInEur.usd * (1 + Math.sin(angle) * 0.05),
-          eur: balancesInEur.euro * (1 + Math.sin(angle + 0.5) * 0.05),
-          cad: balancesInEur.cad * (1 + Math.sin(angle + 1) * 0.05),
-          btc: balancesInEur.btc * (1 + Math.sin(angle + 1.5) * 0.05),
-          eth: balancesInEur.eth * (1 + Math.sin(angle + 2) * 0.05),
-          usdt: balancesInEur.usdt * (1 + Math.sin(angle + 2.5) * 0.05)
-        });
-      }
-
-      return result;
+      return points.map(point => ({
+        name: point.name,
+        usd: balancesInEur.usd * point.multiplier,
+        eur: balancesInEur.euro * point.multiplier * 1.02,
+        cad: balancesInEur.cad * point.multiplier * 0.98,
+        btc: balancesInEur.btc * point.multiplier * 1.01,
+        eth: balancesInEur.eth * point.multiplier * 0.99,
+        usdt: balancesInEur.usdt * point.multiplier * 1.03,
+      }));
     }
   };
 
@@ -244,6 +249,18 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
 
   const chartData = getChartData();
   const hasAnyBalance = totalFiat + totalCrypto > 0;
+
+  // Debug logging
+  useEffect(() => {
+    console.log('=== Chart Debug Info ===');
+    console.log('View mode:', viewMode);
+    console.log('Has any balance:', hasAnyBalance);
+    console.log('Total Fiat:', totalFiat);
+    console.log('Total Crypto:', totalCrypto);
+    console.log('Balances in EUR:', balancesInEur);
+    console.log('Chart Data:', chartData);
+    console.log('Chart Data Length:', chartData.length);
+  }, [viewMode, chartData, hasAnyBalance, totalFiat, totalCrypto, balancesInEur]);
 
   return (
     <Card className="w-full">
@@ -323,12 +340,24 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
           </div>
         </div>
 
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
+          <div><strong>Debug Info:</strong></div>
+          <div>View Mode: {viewMode}</div>
+          <div>Has Balance: {hasAnyBalance ? 'Yes' : 'No'}</div>
+          <div>Total Fiat: €{totalFiat.toFixed(2)}</div>
+          <div>Total Crypto: €{totalCrypto.toFixed(2)}</div>
+          <div>Chart Data Points: {chartData.length}</div>
+          <div>EUR Balance: €{balancesInEur.euro.toFixed(2)}</div>
+          <div>CAD Balance: €{balancesInEur.cad.toFixed(2)}</div>
+        </div>
+
         {hasAnyBalance ? (
-          <div className="h-80 w-full">
+          <div className="h-80 w-full bg-white border border-gray-200 rounded-lg p-4">
             <ResponsiveContainer width="100%" height="100%" key={viewMode}>
               <AreaChart
                 data={chartData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                margin={{ top: 10, right: 30, left: 10, bottom: 20 }}
               >
                 <defs>
                   <linearGradient id="colorUSD" x1="0" y1="0" x2="0" y2="1">
@@ -365,7 +394,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                   dataKey="name"
                   stroke="#6b7280"
                   style={{ fontSize: '12px' }}
-                  hide={viewMode === 'all'}
+                  hide={false}
                 />
                 <YAxis
                   stroke="#6b7280"
@@ -388,72 +417,66 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 />
                 {viewMode === 'all' && (
                   <>
-                    {hasBalance.usd && (
-                      <Area
-                        type="monotone"
-                        dataKey="usd"
-                        stroke="#dc2626"
-                        strokeWidth={2.5}
-                        fillOpacity={0.3}
-                        fill="url(#colorUSD)"
-                        name="USD"
-                      />
-                    )}
-                    {hasBalance.eur && (
-                      <Area
-                        type="monotone"
-                        dataKey="eur"
-                        stroke="#b91c1c"
-                        strokeWidth={2.5}
-                        fillOpacity={0.3}
-                        fill="url(#colorEUR)"
-                        name="EUR"
-                      />
-                    )}
-                    {hasBalance.cad && (
-                      <Area
-                        type="monotone"
-                        dataKey="cad"
-                        stroke="#991b1b"
-                        strokeWidth={2.5}
-                        fillOpacity={0.3}
-                        fill="url(#colorCAD)"
-                        name="CAD"
-                      />
-                    )}
-                    {hasBalance.btc && (
-                      <Area
-                        type="monotone"
-                        dataKey="btc"
-                        stroke="#f97316"
-                        strokeWidth={2.5}
-                        fillOpacity={0.3}
-                        fill="url(#colorBTC)"
-                        name="BTC"
-                      />
-                    )}
-                    {hasBalance.eth && (
-                      <Area
-                        type="monotone"
-                        dataKey="eth"
-                        stroke="#3b82f6"
-                        strokeWidth={2.5}
-                        fillOpacity={0.3}
-                        fill="url(#colorETH)"
-                        name="ETH"
-                      />
-                    )}
-                    {hasBalance.usdt && (
-                      <Area
-                        type="monotone"
-                        dataKey="usdt"
-                        stroke="#22c55e"
-                        strokeWidth={2.5}
-                        fillOpacity={0.3}
-                        fill="url(#colorUSDT)"
-                        name="USDT"
-                      />
-                    )}
+                    <Area
+                      type="monotone"
+                      dataKey="usd"
+                      stroke="#dc2626"
+                      strokeWidth={2.5}
+                      fillOpacity={0.3}
+                      fill="url(#colorUSD)"
+                      name="USD"
+                      connectNulls
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="eur"
+                      stroke="#b91c1c"
+                      strokeWidth={2.5}
+                      fillOpacity={0.3}
+                      fill="url(#colorEUR)"
+                      name="EUR"
+                      connectNulls
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="cad"
+                      stroke="#991b1b"
+                      strokeWidth={2.5}
+                      fillOpacity={0.3}
+                      fill="url(#colorCAD)"
+                      name="CAD"
+                      connectNulls
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="btc"
+                      stroke="#f97316"
+                      strokeWidth={2.5}
+                      fillOpacity={0.3}
+                      fill="url(#colorBTC)"
+                      name="BTC"
+                      connectNulls
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="eth"
+                      stroke="#3b82f6"
+                      strokeWidth={2.5}
+                      fillOpacity={0.3}
+                      fill="url(#colorETH)"
+                      name="ETH"
+                      connectNulls
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="usdt"
+                      stroke="#22c55e"
+                      strokeWidth={2.5}
+                      fillOpacity={0.3}
+                      fill="url(#colorUSDT)"
+                      name="USDT"
+                      connectNulls
+                    />
                   </>
                 )}
                 {(viewMode === 'fiat' || viewMode === 'crypto') && (
