@@ -165,7 +165,6 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Activity className="h-5 w-5 text-[#b91c1c]" />
             Live Rates
           </CardTitle>
           <div className="flex items-center gap-2">
