@@ -967,56 +967,67 @@ function DashboardContent({
             <Card className="h-full">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  Recent Transactions
+                  {t.recentTransactions}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {transactionHistory.length > 0 ? (
-                  transactionHistory.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="border-l-4 border-l-[#b91c1c] pl-3 py-2 hover:bg-gray-50 transition-colors rounded-r"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">
-                            {transaction.thType}
+                  transactionHistory.map((transaction) => {
+                    const getTranslatedStatus = (status: string) => {
+                      const statusLower = status.toLowerCase();
+                      if (statusLower === "successful" || statusLower === "completed" || statusLower === "approved") return t.successful;
+                      if (statusLower === "pending" || statusLower === "processing" || statusLower === "under review") return t.pending;
+                      if (statusLower === "failed" || statusLower === "rejected") return t.failed;
+                      if (statusLower === "cancelled") return t.cancelled;
+                      return status;
+                    };
+
+                    return (
+                      <div
+                        key={transaction.id}
+                        className="border-l-4 border-l-[#b91c1c] pl-3 py-2 hover:bg-gray-50 transition-colors rounded-r"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">
+                              {transaction.thType}
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+                              {transaction.thDetails}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1 truncate">
+                              {transaction.thPoi}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-600 mt-1 line-clamp-2">
-                            {transaction.thDetails}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1 truncate">
-                            {transaction.thPoi}
-                          </div>
+                          <Badge
+                            variant={
+                              transaction.thStatus === "Successful"
+                                ? "default"
+                                : transaction.thStatus === "Pending"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                            className={`text-xs shrink-0 ${
+                              transaction.thStatus === "Successful"
+                                ? "bg-green-500 hover:bg-green-600 text-white"
+                                : ""
+                            }`}
+                          >
+                            {getTranslatedStatus(transaction.thStatus)}
+                          </Badge>
                         </div>
-                        <Badge
-                          variant={
-                            transaction.thStatus === "Successful"
-                              ? "default"
-                              : transaction.thStatus === "Pending"
-                              ? "secondary"
-                              : "destructive"
-                          }
-                          className={`text-xs shrink-0 ${
-                            transaction.thStatus === "Successful"
-                              ? "bg-green-500 hover:bg-green-600 text-white"
-                              : ""
-                          }`}
-                        >
-                          {transaction.thStatus}
-                        </Badge>
+                        <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {new Date(transaction.created_at).toLocaleDateString()}{" "}
+                          {new Date(transaction.created_at).toLocaleTimeString()}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {new Date(transaction.created_at).toLocaleDateString()}{" "}
-                        {new Date(transaction.created_at).toLocaleTimeString()}
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     <Activity className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                    <p className="text-sm">No transactions yet</p>
+                    <p className="text-sm">{t.noTransactionsYet}</p>
                   </div>
                 )}
               </CardContent>
