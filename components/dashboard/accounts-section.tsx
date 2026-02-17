@@ -185,22 +185,33 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
     }
   }, [userProfile?.id]);
 
-  // Update payment rail when country changes
+  // Update payment rail and currency when country changes
   useEffect(() => {
-    const availableRails = COUNTRY_RAILS[formData.country] || ["SWIFT"];
-    if (!availableRails.includes(formData.payment_rail)) {
-      setFormData(prev => ({ ...prev, payment_rail: availableRails[0] }));
-    }
+    if (formData.country.length === 2) {
+      const countryUpper = formData.country.toUpperCase();
+      const availableRails = COUNTRY_RAILS[countryUpper] || ["SWIFT"];
 
-    // Update default currency based on country
-    if (formData.country === "US" || formData.country === "CA") {
-      setFormData(prev => ({ ...prev, currency: formData.country === "US" ? "USD" : "CAD" }));
-    } else if (["FR", "DE", "IT", "ES", "NL", "BE", "AT", "PT", "GR"].includes(formData.country)) {
-      setFormData(prev => ({ ...prev, currency: "EUR" }));
-    } else if (formData.country === "GB") {
-      setFormData(prev => ({ ...prev, currency: "GBP" }));
-    } else if (formData.country === "CH") {
-      setFormData(prev => ({ ...prev, currency: "CHF" }));
+      if (!availableRails.includes(formData.payment_rail)) {
+        setFormData(prev => ({ ...prev, payment_rail: availableRails[0] }));
+      }
+
+      // Update default currency based on country
+      let newCurrency = formData.currency;
+      if (countryUpper === "US") {
+        newCurrency = "USD";
+      } else if (countryUpper === "CA") {
+        newCurrency = "CAD";
+      } else if (["FR", "DE", "IT", "ES", "NL", "BE", "AT", "PT", "GR"].includes(countryUpper)) {
+        newCurrency = "EUR";
+      } else if (countryUpper === "GB") {
+        newCurrency = "GBP";
+      } else if (countryUpper === "CH") {
+        newCurrency = "CHF";
+      }
+
+      if (newCurrency !== formData.currency) {
+        setFormData(prev => ({ ...prev, currency: newCurrency }));
+      }
     }
   }, [formData.country]);
 
@@ -586,21 +597,14 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                     <Globe className="h-4 w-4 text-[#b91c1c]" />
                     Country
                   </Label>
-                  <Select
+                  <Input
+                    id="country"
                     value={formData.country}
-                    onValueChange={(value) => setFormData({ ...formData, country: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(COUNTRY_FLAGS).map(([code, flag]) => (
-                        <SelectItem key={code} value={code}>
-                          {flag} {code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value.toUpperCase() })}
+                    placeholder="US"
+                    maxLength={2}
+                    className="uppercase"
+                  />
                 </div>
 
                 <div>
@@ -781,21 +785,14 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
 
                   <div>
                     <Label htmlFor="bank_country">Bank Country</Label>
-                    <Select
+                    <Input
+                      id="bank_country"
                       value={formData.bank_country}
-                      onValueChange={(value) => setFormData({ ...formData, bank_country: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(COUNTRY_FLAGS).map(([code, flag]) => (
-                          <SelectItem key={code} value={code}>
-                            {flag} {code}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={(e) => setFormData({ ...formData, bank_country: e.target.value.toUpperCase() })}
+                      placeholder="US"
+                      maxLength={2}
+                      className="uppercase"
+                    />
                   </div>
 
                   <div>
