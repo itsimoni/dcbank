@@ -776,6 +776,207 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             )}
           </CardContent>
         </Card>
+
+        {/* Payment Rail Information Guide */}
+        <Card className="border-t-4 border-t-[#b91c1c]">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-[#b91c1c]" />
+              Understanding Payment Rails
+            </CardTitle>
+            <CardDescription>
+              Choose the right payment method for your international transfers and withdrawals
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* ACH */}
+            <div className="p-4 border-l-4 border-l-blue-500 bg-blue-50">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className={RAIL_COLORS.ACH}>ACH</Badge>
+                <h4 className="font-semibold text-gray-900">Automated Clearing House</h4>
+              </div>
+              <p className="text-sm text-gray-700 mb-2">
+                The primary electronic payment system for domestic transfers in the United States and Canada.
+                ACH is ideal for routine, scheduled payments and direct deposits.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
+                  <p className="text-sm text-gray-800">United States, Canada</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
+                  <p className="text-sm text-gray-800">1-3 business days</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
+                  <p className="text-sm text-gray-800">Payroll, bill payments, recurring transfers</p>
+                </div>
+              </div>
+            </div>
+
+            {/* SEPA */}
+            <div className="p-4 border-l-4 border-l-purple-500 bg-purple-50">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className={RAIL_COLORS.SEPA}>SEPA</Badge>
+                <h4 className="font-semibold text-gray-900">Single Euro Payments Area</h4>
+              </div>
+              <p className="text-sm text-gray-700 mb-2">
+                The standardized payment system for euro-denominated transfers across 36 European countries.
+                SEPA enables seamless, low-cost transfers throughout the Eurozone with the same ease as domestic payments.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
+                  <p className="text-sm text-gray-800">EU member states, EEA countries, Switzerland</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
+                  <p className="text-sm text-gray-800">1 business day</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
+                  <p className="text-sm text-gray-800">Euro transfers within Europe, low fees</p>
+                </div>
+              </div>
+            </div>
+
+            {/* SWIFT */}
+            <div className="p-4 border-l-4 border-l-green-500 bg-green-50">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className={RAIL_COLORS.SWIFT}>SWIFT</Badge>
+                <h4 className="font-semibold text-gray-900">Society for Worldwide Interbank Financial Telecommunication</h4>
+              </div>
+              <p className="text-sm text-gray-700 mb-2">
+                The global standard for international money and security transfers between banks worldwide.
+                SWIFT connects over 11,000 financial institutions across 200+ countries, making it the most widely used
+                network for cross-border transactions.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
+                  <p className="text-sm text-gray-800">Worldwide (200+ countries)</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
+                  <p className="text-sm text-gray-800">1-5 business days</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
+                  <p className="text-sm text-gray-800">International transfers, multiple currencies</p>
+                </div>
+              </div>
+            </div>
+
+            {/* WIRE */}
+            <div className="p-4 border-l-4 border-l-orange-500 bg-orange-50">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className={RAIL_COLORS.WIRE}>WIRE</Badge>
+                <h4 className="font-semibold text-gray-900">Wire Transfer</h4>
+              </div>
+              <p className="text-sm text-gray-700 mb-2">
+                A fast, direct bank-to-bank electronic transfer method that ensures immediate, irrevocable fund movement.
+                Wire transfers are processed individually and guaranteed, making them ideal for urgent or large-value transactions.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
+                  <p className="text-sm text-gray-800">Domestic and International</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
+                  <p className="text-sm text-gray-800">Same day to 1 business day</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
+                  <p className="text-sm text-gray-800">Urgent transfers, large amounts, real estate</p>
+                </div>
+              </div>
+            </div>
+
+            {/* FPS */}
+            <div className="p-4 border-l-4 border-l-pink-500 bg-pink-50">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className={RAIL_COLORS.FPS}>FPS</Badge>
+                <h4 className="font-semibold text-gray-900">Faster Payments Service</h4>
+              </div>
+              <p className="text-sm text-gray-700 mb-2">
+                The United Kingdom's innovative payment system enabling near-instantaneous transfers between UK bank accounts.
+                FPS operates 24/7/365, allowing payments to be processed and received within seconds.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
+                  <p className="text-sm text-gray-800">United Kingdom</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
+                  <p className="text-sm text-gray-800">Real-time (seconds)</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
+                  <p className="text-sm text-gray-800">Immediate UK transfers, 24/7 availability</p>
+                </div>
+              </div>
+            </div>
+
+            {/* OTHER */}
+            <div className="p-4 border-l-4 border-l-gray-500 bg-gray-50">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge className={RAIL_COLORS.OTHER}>OTHER</Badge>
+                <h4 className="font-semibold text-gray-900">Alternative Payment Methods</h4>
+              </div>
+              <p className="text-sm text-gray-700 mb-2">
+                Regional or specialized payment networks that may include local clearing systems, real-time payment platforms,
+                or emerging payment technologies specific to certain countries or regions.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Regions</p>
+                  <p className="text-sm text-gray-800">Varies by system</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Processing Time</p>
+                  <p className="text-sm text-gray-800">Varies by system</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-1">Best For</p>
+                  <p className="text-sm text-gray-800">Region-specific needs</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Important Notes */}
+            <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200">
+              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-[#b91c1c]" />
+                Important Considerations
+              </h4>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#b91c1c] font-bold">•</span>
+                  <span><strong>Processing times</strong> are estimates and may vary based on bank policies, holidays, and cut-off times.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#b91c1c] font-bold">•</span>
+                  <span><strong>Transaction fees</strong> differ by payment rail and may include intermediary bank charges for international transfers.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#b91c1c] font-bold">•</span>
+                  <span><strong>Currency conversion</strong> rates apply when sending or receiving funds in different currencies.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#b91c1c] font-bold">•</span>
+                  <span><strong>Account verification</strong> is required before initiating withdrawals to ensure security and compliance.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#b91c1c] font-bold">•</span>
+                  <span><strong>Daily and monthly limits</strong> may apply based on your account verification level and regulatory requirements.</span>
+                </li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
