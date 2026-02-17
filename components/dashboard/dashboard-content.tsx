@@ -161,7 +161,7 @@ const BalanceCard = memo(
     t: ReturnType<typeof getTranslations>;
   }) => (
     <div className="flex flex-col items-center justify-center">
-      <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#b91c1c] hover:shadow-xl transition-all duration-200 flex flex-col items-center justify-center p-4 hover:scale-105">
+      <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-4">
         <div className="text-xs sm:text-sm text-white font-medium capitalize mb-2">
           {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
         </div>
@@ -192,7 +192,7 @@ const CryptoCard = memo(
 
     return (
       <div className="flex flex-col items-center justify-center">
-        <div className={`relative w-32 h-32 sm:w-40 sm:h-40 rounded-full ${config.bgColor} border-2 ${config.borderColor} hover:shadow-xl transition-all duration-200 flex flex-col items-center justify-center p-4 hover:scale-105`}>
+        <div className={`relative w-32 h-32 sm:w-40 sm:h-40 rounded-full ${config.bgColor} border-2 ${config.borderColor} transition-all duration-200 flex flex-col items-center justify-center p-4`}>
           <Image
             src={config.iconUrl || "/placeholder.svg"}
             alt={`${config.name} icon`}
@@ -1044,7 +1044,7 @@ function DashboardContent({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Button
             onClick={handleTransferClick}
-            className="h-12 sm:h-16 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-sm sm:text-base"
+            className="h-12 sm:h-16 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-sm sm:text-base rounded-none"
           >
             <Send className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {t.transferMoney}
@@ -1052,7 +1052,7 @@ function DashboardContent({
           <Button
             onClick={handleDepositClick}
             variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent"
+            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent rounded-none"
           >
             <Wallet className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {t.depositFunds}
@@ -1060,7 +1060,7 @@ function DashboardContent({
           <Button
             onClick={handleCryptoClick}
             variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent"
+            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent rounded-none"
           >
             <Bitcoin className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {t.cryptoTrading}
@@ -1068,7 +1068,7 @@ function DashboardContent({
           <Button
             onClick={handleCardClick}
             variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent"
+            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent rounded-none"
           >
             <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {t.manageCards}
@@ -1076,7 +1076,7 @@ function DashboardContent({
           <Button
             onClick={() => setActiveTab("loans")}
             variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white"
+            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white rounded-none"
           >
             <Banknote className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             {t.applyForLoan}
