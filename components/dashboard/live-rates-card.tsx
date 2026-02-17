@@ -167,7 +167,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
   ];
 
   return (
-    <Card className="h-full">
+    <Card className="h-full bg-white">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">

@@ -237,7 +237,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
   const hasAnyBalance = totalFiat + totalCrypto > 0;
 
   return (
-    <Card className="w-full">
+    <Card className="w-full bg-white">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -249,7 +249,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
               size="sm"
               variant={viewMode === 'all' ? 'default' : 'outline'}
               onClick={() => setViewMode('all')}
-              className={viewMode === 'all' ? 'bg-[#b91c1c] hover:bg-[#991b1b]' : ''}
+              className={viewMode === 'all' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none' : 'rounded-none'}
             >
               All
             </Button>
@@ -257,7 +257,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
               size="sm"
               variant={viewMode === 'fiat' ? 'default' : 'outline'}
               onClick={() => setViewMode('fiat')}
-              className={viewMode === 'fiat' ? 'bg-[#b91c1c] hover:bg-[#991b1b]' : ''}
+              className={viewMode === 'fiat' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none' : 'rounded-none'}
             >
               Fiat
             </Button>
@@ -265,7 +265,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
               size="sm"
               variant={viewMode === 'crypto' ? 'default' : 'outline'}
               onClick={() => setViewMode('crypto')}
-              className={viewMode === 'crypto' ? 'bg-[#b91c1c] hover:bg-[#991b1b]' : ''}
+              className={viewMode === 'crypto' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none' : 'rounded-none'}
             >
               Crypto
             </Button>

@@ -964,7 +964,7 @@ function DashboardContent({
 
           {/* Right side - Transaction History Card */}
           <div className="lg:col-span-3">
-            <Card className="h-full">
+            <Card className="h-full bg-white">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   {t.recentTransactions}
@@ -1095,7 +1095,7 @@ function DashboardContent({
 
           {/* Latest Message Card */}
           <div className="lg:col-span-1">
-            <Card>
+            <Card className="bg-white">
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="flex items-center justify-between text-base sm:text-lg">
                   <div className="flex items-center min-w-0">
