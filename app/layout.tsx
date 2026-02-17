@@ -6,9 +6,9 @@ import LayoutDebugger from "@/components/dev/layout-debugger";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Digital Chain Bank",
-  description: "Digital Chain Bank",
-  generator: "Digital Chain Bank",
+  title: "Malta Global Crypto Bank",
+  description: "Malta Global Crypto Bank",
+  generator: "Malta Global Crypto Bank",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
