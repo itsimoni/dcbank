@@ -208,7 +208,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          Fiat vs Crypto Balance Comparison
+          Statistics
         </CardTitle>
       </CardHeader>
       <CardContent>
