@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { getTranslations, Language } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -323,17 +323,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
     }
   };
 
-  // Summary calculations
-  const summary = useMemo(() => {
-    const total = accounts.length;
-    const verified = accounts.filter(a => a.verification_status === "verified").length;
-    const pending = accounts.filter(a =>
-      a.verification_status === "pending" || a.verification_status === "requires_action"
-    ).length;
-    const defaultAccount = accounts.find(a => a.is_default);
-
-    return { total, verified, pending, defaultAccount };
-  }, [accounts]);
 
   if (loading) {
     return (
@@ -402,63 +391,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             )}
           </div>
         </div>
-
-        {/* Summary Bar */}
-        {accounts.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-blue-600">Total Accounts</p>
-                    <p className="text-2xl font-bold text-blue-900">{summary.total}</p>
-                  </div>
-                  <Building2 className="h-8 w-8 text-blue-500 opacity-50" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-green-600">Verified</p>
-                    <p className="text-2xl font-bold text-green-900">{summary.verified}</p>
-                  </div>
-                  <CheckCircle className="h-8 w-8 text-green-500 opacity-50" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-yellow-600">Pending</p>
-                    <p className="text-2xl font-bold text-yellow-900">{summary.pending}</p>
-                  </div>
-                  <AlertCircle className="h-8 w-8 text-yellow-500 opacity-50" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-              <CardContent className="p-4">
-                <div className="flex flex-col">
-                  <p className="text-sm font-medium text-purple-600 mb-1">Default Account</p>
-                  {summary.defaultAccount ? (
-                    <>
-                      <p className="text-sm font-bold text-purple-900">{summary.defaultAccount.bank_name}</p>
-                      <p className="text-xs text-purple-700">{summary.defaultAccount.masked_account || `••••${summary.defaultAccount.last4}`}</p>
-                    </>
-                  ) : (
-                    <p className="text-sm text-purple-700">None set</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         {/* Add/Edit Account Form */}
         <Card className="border-2 border-[#b91c1c] shadow-lg">
