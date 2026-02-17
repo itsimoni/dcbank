@@ -235,12 +235,6 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
             <Badge className="bg-white/20 text-white rounded-none">
               {new Date().getFullYear()}
             </Badge>
-
-            {/* Language Selector */}
-           
-                </>
-              )}
-            </div>
           </div>
         </CardTitle>
       </CardHeader>
