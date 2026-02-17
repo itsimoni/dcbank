@@ -250,18 +250,6 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
   const chartData = getChartData();
   const hasAnyBalance = totalFiat + totalCrypto > 0;
 
-  // Debug logging
-  useEffect(() => {
-    console.log('=== Chart Debug Info ===');
-    console.log('View mode:', viewMode);
-    console.log('Has any balance:', hasAnyBalance);
-    console.log('Total Fiat:', totalFiat);
-    console.log('Total Crypto:', totalCrypto);
-    console.log('Balances in EUR:', balancesInEur);
-    console.log('Chart Data:', chartData);
-    console.log('Chart Data Length:', chartData.length);
-  }, [viewMode, chartData, hasAnyBalance, totalFiat, totalCrypto, balancesInEur]);
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -338,18 +326,6 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
               {t.allBalancesConvertedToEur || "All balances converted to EUR"}
             </div>
           </div>
-        </div>
-
-        {/* Debug Info */}
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
-          <div><strong>Debug Info:</strong></div>
-          <div>View Mode: {viewMode}</div>
-          <div>Has Balance: {hasAnyBalance ? 'Yes' : 'No'}</div>
-          <div>Total Fiat: €{totalFiat.toFixed(2)}</div>
-          <div>Total Crypto: €{totalCrypto.toFixed(2)}</div>
-          <div>Chart Data Points: {chartData.length}</div>
-          <div>EUR Balance: €{balancesInEur.euro.toFixed(2)}</div>
-          <div>CAD Balance: €{balancesInEur.cad.toFixed(2)}</div>
         </div>
 
         {hasAnyBalance ? (
