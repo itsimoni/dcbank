@@ -4,12 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Activity, RefreshCw } from "lucide-react";
 import { priceService } from "@/lib/price-service";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslations } from "@/lib/translations";
 
 interface LiveRatesCardProps {
   language?: string;
 }
 
 export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
+  const { language: contextLanguage } = useLanguage();
+  const t = getTranslations(contextLanguage);
   const [cryptoPrices, setCryptoPrices] = useState<any>(null);
   const [exchangeRates, setExchangeRates] = useState<any>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -54,108 +58,110 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
     {
       symbol: "BTC",
       name: "Bitcoin",
-      price: cryptoPrices?.bitcoin?.usd || 0,
-      change: cryptoPrices?.bitcoin?.usd_24h_change || 0,
+      price: cryptoPrices?.bitcoin?.eur || 0,
+      change: cryptoPrices?.bitcoin?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg",
     },
     {
       symbol: "ETH",
       name: "Ethereum",
-      price: cryptoPrices?.ethereum?.usd || 0,
-      change: cryptoPrices?.ethereum?.usd_24h_change || 0,
+      price: cryptoPrices?.ethereum?.eur || 0,
+      change: cryptoPrices?.ethereum?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg",
     },
     {
       symbol: "USDT",
       name: "Tether",
-      price: cryptoPrices?.tether?.usd || 1.0,
-      change: cryptoPrices?.tether?.usd_24h_change || 0,
+      price: cryptoPrices?.tether?.eur || 0.92,
+      change: cryptoPrices?.tether?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     },
     {
       symbol: "XRP",
       name: "Ripple",
-      price: cryptoPrices?.ripple?.usd || 0,
-      change: cryptoPrices?.ripple?.usd_24h_change || 0,
+      price: cryptoPrices?.ripple?.eur || 0,
+      change: cryptoPrices?.ripple?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg",
     },
     {
       symbol: "SOL",
       name: "Solana",
-      price: cryptoPrices?.solana?.usd || 0,
-      change: cryptoPrices?.solana?.usd_24h_change || 0,
+      price: cryptoPrices?.solana?.eur || 0,
+      change: cryptoPrices?.solana?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg",
     },
     {
       symbol: "ADA",
       name: "Cardano",
-      price: cryptoPrices?.cardano?.usd || 0,
-      change: cryptoPrices?.cardano?.usd_24h_change || 0,
+      price: cryptoPrices?.cardano?.eur || 0,
+      change: cryptoPrices?.cardano?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ada.svg",
     },
     {
       symbol: "LTC",
       name: "Litecoin",
-      price: cryptoPrices?.litecoin?.usd || 0,
-      change: cryptoPrices?.litecoin?.usd_24h_change || 0,
+      price: cryptoPrices?.litecoin?.eur || 0,
+      change: cryptoPrices?.litecoin?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ltc.svg",
     },
     {
       symbol: "DOT",
       name: "Polkadot",
-      price: cryptoPrices?.polkadot?.usd || 0,
-      change: cryptoPrices?.polkadot?.usd_24h_change || 0,
+      price: cryptoPrices?.polkadot?.eur || 0,
+      change: cryptoPrices?.polkadot?.eur_24h_change || 0,
       icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/dot.svg",
     },
   ];
 
+  const eurRate = exchangeRates?.EUR || 0.92;
+
   const fiatData = [
     {
-      symbol: "EUR",
-      name: "Euro",
-      rate: exchangeRates?.EUR || 0.92,
-      flag: "🇪🇺",
+      symbol: "USD",
+      name: "US Dollar",
+      rate: eurRate ? 1 / eurRate : 1.087,
+      flag: "🇺🇸",
     },
     {
       symbol: "GBP",
       name: "British Pound",
-      rate: exchangeRates?.GBP || 0.78,
+      rate: (exchangeRates?.GBP || 0.78) / eurRate,
       flag: "🇬🇧",
     },
     {
       symbol: "JPY",
       name: "Japanese Yen",
-      rate: exchangeRates?.JPY || 149.5,
+      rate: (exchangeRates?.JPY || 149.5) / eurRate,
       flag: "🇯🇵",
     },
     {
       symbol: "CHF",
       name: "Swiss Franc",
-      rate: exchangeRates?.CHF || 0.88,
+      rate: (exchangeRates?.CHF || 0.88) / eurRate,
       flag: "🇨🇭",
     },
     {
       symbol: "CAD",
       name: "Canadian Dollar",
-      rate: exchangeRates?.CAD || 1.35,
+      rate: (exchangeRates?.CAD || 1.35) / eurRate,
       flag: "🇨🇦",
     },
     {
       symbol: "AUD",
       name: "Australian Dollar",
-      rate: exchangeRates?.AUD || 1.52,
+      rate: (exchangeRates?.AUD || 1.52) / eurRate,
       flag: "🇦🇺",
     },
     {
       symbol: "CNY",
       name: "Chinese Yuan",
-      rate: exchangeRates?.CNY || 7.24,
+      rate: (exchangeRates?.CNY || 7.24) / eurRate,
       flag: "🇨🇳",
     },
     {
       symbol: "INR",
       name: "Indian Rupee",
-      rate: exchangeRates?.INR || 83.12,
+      rate: (exchangeRates?.INR || 83.12) / eurRate,
       flag: "🇮🇳",
     },
   ];
@@ -165,7 +171,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            Live Rates
+            {t.liveRates}
           </CardTitle>
           <div className="flex items-center gap-2">
             <RefreshCw
@@ -190,7 +196,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
-                Cryptocurrency
+                {t.cryptocurrency}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {cryptoData.map((crypto) => (
@@ -215,7 +221,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-xs">
-                        ${formatPrice(crypto.price, crypto.symbol === "BTC" ? 0 : crypto.price < 1 ? 4 : 2)}
+                        €{formatPrice(crypto.price, crypto.symbol === "BTC" ? 0 : crypto.price < 1 ? 4 : 2)}
                       </div>
                       {crypto.change !== 0 && (
                         <div
@@ -242,7 +248,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
             <div className="border-t pt-4">
               <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                Fiat Exchange (vs USD)
+                {t.fiatExchange}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {fiatData.map((fiat) => (
@@ -263,10 +269,10 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-xs">
-                        ${formatPrice(1 / fiat.rate, fiat.symbol === "JPY" || fiat.symbol === "INR" || fiat.symbol === "CNY" ? 6 : 4)}
+                        {formatPrice(fiat.rate, fiat.symbol === "JPY" || fiat.symbol === "INR" || fiat.symbol === "CNY" ? 2 : 4)} {fiat.symbol}
                       </div>
                       <div className="text-xs text-gray-500">
-                        per {fiat.symbol}
+                        {t.perCurrency} EUR
                       </div>
                     </div>
                   </div>
@@ -277,9 +283,9 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
             <div className="pt-2 border-t">
               <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
                 <Badge variant="outline" className="text-xs">
-                  Live Data
+                  {t.liveData}
                 </Badge>
-                <span>Updates every 30 seconds</span>
+                <span>{t.updatesEvery30Seconds}</span>
               </div>
             </div>
           </>
