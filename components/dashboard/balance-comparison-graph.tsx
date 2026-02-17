@@ -189,53 +189,24 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
         { name: 'USDT', value: balancesInEur.usdt },
       ];
     } else {
-      return [
-        {
-          name: 'Point 1',
-          usd: balancesInEur.usd,
-          eur: balancesInEur.euro,
-          cad: balancesInEur.cad,
-          btc: balancesInEur.btc,
-          eth: balancesInEur.eth,
-          usdt: balancesInEur.usdt
-        },
-        {
-          name: 'Point 2',
-          usd: balancesInEur.usd * 0.98,
-          eur: balancesInEur.euro * 1.02,
-          cad: balancesInEur.cad * 0.99,
-          btc: balancesInEur.btc * 1.01,
-          eth: balancesInEur.eth * 0.97,
-          usdt: balancesInEur.usdt * 1.03
-        },
-        {
-          name: 'Point 3',
-          usd: balancesInEur.usd * 1.01,
-          eur: balancesInEur.euro * 0.99,
-          cad: balancesInEur.cad * 1.02,
-          btc: balancesInEur.btc * 0.98,
-          eth: balancesInEur.eth * 1.03,
-          usdt: balancesInEur.usdt * 0.97
-        },
-        {
-          name: 'Point 4',
-          usd: balancesInEur.usd * 0.99,
-          eur: balancesInEur.euro * 1.01,
-          cad: balancesInEur.cad * 0.98,
-          btc: balancesInEur.btc * 1.02,
-          eth: balancesInEur.eth * 0.99,
-          usdt: balancesInEur.usdt * 1.01
-        },
-        {
-          name: 'Point 5',
-          usd: balancesInEur.usd,
-          eur: balancesInEur.euro,
-          cad: balancesInEur.cad,
-          btc: balancesInEur.btc,
-          eth: balancesInEur.eth,
-          usdt: balancesInEur.usdt
-        },
-      ];
+      // For "All" view - create smooth wave patterns with multiple data points
+      const points = 10;
+      const result: ChartDataPoint[] = [];
+
+      for (let i = 0; i < points; i++) {
+        const angle = (i / (points - 1)) * Math.PI * 2; // Full wave cycle
+        result.push({
+          name: `P${i + 1}`,
+          usd: balancesInEur.usd * (1 + Math.sin(angle) * 0.05),
+          eur: balancesInEur.euro * (1 + Math.sin(angle + 0.5) * 0.05),
+          cad: balancesInEur.cad * (1 + Math.sin(angle + 1) * 0.05),
+          btc: balancesInEur.btc * (1 + Math.sin(angle + 1.5) * 0.05),
+          eth: balancesInEur.eth * (1 + Math.sin(angle + 2) * 0.05),
+          usdt: balancesInEur.usdt * (1 + Math.sin(angle + 2.5) * 0.05)
+        });
+      }
+
+      return result;
     }
   };
 
@@ -245,6 +216,16 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
   const percentageCrypto = totalFiat + totalCrypto > 0
     ? (totalCrypto / (totalFiat + totalCrypto)) * 100
     : 0;
+
+  // Helper to check if a currency has balance
+  const hasBalance = {
+    usd: balancesInEur.usd > 0,
+    eur: balancesInEur.euro > 0,
+    cad: balancesInEur.cad > 0,
+    btc: balancesInEur.btc > 0,
+    eth: balancesInEur.eth > 0,
+    usdt: balancesInEur.usdt > 0,
+  };
 
   if (loading) {
     return (
@@ -344,7 +325,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
 
         {hasAnyBalance ? (
           <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" key={viewMode}>
               <AreaChart
                 data={chartData}
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
@@ -407,54 +388,72 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 />
                 {viewMode === 'all' && (
                   <>
-                    <Area
-                      type="monotone"
-                      dataKey="usd"
-                      stroke="#dc2626"
-                      strokeWidth={2}
-                      fill="url(#colorUSD)"
-                      name="USD"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="eur"
-                      stroke="#b91c1c"
-                      strokeWidth={2}
-                      fill="url(#colorEUR)"
-                      name="EUR"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="cad"
-                      stroke="#991b1b"
-                      strokeWidth={2}
-                      fill="url(#colorCAD)"
-                      name="CAD"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="btc"
-                      stroke="#f97316"
-                      strokeWidth={2}
-                      fill="url(#colorBTC)"
-                      name="BTC"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="eth"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      fill="url(#colorETH)"
-                      name="ETH"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="usdt"
-                      stroke="#22c55e"
-                      strokeWidth={2}
-                      fill="url(#colorUSDT)"
-                      name="USDT"
-                    />
+                    {hasBalance.usd && (
+                      <Area
+                        type="monotone"
+                        dataKey="usd"
+                        stroke="#dc2626"
+                        strokeWidth={2.5}
+                        fillOpacity={0.3}
+                        fill="url(#colorUSD)"
+                        name="USD"
+                      />
+                    )}
+                    {hasBalance.eur && (
+                      <Area
+                        type="monotone"
+                        dataKey="eur"
+                        stroke="#b91c1c"
+                        strokeWidth={2.5}
+                        fillOpacity={0.3}
+                        fill="url(#colorEUR)"
+                        name="EUR"
+                      />
+                    )}
+                    {hasBalance.cad && (
+                      <Area
+                        type="monotone"
+                        dataKey="cad"
+                        stroke="#991b1b"
+                        strokeWidth={2.5}
+                        fillOpacity={0.3}
+                        fill="url(#colorCAD)"
+                        name="CAD"
+                      />
+                    )}
+                    {hasBalance.btc && (
+                      <Area
+                        type="monotone"
+                        dataKey="btc"
+                        stroke="#f97316"
+                        strokeWidth={2.5}
+                        fillOpacity={0.3}
+                        fill="url(#colorBTC)"
+                        name="BTC"
+                      />
+                    )}
+                    {hasBalance.eth && (
+                      <Area
+                        type="monotone"
+                        dataKey="eth"
+                        stroke="#3b82f6"
+                        strokeWidth={2.5}
+                        fillOpacity={0.3}
+                        fill="url(#colorETH)"
+                        name="ETH"
+                      />
+                    )}
+                    {hasBalance.usdt && (
+                      <Area
+                        type="monotone"
+                        dataKey="usdt"
+                        stroke="#22c55e"
+                        strokeWidth={2.5}
+                        fillOpacity={0.3}
+                        fill="url(#colorUSDT)"
+                        name="USDT"
+                      />
+                    )}
                   </>
                 )}
                 {(viewMode === 'fiat' || viewMode === 'crypto') && (
