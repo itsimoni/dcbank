@@ -297,12 +297,14 @@ export default function ClientDepositsView() {
 
           <CardContent className="pt-0">
             {transactions.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <FileText className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <h3 className="text-lg font-medium mb-2">
+              <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="rounded-full bg-gray-100 p-6 mb-6">
+                  <FileText className="w-12 h-12 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {t.noTransactionHistory}
                 </h3>
-                <p className="text-sm">
+                <p className="text-sm text-gray-600 text-center max-w-md">
                   {t.transactionRecordsWillAppear}
                 </p>
               </div>
