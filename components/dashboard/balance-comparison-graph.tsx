@@ -92,29 +92,29 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
       const euroBalance = Number(euroData?.balance || 0);
       const cadBalance = Number(cadData?.balance || 0);
 
-      const eurToUsd = rates?.EUR ? 1 / rates.EUR : 1.09;
-      const cadToUsd = rates?.CAD ? 1 / rates.CAD : 0.74;
+      const usdToEur = rates?.EUR || 0.92;
+      const cadToEur = rates?.EUR && rates?.CAD ? rates.EUR / rates.CAD : 0.68;
 
-      const totalFiatInUsd =
-        usdBalance +
-        (euroBalance * eurToUsd) +
-        (cadBalance * cadToUsd);
+      const totalFiatInEur =
+        (usdBalance * usdToEur) +
+        euroBalance +
+        (cadBalance * cadToEur);
 
       const btcBalance = Number(cryptoBalances?.btc_balance || 0);
       const ethBalance = Number(cryptoBalances?.eth_balance || 0);
       const usdtBalance = Number(cryptoBalances?.usdt_balance || 0);
 
-      const btcPrice = prices?.bitcoin?.usd || 43250;
-      const ethPrice = prices?.ethereum?.usd || 2650;
-      const usdtPrice = prices?.tether?.usd || 1;
+      const btcPrice = prices?.bitcoin?.eur || 39750;
+      const ethPrice = prices?.ethereum?.eur || 2440;
+      const usdtPrice = prices?.tether?.eur || 0.92;
 
-      const totalCryptoInUsd =
+      const totalCryptoInEur =
         (btcBalance * btcPrice) +
         (ethBalance * ethPrice) +
         (usdtBalance * usdtPrice);
 
-      setTotalFiat(totalFiatInUsd);
-      setTotalCrypto(totalCryptoInUsd);
+      setTotalFiat(totalFiatInEur);
+      setTotalCrypto(totalCryptoInEur);
 
       setRawBalances({
         usd: usdBalance,
@@ -125,34 +125,34 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
         usdt: usdtBalance,
       });
 
-      const btcInUsd = btcBalance * btcPrice;
-      const ethInUsd = ethBalance * ethPrice;
-      const usdtInUsd = usdtBalance * usdtPrice;
+      const btcInEur = btcBalance * btcPrice;
+      const ethInEur = ethBalance * ethPrice;
+      const usdtInEur = usdtBalance * usdtPrice;
 
       const chartData: BalanceData[] = [
         {
           name: "USD",
-          fiat: usdBalance,
-          crypto: btcInUsd,
-          total: usdBalance + btcInUsd,
+          fiat: usdBalance * usdToEur,
+          crypto: btcInEur,
+          total: (usdBalance * usdToEur) + btcInEur,
         },
         {
           name: "EUR",
-          fiat: euroBalance * eurToUsd,
-          crypto: ethInUsd,
-          total: (euroBalance * eurToUsd) + ethInUsd,
+          fiat: euroBalance,
+          crypto: ethInEur,
+          total: euroBalance + ethInEur,
         },
         {
           name: "CAD",
-          fiat: cadBalance * cadToUsd,
-          crypto: usdtInUsd,
-          total: (cadBalance * cadToUsd) + usdtInUsd,
+          fiat: cadBalance * cadToEur,
+          crypto: usdtInEur,
+          total: (cadBalance * cadToEur) + usdtInEur,
         },
         {
           name: "Totals",
-          fiat: totalFiatInUsd,
-          crypto: totalCryptoInUsd,
-          total: totalFiatInUsd + totalCryptoInUsd,
+          fiat: totalFiatInEur,
+          crypto: totalCryptoInEur,
+          total: totalFiatInEur + totalCryptoInEur,
         },
       ];
 
@@ -165,12 +165,21 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("de-DE", {
       style: "currency",
-      currency: "USD",
+      currency: "EUR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
+  };
+
+  const formatCompactCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `€${(value / 1000000).toFixed(1)}M`;
+    } else if (value >= 1000) {
+      return `€${(value / 1000).toFixed(0)}K`;
+    }
+    return `€${value.toFixed(0)}`;
   };
 
   const percentageFiat = totalFiat + totalCrypto > 0
@@ -209,9 +218,9 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             <div className="text-sm opacity-90 mb-1">Total Fiat Balance</div>
             <div className="text-2xl font-bold mb-1">{formatCurrency(totalFiat)}</div>
             <div className="text-xs opacity-80">
-              USD: {formatCurrency(rawBalances.usd)} |
-              EUR: {formatCurrency(rawBalances.euro * (exchangeRates?.EUR ? 1 / exchangeRates.EUR : 1.09))} |
-              CAD: {formatCurrency(rawBalances.cad * (exchangeRates?.CAD ? 1 / exchangeRates.CAD : 0.74))}
+              USD: {formatCurrency(rawBalances.usd * (exchangeRates?.EUR || 0.92))} |
+              EUR: €{rawBalances.euro.toFixed(2)} |
+              CAD: {formatCurrency(rawBalances.cad * (exchangeRates?.EUR && exchangeRates?.CAD ? exchangeRates.EUR / exchangeRates.CAD : 0.68))}
             </div>
             <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
@@ -223,9 +232,9 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             <div className="text-sm opacity-90 mb-1">Total Crypto Balance</div>
             <div className="text-2xl font-bold mb-1">{formatCurrency(totalCrypto)}</div>
             <div className="text-xs opacity-80">
-              BTC: {formatCurrency(rawBalances.btc * (cryptoPrices?.bitcoin?.usd || 43250))} |
-              ETH: {formatCurrency(rawBalances.eth * (cryptoPrices?.ethereum?.usd || 2650))} |
-              USDT: {formatCurrency(rawBalances.usdt * (cryptoPrices?.tether?.usd || 1))}
+              BTC: {formatCurrency(rawBalances.btc * (cryptoPrices?.bitcoin?.eur || 39750))} |
+              ETH: {formatCurrency(rawBalances.eth * (cryptoPrices?.ethereum?.eur || 2440))} |
+              USDT: {formatCurrency(rawBalances.usdt * (cryptoPrices?.tether?.eur || 0.92))}
             </div>
             <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
@@ -246,7 +255,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={balanceData}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
               <defs>
                 <linearGradient id="colorFiat" x1="0" y1="0" x2="0" y2="1">
@@ -266,11 +275,12 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
               />
               <YAxis
                 stroke="#6b7280"
-                style={{ fontSize: '12px' }}
-                tickFormatter={formatCurrency}
+                style={{ fontSize: '11px' }}
+                tickFormatter={formatCompactCurrency}
                 scale="log"
                 domain={['auto', 'auto']}
                 allowDataOverflow={false}
+                width={60}
               />
               <Tooltip
                 contentStyle={{
@@ -332,7 +342,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 ₿{rawBalances.btc.toFixed(8)}
               </div>
               <div className="text-gray-400 mt-0.5">
-                {formatCurrency(rawBalances.btc * (cryptoPrices?.bitcoin?.usd || 43250))}
+                {formatCurrency(rawBalances.btc * (cryptoPrices?.bitcoin?.eur || 39750))}
               </div>
             </div>
             <div>
@@ -341,7 +351,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 Ξ{rawBalances.eth.toFixed(8)}
               </div>
               <div className="text-gray-400 mt-0.5">
-                {formatCurrency(rawBalances.eth * (cryptoPrices?.ethereum?.usd || 2650))}
+                {formatCurrency(rawBalances.eth * (cryptoPrices?.ethereum?.eur || 2440))}
               </div>
             </div>
             <div>
@@ -350,7 +360,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 ₮{rawBalances.usdt.toFixed(2)}
               </div>
               <div className="text-gray-400 mt-0.5">
-                {formatCurrency(rawBalances.usdt * (cryptoPrices?.tether?.usd || 1))}
+                {formatCurrency(rawBalances.usdt * (cryptoPrices?.tether?.eur || 0.92))}
               </div>
             </div>
           </div>
