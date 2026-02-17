@@ -10,7 +10,7 @@ class PriceService {
   private async fetchFromCoinGecko() {
     const cryptoIds = "bitcoin,ethereum,tether,ripple,cardano,solana,polkadot,litecoin,bitcoin-cash,chainlink";
     const response = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${cryptoIds}&vs_currencies=usd&include_24hr_change=true`,
+      `https://api.coingecko.com/api/v3/simple/price?ids=${cryptoIds}&vs_currencies=eur&include_24hr_change=true`,
       { signal: AbortSignal.timeout(5000) }
     );
     if (!response.ok) throw new Error(`CoinGecko failed: ${response.status}`);
@@ -19,6 +19,11 @@ class PriceService {
 
   private async fetchFromCoinCap() {
     const symbols = ["bitcoin", "ethereum", "tether", "ripple", "cardano", "solana", "polkadot", "litecoin", "bitcoin-cash", "chainlink"];
+
+    const eurRateResponse = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR", { signal: AbortSignal.timeout(5000) });
+    const eurRateData = await eurRateResponse.json();
+    const usdToEur = eurRateData.rates.EUR;
+
     const promises = symbols.map(async (id) => {
       const response = await fetch(
         `https://api.coincap.io/v2/assets/${id}`,
@@ -28,8 +33,8 @@ class PriceService {
       const data = await response.json();
       return {
         id,
-        usd: parseFloat(data.data.priceUsd),
-        usd_24h_change: parseFloat(data.data.changePercent24Hr),
+        eur: parseFloat(data.data.priceUsd) * usdToEur,
+        eur_24h_change: parseFloat(data.data.changePercent24Hr),
       };
     });
 
@@ -37,8 +42,8 @@ class PriceService {
     const formatted: any = {};
     results.forEach((item) => {
       formatted[item.id] = {
-        usd: item.usd,
-        usd_24h_change: item.usd_24h_change,
+        eur: item.eur,
+        eur_24h_change: item.eur_24h_change,
       };
     });
     return formatted;
@@ -46,16 +51,16 @@ class PriceService {
 
   private async fetchFromBinance() {
     const symbols = [
-      { id: "bitcoin", symbol: "BTCUSDT" },
-      { id: "ethereum", symbol: "ETHUSDT" },
-      { id: "tether", symbol: "USDCUSDT" },
-      { id: "ripple", symbol: "XRPUSDT" },
-      { id: "cardano", symbol: "ADAUSDT" },
-      { id: "solana", symbol: "SOLUSDT" },
-      { id: "polkadot", symbol: "DOTUSDT" },
-      { id: "litecoin", symbol: "LTCUSDT" },
-      { id: "bitcoin-cash", symbol: "BCHUSDT" },
-      { id: "chainlink", symbol: "LINKUSDT" },
+      { id: "bitcoin", symbol: "BTCEUR" },
+      { id: "ethereum", symbol: "ETHEUR" },
+      { id: "tether", symbol: "USDCEUR" },
+      { id: "ripple", symbol: "XRPEUR" },
+      { id: "cardano", symbol: "ADAEUR" },
+      { id: "solana", symbol: "SOLEUR" },
+      { id: "polkadot", symbol: "DOTEUR" },
+      { id: "litecoin", symbol: "LTCEUR" },
+      { id: "bitcoin-cash", symbol: "BCHEUR" },
+      { id: "chainlink", symbol: "LINKEUR" },
     ];
 
     const promises = symbols.map(async ({ id, symbol }) => {
@@ -67,8 +72,8 @@ class PriceService {
       const data = await response.json();
       return {
         id,
-        usd: parseFloat(data.lastPrice),
-        usd_24h_change: parseFloat(data.priceChangePercent),
+        eur: parseFloat(data.lastPrice),
+        eur_24h_change: parseFloat(data.priceChangePercent),
       };
     });
 
@@ -76,8 +81,8 @@ class PriceService {
     const formatted: any = {};
     results.forEach((item) => {
       formatted[item.id] = {
-        usd: item.usd,
-        usd_24h_change: item.usd_24h_change,
+        eur: item.eur,
+        eur_24h_change: item.eur_24h_change,
       };
     });
     return formatted;
@@ -113,23 +118,23 @@ class PriceService {
     console.error("All crypto price sources failed, using fallback data");
     return (
       this.cryptoCache || {
-        bitcoin: { usd: 43250, usd_24h_change: 0 },
-        ethereum: { usd: 2650, usd_24h_change: 0 },
-        tether: { usd: 1.0, usd_24h_change: 0 },
-        ripple: { usd: 0.55, usd_24h_change: 0 },
-        cardano: { usd: 0.48, usd_24h_change: 0 },
-        solana: { usd: 98, usd_24h_change: 0 },
-        polkadot: { usd: 6.5, usd_24h_change: 0 },
-        litecoin: { usd: 85, usd_24h_change: 0 },
-        "bitcoin-cash": { usd: 320, usd_24h_change: 0 },
-        chainlink: { usd: 15, usd_24h_change: 0 },
+        bitcoin: { eur: 39800, eur_24h_change: 0 },
+        ethereum: { eur: 2440, eur_24h_change: 0 },
+        tether: { eur: 0.92, eur_24h_change: 0 },
+        ripple: { eur: 0.51, eur_24h_change: 0 },
+        cardano: { eur: 0.44, eur_24h_change: 0 },
+        solana: { eur: 90, eur_24h_change: 0 },
+        polkadot: { eur: 6.0, eur_24h_change: 0 },
+        litecoin: { eur: 78, eur_24h_change: 0 },
+        "bitcoin-cash": { eur: 294, eur_24h_change: 0 },
+        chainlink: { eur: 13.8, eur_24h_change: 0 },
       }
     );
   }
 
   private async fetchFromExchangeRateHost() {
     const response = await fetch(
-      "https://api.exchangerate.host/latest?base=USD",
+      "https://api.exchangerate.host/latest?base=EUR",
       { signal: AbortSignal.timeout(5000) }
     );
     if (!response.ok) throw new Error(`ExchangeRate.host failed: ${response.status}`);
@@ -139,7 +144,7 @@ class PriceService {
 
   private async fetchFromExchangeRateAPI() {
     const response = await fetch(
-      "https://open.er-api.com/v6/latest/USD",
+      "https://open.er-api.com/v6/latest/EUR",
       { signal: AbortSignal.timeout(5000) }
     );
     if (!response.ok) throw new Error(`ExchangeRate-API failed: ${response.status}`);
@@ -149,7 +154,7 @@ class PriceService {
 
   private async fetchFromFrankfurter() {
     const response = await fetch(
-      "https://api.frankfurter.app/latest?from=USD",
+      "https://api.frankfurter.app/latest?from=EUR",
       { signal: AbortSignal.timeout(5000) }
     );
     if (!response.ok) throw new Error(`Frankfurter failed: ${response.status}`);
@@ -190,14 +195,14 @@ class PriceService {
     console.error("All exchange rate sources failed, using fallback data");
     return (
       this.exchangeCache || {
-        EUR: 0.92,
-        GBP: 0.78,
-        JPY: 149.5,
-        CHF: 0.88,
-        CAD: 1.35,
-        AUD: 1.52,
-        CNY: 7.24,
-        INR: 83.12,
+        USD: 1.087,
+        GBP: 0.85,
+        JPY: 162.5,
+        CHF: 0.96,
+        CAD: 1.47,
+        AUD: 1.65,
+        CNY: 7.87,
+        INR: 90.4,
       }
     );
   }
