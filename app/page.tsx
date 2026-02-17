@@ -74,9 +74,9 @@ export default function Page() {
 
         if (userError) {
           if (userError.code === "PGRST116") {
-            console.log("✅ User not in users table, defaulting to approved");
+            console.log("✅ User not in users table, defaulting to not_started for KYC");
             if (mountedRef.current) {
-              setKycStatus("approved");
+              setKycStatus("not_started");
               setLoading(false);
               setError(null);
             }
@@ -85,7 +85,7 @@ export default function Page() {
           throw userError;
         }
 
-        const status = userData?.kyc_status || "approved";
+        const status = userData?.kyc_status || "not_started";
         console.log("✅ KYC status fetched successfully:", status);
 
         if (mountedRef.current) {
@@ -110,10 +110,10 @@ export default function Page() {
           }, delay);
         } else {
           console.log(
-            "🛡️ Max retries reached, defaulting to approved to prevent infinite loading"
+            "🛡️ Max retries reached, defaulting to not_started for KYC verification"
           );
           if (mountedRef.current) {
-            setKycStatus("approved");
+            setKycStatus("not_started");
             setLoading(false);
             setError(null);
           }
