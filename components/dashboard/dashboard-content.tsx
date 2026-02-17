@@ -160,17 +160,14 @@ const BalanceCard = memo(
     formatCurrency: (amount: number, currency: string) => string;
     t: ReturnType<typeof getTranslations>;
   }) => (
-    <div className="flex flex-col items-center justify-center">
-      <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-4">
-        <div className="text-xs sm:text-sm text-white font-medium capitalize mb-2">
-          {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
-        </div>
-        <div className="text-base sm:text-xl font-bold text-white leading-tight text-center">
+    <div className="flex flex-col items-center justify-center gap-3">
+      <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
+        {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
+      </div>
+      <div className="relative w-32 h-32 sm:w-40 sm:h-40 bg-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-4">
+        <div className="text-base sm:text-2xl font-bold text-white leading-tight text-center">
           {formatCurrency(balance, currency)}
         </div>
-        <p className="text-xs text-white/80 mt-1 text-center">
-          {t.account}
-        </p>
       </div>
     </div>
   )
@@ -191,19 +188,12 @@ const CryptoCard = memo(
     const config = cryptoConfigs[cryptoCurrency as keyof typeof cryptoConfigs];
 
     return (
-      <div className="flex flex-col items-center justify-center">
-        <div className={`relative w-32 h-32 sm:w-40 sm:h-40 rounded-full ${config.bgColor} border-2 ${config.borderColor} transition-all duration-200 flex flex-col items-center justify-center p-4`}>
-          <Image
-            src={config.iconUrl || "/placeholder.svg"}
-            alt={`${config.name} icon`}
-            width={32}
-            height={32}
-            className="w-8 h-8 sm:w-10 sm:h-10 mb-2"
-          />
-          <div className={`text-xs sm:text-sm font-medium ${config.color} mb-1`}>
-            {cryptoCurrency}
-          </div>
-          <div className={`text-sm sm:text-base font-bold leading-tight ${config.color} text-center`}>
+      <div className="flex flex-col items-center justify-center gap-3">
+        <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
+          {cryptoCurrency}
+        </div>
+        <div className={`relative w-32 h-32 sm:w-40 sm:h-40 ${config.bgColor} border-2 ${config.borderColor} transition-all duration-200 flex flex-col items-center justify-center p-4`}>
+          <div className={`text-sm sm:text-2xl font-bold leading-tight ${config.color} text-center`}>
             {formatCurrency(balance, cryptoCurrency)}
           </div>
         </div>
@@ -559,7 +549,7 @@ function DashboardContent({
           .from("TransactionHistory")
           .select("*")
           .eq("uuid", userProfile.id)
-          .order("created_at", { ascending: false })
+          .order("created_at", { ascending: true })
           .limit(5)
           .abortSignal(abortController.signal);
 
@@ -896,7 +886,7 @@ function DashboardContent({
           <div className="relative">
             <button
               onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-              className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center space-x-2 bg-white border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
             >
               <Languages className="h-4 w-4 text-[#b91c1c]" />
               <span>{languageNames[language]}</span>
@@ -909,7 +899,7 @@ function DashboardContent({
                   className="fixed inset-0 z-10"
                   onClick={() => setIsLanguageDropdownOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg z-20 overflow-hidden">
                   {Object.entries(languageNames).map(([code, name]) => (
                     <button
                       key={code}

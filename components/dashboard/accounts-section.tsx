@@ -351,7 +351,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           <div className="relative">
             <button
               onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-              className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center space-x-2 bg-white border border-gray-300  px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
             >
               <Languages className="h-4 w-4 text-[#b91c1c]" />
               <span>{languageNames[language]}</span>
@@ -364,7 +364,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   className="fixed inset-0 z-10"
                   onClick={() => setIsLanguageDropdownOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200  shadow-lg z-20 overflow-hidden">
                   {Object.entries(languageNames).map(([code, name]) => (
                     <button
                       key={code}
@@ -405,7 +405,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {/* Country and Payment Rail Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50  border border-gray-200">
                 <div>
                   <Label htmlFor="country" className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-[#b91c1c]" />
@@ -479,7 +479,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
 
               {/* Rail-Specific Fields */}
               {formData.payment_rail === "ACH" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50  border border-blue-200">
                   <div className="md:col-span-2">
                     <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
@@ -536,7 +536,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
               )}
 
               {formData.payment_rail === "SEPA" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-purple-50  border border-purple-200">
                   <div className="md:col-span-2">
                     <h4 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
@@ -577,7 +577,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
               )}
 
               {formData.payment_rail === "SWIFT" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-green-50  border border-green-200">
                   <div className="md:col-span-2">
                     <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
@@ -690,7 +690,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                   return (
                     <div
                       key={account.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-[#b91c1c] hover:shadow-md transition-all duration-200"
+                      className="border border-gray-200  p-4 hover:border-[#b91c1c] hover:shadow-md transition-all duration-200"
                     >
                       <div className="flex items-center justify-between">
                         {/* Left: Bank Info */}
@@ -751,7 +751,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
 
                       {/* Verification Guidance */}
                       {(account.verification_status === "pending" || account.verification_status === "requires_action") && (
-                        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 ">
                           <p className="text-sm text-yellow-800">
                             <AlertTriangle className="h-4 w-4 inline mr-2" />
                             Your account is pending verification. Our team will review and verify your bank account details shortly.
@@ -760,7 +760,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                       )}
 
                       {(account.verification_status === "failed" || account.verification_status === "rejected") && account.failure_reason && (
-                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="mt-4 p-3 bg-red-50 border border-red-200 ">
                           <p className="text-sm text-red-800 font-medium mb-1">
                             <XCircle className="h-4 w-4 inline mr-2" />
                             Verification Failed

@@ -233,7 +233,7 @@ export default function ClientDepositsView() {
           <div ref={dropdownRef} className="relative inline-block">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-3 bg-white border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
+              className="flex items-center gap-3 bg-white border-2 border-gray-200  px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
             >
               <Languages className="w-4 h-4 text-gray-600" />
               <span className="flex-1 text-left">
@@ -243,7 +243,7 @@ export default function ClientDepositsView() {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg overflow-hidden z-10">
+              <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200  shadow-lg overflow-hidden z-10">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -313,7 +313,7 @@ export default function ClientDepositsView() {
                 {transactions.map((tx) => (
                   <div
                     key={tx.id}
-                    className="border rounded-lg p-4 space-y-4 hover:shadow-md transition"
+                    className="border  p-4 space-y-4 hover:shadow-md transition"
                   >
                     <div className="flex flex-col sm:flex-row justify-between">
                       <div>
@@ -343,7 +343,7 @@ export default function ClientDepositsView() {
                       </Badge>
                     </div>
 
-                    <div className="bg-[#F26623] border border-orange-200 rounded-lg p-3">
+                    <div className="bg-[#F26623] border border-orange-200  p-3">
                       <h4 className="font-semibold text-white mb-2 flex items-center text-sm">
                         <FileText className="w-4 h-4 mr-2" />
                         {t.transactionDetails}

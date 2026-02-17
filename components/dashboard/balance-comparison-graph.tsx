@@ -274,48 +274,48 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-[#b91c1c] to-[#991b1b] p-4 text-white">
-            <div className="text-sm opacity-90 mb-1">{t.totalFiatBalance}</div>
-            <div className="text-2xl font-bold mb-2">{formatCurrency(totalFiat)}</div>
-            <div className="text-xs opacity-80 space-y-1">
+          <div className="bg-white border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">{t.totalFiatBalance}</div>
+            <div className="text-2xl font-bold mb-2 text-gray-900">{formatCurrency(totalFiat)}</div>
+            <div className="text-xs text-gray-700 space-y-1">
               <div>USD: {formatCurrency(balancesInEur.usd)}</div>
               <div>EUR: {formatCurrency(balancesInEur.euro)}</div>
               <div>CAD: {formatCurrency(balancesInEur.cad)}</div>
             </div>
-            <div className="text-xs opacity-80 flex items-center gap-1 mt-2">
+            <div className="text-xs text-gray-600 flex items-center gap-1 mt-2">
               <TrendingUp className="h-3 w-3" />
               {percentageFiat < 0.01 && percentageFiat > 0 ? '<0.01' : percentageFiat.toFixed(2)}% {t.ofTotal}
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-4 text-white">
-            <div className="text-sm opacity-90 mb-1">{t.totalCryptoBalance}</div>
-            <div className="text-2xl font-bold mb-2">{formatCurrency(totalCrypto)}</div>
-            <div className="text-xs opacity-80 space-y-1">
+          <div className="bg-white border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">{t.totalCryptoBalance}</div>
+            <div className="text-2xl font-bold mb-2 text-gray-900">{formatCurrency(totalCrypto)}</div>
+            <div className="text-xs text-gray-700 space-y-1">
               <div>BTC: {formatCurrency(balancesInEur.btc)}</div>
               <div>ETH: {formatCurrency(balancesInEur.eth)}</div>
               <div>USDT: {formatCurrency(balancesInEur.usdt)}</div>
             </div>
-            <div className="text-xs opacity-80 flex items-center gap-1 mt-2">
+            <div className="text-xs text-gray-600 flex items-center gap-1 mt-2">
               <TrendingUp className="h-3 w-3" />
               {percentageCrypto > 99.99 ? '>99.99' : percentageCrypto.toFixed(2)}% {t.ofTotal}
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-600 to-green-700 p-4 text-white">
-            <div className="text-sm opacity-90 mb-1">{t.combinedTotal}</div>
-            <div className="text-2xl font-bold mb-2">
+          <div className="bg-white border border-gray-200 p-4">
+            <div className="text-sm text-gray-600 mb-1">{t.combinedTotal}</div>
+            <div className="text-2xl font-bold mb-2 text-gray-900">
               {formatCurrency(totalFiat + totalCrypto)}
             </div>
-            <div className="text-xs opacity-80">{t.allCurrenciesCombined}</div>
-            <div className="text-xs opacity-90 mt-2">
+            <div className="text-xs text-gray-700">{t.allCurrenciesCombined}</div>
+            <div className="text-xs text-gray-600 mt-2">
               {t.allBalancesConvertedToEur || "All balances converted to EUR"}
             </div>
           </div>
         </div>
 
         {hasAnyBalance ? (
-          <div className="h-80 w-full bg-white border border-gray-200 rounded-lg p-4">
+          <div className="h-80 w-full bg-white border border-gray-200 p-4">
             <ResponsiveContainer width="100%" height="100%" key={viewMode}>
               <AreaChart
                 data={chartData}
@@ -395,7 +395,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-80 w-full flex items-center justify-center bg-gray-50 rounded-lg">
+          <div className="h-80 w-full flex items-center justify-center bg-gray-50">
             <div className="text-center text-gray-500">
               <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm">No balance data available yet</p>
@@ -404,7 +404,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
           </div>
         )}
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <div className="mt-6 p-4 bg-gray-50">
           <div className="text-sm text-gray-600 mb-3 font-medium">{t.balanceBreakdown}</div>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-xs">
             <div className="p-3 bg-white rounded border border-gray-200">
