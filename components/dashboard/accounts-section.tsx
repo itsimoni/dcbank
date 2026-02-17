@@ -405,7 +405,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {/* Country and Payment Rail Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50  border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white  border border-gray-200">
                 <div>
                   <Label htmlFor="country" className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-[#b91c1c]" />
@@ -479,9 +479,9 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
 
               {/* Rail-Specific Fields */}
               {formData.payment_rail === "ACH" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50  border border-blue-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white  border border-gray-200">
                   <div className="md:col-span-2">
-                    <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
                       ACH Account Details
                     </h4>
@@ -536,9 +536,9 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
               )}
 
               {formData.payment_rail === "SEPA" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-purple-50  border border-purple-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white  border border-gray-200">
                   <div className="md:col-span-2">
-                    <h4 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
                       SEPA Account Details
                     </h4>
@@ -577,9 +577,9 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
               )}
 
               {formData.payment_rail === "SWIFT" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-green-50  border border-green-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white  border border-gray-200">
                   <div className="md:col-span-2">
-                    <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                       <Info className="h-4 w-4" />
                       SWIFT Account Details
                     </h4>
