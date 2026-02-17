@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import TaxCard from "../tax-card";
+import LiveRatesCard from "./live-rates-card";
 if (process.env.NODE_ENV === "production") {
   console.log = () => {};
   console.warn = () => {};
@@ -1189,6 +1190,11 @@ function DashboardContent({
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Live Rates Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 sm:gap-8">
+          <LiveRatesCard language={language} />
         </div>
       </div>
     </div>
