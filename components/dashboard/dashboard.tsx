@@ -22,7 +22,6 @@ import CryptoSection from "./crypto-section-fixed";
 import MessageSection from "./message-section-database";
 import LoansSection from "./loans-section";
 import Profile from "./Profile";
-import ExternalBankAccounts from "./ExternalBankAccounts";
 import { useRouter } from "next/navigation";
 if (process.env.NODE_ENV === "production") {
   console.log = () => {};
@@ -495,8 +494,7 @@ class SectionRenderer {
     support: SupportSection,
     profile: Profile,
     loans: LoansSection,
-    fund_account: FundAccount,
-    external_accounts: ExternalBankAccounts
+    fund_account: FundAccount
   };
 
   private memoizedComponents = new Map<string, React.ComponentType<any>>();

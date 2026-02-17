@@ -18,7 +18,6 @@ import {
   Banknote,
   Globe,
   User,
-  Building2,
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -121,12 +120,6 @@ const MENU_ITEMS: MenuItem[] = [
     id: "profile",
     labelKey: "profile",
     icon: User,
-    isEnabled: true,
-  },
-  {
-    id: "external_accounts",
-    labelKey: "externalAccounts",
-    icon: Building2,
     isEnabled: true,
   },
   {
