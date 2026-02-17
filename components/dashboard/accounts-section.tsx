@@ -790,7 +790,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* ACH */}
-            <div className="p-4 border-l-4 border-l-blue-500 bg-blue-50">
+            <div className="p-4 border-l-4 border-l-blue-500 bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.ACH}>ACH</Badge>
                 <h4 className="font-semibold text-gray-900">Automated Clearing House</h4>
@@ -816,7 +816,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             </div>
 
             {/* SEPA */}
-            <div className="p-4 border-l-4 border-l-purple-500 bg-purple-50">
+            <div className="p-4 border-l-4 border-l-purple-500 bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.SEPA}>SEPA</Badge>
                 <h4 className="font-semibold text-gray-900">Single Euro Payments Area</h4>
@@ -842,7 +842,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             </div>
 
             {/* SWIFT */}
-            <div className="p-4 border-l-4 border-l-green-500 bg-green-50">
+            <div className="p-4 border-l-4 border-l-green-500 bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.SWIFT}>SWIFT</Badge>
                 <h4 className="font-semibold text-gray-900">Society for Worldwide Interbank Financial Telecommunication</h4>
@@ -869,7 +869,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             </div>
 
             {/* WIRE */}
-            <div className="p-4 border-l-4 border-l-orange-500 bg-orange-50">
+            <div className="p-4 border-l-4 border-l-orange-500 bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.WIRE}>WIRE</Badge>
                 <h4 className="font-semibold text-gray-900">Wire Transfer</h4>
