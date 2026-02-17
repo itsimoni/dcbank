@@ -784,30 +784,27 @@ export default function TransfersSection({
       }
     > = {
       pending: {
-        color:
-          "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100",
+        color: "bg-white text-slate-700 border-2 border-gray-300",
         label: "Pending review",
         icon: Clock,
       },
       approved: {
-        color: "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100",
+        color: "bg-white text-slate-700 border-2 border-gray-300",
         label: "Approved",
         icon: CheckCircle,
       },
       completed: {
-        color:
-          "bg-green-100 text-green-800 border-green-200 hover:bg-green-100",
+        color: "bg-white text-slate-700 border-2 border-gray-300",
         label: "Completed",
         icon: CheckCircle,
       },
       rejected: {
-        color: "bg-red-100 text-red-800 border-red-200 hover:bg-red-100",
+        color: "bg-white text-red-600 border-2 border-red-600",
         label: "Rejected",
         icon: XCircle,
       },
       processing: {
-        color:
-          "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100",
+        color: "bg-white text-slate-700 border-2 border-gray-300",
         label: "Processing",
         icon: Clock,
       },
@@ -817,7 +814,7 @@ export default function TransfersSection({
     const Icon = config.icon;
 
     return (
-      <Badge className={`${config.color} flex items-center gap-1 border`}>
+      <Badge className={`${config.color} flex items-center gap-1`}>
         <Icon className="w-3 h-3" />
         {config.label}
       </Badge>
@@ -876,7 +873,7 @@ export default function TransfersSection({
 
           <div className="space-y-6">
             {/* Reference Number - Prominent */}
-            <div className="bg-red-50 border-2 border-red-200 p-4">
+            <div className="bg-white border-2 border-red-600 p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-600 mb-1 font-medium">
@@ -915,12 +912,12 @@ export default function TransfersSection({
               <div className="flex items-center gap-2 mb-4">
                 {getStatusBadge(selectedTransfer.status)}
                 {isInternal && (
-                  <Badge className="bg-blue-50 text-blue-700 border-blue-200">
+                  <Badge className="bg-white text-slate-700 border-2 border-gray-300">
                     Rate locked at submission
                   </Badge>
                 )}
                 {!isInternal && isPending && (
-                  <Badge className="bg-amber-50 text-amber-700 border-amber-200">
+                  <Badge className="bg-white text-slate-700 border-2 border-gray-300">
                     Estimated. Final amount confirmed when processed
                   </Badge>
                 )}
@@ -929,7 +926,7 @@ export default function TransfersSection({
               {/* Timeline */}
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-green-500 mt-2"></div>
+                  <div className="w-2 h-2 bg-red-600 mt-2"></div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-700">
                       Submitted
@@ -941,7 +938,7 @@ export default function TransfersSection({
                 </div>
                 {selectedTransfer.processed_at && (
                   <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 mt-2"></div>
+                    <div className="w-2 h-2 bg-red-600 mt-2"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-slate-700">
                         Processed
@@ -1035,7 +1032,7 @@ export default function TransfersSection({
 
             {/* Bank Details - Only for bank transfers */}
             {!isInternal && selectedTransfer.bank_transfer && (
-              <div className="border border-slate-200 p-4 bg-slate-50">
+              <div className="border-2 border-gray-300 p-4 bg-white">
                 <h3 className="text-sm font-semibold text-slate-700 mb-3">
                   Bank Details
                 </h3>
@@ -1124,23 +1121,23 @@ export default function TransfersSection({
 
             {/* Admin Notes / Status Reason */}
             {(selectedTransfer.admin_notes || selectedTransfer.status_reason) && (
-              <div className="border border-amber-200 bg-amber-50 p-4">
-                <h3 className="text-sm font-semibold text-amber-900 mb-2 flex items-center gap-2">
+              <div className="border-2 border-gray-300 bg-white p-4">
+                <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
                   <Info className="w-4 h-4" />
                   Additional Information
                 </h3>
                 {selectedTransfer.status_reason && (
                   <div className="mb-2">
-                    <p className="text-xs text-amber-700 mb-1">Status Reason</p>
-                    <p className="text-sm text-amber-900">
+                    <p className="text-xs text-slate-600 mb-1">Status Reason</p>
+                    <p className="text-sm text-slate-800">
                       {selectedTransfer.status_reason}
                     </p>
                   </div>
                 )}
                 {selectedTransfer.admin_notes && (
                   <div>
-                    <p className="text-xs text-amber-700 mb-1">Notes</p>
-                    <p className="text-sm text-amber-900">
+                    <p className="text-xs text-slate-600 mb-1">Notes</p>
+                    <p className="text-sm text-slate-800">
                       {selectedTransfer.admin_notes}
                     </p>
                   </div>
@@ -1177,11 +1174,11 @@ export default function TransfersSection({
 
           <div className="space-y-6">
             {/* Reference Number */}
-            <div className="bg-green-50 border-2 border-green-200 p-4 text-center">
-              <p className="text-xs text-green-700 mb-1 font-medium">
+            <div className="bg-white border-2 border-red-600 p-4 text-center">
+              <p className="text-xs text-slate-600 mb-1 font-medium">
                 Reference Number
               </p>
-              <p className="text-2xl font-bold text-green-800">
+              <p className="text-2xl font-bold text-slate-800">
                 {confirmationData.reference_number}
               </p>
               <Button
@@ -1193,7 +1190,7 @@ export default function TransfersSection({
                     "confirmation"
                   )
                 }
-                className="mt-2 text-green-700"
+                className="mt-2 text-slate-700"
               >
                 {copiedField === "confirmation" ? (
                   <Check className="w-4 h-4 mr-1" />
@@ -1243,20 +1240,20 @@ export default function TransfersSection({
                     {confirmationData.from_currency}
                   </p>
                 </div>
-                <div className="col-span-2 bg-red-50 p-3 border border-red-200">
-                  <p className="text-xs text-red-700 mb-1 font-medium">
+                <div className="col-span-2 bg-white p-3 border-2 border-red-600">
+                  <p className="text-xs text-slate-600 mb-1 font-medium">
                     Total Debit
                   </p>
-                  <p className="text-xl font-bold text-red-800">
+                  <p className="text-xl font-bold text-red-600">
                     {confirmationData.total_debit.toFixed(2)}{" "}
                     {confirmationData.from_currency}
                   </p>
                 </div>
-                <div className="col-span-2 bg-green-50 p-3 border border-green-200">
-                  <p className="text-xs text-green-700 mb-1 font-medium">
+                <div className="col-span-2 bg-white p-3 border-2 border-gray-300">
+                  <p className="text-xs text-slate-600 mb-1 font-medium">
                     Estimated Credit
                   </p>
-                  <p className="text-xl font-bold text-green-800">
+                  <p className="text-xl font-bold text-slate-800">
                     {confirmationData.to_amount.toFixed(2)}{" "}
                     {confirmationData.to_currency}
                   </p>
@@ -1279,11 +1276,11 @@ export default function TransfersSection({
             </div>
 
             {confirmationData.transfer_type === "bank_transfer" && (
-              <div className="bg-amber-50 border border-amber-200 p-3 text-sm text-amber-900">
+              <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
                 <p className="font-medium mb-1">
                   Your transfer is pending review
                 </p>
-                <p className="text-xs">
+                <p className="text-xs text-slate-600">
                   Our team will process this transfer shortly. You'll be notified
                   once it's completed.
                 </p>
@@ -1330,7 +1327,7 @@ export default function TransfersSection({
   const totalDebit = amount + transferFee;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <style jsx>{`
         .custom-scrollbar {
           scrollbar-width: none;
@@ -1342,33 +1339,27 @@ export default function TransfersSection({
         .balance-card {
           background: white;
           transition: all 0.3s ease;
-          border: 1px solid #e2e8f0;
+          border: 2px solid #e5e7eb;
         }
         .balance-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
           border-color: #dc2626;
         }
         .transfer-form {
           background: white;
-          border: 1px solid #e2e8f0;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          border: 2px solid #e5e7eb;
         }
         .history-card {
           background: white;
-          border: 1px solid #e2e8f0;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          border: 2px solid #e5e7eb;
         }
         .transfer-item {
-          background: white;
-          border: 1px solid #e2e8f0;
+          background: #fafafa;
+          border: 1px solid #e5e7eb;
           transition: all 0.3s ease;
           cursor: pointer;
         }
         .transfer-item:hover {
           background: white;
-          transform: translateX(2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           border-color: #dc2626;
         }
         .live-rate-indicator {
@@ -1423,7 +1414,7 @@ export default function TransfersSection({
                   }}
                   className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
                     language === lang.code
-                      ? "bg-red-50 text-red-600 font-medium"
+                      ? "bg-white text-red-600 font-medium border-l-2 border-red-600"
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
@@ -1439,8 +1430,8 @@ export default function TransfersSection({
       </div>
 
       {/* Header - Fixed */}
-      <div className="text-center py-6 md:py-6 px-4 md:px-6 flex-shrink-0">
-        <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-1">
+      <div className="text-center py-6 md:py-6 px-4 md:px-6 flex-shrink-0 border-b-2 border-gray-200">
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
           {t.currencyTransfers}
         </h2>
         <p className="text-slate-600">
@@ -1510,14 +1501,14 @@ export default function TransfersSection({
 
             {/* Validation Errors */}
             {validationErrors.length > 0 && (
-              <div className="bg-red-50 border-2 border-red-200 p-4">
+              <div className="bg-white border-2 border-red-600 p-4">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-red-800 mb-2">
+                    <p className="text-sm font-semibold text-red-600 mb-2">
                       Please correct the following errors:
                     </p>
-                    <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                    <ul className="list-disc list-inside text-sm text-slate-700 space-y-1">
                       {validationErrors.map((error, index) => (
                         <li key={index}>{error}</li>
                       ))}
@@ -1563,12 +1554,12 @@ export default function TransfersSection({
                   <TabsContent value="internal" className="space-y-6 mt-6">
                     {/* Available Balance Display */}
                     {fromCurrency && (
-                      <div className="bg-blue-50 border border-blue-200 p-3">
+                      <div className="bg-white border-2 border-gray-300 p-3">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-blue-700 font-medium">
+                          <span className="text-slate-700 font-medium">
                             Available Balance ({fromCurrency}):
                           </span>
-                          <span className="text-blue-900 font-bold">
+                          <span className="text-slate-900 font-bold">
                             {availableBalance.toFixed(2)}
                           </span>
                         </div>
@@ -1686,27 +1677,27 @@ export default function TransfersSection({
                               : transferFee.toFixed(2)
                           }
                           readOnly
-                          className="h-12 text-lg font-semibold bg-gradient-to-r from-red-50 to-red-100 border-red-200 text-red-800"
+                          className="h-12 text-lg font-semibold bg-white border-2 border-red-600 text-red-800"
                         />
                       </div>
                     </div>
 
                     {/* Total Debit and Estimated Credit */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="border-2 border-red-300 bg-red-50 p-4">
-                        <p className="text-xs text-red-700 font-medium mb-1">
+                      <div className="border-2 border-red-600 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
                           Total Debit
                         </p>
-                        <p className="text-2xl font-bold text-red-800">
+                        <p className="text-2xl font-bold text-red-600">
                           {totalDebit.toFixed(2)}{" "}
                           <span className="text-sm">{fromCurrency || "—"}</span>
                         </p>
                       </div>
-                      <div className="border-2 border-green-300 bg-green-50 p-4">
-                        <p className="text-xs text-green-700 font-medium mb-1">
+                      <div className="border-2 border-gray-300 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
                           Estimated Credit
                         </p>
-                        <p className="text-2xl font-bold text-green-800">
+                        <p className="text-2xl font-bold text-slate-800">
                           {estimatedAmount === 0
                             ? "0.00"
                             : estimatedAmount.toFixed(2)}{" "}
@@ -1718,12 +1709,12 @@ export default function TransfersSection({
                     </div>
 
                     {/* Rate info */}
-                    <div className="bg-blue-50 border border-blue-200 p-3 text-sm text-blue-900">
+                    <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
                       <p className="font-medium flex items-center gap-2">
                         <Info className="w-4 h-4" />
                         Rate locked at submission
                       </p>
-                      <p className="text-xs text-blue-700 mt-1">
+                      <p className="text-xs text-slate-600 mt-1">
                         This is an instant account transfer. The rate will be locked
                         and the transfer will be completed immediately.
                       </p>
@@ -1746,12 +1737,12 @@ export default function TransfersSection({
                   <TabsContent value="bank" className="space-y-6 mt-6">
                     {/* Available Balance Display */}
                     {fromCurrency && (
-                      <div className="bg-blue-50 border border-blue-200 p-3">
+                      <div className="bg-white border-2 border-gray-300 p-3">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-blue-700 font-medium">
+                          <span className="text-slate-700 font-medium">
                             Available Balance ({fromCurrency}):
                           </span>
-                          <span className="text-blue-900 font-bold">
+                          <span className="text-slate-900 font-bold">
                             {availableBalance.toFixed(2)}
                           </span>
                         </div>
@@ -1869,27 +1860,27 @@ export default function TransfersSection({
                               : transferFee.toFixed(2)
                           }
                           readOnly
-                          className="h-12 text-lg font-semibold bg-gradient-to-r from-red-50 to-red-100 border-red-200 text-red-800"
+                          className="h-12 text-lg font-semibold bg-white border-2 border-red-600 text-red-800"
                         />
                       </div>
                     </div>
 
                     {/* Total Debit and Estimated Credit */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="border-2 border-red-300 bg-red-50 p-4">
-                        <p className="text-xs text-red-700 font-medium mb-1">
+                      <div className="border-2 border-red-600 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
                           Total Debit
                         </p>
-                        <p className="text-2xl font-bold text-red-800">
+                        <p className="text-2xl font-bold text-red-600">
                           {totalDebit.toFixed(2)}{" "}
                           <span className="text-sm">{fromCurrency || "—"}</span>
                         </p>
                       </div>
-                      <div className="border-2 border-green-300 bg-green-50 p-4">
-                        <p className="text-xs text-green-700 font-medium mb-1">
+                      <div className="border-2 border-gray-300 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
                           Estimated Credit
                         </p>
-                        <p className="text-2xl font-bold text-green-800">
+                        <p className="text-2xl font-bold text-slate-800">
                           {estimatedAmount === 0
                             ? "0.00"
                             : estimatedAmount.toFixed(2)}{" "}
@@ -1901,12 +1892,12 @@ export default function TransfersSection({
                     </div>
 
                     {/* Rate info */}
-                    <div className="bg-amber-50 border border-amber-200 p-3 text-sm text-amber-900">
+                    <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
                       <p className="font-medium flex items-center gap-2">
                         <Info className="w-4 h-4" />
                         Estimated. Final amount confirmed when processed
                       </p>
-                      <p className="text-xs text-amber-700 mt-1">
+                      <p className="text-xs text-slate-600 mt-1">
                         Bank transfers require approval. The final exchange rate and
                         amount will be confirmed during processing.
                       </p>
