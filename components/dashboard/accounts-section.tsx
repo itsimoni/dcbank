@@ -895,7 +895,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             </div>
 
             {/* FPS */}
-            <div className="p-4 border-l-4 border-l-pink-500 bg-pink-50">
+            <div className="p-4 border-l-4 border-l-pink-500 bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <Badge className={RAIL_COLORS.FPS}>FPS</Badge>
                 <h4 className="font-semibold text-gray-900">Faster Payments Service</h4>
