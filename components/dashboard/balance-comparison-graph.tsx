@@ -347,8 +347,8 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                     <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1} />
                   </linearGradient>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
+                    <stop offset="5%" stopColor="#b91c1c" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#b91c1c" stopOpacity={0.1} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -380,7 +380,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 <Area
                   type="monotone"
                   dataKey="value"
-                  stroke="#8b5cf6"
+                  stroke="#b91c1c"
                   strokeWidth={3}
                   fill="url(#colorValue)"
                   name={
