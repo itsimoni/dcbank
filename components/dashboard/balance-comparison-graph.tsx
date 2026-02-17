@@ -138,15 +138,15 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
         },
         {
           name: "EUR",
-          fiat: usdBalance + (euroBalance * eurToUsd),
-          crypto: btcInUsd + ethInUsd,
-          total: usdBalance + (euroBalance * eurToUsd) + btcInUsd + ethInUsd,
+          fiat: euroBalance * eurToUsd,
+          crypto: ethInUsd,
+          total: (euroBalance * eurToUsd) + ethInUsd,
         },
         {
           name: "CAD",
-          fiat: totalFiatInUsd,
-          crypto: btcInUsd + ethInUsd + usdtInUsd,
-          total: totalFiatInUsd + btcInUsd + ethInUsd + usdtInUsd,
+          fiat: cadBalance * cadToUsd,
+          crypto: usdtInUsd,
+          total: (cadBalance * cadToUsd) + usdtInUsd,
         },
         {
           name: "Totals",
@@ -215,7 +215,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             </div>
             <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
-              {percentageFiat.toFixed(1)}% of total
+              {percentageFiat < 0.01 ? '<0.01' : percentageFiat.toFixed(2)}% of total
             </div>
           </div>
 
@@ -229,7 +229,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             </div>
             <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
-              {percentageCrypto.toFixed(1)}% of total
+              {percentageCrypto > 99.99 ? '>99.99' : percentageCrypto.toFixed(2)}% of total
             </div>
           </div>
 
