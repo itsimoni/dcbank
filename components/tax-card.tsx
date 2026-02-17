@@ -240,7 +240,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
             <div className="relative">
               <button
                 onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                className="flex items-center space-x-1 bg-white/20 border border-white/30 rounded-lg px-2 py-1.5 text-xs font-medium text-white hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-200"
+                className="flex items-center space-x-1 bg-white/20 border border-white/30 px-2 py-1.5 text-xs font-medium text-white hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-200"
               >
                 <Languages className="h-3 w-3" />
                 <span className="hidden sm:inline">{languageNames[language]}</span>
