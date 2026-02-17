@@ -17,24 +17,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
   Plus,
-  Trash2,
   CheckCircle,
   XCircle,
   AlertCircle,
   Languages,
   ChevronDown,
-  Edit2,
   Star,
   Building2,
   CreditCard,
@@ -140,8 +128,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingAccount, setEditingAccount] = useState<ExternalAccount | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [accountToDelete, setAccountToDelete] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     account_name: "",
@@ -313,26 +299,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
     }
   };
 
-  const editAccount = (account: ExternalAccount) => {
-    setEditingAccount(account);
-    setFormData({
-      account_name: account.account_name,
-      bank_name: account.bank_name,
-      account_holder_name: account.account_holder_name || "",
-      country: account.country || "US",
-      payment_rail: account.payment_rail as PaymentRail,
-      account_number: account.account_number || "",
-      routing_number: account.routing_number || "",
-      account_type: account.account_type || "Checking",
-      iban: account.iban || "",
-      swift_bic: account.swift_bic || "",
-      bank_country: account.bank_country || "",
-      currency: account.currency,
-    });
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const setDefaultAccount = async (id: string) => {
     try {
       // First, unset all defaults for this user
@@ -354,60 +320,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
     } catch (error: any) {
       console.error("Error setting default account:", error);
       toast.error(error.message || "Failed to set default account");
-    }
-  };
-
-  const softDeleteAccount = async () => {
-    if (!accountToDelete) return;
-
-    try {
-      const accountToRemove = accounts.find(a => a.id === accountToDelete);
-
-      // Prevent deleting default account if it's the only one or no other default is set
-      if (accountToRemove?.is_default && accounts.length > 1) {
-        toast.error("Please set another account as default before removing this one");
-        return;
-      }
-
-      const { error } = await supabase
-        .from("external_accounts")
-        .update({
-          deleted_at: new Date().toISOString(),
-          is_active: false,
-          is_default: false
-        })
-        .eq("id", accountToDelete);
-
-      if (error) throw error;
-
-      toast.success("Account removed successfully");
-      setDeleteDialogOpen(false);
-      setAccountToDelete(null);
-      fetchAccounts();
-    } catch (error: any) {
-      console.error("Error deleting account:", error);
-      toast.error(error.message || "Failed to delete account");
-    }
-  };
-
-  const verifyAccount = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("external_accounts")
-        .update({
-          verification_status: "verified",
-          verified_at: new Date().toISOString(),
-          is_verified: true
-        })
-        .eq("id", id);
-
-      if (error) throw error;
-
-      toast.success("Account verified successfully");
-      fetchAccounts();
-    } catch (error: any) {
-      console.error("Error verifying account:", error);
-      toast.error(error.message || "Failed to verify account");
     }
   };
 
@@ -890,47 +802,17 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                           </Badge>
 
                           <div className="flex gap-2">
-                            {(account.verification_status === "pending" || account.verification_status === "requires_action") && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => verifyAccount(account.id)}
-                                className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                              >
-                                Verify
-                              </Button>
-                            )}
-
-                            {!account.is_default && (
+                            {!account.is_default && account.verification_status === "verified" && (
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setDefaultAccount(account.id)}
                                 className="text-purple-600 border-purple-600 hover:bg-purple-50"
                               >
-                                <Star className="h-3 w-3" />
+                                <Star className="h-3 w-3 mr-1" />
+                                Set Default
                               </Button>
                             )}
-
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => editAccount(account)}
-                            >
-                              <Edit2 className="h-3 w-3" />
-                            </Button>
-
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setAccountToDelete(account.id);
-                                setDeleteDialogOpen(true);
-                              }}
-                              className="text-red-600 border-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
                           </div>
                         </div>
                       </div>
@@ -940,7 +822,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                         <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                           <p className="text-sm text-yellow-800">
                             <AlertTriangle className="h-4 w-4 inline mr-2" />
-                            Verification required to enable withdrawals. Click "Verify" to start the process.
+                            Your account is pending verification. Our team will review and verify your bank account details shortly.
                           </p>
                         </div>
                       )}
@@ -952,14 +834,7 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
                             Verification Failed
                           </p>
                           <p className="text-sm text-red-700">{account.failure_reason}</p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => editAccount(account)}
-                            className="mt-2 text-red-600 border-red-600"
-                          >
-                            Fix Details
-                          </Button>
+                          <p className="text-sm text-red-600 mt-2">Please contact support to update your account details.</p>
                         </div>
                       )}
                     </div>
@@ -969,27 +844,6 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
             )}
           </CardContent>
         </Card>
-
-        {/* Delete Confirmation Dialog */}
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Remove Bank Account?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to remove this bank account? This action can be undone by contacting support.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={softDeleteAccount}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Remove Account
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     </div>
   );
