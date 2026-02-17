@@ -590,7 +590,7 @@ export default function TransfersSection({
         </span>
       </div>
       {currency.type === "crypto" && (
-        <Coins className="w-4 h-4 text-orange-500" />
+        <Coins className="w-4 h-4 text-red-500" />
       )}
     </div>
   );
@@ -598,7 +598,7 @@ export default function TransfersSection({
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623]"></div>
+        <div className="animate-spin h-8 w-8 border-b-2 border-red-600"></div>
         <span className="ml-3 text-slate-600">{t.loadingTransfers}</span>
       </div>
     );
@@ -607,7 +607,7 @@ export default function TransfersSection({
   if (error) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <div className="text-center bg-red-50 p-6 rounded-lg border border-red-200">
+        <div className="text-center bg-white p-6 border border-red-600">
           <div className="text-red-600 text-lg font-semibold">Error</div>
           <div className="text-red-500 mt-2">{error}</div>
         </div>
@@ -626,38 +626,35 @@ export default function TransfersSection({
           display: none;
         }
         .balance-card {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+          background: white;
           transition: all 0.3s ease;
           border: 1px solid #e2e8f0;
         }
         .balance-card:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-          border-color: #f26623;
+          border-color: #dc2626;
         }
         .transfer-form {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+          background: white;
           border: 1px solid #e2e8f0;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         }
         .history-card {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+          background: white;
           border: 1px solid #e2e8f0;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         }
         .transfer-item {
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          background: white;
           border: 1px solid #e2e8f0;
           transition: all 0.3s ease;
         }
         .transfer-item:hover {
-          background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+          background: white;
           transform: translateX(2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .currency-badge {
-          background: linear-gradient(135deg, #f26623 0%, #e55a1f 100%);
-          box-shadow: 0 2px 8px rgba(242, 102, 35, 0.3);
+          border-color: #dc2626;
         }
         .live-rate-indicator {
           animation: pulse 2s infinite;
@@ -687,7 +684,7 @@ export default function TransfersSection({
         <div ref={dropdownRef} className="relative inline-block">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 bg-white border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
+            className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
           >
             <Languages className="w-4 h-4 text-gray-600" />
             <span className="flex-1 text-left">
@@ -697,7 +694,7 @@ export default function TransfersSection({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg overflow-hidden z-10">
+            <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
@@ -707,13 +704,13 @@ export default function TransfersSection({
                   }}
                   className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
                     language === lang.code
-                      ? 'bg-orange-50 text-[#F26623] font-medium'
+                      ? 'bg-red-50 text-red-600 font-medium'
                       : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
                   <span>{lang.label}</span>
                   {language === lang.code && (
-                    <Check className="w-4 h-4 text-[#F26623]" />
+                    <Check className="w-4 h-4 text-red-600" />
                   )}
                 </button>
               ))}
@@ -748,7 +745,7 @@ export default function TransfersSection({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
               <Card className="balance-card">
                 <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 bg-[#F26623]/75 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-10 h-10 bg-red-600 flex items-center justify-center mx-auto mb-3">
                     <span className="text-white text-lg font-bold">$</span>
                   </div>
 
@@ -763,7 +760,7 @@ export default function TransfersSection({
 
               <Card className="balance-card">
                 <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 bg-[#F26623]/75 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-10 h-10 bg-red-600 flex items-center justify-center mx-auto mb-3">
                     <span className="text-white text-lg font-bold">€</span>
                   </div>
                   <p className="text-xs text-slate-600 mb-1 font-medium">
@@ -777,7 +774,7 @@ export default function TransfersSection({
 
               <Card className="balance-card">
                 <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 bg-[#F26623]/75 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-10 h-10 bg-red-600 flex items-center justify-center mx-auto mb-3">
                     <span className="text-white text-lg font-bold">C$</span>
                   </div>
                   <p className="text-xs text-slate-600 mb-1 font-medium">
@@ -794,7 +791,7 @@ export default function TransfersSection({
             <Card className="transfer-form">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-bold text-slate-800 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#F26623]/75 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-red-600 flex items-center justify-center">
                     <ArrowLeftRight className="w-4 h-4 text-white" />
                   </div>
                   {t.newTransfer}
@@ -838,7 +835,7 @@ export default function TransfersSection({
                             })
                           }
                         >
-                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-[#F26623] transition-colors">
+                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
                             <SelectValue placeholder={t.selectCurrency} />
                           </SelectTrigger>
                           <SelectContent>
@@ -856,10 +853,10 @@ export default function TransfersSection({
                       </div>
 
                       <div className="flex flex-col items-center justify-center px-6 py-4">
-                        <div className="w-12 h-12 bg-[#F26623]/75 rounded-full flex items-center justify-center mb-2">
+                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
                           <ArrowLeftRight className="w-6 h-6 text-white" />
                         </div>
-                        <div className="bg-[#F26623]/75 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
                           {exchangeRate === 1 ? "1:1" : exchangeRate.toFixed(2)}
                         </div>
                         {liveRates.lastUpdated > 0 && exchangeRate !== 1 && (
@@ -883,7 +880,7 @@ export default function TransfersSection({
                             })
                           }
                         >
-                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-[#F26623] transition-colors">
+                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
                             <SelectValue placeholder={t.selectCurrency} />
                           </SelectTrigger>
                           <SelectContent>
@@ -917,7 +914,7 @@ export default function TransfersSection({
                             })
                           }
                           placeholder="0"
-                          className="h-12 text-lg border-slate-300 hover:border-[#F26623] focus:border-[#F26623] transition-colors"
+                          className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
                         />
                       </div>
 
@@ -968,7 +965,7 @@ export default function TransfersSection({
                         !internalFormData.amount ||
                         loading
                       }
-                      className="w-full h-14 text-lg font-semibold bg-[#F26623] hover:bg-[#E55A1F] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                      className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
                       {t.executeInternalTransfer}
                     </Button>
@@ -989,7 +986,7 @@ export default function TransfersSection({
                             })
                           }
                         >
-                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-[#F26623] transition-colors">
+                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
                             <SelectValue placeholder={t.selectCurrency} />
                           </SelectTrigger>
                           <SelectContent>
@@ -1007,10 +1004,10 @@ export default function TransfersSection({
                       </div>
 
                       <div className="flex flex-col items-center justify-center px-6 py-4">
-                        <div className="w-12 h-12 bg-[#F26623]/75 rounded-full flex items-center justify-center mb-2">
+                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
                           <Building2 className="w-6 h-6 text-white" />
                         </div>
-                        <div className="bg-[#F26623]/75 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
                           {exchangeRate === 1 ? "1:1" : exchangeRate.toFixed(2)}
                         </div>
                         {liveRates.lastUpdated > 0 && exchangeRate !== 1 && (
@@ -1034,7 +1031,7 @@ export default function TransfersSection({
                             })
                           }
                         >
-                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-[#F26623] transition-colors">
+                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
                             <SelectValue placeholder={t.selectCurrency} />
                           </SelectTrigger>
                           <SelectContent>
@@ -1068,7 +1065,7 @@ export default function TransfersSection({
                             })
                           }
                           placeholder="0"
-                          className="h-12 text-lg border-slate-300 hover:border-[#F26623] focus:border-[#F26623] transition-colors"
+                          className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
                         />
                       </div>
 
@@ -1112,7 +1109,7 @@ export default function TransfersSection({
                     </div>
 
                     {/* Bank Details Form */}
-                    <div className="space-y-4 p-6 bg-slate-50 rounded-lg border">
+                    <div className="space-y-4 p-6 bg-white border border-slate-300">
                       <h3 className="text-lg font-semibold text-slate-800 mb-4">
                         {t.bankDetails}
                       </h3>
@@ -1130,7 +1127,7 @@ export default function TransfersSection({
                               })
                             }
                             placeholder={t.enterBankName}
-                            className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
@@ -1146,7 +1143,7 @@ export default function TransfersSection({
                               })
                             }
                             placeholder={t.enterAccountHolderName}
-                            className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
@@ -1162,7 +1159,7 @@ export default function TransfersSection({
                               })
                             }
                             placeholder={t.enterAccountNumber}
-                            className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
@@ -1178,7 +1175,7 @@ export default function TransfersSection({
                               })
                             }
                             placeholder={t.enterRoutingNumber}
-                            className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
@@ -1194,7 +1191,7 @@ export default function TransfersSection({
                               })
                             }
                             placeholder={t.enterSwiftCode}
-                            className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
@@ -1210,7 +1207,7 @@ export default function TransfersSection({
                               })
                             }
                             placeholder={t.enterIban}
-                            className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                       </div>
@@ -1227,7 +1224,7 @@ export default function TransfersSection({
                             })
                           }
                           placeholder={t.enterBankAddress}
-                          className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                          className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           rows={2}
                         />
                       </div>
@@ -1244,7 +1241,7 @@ export default function TransfersSection({
                             })
                           }
                           placeholder={t.enterRecipientAddress}
-                          className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                          className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           rows={2}
                         />
                       </div>
@@ -1261,7 +1258,7 @@ export default function TransfersSection({
                             })
                           }
                           placeholder={t.enterPurposeOfTransfer}
-                          className="border-slate-300 hover:border-[#F26623] focus:border-[#F26623]"
+                          className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           rows={2}
                         />
                       </div>
@@ -1278,7 +1275,7 @@ export default function TransfersSection({
                         !bankDetails.account_number ||
                         loading
                       }
-                      className="w-full h-14 text-lg font-semibold bg-[#F26623] hover:bg-[#E55A1F] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                      className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
                       {t.submitBankTransferRequest}
                     </Button>
@@ -1330,7 +1327,7 @@ export default function TransfersSection({
                     {transfers.map((transfer) => (
                       <div
                         key={transfer.id}
-                        className="transfer-item p-4 rounded-lg"
+                        className="transfer-item p-4"
                       >
                         <div className="flex flex-col sm:flex-row justify-between items-start mb-2">
                           <div className="flex-1">
@@ -1338,7 +1335,7 @@ export default function TransfersSection({
                               <span className="font-bold text-slate-800 text-sm">
                                 {transfer.from_currency}
                               </span>
-                              <ArrowLeftRight className="w-3 h-3 text-[#F26623]" />
+                              <ArrowLeftRight className="w-3 h-3 text-red-600" />
                               <span className="font-bold text-slate-800 text-sm">
                                 {transfer.to_currency}
                               </span>
@@ -1351,7 +1348,7 @@ export default function TransfersSection({
                                 currencies.find(
                                   (c) => c.code === transfer.to_currency
                                 )?.type === "crypto") && (
-                                <Coins className="w-3 h-3 text-orange-600" />
+                                <Coins className="w-3 h-3 text-red-600" />
                               )}
                             </div>
                             <div className="text-xs text-slate-600">
@@ -1387,14 +1384,14 @@ export default function TransfersSection({
                           </span>
 
                           {transfer.reference_number && (
-                            <span className="text-slate-600 bg-slate-100 px-2 py-1 rounded text-xs">
+                            <span className="text-slate-600 bg-slate-100 px-2 py-1 text-xs">
                               {transfer.reference_number}
                             </span>
                           )}
                         </div>
                         {transfer.transfer_type === "bank_transfer" &&
                           transfer.status === "Pending" && (
-                            <div className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
+                            <div className="mt-2 text-xs text-amber-600 bg-amber-50 p-2 border border-amber-200">
                               {t.bankTransferPendingApproval}
                             </div>
                           )}
