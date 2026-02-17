@@ -268,6 +268,9 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 stroke="#6b7280"
                 style={{ fontSize: '12px' }}
                 tickFormatter={formatCurrency}
+                scale="log"
+                domain={['auto', 'auto']}
+                allowDataOverflow={false}
               />
               <Tooltip
                 contentStyle={{
