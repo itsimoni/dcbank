@@ -145,23 +145,11 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
         {
           name: "CAD",
           fiat: totalFiatInUsd,
-          crypto: btcInUsd + ethInUsd,
-          total: totalFiatInUsd + btcInUsd + ethInUsd,
+          crypto: btcInUsd + ethInUsd + usdtInUsd,
+          total: totalFiatInUsd + btcInUsd + ethInUsd + usdtInUsd,
         },
         {
-          name: "BTC",
-          fiat: totalFiatInUsd,
-          crypto: btcInUsd,
-          total: totalFiatInUsd + btcInUsd,
-        },
-        {
-          name: "ETH",
-          fiat: totalFiatInUsd,
-          crypto: btcInUsd + ethInUsd,
-          total: totalFiatInUsd + btcInUsd + ethInUsd,
-        },
-        {
-          name: "USDT",
+          name: "Totals",
           fiat: totalFiatInUsd,
           crypto: totalCryptoInUsd,
           total: totalFiatInUsd + totalCryptoInUsd,
