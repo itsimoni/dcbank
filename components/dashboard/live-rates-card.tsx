@@ -186,7 +186,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
         {loading ? (
           <div className="space-y-3 animate-pulse">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-gray-100 rounded"></div>
+              <div key={i} className="h-16 bg-gray-100"></div>
             ))}
           </div>
         ) : (
@@ -200,7 +200,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
                 {cryptoData.map((crypto) => (
                   <div
                     key={crypto.symbol}
-                    className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-white border border-gray-200 rounded-lg hover:shadow-md transition-all"
+                    className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-white border border-gray-200 hover:shadow-md transition-all"
                   >
                     <div className="flex items-center gap-2">
                       <img
@@ -252,7 +252,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
                 {fiatData.map((fiat) => (
                   <div
                     key={fiat.symbol}
-                    className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-white border border-blue-200 rounded-lg hover:shadow-md transition-all"
+                    className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-white border border-gray-200 hover:shadow-md transition-all"
                   >
                     <div className="flex items-center gap-2">
                       <div className="text-xl">{fiat.flag}</div>
