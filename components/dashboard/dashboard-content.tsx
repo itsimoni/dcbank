@@ -1025,9 +1025,13 @@ function DashboardContent({
                     );
                   })
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Activity className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                    <p className="text-sm">{t.noTransactionsYet}</p>
+                  <div className="flex flex-col items-center justify-center py-12 px-4">
+                    <div className="rounded-full bg-gray-100 p-5 mb-4">
+                      <FileText className="h-10 w-10 text-gray-400" />
+                    </div>
+                    <p className="text-sm text-gray-600 text-center">
+                      {t.noTransactionsYet}
+                    </p>
                   </div>
                 )}
               </CardContent>
