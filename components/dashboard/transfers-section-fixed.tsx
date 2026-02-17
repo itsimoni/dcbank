@@ -1385,67 +1385,70 @@ export default function TransfersSection({
         }
       `}</style>
 
-      {/* Language Selector - Top Right */}
-      <div className="flex justify-end p-4">
-        <div ref={dropdownRef} className="relative inline-block">
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
-          >
-            <Languages className="w-4 h-4 text-gray-600" />
-            <span className="flex-1 text-left">
-              {languages.find((lang) => lang.code === language)?.label}
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 text-gray-600 transition-transform ${
-                isDropdownOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
+      {/* Header Container - Language Button and Header */}
+      <div className="flex-shrink-0 border-b-2 border-gray-200">
+        {/* Language Selector - Top Right */}
+        <div className="flex justify-end p-4 pb-0">
+          <div ref={dropdownRef} className="relative inline-block">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
+            >
+              <Languages className="w-4 h-4 text-gray-600" />
+              <span className="flex-1 text-left">
+                {languages.find((lang) => lang.code === language)?.label}
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-600 transition-transform ${
+                  isDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
-              {languages.map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => {
-                    setLanguage(lang.code);
-                    setIsDropdownOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
-                    language === lang.code
-                      ? "bg-white text-red-600 font-medium border-l-2 border-red-600"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span>{lang.label}</span>
-                  {language === lang.code && (
-                    <Check className="w-4 h-4 text-red-600" />
-                  )}
-                </button>
-              ))}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
+                      language === lang.code
+                        ? "bg-white text-red-600 font-medium border-l-2 border-red-600"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span>{lang.label}</span>
+                    {language === lang.code && (
+                      <Check className="w-4 h-4 text-red-600" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Header Content */}
+        <div className="text-center py-6 md:py-6 px-4 md:px-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
+            {t.currencyTransfers}
+          </h2>
+          <p className="text-slate-600">
+            Account transfers and bank wire transfers
+          </p>
+          {liveRates.lastUpdated > 0 && (
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <TrendingUp className="w-4 h-4 text-green-600 live-rate-indicator" />
+              <span className="text-xs text-green-600 font-medium">
+                {t.ratesUpdated}{" "}
+                {new Date(liveRates.lastUpdated).toLocaleTimeString()}
+              </span>
             </div>
           )}
         </div>
-      </div>
-
-      {/* Header - Fixed */}
-      <div className="text-center py-6 md:py-6 px-4 md:px-6 flex-shrink-0 border-b-2 border-gray-200">
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
-          {t.currencyTransfers}
-        </h2>
-        <p className="text-slate-600">
-          Account transfers and bank wire transfers
-        </p>
-        {liveRates.lastUpdated > 0 && (
-          <div className="flex items-center justify-center gap-2 mt-2">
-            <TrendingUp className="w-4 h-4 text-green-600 live-rate-indicator" />
-            <span className="text-xs text-green-600 font-medium">
-              {t.ratesUpdated}{" "}
-              {new Date(liveRates.lastUpdated).toLocaleTimeString()}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Main Layout - Fixed Height */}
