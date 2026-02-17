@@ -107,12 +107,12 @@ const COUNTRY_FLAGS: Record<string, string> = {
 };
 
 const RAIL_COLORS: Record<PaymentRail, string> = {
-  ACH: "bg-blue-100 text-blue-700 border-blue-300",
-  SEPA: "bg-purple-100 text-purple-700 border-purple-300",
-  SWIFT: "bg-green-100 text-green-700 border-green-300",
-  WIRE: "bg-orange-100 text-orange-700 border-orange-300",
-  FPS: "bg-pink-100 text-pink-700 border-pink-300",
-  OTHER: "bg-gray-100 text-gray-700 border-gray-300",
+  ACH: "bg-[#b91c1c] text-white border-[#b91c1c]",
+  SEPA: "bg-[#b91c1c] text-white border-[#b91c1c]",
+  SWIFT: "bg-[#b91c1c] text-white border-[#b91c1c]",
+  WIRE: "bg-[#b91c1c] text-white border-[#b91c1c]",
+  FPS: "bg-[#b91c1c] text-white border-[#b91c1c]",
+  OTHER: "bg-[#b91c1c] text-white border-[#b91c1c]",
 };
 
 const STATUS_CONFIG = {
