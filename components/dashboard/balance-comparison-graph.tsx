@@ -125,36 +125,40 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
         usdt: usdtBalance,
       });
 
+      const btcInUsd = btcBalance * btcPrice;
+      const ethInUsd = ethBalance * ethPrice;
+      const usdtInUsd = usdtBalance * usdtPrice;
+
       const chartData: BalanceData[] = [
         {
           name: "USD",
           fiat: usdBalance,
-          crypto: 0,
-          total: usdBalance,
+          crypto: btcInUsd,
+          total: usdBalance + btcInUsd,
         },
         {
           name: "EUR",
           fiat: usdBalance + (euroBalance * eurToUsd),
-          crypto: 0,
-          total: usdBalance + (euroBalance * eurToUsd),
+          crypto: btcInUsd + ethInUsd,
+          total: usdBalance + (euroBalance * eurToUsd) + btcInUsd + ethInUsd,
         },
         {
           name: "CAD",
           fiat: totalFiatInUsd,
-          crypto: 0,
-          total: totalFiatInUsd,
+          crypto: btcInUsd + ethInUsd,
+          total: totalFiatInUsd + btcInUsd + ethInUsd,
         },
         {
           name: "BTC",
           fiat: totalFiatInUsd,
-          crypto: btcBalance * btcPrice,
-          total: totalFiatInUsd + (btcBalance * btcPrice),
+          crypto: btcInUsd,
+          total: totalFiatInUsd + btcInUsd,
         },
         {
           name: "ETH",
           fiat: totalFiatInUsd,
-          crypto: (btcBalance * btcPrice) + (ethBalance * ethPrice),
-          total: totalFiatInUsd + (btcBalance * btcPrice) + (ethBalance * ethPrice),
+          crypto: btcInUsd + ethInUsd,
+          total: totalFiatInUsd + btcInUsd + ethInUsd,
         },
         {
           name: "USDT",
@@ -216,7 +220,12 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
           <div className="bg-gradient-to-br from-[#b91c1c] to-[#991b1b] rounded-lg p-4 text-white">
             <div className="text-sm opacity-90 mb-1">Total Fiat Balance</div>
             <div className="text-2xl font-bold mb-1">{formatCurrency(totalFiat)}</div>
-            <div className="text-xs opacity-80 flex items-center gap-1">
+            <div className="text-xs opacity-80">
+              USD: {formatCurrency(rawBalances.usd)} |
+              EUR: {formatCurrency(rawBalances.euro * (exchangeRates?.EUR ? 1 / exchangeRates.EUR : 1.09))} |
+              CAD: {formatCurrency(rawBalances.cad * (exchangeRates?.CAD ? 1 / exchangeRates.CAD : 0.74))}
+            </div>
+            <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
               {percentageFiat.toFixed(1)}% of total
             </div>
@@ -225,7 +234,12 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
           <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-4 text-white">
             <div className="text-sm opacity-90 mb-1">Total Crypto Balance</div>
             <div className="text-2xl font-bold mb-1">{formatCurrency(totalCrypto)}</div>
-            <div className="text-xs opacity-80 flex items-center gap-1">
+            <div className="text-xs opacity-80">
+              BTC: {formatCurrency(rawBalances.btc * (cryptoPrices?.bitcoin?.usd || 43250))} |
+              ETH: {formatCurrency(rawBalances.eth * (cryptoPrices?.ethereum?.usd || 2650))} |
+              USDT: {formatCurrency(rawBalances.usdt * (cryptoPrices?.tether?.usd || 1))}
+            </div>
+            <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
               {percentageCrypto.toFixed(1)}% of total
             </div>
@@ -283,18 +297,16 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
               <Area
                 type="monotone"
                 dataKey="fiat"
-                stackId="1"
                 stroke="#b91c1c"
-                strokeWidth={2}
+                strokeWidth={3}
                 fill="url(#colorFiat)"
                 name="Fiat Balance"
               />
               <Area
                 type="monotone"
                 dataKey="crypto"
-                stackId="1"
                 stroke="#2563eb"
-                strokeWidth={2}
+                strokeWidth={3}
                 fill="url(#colorCrypto)"
                 name="Crypto Balance"
               />
