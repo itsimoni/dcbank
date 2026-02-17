@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { priceService } from "@/lib/price-service";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslations } from "@/lib/translations";
 import {
   AreaChart,
   Area,
@@ -28,6 +30,9 @@ interface BalanceData {
 }
 
 export default function BalanceComparisonGraph({ userId }: BalanceComparisonGraphProps) {
+  const { language } = useLanguage();
+  const t = getTranslations(language);
+
   const [balanceData, setBalanceData] = useState<BalanceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalFiat, setTotalFiat] = useState(0);
@@ -193,7 +198,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Balance Comparison</CardTitle>
+          <CardTitle>{t.balanceComparison}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-64">
@@ -208,13 +213,13 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          Statistics
+          {t.statistics}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-gradient-to-br from-[#b91c1c] to-[#991b1b] rounded-lg p-4 text-white">
-            <div className="text-sm opacity-90 mb-1">Total Fiat Balance</div>
+            <div className="text-sm opacity-90 mb-1">{t.totalFiatBalance}</div>
             <div className="text-2xl font-bold mb-1">{formatCurrency(totalFiat)}</div>
             <div className="text-xs opacity-80">
               USD: {formatCurrency(rawBalances.usd * (exchangeRates?.EUR || 0.92))} |
@@ -223,12 +228,12 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             </div>
             <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
-              {percentageFiat < 0.01 ? '<0.01' : percentageFiat.toFixed(2)}% of total
+              {percentageFiat < 0.01 ? '<0.01' : percentageFiat.toFixed(2)}% {t.ofTotal}
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-4 text-white">
-            <div className="text-sm opacity-90 mb-1">Total Crypto Balance</div>
+            <div className="text-sm opacity-90 mb-1">{t.totalCryptoBalance}</div>
             <div className="text-2xl font-bold mb-1">{formatCurrency(totalCrypto)}</div>
             <div className="text-xs opacity-80">
               BTC: {formatCurrency(rawBalances.btc * (cryptoPrices?.bitcoin?.eur || 39750))} |
@@ -237,16 +242,16 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             </div>
             <div className="text-xs opacity-80 flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3" />
-              {percentageCrypto > 99.99 ? '>99.99' : percentageCrypto.toFixed(2)}% of total
+              {percentageCrypto > 99.99 ? '>99.99' : percentageCrypto.toFixed(2)}% {t.ofTotal}
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-4 text-white">
-            <div className="text-sm opacity-90 mb-1">Combined Total</div>
+            <div className="text-sm opacity-90 mb-1">{t.combinedTotal}</div>
             <div className="text-2xl font-bold mb-1">
               {formatCurrency(totalFiat + totalCrypto)}
             </div>
-            <div className="text-xs opacity-80">All currencies combined</div>
+            <div className="text-xs opacity-80">{t.allCurrenciesCombined}</div>
           </div>
         </div>
 
@@ -300,7 +305,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 stroke="#b91c1c"
                 strokeWidth={3}
                 fill="url(#colorFiat)"
-                name="Fiat Balance"
+                name={t.fiat}
               />
               <Area
                 type="monotone"
@@ -308,14 +313,14 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 stroke="#2563eb"
                 strokeWidth={3}
                 fill="url(#colorCrypto)"
-                name="Crypto Balance"
+                name={t.crypto}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div className="text-sm text-gray-600 mb-2 font-medium">Balance Breakdown:</div>
+          <div className="text-sm text-gray-600 mb-2 font-medium">{t.balanceBreakdown}</div>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-xs">
             <div>
               <div className="text-gray-500">USD</div>
