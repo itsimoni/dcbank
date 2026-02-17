@@ -232,7 +232,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
             <span>{t.taxManagement}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge className="bg-white/20 text-white border-white/30">
+            <Badge className="bg-white/20 text-white rounded-none">
               {new Date().getFullYear()}
             </Badge>
 
