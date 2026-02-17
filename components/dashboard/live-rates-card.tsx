@@ -279,15 +279,6 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
                 ))}
               </div>
             </div>
-
-            <div className="pt-2 border-t">
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                <Badge variant="outline" className="text-xs">
-                  {t.liveData}
-                </Badge>
-                <span>{t.updatesEvery30Seconds}</span>
-              </div>
-            </div>
           </>
         )}
       </CardContent>
