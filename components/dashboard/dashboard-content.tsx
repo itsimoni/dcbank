@@ -102,7 +102,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg",
     color: "text-orange-500",
     bgColor: "bg-white",
-    borderColor: "border-orange-200",
+    borderColor: "border-transparent",
     decimals: 8,
   },
   ETH: {
@@ -111,7 +111,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg",
     color: "text-blue-500",
     bgColor: "bg-white",
-    borderColor: "border-blue-200",
+    borderColor: "border-transparent",
     decimals: 6,
   },
   USDT: {
@@ -120,7 +120,7 @@ const cryptoConfigs = {
       "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "text-green-500",
     bgColor: "bg-white",
-    borderColor: "border-green-200",
+    borderColor: "border-transparent",
     decimals: 2,
   },
 } as const;
