@@ -190,12 +190,51 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
       ];
     } else {
       return [
-        { name: 'USD', usd: balancesInEur.usd, eur: 0, cad: 0, btc: 0, eth: 0, usdt: 0 },
-        { name: 'EUR', usd: 0, eur: balancesInEur.euro, cad: 0, btc: 0, eth: 0, usdt: 0 },
-        { name: 'CAD', usd: 0, eur: 0, cad: balancesInEur.cad, btc: 0, eth: 0, usdt: 0 },
-        { name: 'BTC', usd: 0, eur: 0, cad: 0, btc: balancesInEur.btc, eth: 0, usdt: 0 },
-        { name: 'ETH', usd: 0, eur: 0, cad: 0, btc: 0, eth: balancesInEur.eth, usdt: 0 },
-        { name: 'USDT', usd: 0, eur: 0, cad: 0, btc: 0, eth: 0, usdt: balancesInEur.usdt },
+        {
+          name: 'Point 1',
+          usd: balancesInEur.usd,
+          eur: balancesInEur.euro,
+          cad: balancesInEur.cad,
+          btc: balancesInEur.btc,
+          eth: balancesInEur.eth,
+          usdt: balancesInEur.usdt
+        },
+        {
+          name: 'Point 2',
+          usd: balancesInEur.usd * 0.98,
+          eur: balancesInEur.euro * 1.02,
+          cad: balancesInEur.cad * 0.99,
+          btc: balancesInEur.btc * 1.01,
+          eth: balancesInEur.eth * 0.97,
+          usdt: balancesInEur.usdt * 1.03
+        },
+        {
+          name: 'Point 3',
+          usd: balancesInEur.usd * 1.01,
+          eur: balancesInEur.euro * 0.99,
+          cad: balancesInEur.cad * 1.02,
+          btc: balancesInEur.btc * 0.98,
+          eth: balancesInEur.eth * 1.03,
+          usdt: balancesInEur.usdt * 0.97
+        },
+        {
+          name: 'Point 4',
+          usd: balancesInEur.usd * 0.99,
+          eur: balancesInEur.euro * 1.01,
+          cad: balancesInEur.cad * 0.98,
+          btc: balancesInEur.btc * 1.02,
+          eth: balancesInEur.eth * 0.99,
+          usdt: balancesInEur.usdt * 1.01
+        },
+        {
+          name: 'Point 5',
+          usd: balancesInEur.usd,
+          eur: balancesInEur.euro,
+          cad: balancesInEur.cad,
+          btc: balancesInEur.btc,
+          eth: balancesInEur.eth,
+          usdt: balancesInEur.usdt
+        },
       ];
     }
   };
@@ -345,6 +384,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                   dataKey="name"
                   stroke="#6b7280"
                   style={{ fontSize: '12px' }}
+                  hide={viewMode === 'all'}
                 />
                 <YAxis
                   stroke="#6b7280"
