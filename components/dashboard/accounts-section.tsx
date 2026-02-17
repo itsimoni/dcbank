@@ -393,13 +393,13 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
         </div>
 
         {/* Add/Edit Account Form */}
-        <Card className="border-2 border-[#b91c1c] shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-[#b91c1c] to-[#991b1b] text-white">
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5" />
+        <Card className="border-2 border-[#b91c1c] shadow-lg bg-white">
+          <CardHeader className="bg-white border-b border-gray-200">
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <Plus className="h-5 w-5 text-[#b91c1c]" />
               {editingAccount ? "Edit Bank Account" : "Add New Bank Account"}
             </CardTitle>
-            <CardDescription className="text-gray-100">
+            <CardDescription className="text-gray-600">
               {editingAccount ? "Update your bank account details" : "Connect a new external bank account for withdrawals"}
             </CardDescription>
           </CardHeader>
@@ -667,11 +667,11 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
         </Card>
 
         {/* Linked Accounts List */}
-        <Card>
-          <CardHeader>
+        <Card className="bg-white">
+          <CardHeader className="bg-white border-b border-gray-200">
             <div>
-              <CardTitle>Linked Bank Accounts</CardTitle>
-              <CardDescription>Manage your external bank accounts</CardDescription>
+              <CardTitle className="text-gray-900">Linked Bank Accounts</CardTitle>
+              <CardDescription className="text-gray-600">Manage your external bank accounts</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
@@ -778,13 +778,13 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
         </Card>
 
         {/* Payment Rail Information Guide */}
-        <Card className="border-t-4 border-t-[#b91c1c]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <Card className="border-t-4 border-t-[#b91c1c] bg-white">
+          <CardHeader className="bg-white border-b border-gray-200">
+            <CardTitle className="flex items-center gap-2 text-gray-900">
               <Info className="h-5 w-5 text-[#b91c1c]" />
               Understanding Payment Rails
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-gray-600">
               Choose the right payment method for your international transfers and withdrawals
             </CardDescription>
           </CardHeader>
