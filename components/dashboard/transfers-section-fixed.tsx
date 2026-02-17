@@ -473,15 +473,15 @@ export default function TransfersSection({
     const toCurrency = internalFormData.to_currency.toUpperCase();
 
     if (!fromCurrency || !toCurrency || !internalFormData.amount) {
-      errors.push("All fields are required");
+      errors.push(t.allFieldsRequired);
     }
 
     if (fromCurrency === toCurrency) {
-      errors.push("From and To currencies must be different");
+      errors.push(t.currenciesMustBeDifferent);
     }
 
     if (amount <= 0) {
-      errors.push("Amount must be greater than zero");
+      errors.push(t.amountMustBeGreaterThanZero);
     }
 
     const fromBalanceKey = getBalanceKey(fromCurrency);
@@ -489,9 +489,10 @@ export default function TransfersSection({
 
     if (currentFromBalance < amount + transferFee) {
       errors.push(
-        `Insufficient balance. Available: ${currentFromBalance.toFixed(2)} ${fromCurrency}, Required: ${(
-          amount + transferFee
-        ).toFixed(2)} ${fromCurrency}`
+        t.insufficientBalance
+          .replace('{available}', currentFromBalance.toFixed(2))
+          .replace('{currency}', fromCurrency)
+          .replace('{required}', (amount + transferFee).toFixed(2))
       );
     }
 
@@ -505,15 +506,15 @@ export default function TransfersSection({
     const toCurrency = bankFormData.to_currency.toUpperCase();
 
     if (!fromCurrency || !toCurrency || !bankFormData.amount) {
-      errors.push("All currency and amount fields are required");
+      errors.push(t.allCurrencyAmountFieldsRequired);
     }
 
     if (fromCurrency === toCurrency) {
-      errors.push("From and To currencies must be different");
+      errors.push(t.currenciesMustBeDifferent);
     }
 
     if (amount <= 0) {
-      errors.push("Amount must be greater than zero");
+      errors.push(t.amountMustBeGreaterThanZero);
     }
 
     const fromBalanceKey = getBalanceKey(fromCurrency);
@@ -521,22 +522,23 @@ export default function TransfersSection({
 
     if (currentFromBalance < amount + transferFee) {
       errors.push(
-        `Insufficient balance. Available: ${currentFromBalance.toFixed(2)} ${fromCurrency}, Required: ${(
-          amount + transferFee
-        ).toFixed(2)} ${fromCurrency}`
+        t.insufficientBalance
+          .replace('{available}', currentFromBalance.toFixed(2))
+          .replace('{currency}', fromCurrency)
+          .replace('{required}', (amount + transferFee).toFixed(2))
       );
     }
 
     if (!bankDetails.bank_name.trim()) {
-      errors.push("Bank name is required");
+      errors.push(t.bankNameRequired);
     }
 
     if (!bankDetails.account_holder_name.trim()) {
-      errors.push("Account holder name is required");
+      errors.push(t.accountHolderNameRequired);
     }
 
     if (!bankDetails.account_number.trim()) {
-      errors.push("Account number is required");
+      errors.push(t.accountNumberRequired);
     }
 
     return errors;
@@ -579,7 +581,9 @@ export default function TransfersSection({
           exchange_rate: exchangeRate,
           status: "completed",
           transfer_type: "internal",
-          description: `Account transfer from ${fromCurrency} to ${toCurrency}`,
+          description: t.accountTransferDescription
+            .replace('{from}', fromCurrency)
+            .replace('{to}', toCurrency),
           reference_number: referenceNumber,
           fee_amount: transferFee,
           fee_currency: fromCurrency,
@@ -614,19 +618,23 @@ export default function TransfersSection({
       await supabase.from("transactions").insert([
         {
           user_id: userProfile.id,
-          type: "Transfer Out",
+          type: t.transferOut,
           amount: amount + transferFee,
           currency: internalFormData.from_currency,
-          description: `Account transfer to ${internalFormData.to_currency} (Ref: ${referenceNumber})`,
-          status: "Successful",
+          description: t.accountTransferToDescription
+            .replace('{currency}', internalFormData.to_currency)
+            .replace('{reference}', referenceNumber),
+          status: t.successful,
         },
         {
           user_id: userProfile.id,
-          type: "Transfer In",
+          type: t.transferIn,
           amount: toAmount,
           currency: internalFormData.to_currency,
-          description: `Account transfer from ${internalFormData.from_currency} (Ref: ${referenceNumber})`,
-          status: "Successful",
+          description: t.accountTransferFromDescription
+            .replace('{currency}', internalFormData.from_currency)
+            .replace('{reference}', referenceNumber),
+          status: t.successful,
         },
       ]);
 
@@ -653,7 +661,7 @@ export default function TransfersSection({
       setShowConfirmationModal(true);
     } catch (error: any) {
       console.error("Transfer error:", error);
-      setValidationErrors([`Error: ${error.message}`]);
+      setValidationErrors([`${t.error}: ${error.message}`]);
     }
   };
 
@@ -691,7 +699,7 @@ export default function TransfersSection({
           exchange_rate: exchangeRate,
           status: "pending",
           transfer_type: "bank_transfer",
-          description: `Bank transfer to ${bankDetails.bank_name}`,
+          description: t.bankTransferDescription.replace('{bank}', bankDetails.bank_name),
           reference_number: referenceNumber,
           fee_amount: transferFee,
           fee_currency: fromCurrency,
@@ -721,11 +729,13 @@ export default function TransfersSection({
 
       await supabase.from("transactions").insert({
         user_id: userProfile.id,
-        type: "Bank Transfer",
+        type: t.bankTransfer,
         amount: amount + transferFee,
         currency: bankFormData.from_currency,
-        description: `Bank transfer to ${bankDetails.bank_name} (Ref: ${referenceNumber}) - Pending review`,
-        status: "Pending",
+        description: t.bankTransferPendingDescription
+          .replace('{bank}', bankDetails.bank_name)
+          .replace('{reference}', referenceNumber),
+        status: t.pending,
       });
 
       setConfirmationData({
@@ -768,7 +778,7 @@ export default function TransfersSection({
       setShowConfirmationModal(true);
     } catch (error: any) {
       console.error("Bank transfer error:", error);
-      setValidationErrors([`Error: ${error.message}`]);
+      setValidationErrors([`${t.error}: ${error.message}`]);
     }
   };
 
@@ -785,27 +795,27 @@ export default function TransfersSection({
     > = {
       pending: {
         color: "bg-white text-slate-700 border-2 border-gray-300",
-        label: "Pending review",
+        label: t.pendingReview,
         icon: Clock,
       },
       approved: {
         color: "bg-white text-slate-700 border-2 border-gray-300",
-        label: "Approved",
+        label: t.approved,
         icon: CheckCircle,
       },
       completed: {
         color: "bg-white text-slate-700 border-2 border-gray-300",
-        label: "Completed",
+        label: t.completed,
         icon: CheckCircle,
       },
       rejected: {
         color: "bg-white text-red-600 border-2 border-red-600",
-        label: "Rejected",
+        label: t.rejected,
         icon: XCircle,
       },
       processing: {
         color: "bg-white text-slate-700 border-2 border-gray-300",
-        label: "Processing",
+        label: t.processing,
         icon: Clock,
       },
     };
@@ -846,7 +856,7 @@ export default function TransfersSection({
       <div className="flex flex-col">
         <span className="font-medium">{currency.name}</span>
         <span className="text-xs text-slate-500">
-          {currency.code} • {currency.type === "crypto" ? "Crypto" : t.fiat}
+          {currency.code} • {currency.type === "crypto" ? t.crypto : t.fiat}
         </span>
       </div>
       {currency.type === "crypto" && (
@@ -867,7 +877,7 @@ export default function TransfersSection({
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <FileText className="w-5 h-5 text-red-600" />
-              Transfer Details
+              {t.transferDetails}
             </DialogTitle>
           </DialogHeader>
 
@@ -877,7 +887,7 @@ export default function TransfersSection({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-600 mb-1 font-medium">
-                    Reference Number
+                    {t.referenceNumber}
                   </p>
                   <p className="text-xl font-bold text-slate-800">
                     {selectedTransfer.reference_number}
@@ -899,7 +909,7 @@ export default function TransfersSection({
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
-                  {copiedField === "reference" ? "Copied" : "Copy"}
+                  {copiedField === "reference" ? t.copied : t.copy}
                 </Button>
               </div>
             </div>
@@ -907,18 +917,18 @@ export default function TransfersSection({
             {/* Status and Timeline */}
             <div className="border border-slate-200 p-4">
               <h3 className="text-sm font-semibold text-slate-700 mb-3">
-                Status & Timeline
+                {t.statusAndTimeline}
               </h3>
               <div className="flex items-center gap-2 mb-4">
                 {getStatusBadge(selectedTransfer.status)}
                 {isInternal && (
                   <Badge className="bg-white text-slate-700 border-2 border-gray-300">
-                    Rate locked at submission
+                    {t.rateLockedAtSubmission}
                   </Badge>
                 )}
                 {!isInternal && isPending && (
                   <Badge className="bg-white text-slate-700 border-2 border-gray-300">
-                    Estimated. Final amount confirmed when processed
+                    {t.estimatedFinalAmountConfirmed}
                   </Badge>
                 )}
               </div>
@@ -929,7 +939,7 @@ export default function TransfersSection({
                   <div className="w-2 h-2 bg-red-600 mt-2"></div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-700">
-                      Submitted
+                      {t.submitted}
                     </p>
                     <p className="text-xs text-slate-500">
                       {new Date(selectedTransfer.created_at).toLocaleString()}
@@ -941,7 +951,7 @@ export default function TransfersSection({
                     <div className="w-2 h-2 bg-red-600 mt-2"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-slate-700">
-                        Processed
+                        {t.processed}
                       </p>
                       <p className="text-xs text-slate-500">
                         {new Date(
@@ -956,10 +966,10 @@ export default function TransfersSection({
                     <div className="w-2 h-2 bg-slate-300 mt-2"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-slate-400">
-                        Processing
+                        {t.processing}
                       </p>
                       <p className="text-xs text-slate-400">
-                        Awaiting approval
+                        {t.awaitingApproval}
                       </p>
                     </div>
                   </div>
@@ -970,23 +980,23 @@ export default function TransfersSection({
             {/* Transfer Details */}
             <div className="border border-slate-200 p-4">
               <h3 className="text-sm font-semibold text-slate-700 mb-3">
-                Transfer Information
+                {t.transferInformation}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">From Currency</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.fromCurrencyLabel}</p>
                   <p className="text-sm font-medium">
                     {selectedTransfer.from_currency}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">To Currency</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.toCurrencyLabel}</p>
                   <p className="text-sm font-medium">
                     {selectedTransfer.to_currency}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Debit Amount</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.debitAmount}</p>
                   <p className="text-sm font-medium text-red-600">
                     {selectedTransfer.from_amount.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -996,7 +1006,7 @@ export default function TransfersSection({
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Credit Amount</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.creditAmount}</p>
                   <p className="text-sm font-medium text-green-600">
                     {selectedTransfer.to_amount.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
@@ -1006,20 +1016,20 @@ export default function TransfersSection({
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Exchange Rate</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.exchangeRate}</p>
                   <p className="text-sm font-medium">
                     {selectedTransfer.exchange_rate.toFixed(6)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Fees</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.fees}</p>
                   <p className="text-sm font-medium">
                     {selectedTransfer.fee_amount.toFixed(2)}{" "}
                     {selectedTransfer.fee_currency || selectedTransfer.from_currency}
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs text-slate-600 mb-1">Total Debit</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.totalDebit}</p>
                   <p className="text-lg font-bold text-red-700">
                     {(
                       selectedTransfer.from_amount + selectedTransfer.fee_amount
@@ -1034,18 +1044,18 @@ export default function TransfersSection({
             {!isInternal && selectedTransfer.bank_transfer && (
               <div className="border-2 border-gray-300 p-4 bg-white">
                 <h3 className="text-sm font-semibold text-slate-700 mb-3">
-                  Bank Details
+                  {t.bankDetails}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-slate-600 mb-1">Bank Name</p>
+                    <p className="text-xs text-slate-600 mb-1">{t.bankName}</p>
                     <p className="text-sm font-medium">
                       {selectedTransfer.bank_transfer.bank_name}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-600 mb-1">
-                      Account Holder
+                      {t.accountHolder}
                     </p>
                     <p className="text-sm font-medium">
                       {selectedTransfer.bank_transfer.account_holder_name}
@@ -1053,7 +1063,7 @@ export default function TransfersSection({
                   </div>
                   <div>
                     <p className="text-xs text-slate-600 mb-1">
-                      Account Number
+                      {t.accountNumber}
                     </p>
                     <p className="text-sm font-medium font-mono">
                       {maskAccountNumber(
@@ -1063,7 +1073,7 @@ export default function TransfersSection({
                   </div>
                   {selectedTransfer.bank_transfer.swift_code && (
                     <div>
-                      <p className="text-xs text-slate-600 mb-1">SWIFT Code</p>
+                      <p className="text-xs text-slate-600 mb-1">{t.swiftCode}</p>
                       <p className="text-sm font-medium">
                         {selectedTransfer.bank_transfer.swift_code}
                       </p>
@@ -1071,7 +1081,7 @@ export default function TransfersSection({
                   )}
                   {selectedTransfer.bank_transfer.iban && (
                     <div className="col-span-2">
-                      <p className="text-xs text-slate-600 mb-1">IBAN</p>
+                      <p className="text-xs text-slate-600 mb-1">{t.iban}</p>
                       <p className="text-sm font-medium font-mono">
                         {maskIban(selectedTransfer.bank_transfer.iban)}
                       </p>
@@ -1080,7 +1090,7 @@ export default function TransfersSection({
                   {selectedTransfer.bank_transfer.routing_number && (
                     <div>
                       <p className="text-xs text-slate-600 mb-1">
-                        Routing Number
+                        {t.routingNumber}
                       </p>
                       <p className="text-sm font-medium">
                         {selectedTransfer.bank_transfer.routing_number}
@@ -1089,7 +1099,7 @@ export default function TransfersSection({
                   )}
                   {selectedTransfer.bank_transfer.purpose_of_transfer && (
                     <div className="col-span-2">
-                      <p className="text-xs text-slate-600 mb-1">Purpose</p>
+                      <p className="text-xs text-slate-600 mb-1">{t.purpose}</p>
                       <p className="text-sm font-medium">
                         {selectedTransfer.bank_transfer.purpose_of_transfer}
                       </p>
@@ -1098,7 +1108,7 @@ export default function TransfersSection({
                   {selectedTransfer.bank_transfer.bank_address && (
                     <div className="col-span-2">
                       <p className="text-xs text-slate-600 mb-1">
-                        Bank Address
+                        {t.bankAddress}
                       </p>
                       <p className="text-sm font-medium">
                         {selectedTransfer.bank_transfer.bank_address}
@@ -1108,7 +1118,7 @@ export default function TransfersSection({
                   {selectedTransfer.bank_transfer.recipient_address && (
                     <div className="col-span-2">
                       <p className="text-xs text-slate-600 mb-1">
-                        Recipient Address
+                        {t.recipientAddress}
                       </p>
                       <p className="text-sm font-medium">
                         {selectedTransfer.bank_transfer.recipient_address}
@@ -1124,11 +1134,11 @@ export default function TransfersSection({
               <div className="border-2 border-gray-300 bg-white p-4">
                 <h3 className="text-sm font-semibold text-slate-800 mb-2 flex items-center gap-2">
                   <Info className="w-4 h-4" />
-                  Additional Information
+                  {t.additionalInformation}
                 </h3>
                 {selectedTransfer.status_reason && (
                   <div className="mb-2">
-                    <p className="text-xs text-slate-600 mb-1">Status Reason</p>
+                    <p className="text-xs text-slate-600 mb-1">{t.statusReason}</p>
                     <p className="text-sm text-slate-800">
                       {selectedTransfer.status_reason}
                     </p>
@@ -1136,7 +1146,7 @@ export default function TransfersSection({
                 )}
                 {selectedTransfer.admin_notes && (
                   <div>
-                    <p className="text-xs text-slate-600 mb-1">Notes</p>
+                    <p className="text-xs text-slate-600 mb-1">{t.notes}</p>
                     <p className="text-sm text-slate-800">
                       {selectedTransfer.admin_notes}
                     </p>
@@ -1151,7 +1161,7 @@ export default function TransfersSection({
               variant="outline"
               onClick={() => setShowDetailsModal(false)}
             >
-              Close
+              {t.close}
             </Button>
           </div>
         </DialogContent>
@@ -1168,7 +1178,7 @@ export default function TransfersSection({
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <CheckCircle className="w-6 h-6 text-green-600" />
-              Transfer Receipt
+              {t.transferReceipt}
             </DialogTitle>
           </DialogHeader>
 
@@ -1176,7 +1186,7 @@ export default function TransfersSection({
             {/* Reference Number */}
             <div className="bg-white border-2 border-red-600 p-4 text-center">
               <p className="text-xs text-slate-600 mb-1 font-medium">
-                Reference Number
+                {t.referenceNumber}
               </p>
               <p className="text-2xl font-bold text-slate-800">
                 {confirmationData.reference_number}
@@ -1197,7 +1207,7 @@ export default function TransfersSection({
                 ) : (
                   <Copy className="w-4 h-4 mr-1" />
                 )}
-                {copiedField === "confirmation" ? "Copied" : "Copy Receipt"}
+                {copiedField === "confirmation" ? t.copied : t.copyReceipt}
               </Button>
             </div>
 
@@ -1205,36 +1215,36 @@ export default function TransfersSection({
             <div className="border border-slate-200 p-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Status</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.status}</p>
                   <div className="mt-1">{getStatusBadge(confirmationData.status)}</div>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Submitted</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.submitted}</p>
                   <p className="text-sm font-medium">
                     {new Date(confirmationData.created_at).toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">From</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.from}</p>
                   <p className="text-sm font-medium">
                     {confirmationData.from_currency}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">To</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.to}</p>
                   <p className="text-sm font-medium">
                     {confirmationData.to_currency}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Amount</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.amount}</p>
                   <p className="text-sm font-medium">
                     {confirmationData.from_amount.toFixed(2)}{" "}
                     {confirmationData.from_currency}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Fees</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.fees}</p>
                   <p className="text-sm font-medium">
                     {confirmationData.fee_amount.toFixed(2)}{" "}
                     {confirmationData.from_currency}
@@ -1242,7 +1252,7 @@ export default function TransfersSection({
                 </div>
                 <div className="col-span-2 bg-white p-3 border-2 border-red-600">
                   <p className="text-xs text-slate-600 mb-1 font-medium">
-                    Total Debit
+                    {t.totalDebit}
                   </p>
                   <p className="text-xl font-bold text-red-600">
                     {confirmationData.total_debit.toFixed(2)}{" "}
@@ -1251,7 +1261,7 @@ export default function TransfersSection({
                 </div>
                 <div className="col-span-2 bg-white p-3 border-2 border-gray-300">
                   <p className="text-xs text-slate-600 mb-1 font-medium">
-                    Estimated Credit
+                    {t.estimatedCredit}
                   </p>
                   <p className="text-xl font-bold text-slate-800">
                     {confirmationData.to_amount.toFixed(2)}{" "}
@@ -1259,17 +1269,17 @@ export default function TransfersSection({
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Rate Used</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.rateUsed}</p>
                   <p className="text-sm font-medium">
                     {confirmationData.exchange_rate.toFixed(6)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">Type</p>
+                  <p className="text-xs text-slate-600 mb-1">{t.type}</p>
                   <p className="text-sm font-medium">
                     {confirmationData.transfer_type === "internal"
-                      ? "Account Transfer"
-                      : "Bank Transfer"}
+                      ? t.accountTransfer
+                      : t.bankTransfer}
                   </p>
                 </div>
               </div>
@@ -1278,11 +1288,10 @@ export default function TransfersSection({
             {confirmationData.transfer_type === "bank_transfer" && (
               <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
                 <p className="font-medium mb-1">
-                  Your transfer is pending review
+                  {t.transferPendingReview}
                 </p>
                 <p className="text-xs text-slate-600">
-                  Our team will process this transfer shortly. You'll be notified
-                  once it's completed.
+                  {t.transferProcessingNotification}
                 </p>
               </div>
             )}
@@ -1290,7 +1299,7 @@ export default function TransfersSection({
 
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
             <Button onClick={() => setShowConfirmationModal(false)}>
-              Done
+              {t.done}
             </Button>
           </div>
         </DialogContent>
@@ -1311,7 +1320,7 @@ export default function TransfersSection({
     return (
       <div className="p-8 flex items-center justify-center">
         <div className="text-center bg-white p-6 border border-red-600">
-          <div className="text-red-600 text-lg font-semibold">Error</div>
+          <div className="text-red-600 text-lg font-semibold">{t.error}</div>
           <div className="text-red-500 mt-2">{error}</div>
         </div>
       </div>
@@ -1437,7 +1446,7 @@ export default function TransfersSection({
             {t.currencyTransfers}
           </h2>
           <p className="text-slate-600">
-            Account transfers and bank wire transfers
+            {t.accountTransfersBankWireSubtitle}
           </p>
           {liveRates.lastUpdated > 0 && (
             <div className="flex items-center justify-center gap-2 mt-2">
@@ -1509,7 +1518,7 @@ export default function TransfersSection({
                   <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-red-600 mb-2">
-                      Please correct the following errors:
+                      {t.pleaseCorrectFollowingErrors}
                     </p>
                     <ul className="list-disc list-inside text-sm text-slate-700 space-y-1">
                       {validationErrors.map((error, index) => (
@@ -1528,7 +1537,7 @@ export default function TransfersSection({
                   <div className="w-8 h-8 bg-red-600 flex items-center justify-center">
                     <ArrowLeftRight className="w-4 h-4 text-white" />
                   </div>
-                  Create Transfer
+                  {t.createTransfer}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1546,11 +1555,11 @@ export default function TransfersSection({
                       className="flex items-center gap-2"
                     >
                       <Coins className="w-4 h-4" />
-                      Account Transfer
+                      {t.accountTransfer}
                     </TabsTrigger>
                     <TabsTrigger value="bank" className="flex items-center gap-2">
                       <Building2 className="w-4 h-4" />
-                      Bank Wire
+                      {t.bankWire}
                     </TabsTrigger>
                   </TabsList>
 
@@ -1560,7 +1569,7 @@ export default function TransfersSection({
                       <div className="bg-white border-2 border-gray-300 p-3">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-slate-700 font-medium">
-                            Available Balance ({fromCurrency}):
+                            {t.availableBalance.replace('{currency}', fromCurrency)}:
                           </span>
                           <span className="text-slate-900 font-bold">
                             {availableBalance.toFixed(2)}
@@ -1651,7 +1660,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <div>
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          Amount
+                          {t.amount}
                         </Label>
                         <Input
                           type="number"
@@ -1664,14 +1673,14 @@ export default function TransfersSection({
                             });
                             setValidationErrors([]);
                           }}
-                          placeholder="0.00"
+                          placeholder={t.zeroDecimalPlaceholder}
                           className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
                         />
                       </div>
 
                       <div>
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          Fees
+                          {t.fees}
                         </Label>
                         <Input
                           value={
@@ -1689,7 +1698,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="border-2 border-red-600 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          Total Debit
+                          {t.totalDebit}
                         </p>
                         <p className="text-2xl font-bold text-red-600">
                           {totalDebit.toFixed(2)}{" "}
@@ -1698,11 +1707,11 @@ export default function TransfersSection({
                       </div>
                       <div className="border-2 border-gray-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          Estimated Credit
+                          {t.estimatedCredit}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {estimatedAmount === 0
-                            ? "0.00"
+                            ? t.zeroDecimalPlaceholder
                             : estimatedAmount.toFixed(2)}{" "}
                           <span className="text-sm">
                             {internalFormData.to_currency || "—"}
@@ -1715,11 +1724,10 @@ export default function TransfersSection({
                     <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
                       <p className="font-medium flex items-center gap-2">
                         <Info className="w-4 h-4" />
-                        Rate locked at submission
+                        {t.rateLockedAtSubmission}
                       </p>
                       <p className="text-xs text-slate-600 mt-1">
-                        This is an instant account transfer. The rate will be locked
-                        and the transfer will be completed immediately.
+                        {t.instantTransferInfo}
                       </p>
                     </div>
 
@@ -1733,7 +1741,7 @@ export default function TransfersSection({
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      Execute Transfer
+                      {t.executeTransfer}
                     </Button>
                   </TabsContent>
 
@@ -1743,7 +1751,7 @@ export default function TransfersSection({
                       <div className="bg-white border-2 border-gray-300 p-3">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-slate-700 font-medium">
-                            Available Balance ({fromCurrency}):
+                            {t.availableBalance.replace('{currency}', fromCurrency)}:
                           </span>
                           <span className="text-slate-900 font-bold">
                             {availableBalance.toFixed(2)}
@@ -1834,7 +1842,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                       <div>
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          Amount
+                          {t.amount}
                         </Label>
                         <Input
                           type="number"
@@ -1847,14 +1855,14 @@ export default function TransfersSection({
                             });
                             setValidationErrors([]);
                           }}
-                          placeholder="0.00"
+                          placeholder={t.zeroDecimalPlaceholder}
                           className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
                         />
                       </div>
 
                       <div>
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          Fees
+                          {t.fees}
                         </Label>
                         <Input
                           value={
@@ -1872,7 +1880,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="border-2 border-red-600 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          Total Debit
+                          {t.totalDebit}
                         </p>
                         <p className="text-2xl font-bold text-red-600">
                           {totalDebit.toFixed(2)}{" "}
@@ -1881,11 +1889,11 @@ export default function TransfersSection({
                       </div>
                       <div className="border-2 border-gray-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          Estimated Credit
+                          {t.estimatedCredit}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {estimatedAmount === 0
-                            ? "0.00"
+                            ? t.zeroDecimalPlaceholder
                             : estimatedAmount.toFixed(2)}{" "}
                           <span className="text-sm">
                             {bankFormData.to_currency || "—"}
@@ -1898,23 +1906,22 @@ export default function TransfersSection({
                     <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
                       <p className="font-medium flex items-center gap-2">
                         <Info className="w-4 h-4" />
-                        Estimated. Final amount confirmed when processed
+                        {t.estimatedFinalAmountConfirmed}
                       </p>
                       <p className="text-xs text-slate-600 mt-1">
-                        Bank transfers require approval. The final exchange rate and
-                        amount will be confirmed during processing.
+                        {t.bankTransferApprovalInfo}
                       </p>
                     </div>
 
                     {/* Bank Details Form */}
                     <div className="space-y-4 p-6 bg-white border border-slate-300">
                       <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                        Beneficiary Bank Details
+                        {t.beneficiaryBankDetails}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                         <div>
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            Bank Name *
+                            {t.bankName} *
                           </Label>
                           <Input
                             value={bankDetails.bank_name}
@@ -1925,13 +1932,13 @@ export default function TransfersSection({
                               });
                               setValidationErrors([]);
                             }}
-                            placeholder="Enter bank name"
+                            placeholder={t.enterBankName}
                             className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            Account Holder Name *
+                            {t.accountHolderName} *
                           </Label>
                           <Input
                             value={bankDetails.account_holder_name}
@@ -1942,13 +1949,13 @@ export default function TransfersSection({
                               });
                               setValidationErrors([]);
                             }}
-                            placeholder="Full name on account"
+                            placeholder={t.fullNameOnAccount}
                             className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            Account Number *
+                            {t.accountNumber} *
                           </Label>
                           <Input
                             value={bankDetails.account_number}
@@ -1959,13 +1966,13 @@ export default function TransfersSection({
                               });
                               setValidationErrors([]);
                             }}
-                            placeholder="Account number"
+                            placeholder={t.accountNumberPlaceholder}
                             className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            Routing Number
+                            {t.routingNumber}
                           </Label>
                           <Input
                             value={bankDetails.routing_number}
@@ -1975,13 +1982,13 @@ export default function TransfersSection({
                                 routing_number: e.target.value,
                               })
                             }
-                            placeholder="Optional"
+                            placeholder={t.optional}
                             className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            SWIFT Code
+                            {t.swiftCode}
                           </Label>
                           <Input
                             value={bankDetails.swift_code}
@@ -1991,13 +1998,13 @@ export default function TransfersSection({
                                 swift_code: e.target.value,
                               })
                             }
-                            placeholder="SWIFT/BIC code"
+                            placeholder={t.swiftBicCode}
                             className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                         <div>
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            IBAN
+                            {t.iban}
                           </Label>
                           <Input
                             value={bankDetails.iban}
@@ -2007,14 +2014,14 @@ export default function TransfersSection({
                                 iban: e.target.value,
                               })
                             }
-                            placeholder="International bank account number"
+                            placeholder={t.internationalBankAccountNumber}
                             className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           />
                         </div>
                       </div>
                       <div>
                         <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                          Bank Address
+                          {t.bankAddress}
                         </Label>
                         <Textarea
                           value={bankDetails.bank_address}
@@ -2024,14 +2031,14 @@ export default function TransfersSection({
                               bank_address: e.target.value,
                             })
                           }
-                          placeholder="Bank branch address"
+                          placeholder={t.bankBranchAddress}
                           className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           rows={2}
                         />
                       </div>
                       <div>
                         <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                          Recipient Address
+                          {t.recipientAddress}
                         </Label>
                         <Textarea
                           value={bankDetails.recipient_address}
@@ -2041,14 +2048,14 @@ export default function TransfersSection({
                               recipient_address: e.target.value,
                             })
                           }
-                          placeholder="Beneficiary address"
+                          placeholder={t.beneficiaryAddress}
                           className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           rows={2}
                         />
                       </div>
                       <div>
                         <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                          Purpose of Transfer
+                          {t.purposeOfTransfer}
                         </Label>
                         <Textarea
                           value={bankDetails.purpose_of_transfer}
@@ -2058,7 +2065,7 @@ export default function TransfersSection({
                               purpose_of_transfer: e.target.value,
                             })
                           }
-                          placeholder="Purpose or description"
+                          placeholder={t.purposeOrDescription}
                           className="border-slate-300 hover:border-red-600 focus:border-red-600"
                           rows={2}
                         />
@@ -2078,7 +2085,7 @@ export default function TransfersSection({
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      Submit Transfer Request
+                      {t.submitTransferRequest}
                     </Button>
                   </TabsContent>
                 </Tabs>
@@ -2095,7 +2102,7 @@ export default function TransfersSection({
               onClick={() => setShowHistoryOnMobile(!showHistoryOnMobile)}
               className="w-full flex items-center justify-between"
             >
-              <span>Transfer History ({transfers.length})</span>
+              <span>{t.transferHistoryWithCount.replace('{count}', transfers.length.toString())}</span>
               {showHistoryOnMobile ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -2111,10 +2118,10 @@ export default function TransfersSection({
             <Card className="history-card h-full flex flex-col">
               <CardHeader className="pb-4 flex-shrink-0">
                 <CardTitle className="text-xl font-bold text-slate-800">
-                  Transfer History
+                  {t.transferHistory}
                 </CardTitle>
                 <p className="text-slate-600 text-sm">
-                  Recent transactions and transfers
+                  {t.recentTransactionsAndTransfers}
                 </p>
               </CardHeader>
 
@@ -2123,7 +2130,7 @@ export default function TransfersSection({
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input
-                    placeholder="Search by reference..."
+                    placeholder={t.searchByReference}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 h-9 text-sm"
@@ -2137,12 +2144,12 @@ export default function TransfersSection({
                     }
                   >
                     <SelectTrigger className="h-9 text-sm">
-                      <SelectValue placeholder="Type" />
+                      <SelectValue placeholder={t.type} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="internal">Account Transfer</SelectItem>
-                      <SelectItem value="bank_transfer">Bank Wire</SelectItem>
+                      <SelectItem value="all">{t.allTypes}</SelectItem>
+                      <SelectItem value="internal">{t.accountTransfer}</SelectItem>
+                      <SelectItem value="bank_transfer">{t.bankWire}</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select
@@ -2152,15 +2159,15 @@ export default function TransfersSection({
                     }
                   >
                     <SelectTrigger className="h-9 text-sm">
-                      <SelectValue placeholder="Status" />
+                      <SelectValue placeholder={t.status} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="all">{t.allStatus}</SelectItem>
+                      <SelectItem value="pending">{t.pending}</SelectItem>
+                      <SelectItem value="processing">{t.processing}</SelectItem>
+                      <SelectItem value="approved">{t.approved}</SelectItem>
+                      <SelectItem value="completed">{t.completed}</SelectItem>
+                      <SelectItem value="rejected">{t.rejected}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -2171,13 +2178,13 @@ export default function TransfersSection({
                   <div className="text-center py-8 flex-1 flex flex-col justify-center">
                     <p className="text-slate-500">
                       {searchQuery || filterStatus !== "all" || filterType !== "all"
-                        ? "No transfers match your filters"
-                        : "No transfers yet"}
+                        ? t.noTransfersMatchFilters
+                        : t.noTransfersYet}
                     </p>
                     <p className="text-slate-400 text-xs mt-1">
                       {searchQuery || filterStatus !== "all" || filterType !== "all"
-                        ? "Try adjusting your filters"
-                        : "Your transfer history will appear here"}
+                        ? t.tryAdjustingFilters
+                        : t.transferHistoryWillAppearHere}
                     </p>
                   </div>
                 ) : (
