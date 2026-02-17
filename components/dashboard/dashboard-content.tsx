@@ -1090,7 +1090,7 @@ function DashboardContent({
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="flex items-center justify-between text-base sm:text-lg">
                   <div className="flex items-center min-w-0">
-                    <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0 bordered-none" />
+                    <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                     <span className="truncate">
                       {currentMessage ? t.messages : t.latestMessage}
                     </span>
