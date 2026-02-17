@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { getTranslations, Language } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
