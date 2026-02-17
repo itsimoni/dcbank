@@ -83,11 +83,11 @@ export default function KYCVerification({
         .from("users")
         .select("kyc_status")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error checking KYC status:", error);
-        setError("Failed to check KYC status");
+        setKycStatus("not_started");
         return;
       }
 
@@ -97,10 +97,12 @@ export default function KYCVerification({
         if (data.kyc_status === "approved") {
           onKYCComplete();
         }
+      } else {
+        setKycStatus("not_started");
       }
     } catch (error) {
       console.error("Error in checkKYCStatus:", error);
-      setError("Failed to verify KYC status");
+      setKycStatus("not_started");
     } finally {
       setCheckingStatus(false);
     }
