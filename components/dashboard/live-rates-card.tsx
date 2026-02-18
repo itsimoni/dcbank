@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Activity, RefreshCw } from "lucide-react";
 import { priceService } from "@/lib/price-service";
+import { valoreForexService } from "@/lib/valore-forex-service";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslations } from "@/lib/translations";
 
@@ -18,6 +19,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
   const [exchangeRates, setExchangeRates] = useState<any>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(true);
+  const [isRealtimeForex, setIsRealtimeForex] = useState(false);
 
   const fetchRates = async () => {
     try {
@@ -30,6 +32,7 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
       setExchangeRates(fiat);
       setLastUpdate(new Date());
       setLoading(false);
+      setIsRealtimeForex(valoreForexService.isConnected());
     } catch (error) {
       console.error("Error fetching rates:", error);
       setLoading(false);
@@ -38,8 +41,19 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
 
   useEffect(() => {
     fetchRates();
+
+    const unsubscribe = valoreForexService.subscribe((rates) => {
+      setExchangeRates(rates);
+      setLastUpdate(new Date());
+      setIsRealtimeForex(true);
+    });
+
     const interval = setInterval(fetchRates, 30000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
   }, []);
 
   const formatPrice = (price: number, decimals: number = 2) => {
@@ -170,6 +184,12 @@ export default function LiveRatesCard({ language = "en" }: LiveRatesCardProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             {t.liveRates}
+            {isRealtimeForex && (
+              <Badge variant="outline" className="ml-2 text-xs bg-green-50 text-green-700 border-green-200">
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse mr-1"></span>
+                Real-time Forex
+              </Badge>
+            )}
           </CardTitle>
           <div className="flex items-center gap-2">
             <RefreshCw

@@ -1,3 +1,5 @@
+import { valoreForexService } from "./valore-forex-service";
+
 export interface ExchangeRates {
   fiat: { [key: string]: number };
   crypto: { [key: string]: number };
@@ -13,6 +15,7 @@ export class ExchangeRateService {
   };
   private updateInterval: NodeJS.Timeout | null = null;
   private listeners: ((rates: ExchangeRates) => void)[] = [];
+  private valoreUnsubscribe: (() => void) | null = null;
 
   static getInstance(): ExchangeRateService {
     if (!ExchangeRateService.instance) {
@@ -22,6 +25,13 @@ export class ExchangeRateService {
   }
 
   async initialize() {
+    this.valoreUnsubscribe = valoreForexService.subscribe((forexRates) => {
+      this.rates.fiat = forexRates;
+      this.rates.lastUpdated = Date.now();
+      this.listeners.forEach((listener) => listener(this.rates));
+      console.log("Updated fiat rates from Valore WebSocket");
+    });
+
     await this.updateRates();
     this.startAutoUpdate();
   }
@@ -37,52 +47,57 @@ export class ExchangeRateService {
         lastUpdated: Date.now(),
       };
 
-      // Fetch fiat exchange rates from exchangerate-api.com (free, no API key required)
-      try {
-        console.log("Fetching fiat exchange rates...");
-        const fiatResponse = await fetch(
-          "https://api.exchangerate-api.com/v4/latest/USD",
-          {
-            headers: {
-              Accept: "application/json",
-            },
+      const valoreRates = valoreForexService.getRates();
+
+      if (valoreForexService.isConnected() && Object.keys(valoreRates).length > 0) {
+        console.log("Using real-time fiat rates from Valore WebSocket");
+        rates.fiat = valoreRates;
+      } else {
+        try {
+          console.log("Fetching fiat exchange rates from REST API fallback...");
+          const fiatResponse = await fetch(
+            "https://api.exchangerate-api.com/v4/latest/USD",
+            {
+              headers: {
+                Accept: "application/json",
+              },
+            }
+          );
+
+          if (fiatResponse.ok) {
+            const fiatData = await fiatResponse.json();
+
+            if (fiatData.rates) {
+              rates.fiat = {
+                USD: 1,
+                EUR: fiatData.rates.EUR,
+                CAD: fiatData.rates.CAD,
+                GBP: fiatData.rates.GBP,
+                JPY: fiatData.rates.JPY,
+                AUD: fiatData.rates.AUD,
+                CHF: fiatData.rates.CHF,
+              };
+
+              console.log("Fiat rates fetched successfully from REST API");
+            }
+          } else {
+            throw new Error(`Fiat API error: ${fiatResponse.status}`);
           }
-        );
-
-        if (fiatResponse.ok) {
-          const fiatData = await fiatResponse.json();
-
-          if (fiatData.rates) {
-            rates.fiat = {
-              USD: 1,
-              EUR: fiatData.rates.EUR,
-              CAD: fiatData.rates.CAD,
-              GBP: fiatData.rates.GBP,
-              JPY: fiatData.rates.JPY,
-              AUD: fiatData.rates.AUD,
-              CHF: fiatData.rates.CHF,
-            };
-
-            console.log("Fiat rates fetched successfully");
-          }
-        } else {
-          throw new Error(`Fiat API error: ${fiatResponse.status}`);
+        } catch (fiatError: any) {
+          console.warn(
+            "Failed to fetch fiat rates, using fallback:",
+            fiatError.message
+          );
+          rates.fiat = {
+            USD: 1,
+            EUR: 0.85,
+            CAD: 1.35,
+            GBP: 0.75,
+            JPY: 110,
+            AUD: 1.45,
+            CHF: 0.92,
+          };
         }
-      } catch (fiatError: any) {
-        console.warn(
-          "Failed to fetch fiat rates, using fallback:",
-          fiatError.message
-        );
-        // Keep default USD: 1 as fallback
-        rates.fiat = {
-          USD: 1,
-          EUR: 0.85,
-          CAD: 1.35,
-          GBP: 0.75,
-          JPY: 110,
-          AUD: 1.45,
-          CHF: 0.92,
-        };
       }
 
       // Fetch crypto prices from CoinGecko (free, no API key required)
@@ -223,6 +238,10 @@ export class ExchangeRateService {
   cleanup() {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
+    }
+    if (this.valoreUnsubscribe) {
+      this.valoreUnsubscribe();
+      this.valoreUnsubscribe = null;
     }
     this.listeners = [];
   }

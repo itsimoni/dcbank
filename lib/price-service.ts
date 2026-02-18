@@ -1,5 +1,7 @@
 "use client";
 
+import { valoreForexService } from "./valore-forex-service";
+
 class PriceService {
   private cryptoCache: any = null;
   private exchangeCache: any = null;
@@ -163,6 +165,14 @@ class PriceService {
   }
 
   async getExchangeRates() {
+    const valoreRates = valoreForexService.getRates();
+
+    if (valoreForexService.isConnected() && Object.keys(valoreRates).length > 0) {
+      console.log("Using real-time forex rates from Valore Capital WebSocket");
+      this.exchangeCache = valoreRates;
+      return valoreRates;
+    }
+
     const now = Date.now();
 
     if (
@@ -172,6 +182,7 @@ class PriceService {
       return this.exchangeCache;
     }
 
+    console.log("Valore WebSocket not available, falling back to REST APIs");
     const sources = [
       { name: "ExchangeRate.host", fetch: () => this.fetchFromExchangeRateHost() },
       { name: "ExchangeRate-API", fetch: () => this.fetchFromExchangeRateAPI() },
