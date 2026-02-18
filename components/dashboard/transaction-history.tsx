@@ -329,7 +329,7 @@ export default function TransactionHistory() {
 
   return (
     <div className="flex-1 overflow-y-auto bg-white">
-      <div className="p-4 pt-20 space-y-4 max-w-7xl mx-auto">
+      <div className="p-4 space-y-4 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             {t.transactionHistory}
