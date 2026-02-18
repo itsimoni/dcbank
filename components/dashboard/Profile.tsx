@@ -201,21 +201,24 @@ export default function Profile({ userProfile }: ProfileProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="w-8 h-8 border-4 border-[#F26623] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-blue-700 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">{t.profileTitle}</h1>
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex justify-between items-center mb-6">
+        <div className="border-l-4 border-[#b91c1c] pl-4">
+          <h1 className="text-2xl font-semibold text-gray-900">{t.profileTitle}</h1>
+          <p className="text-sm text-gray-600 mt-1">{t.emailLabel}: {userData?.email}</p>
+        </div>
         <div className="relative">
           <button
             onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-            className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+            className="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors"
           >
-            <Languages className="h-4 w-4 text-[#F26623]" />
+            <Languages className="h-4 w-4 text-gray-600" />
             <span>{languageNames[language]}</span>
             <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -226,7 +229,7 @@ export default function Profile({ userProfile }: ProfileProps) {
                 className="fixed inset-0 z-10"
                 onClick={() => setIsLanguageDropdownOpen(false)}
               />
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 overflow-hidden">
                 {Object.entries(languageNames).map(([code, name]) => (
                   <button
                     key={code}
@@ -234,9 +237,9 @@ export default function Profile({ userProfile }: ProfileProps) {
                       setLanguage(code as Language);
                       setIsLanguageDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
                       language === code
-                        ? 'bg-[#F26623] text-white font-medium'
+                        ? 'bg-blue-700 text-white font-medium'
                         : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
@@ -256,85 +259,110 @@ export default function Profile({ userProfile }: ProfileProps) {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8 mb-6">
-        <div className="flex items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-800">
-              {userData?.full_name
-                ? userData.full_name
-                    .toLowerCase()
-                    .split(" ")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                : t.userLabel}
-            </h2>
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-4">
+        <div className="border-b border-gray-100 pb-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {userData?.full_name
+                  ? userData.full_name
+                      .toLowerCase()
+                      .split(" ")
+                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(" ")
+                  : t.userLabel}
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">{getRoleLabel()}</p>
+            </div>
+            <div className={`px-3 py-1 rounded text-xs font-medium ${getKycStatusColor(userData?.kyc_status || 'not_started')}`}>
+              {userData?.kyc_status === 'approved' ? t.kycApprovedStatus :
+               userData?.kyc_status === 'pending' ? t.kycPendingStatus :
+               userData?.kyc_status === 'rejected' ? t.kycRejectedStatus :
+               t.kycNotStartedStatus}
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex items-center">
-            <Mail className="w-5 h-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">{t.emailLabel}</p>
-              <p className="text-gray-800 font-medium">
-                {userData?.email || t.notAvailable}
-              </p>
+        <div className="divide-y divide-gray-100">
+          <div className="py-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <Mail className="w-4 h-4 text-gray-400 mr-3" />
+              <span className="text-xs text-gray-500 uppercase tracking-wide">{t.emailLabel}</span>
             </div>
+            <span className="text-sm text-gray-900 font-medium">{userData?.email || t.notAvailable}</span>
           </div>
 
-          <div className="flex items-center">
-            <Calendar className="w-5 h-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">{t.ageLabel}</p>
-              <p className="text-gray-800 font-medium">
-                {userData?.age || t.notAvailable}
-              </p>
+          <div className="py-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 text-gray-400 mr-3" />
+              <span className="text-xs text-gray-500 uppercase tracking-wide">{t.ageLabel}</span>
             </div>
+            <span className="text-sm text-gray-900 font-medium tabular-nums">{userData?.age || t.notAvailable}</span>
           </div>
 
           {userData?.first_name && (
-            <div className="flex items-center">
-              <User className="w-5 h-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">{t.firstNameLabel}</p>
-                <p className="text-gray-800 font-medium">
-                  {userData.first_name
-                    ? userData.first_name.charAt(0).toUpperCase() +
-                      userData.first_name.slice(1).toLowerCase()
-                    : ""}
-                </p>
+            <div className="py-3 flex items-center justify-between">
+              <div className="flex items-center">
+                <User className="w-4 h-4 text-gray-400 mr-3" />
+                <span className="text-xs text-gray-500 uppercase tracking-wide">{t.firstNameLabel}</span>
               </div>
+              <span className="text-sm text-gray-900 font-medium">
+                {userData.first_name
+                  ? userData.first_name.charAt(0).toUpperCase() +
+                    userData.first_name.slice(1).toLowerCase()
+                  : ""}
+              </span>
             </div>
           )}
 
           {userData?.last_name && (
-            <div className="flex items-center">
-              <User className="w-5 h-5 text-gray-400 mr-3" />
-              <div>
-                <p className="text-sm text-gray-500">{t.lastNameLabel}</p>
-                <p className="text-gray-800 font-medium">
-                  {userData.last_name
-                    ? userData.last_name.charAt(0).toUpperCase() +
-                      userData.last_name.slice(1).toLowerCase()
-                    : ""}
-                </p>
+            <div className="py-3 flex items-center justify-between">
+              <div className="flex items-center">
+                <User className="w-4 h-4 text-gray-400 mr-3" />
+                <span className="text-xs text-gray-500 uppercase tracking-wide">{t.lastNameLabel}</span>
               </div>
+              <span className="text-sm text-gray-900 font-medium">
+                {userData.last_name
+                  ? userData.last_name.charAt(0).toUpperCase() +
+                    userData.last_name.slice(1).toLowerCase()
+                  : ""}
+              </span>
             </div>
+          )}
+        </div>
+
+        <div className="border-t border-gray-100 pt-4 mt-4 flex justify-between text-xs text-gray-500">
+          <span className="flex items-center">
+            <span className="font-medium text-gray-600">Member since:</span>
+            <span className="ml-2 tabular-nums">
+              {userData?.created_at ? new Date(userData.created_at).toLocaleDateString() : t.notAvailable}
+            </span>
+          </span>
+          {userData?.client_id && (
+            <span className="flex items-center">
+              <span className="font-medium text-gray-600">Client ID:</span>
+              <span className="ml-2 font-mono">{userData.client_id}</span>
+            </span>
           )}
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
-        <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-          <Lock className="w-5 h-5 mr-2" />
-          {t.changePasswordTitle}
-        </h3>
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+        <div className="border-b border-gray-100 pb-4 mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Lock className="w-5 h-5 mr-2 text-gray-600" />
+            {t.changePasswordTitle}
+          </h3>
+          <p className="text-xs text-gray-600 mt-2">
+            For your security, use a strong password and never share it with anyone.
+          </p>
+        </div>
 
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div>
             <label
               htmlFor="current-password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
             >
               {t.currentPasswordLabel}
             </label>
@@ -348,7 +376,7 @@ export default function Profile({ userProfile }: ProfileProps) {
                   currentPassword: e.target.value,
                 })
               }
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+              className="w-full h-11 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
               required
             />
           </div>
@@ -356,7 +384,7 @@ export default function Profile({ userProfile }: ProfileProps) {
           <div>
             <label
               htmlFor="new-password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
             >
               {t.newPasswordLabel}
             </label>
@@ -370,16 +398,17 @@ export default function Profile({ userProfile }: ProfileProps) {
                   newPassword: e.target.value,
                 })
               }
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+              className="w-full h-11 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
               required
               minLength={6}
             />
+            <p className="text-xs text-gray-500 mt-1.5">Minimum 6 characters required</p>
           </div>
 
           <div>
             <label
               htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
             >
               {t.confirmNewPasswordLabel}
             </label>
@@ -393,40 +422,45 @@ export default function Profile({ userProfile }: ProfileProps) {
                   confirmPassword: e.target.value,
                 })
               }
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F26623] focus:border-transparent"
+              className="w-full h-11 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
               required
               minLength={6}
             />
           </div>
 
           {passwordError && (
-            <div className="flex items-center p-4 bg-red-50 text-red-700 rounded-lg">
-              <AlertCircle className="w-5 h-5 mr-2" />
+            <div className="flex items-start p-3 border border-red-200 bg-red-50 text-red-800 rounded-md text-sm">
+              <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
               <span>{passwordError}</span>
             </div>
           )}
 
           {passwordSuccess && (
-            <div className="flex items-center p-4 bg-green-50 text-green-700 rounded-lg">
-              <CheckCircle className="w-5 h-5 mr-2" />
+            <div className="flex items-start p-3 border border-green-200 bg-green-50 text-green-800 rounded-md text-sm">
+              <CheckCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
               <span>{passwordSuccess}</span>
             </div>
           )}
 
-          <Button
-            type="submit"
-            disabled={isChangingPassword}
-            className="w-full bg-[#F26623] hover:bg-[#d95a1f] text-white font-semibold py-3 rounded-lg transition-colors"
-          >
-            {isChangingPassword ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                {t.updatingPasswordButton}
-              </div>
-            ) : (
-              t.updatePasswordButton
-            )}
-          </Button>
+          <div className="pt-2">
+            <Button
+              type="submit"
+              disabled={isChangingPassword}
+              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold h-11 rounded-md transition-colors"
+            >
+              {isChangingPassword ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  {t.updatingPasswordButton}
+                </div>
+              ) : (
+                t.updatePasswordButton
+              )}
+            </Button>
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Changes apply immediately and may require re-login.
+            </p>
+          </div>
         </form>
       </div>
     </div>
