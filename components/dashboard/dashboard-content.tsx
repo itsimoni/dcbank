@@ -164,7 +164,7 @@ const BalanceCard = memo(
       <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
         {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
       </div>
-      <div className="relative w-32 h-16 sm:w-40 sm:h-20 bg-white border border-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-4">
+      <div className="relative w-32 h-12 sm:w-40 sm:h-16 bg-white border border-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-3">
         <div className="text-base sm:text-2xl font-bold text-black leading-tight text-center">
           {formatCurrency(balance, currency)}
         </div>
@@ -192,7 +192,7 @@ const CryptoCard = memo(
         <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
           {cryptoCurrency}
         </div>
-        <div className={`relative w-32 h-16 sm:w-40 sm:h-20 ${config.bgColor} border ${config.borderColor} transition-all duration-200 flex flex-col items-center justify-center p-4`}>
+        <div className={`relative w-32 h-12 sm:w-40 sm:h-16 ${config.bgColor} border ${config.borderColor} transition-all duration-200 flex flex-col items-center justify-center p-3`}>
           <div className="text-sm sm:text-2xl font-bold leading-tight text-black text-center">
             {formatCurrency(balance, cryptoCurrency)}
           </div>
