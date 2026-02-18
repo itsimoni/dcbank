@@ -426,7 +426,7 @@ export default function RealCryptoTransferSection({
 
   const goToReviewStep = () => {
     if (!formData.confirm_irreversible) {
-      alert("Please confirm that the address is correct. Transfers are irreversible.");
+      alert(t.confirmAddressCorrect + " " + t.transfersAreIrreversible);
       return;
     }
     setTransferStep("review");
@@ -456,7 +456,6 @@ export default function RealCryptoTransferSection({
         saveBeneficiary();
       }
 
-      // ✅ UPDATED: use the returned transaction id from RPC (no extra select query)
       const { data: txId, error } = await supabase.rpc("process_real_crypto_transfer", {
         p_user_id: userProfile.id,
         p_crypto_type: formData.crypto_type,
@@ -470,7 +469,7 @@ export default function RealCryptoTransferSection({
 
       if (error) {
         console.error("Transfer processing error:", error);
-        alert(`Error processing transfer: ${error.message}`);
+        alert(`${t.errorProcessingTransfer} ${error.message}`);
         return;
       }
 
@@ -496,7 +495,7 @@ export default function RealCryptoTransferSection({
       fetchCryptoBalances();
     } catch (error: any) {
       console.error("Submit transfer error:", error);
-      alert(`Error: ${error.message}`);
+      alert(`${t.errorLabel} ${error.message}`);
     } finally {
       setSubmitting(false);
     }
@@ -555,13 +554,13 @@ export default function RealCryptoTransferSection({
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return "Under Review";
+        return t.underReview;
       case "completed":
-        return "Completed";
+        return t.completed;
       case "failed":
-        return "Failed";
+        return t.failed;
       case "rejected":
-        return "Rejected";
+        return t.rejected;
       default:
         return status;
     }
@@ -635,7 +634,7 @@ export default function RealCryptoTransferSection({
                 {showNotificationCenter && (
                   <div className="absolute right-0 mt-2 w-80 bg-white border-2 border-gray-200 shadow-lg z-50">
                     <div className="p-4 border-b-2 border-gray-200">
-                      <h3 className="font-semibold text-gray-900">Activity Alerts</h3>
+                      <h3 className="font-semibold text-gray-900">{t.activityAlerts}</h3>
                     </div>
                     <div className="max-h-96 overflow-y-auto">
                       {cryptoTransactions.slice(0, 5).map((tx) => (
@@ -645,8 +644,8 @@ export default function RealCryptoTransferSection({
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900">
                                 {tx.status.toLowerCase() === "pending"
-                                  ? "Transfer Submitted"
-                                  : `Transfer ${getStatusBadge(tx.status)}`}
+                                  ? t.transferSubmitted
+                                  : `${t.transferTo} ${getStatusBadge(tx.status)}`}
                               </p>
                               <p className="text-xs text-gray-600 mt-1">
                                 {formatCryptoAmount(Number(tx.amount), cryptocurrencies.find((c) => c.value === tx.crypto_type)?.decimals || 8)} {tx.crypto_type}
@@ -661,7 +660,7 @@ export default function RealCryptoTransferSection({
                       {cryptoTransactions.length === 0 && (
                         <div className="p-8 text-center">
                           <Bell className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                          <p className="text-sm text-gray-500">No notifications</p>
+                          <p className="text-sm text-gray-500">{t.noNotifications}</p>
                         </div>
                       )}
                     </div>
@@ -739,21 +738,21 @@ export default function RealCryptoTransferSection({
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Available</span>
+                          <span className="text-sm text-gray-600">{t.available}</span>
                           <span className="text-lg font-bold text-gray-900">
                             {formatCryptoAmount(balance, crypto.decimals)}
                           </span>
                         </div>
                         {onHold > 0 && (
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">On Hold</span>
+                            <span className="text-sm text-gray-600">{t.onHold}</span>
                             <span className="text-sm font-medium text-[#b91c1c]">
                               {formatCryptoAmount(onHold, crypto.decimals)}
                             </span>
                           </div>
                         )}
                         <div className="pt-2 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
-                          <span>Last refreshed</span>
+                          <span>{t.lastRefreshed}</span>
                           <span>{new Date().toLocaleTimeString()}</span>
                         </div>
                       </div>
@@ -772,22 +771,22 @@ export default function RealCryptoTransferSection({
                 <CardHeader className="pb-4 border-b-2 border-gray-100">
                   <CardTitle className="text-2xl font-bold flex items-center gap-2">
                     <Send className="w-6 h-6 text-[#b91c1c]" />
-                    New Crypto Transfer
+                    {t.newCryptoTransferForm}
                   </CardTitle>
-                  <p className="text-sm text-gray-600 mt-2">Complete the form below to initiate a transfer</p>
+                  <p className="text-sm text-gray-600 mt-2">{t.completeFormBelow}</p>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
                   <Alert className="bg-yellow-50 border-2 border-yellow-200">
                     <Shield className="h-4 w-4 text-yellow-600" />
                     <AlertDescription className="text-sm text-yellow-800">
-                      <strong>Security checks may apply.</strong> Transfers can be held for verification. We'll notify you if more information is needed.
+                      <strong>{t.securityChecksMayApply}</strong> {t.transfersCanBeHeld}
                     </AlertDescription>
                   </Alert>
 
                   <div className="space-y-6 border-2 border-gray-100 p-4 bg-gray-50">
                     <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                       <Coins className="w-5 h-5 text-[#b91c1c]" />
-                      Asset & Network
+                      {t.assetAndNetwork}
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -841,7 +840,7 @@ export default function RealCryptoTransferSection({
                           {selectedNetwork && (
                             <p className="text-xs text-gray-600 flex items-center gap-1">
                               <Info className="w-3 h-3" />
-                              Estimated time: {selectedNetwork.estimatedTime[formData.fee_speed]}
+                              {t.estimatedTimeColon} {selectedNetwork.estimatedTime[formData.fee_speed]}
                             </p>
                           )}
                         </div>
@@ -853,7 +852,7 @@ export default function RealCryptoTransferSection({
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                         <Wallet className="w-5 h-5 text-[#b91c1c]" />
-                        Recipient
+                        {t.recipient}
                       </h3>
                       <Button
                         variant="outline"
@@ -862,15 +861,15 @@ export default function RealCryptoTransferSection({
                         className="text-sm border-2 border-gray-200 hover:border-[#b91c1c]"
                       >
                         <BookOpen className="w-4 h-4 mr-2" />
-                        Address Book
+                        {t.addressBook}
                       </Button>
                     </div>
 
                     {showAddressBook && (
                       <div className="bg-white border-2 border-gray-200 p-4 space-y-2">
-                        <h4 className="font-medium text-sm text-gray-900">Saved Beneficiaries</h4>
+                        <h4 className="font-medium text-sm text-gray-900">{t.savedBeneficiaries}</h4>
                         {savedBeneficiaries.length === 0 ? (
-                          <p className="text-sm text-gray-500 py-4 text-center">No saved beneficiaries</p>
+                          <p className="text-sm text-gray-500 py-4 text-center">{t.noSavedBeneficiaries}</p>
                         ) : (
                           <div className="space-y-2">
                             {savedBeneficiaries.map((beneficiary) => (
@@ -892,7 +891,7 @@ export default function RealCryptoTransferSection({
                     )}
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">{t.cryptoRecipientAddress} *</Label>
+                      <Label className="text-sm font-medium">{t.cryptoRecipientAddress}</Label>
                       <Input
                         value={formData.recipient_address}
                         onChange={(e) =>
@@ -902,7 +901,7 @@ export default function RealCryptoTransferSection({
                         className="font-mono text-sm h-12 bg-white"
                       />
                       <p className="text-xs text-gray-500">
-                        Ensure the address format matches the selected network
+                        {t.ensureAddressFormat}
                       </p>
                     </div>
 
@@ -910,7 +909,7 @@ export default function RealCryptoTransferSection({
                       <Alert className="bg-yellow-50 border-2 border-yellow-200">
                         <AlertTriangle className="h-4 w-4 text-yellow-600" />
                         <AlertDescription className="text-sm text-yellow-800">
-                          <strong>New beneficiary</strong> — May require additional verification
+                          <strong>{t.newBeneficiary}</strong> — {t.mayRequireVerification}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -924,19 +923,19 @@ export default function RealCryptoTransferSection({
                         }
                       />
                       <Label htmlFor="save-beneficiary" className="text-sm cursor-pointer">
-                        Save this address as beneficiary
+                        {t.saveAsBeneficiary}
                       </Label>
                     </div>
 
                     {formData.save_beneficiary && (
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Beneficiary Name *</Label>
+                        <Label className="text-sm font-medium">{t.beneficiaryNameRequired}</Label>
                         <Input
                           value={formData.beneficiary_name}
                           onChange={(e) =>
                             setFormData({ ...formData, beneficiary_name: e.target.value })
                           }
-                          placeholder="Enter a label for this beneficiary"
+                          placeholder={t.enterBeneficiaryLabel}
                           className="h-12 bg-white"
                         />
                       </div>
@@ -946,7 +945,7 @@ export default function RealCryptoTransferSection({
                   <div className="space-y-6 border-2 border-gray-100 p-4 bg-gray-50">
                     <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                       <ArrowRight className="w-5 h-5 text-[#b91c1c]" />
-                      Amount & Fees
+                      {t.amountAndFees}
                     </h3>
 
                     <div className="space-y-2">
@@ -966,14 +965,14 @@ export default function RealCryptoTransferSection({
                       </div>
                       {formData.crypto_type && (
                         <p className="text-xs text-gray-600">
-                          Available: <span className="font-medium">{formatCryptoAmount(currentBalance, selectedCrypto?.decimals || 8)}</span> {formData.crypto_type}
+                          {t.availableLabel} <span className="font-medium">{formatCryptoAmount(currentBalance, selectedCrypto?.decimals || 8)}</span> {formData.crypto_type}
                         </p>
                       )}
                     </div>
 
                     {selectedNetwork && (
                       <div className="space-y-3">
-                        <Label className="text-sm font-medium">Network Fee Speed</Label>
+                        <Label className="text-sm font-medium">{t.networkFeeSpeed}</Label>
                         <div className="grid grid-cols-3 gap-2">
                           {(["standard", "fast", "priority"] as FeeSpeed[]).map((speed) => (
                             <button
@@ -985,7 +984,7 @@ export default function RealCryptoTransferSection({
                                   : "border-gray-200 bg-white hover:border-gray-300"
                               }`}
                             >
-                              <p className="text-sm font-medium capitalize">{speed}</p>
+                              <p className="text-sm font-medium capitalize">{t[speed]}</p>
                               <p className="text-xs text-gray-600 mt-1">
                                 {selectedNetwork.fees[speed]} {formData.crypto_type}
                               </p>
@@ -997,18 +996,18 @@ export default function RealCryptoTransferSection({
                         </div>
                         <p className="text-xs text-gray-500 flex items-center gap-1">
                           <Info className="w-3 h-3" />
-                          Fee is estimated and may change based on network conditions
+                          {t.feeEstimatedMayChange}
                         </p>
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Note (Optional)</Label>
+                    <Label className="text-sm font-medium">{t.noteOptional}</Label>
                     <Textarea
                       value={formData.label}
                       onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                      placeholder="Add a note for your records"
+                      placeholder={t.addNoteForRecords}
                       rows={3}
                       className="resize-none bg-white"
                     />
@@ -1019,11 +1018,11 @@ export default function RealCryptoTransferSection({
                       <div className="flex items-start gap-2">
                         <Info className="w-4 h-4 text-blue-600 mt-0.5" />
                         <div className="space-y-1 text-sm text-blue-900">
-                          <p><strong>Daily crypto transfer limit:</strong> 10.0 {formData.crypto_type}</p>
-                          <p><strong>Remaining today:</strong> 10.0 {formData.crypto_type}</p>
-                          <p><strong>Estimated processing time:</strong> {selectedNetwork.estimatedTime[formData.fee_speed]}</p>
+                          <p><strong>{t.dailyCryptoLimit}</strong> 10.0 {formData.crypto_type}</p>
+                          <p><strong>{t.remainingToday}</strong> 10.0 {formData.crypto_type}</p>
+                          <p><strong>{t.estimatedProcessingTime}</strong> {selectedNetwork.estimatedTime[formData.fee_speed]}</p>
                           <p className="text-xs mt-2 text-blue-700">
-                            Transfers may be delayed for security checks
+                            {t.transfersMayBeDelayed}
                           </p>
                         </div>
                       </div>
@@ -1039,7 +1038,7 @@ export default function RealCryptoTransferSection({
                       }
                     />
                     <Label htmlFor="confirm-irreversible" className="text-sm cursor-pointer leading-relaxed">
-                      I confirm the address is correct. <strong>Transfers are irreversible.</strong>
+                      {t.confirmAddressCorrect} <strong>{t.transfersAreIrreversible}</strong>
                     </Label>
                   </div>
 
@@ -1058,7 +1057,7 @@ export default function RealCryptoTransferSection({
                       }
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      Review Transfer
+                      {t.reviewTransfer}
                     </Button>
                     <Button
                       variant="outline"
@@ -1077,24 +1076,24 @@ export default function RealCryptoTransferSection({
                 <CardHeader className="pb-4 border-b-2 border-gray-100">
                   <CardTitle className="text-2xl font-bold flex items-center gap-2">
                     <FileText className="w-6 h-6 text-[#b91c1c]" />
-                    Review Transfer
+                    {t.reviewTransferTitle}
                   </CardTitle>
-                  <p className="text-sm text-gray-600 mt-2">Please verify all details before confirming</p>
+                  <p className="text-sm text-gray-600 mt-2">{t.verifyDetailsBeforeConfirming}</p>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
                   <Alert className="bg-yellow-50 border-2 border-yellow-200">
                     <AlertTriangle className="h-4 w-4 text-yellow-600" />
                     <AlertDescription className="text-sm text-yellow-800">
-                      <strong>Important:</strong> Crypto transfers cannot be reversed once submitted
+                      <strong>{t.importantCryptoWarning}</strong> {t.cryptoCannotBeReversed}
                     </AlertDescription>
                   </Alert>
 
                   <div className="space-y-4 bg-gray-50 border-2 border-gray-100 p-6">
-                    <h3 className="font-semibold text-gray-900 border-b-2 border-gray-200 pb-2">Transfer Details</h3>
+                    <h3 className="font-semibold text-gray-900 border-b-2 border-gray-200 pb-2">{t.transferDetails}</h3>
 
                     <div className="space-y-3">
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Asset</span>
+                        <span className="text-sm text-gray-600">{t.asset}</span>
                         <span className="font-medium text-gray-900 flex items-center gap-2">
                           <img src={selectedCrypto.iconUrl} alt={selectedCrypto.label} className="w-5 h-5" />
                           {selectedCrypto.label} ({formData.crypto_type})
@@ -1102,12 +1101,12 @@ export default function RealCryptoTransferSection({
                       </div>
 
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Network</span>
+                        <span className="text-sm text-gray-600">{t.network}</span>
                         <span className="font-medium text-gray-900">{selectedNetwork.label}</span>
                       </div>
 
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Recipient Address</span>
+                        <span className="text-sm text-gray-600">{t.recipientAddress}</span>
                         <span className="font-mono text-sm text-gray-900 text-right break-all max-w-xs">
                           {formData.recipient_address}
                         </span>
@@ -1115,7 +1114,7 @@ export default function RealCryptoTransferSection({
 
                       {formData.label && (
                         <div className="flex justify-between items-start">
-                          <span className="text-sm text-gray-600">Note</span>
+                          <span className="text-sm text-gray-600">{t.note}</span>
                           <span className="text-sm text-gray-900 text-right max-w-xs">{formData.label}</span>
                         </div>
                       )}
@@ -1123,37 +1122,37 @@ export default function RealCryptoTransferSection({
                   </div>
 
                   <div className="space-y-4 bg-white border-2 border-[#b91c1c] p-6">
-                    <h3 className="font-semibold text-gray-900 border-b-2 border-gray-200 pb-2">Payment Summary</h3>
+                    <h3 className="font-semibold text-gray-900 border-b-2 border-gray-200 pb-2">{t.paymentSummary}</h3>
 
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">You will send</span>
+                        <span className="text-sm text-gray-600">{t.youWillSend}</span>
                         <span className="font-medium text-gray-900">
                           {formatCryptoAmount(amount, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
                       </div>
 
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Network Fee ({formData.fee_speed})</span>
+                        <span className="text-sm text-gray-600">{t.networkFeeWithSpeed} ({t[formData.fee_speed]})</span>
                         <span className="font-medium text-gray-900">
                           {formatCryptoAmount(gasFee, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
                       </div>
 
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Estimated Time</span>
+                        <span className="text-sm text-gray-600">{t.estimatedTime}</span>
                         <span className="text-sm text-gray-900">{selectedNetwork.estimatedTime[formData.fee_speed]}</span>
                       </div>
 
                       <div className="border-t-2 border-gray-200 pt-3 flex justify-between items-center">
-                        <span className="font-semibold text-gray-900">Total Deducted</span>
+                        <span className="font-semibold text-gray-900">{t.totalDeducted}</span>
                         <span className="text-xl font-bold text-[#b91c1c]">
                           {formatCryptoAmount(totalAmount, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
                       </div>
 
                       <div className="flex justify-between items-center pt-2">
-                        <span className="text-sm text-gray-600">Balance After Transfer</span>
+                        <span className="text-sm text-gray-600">{t.balanceAfterTransfer}</span>
                         <span className="font-medium text-gray-900">
                           {formatCryptoAmount(balanceAfterTransfer, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
@@ -1165,7 +1164,7 @@ export default function RealCryptoTransferSection({
                     <div className="flex items-start gap-2">
                       <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                       <p className="text-sm text-blue-900">
-                        <strong>Recipient will receive:</strong> The exact amount depends on the destination network. Some networks may deduct additional fees.
+                        <strong>{t.recipientWillReceive}</strong> {t.exactAmountDependsOnNetwork}
                       </p>
                     </div>
                   </div>
@@ -1179,12 +1178,12 @@ export default function RealCryptoTransferSection({
                       {submitting ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Processing...
+                          {t.processingTransfer}
                         </>
                       ) : (
                         <>
                           <Send className="w-4 h-4 mr-2" />
-                          Confirm & Submit
+                          {t.confirmAndSubmit}
                         </>
                       )}
                     </Button>
@@ -1195,7 +1194,7 @@ export default function RealCryptoTransferSection({
                       className="h-12 px-6 border-2 border-gray-200"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Edit
+                      {t.backToEdit}
                     </Button>
                   </div>
                 </CardContent>
@@ -1210,8 +1209,8 @@ export default function RealCryptoTransferSection({
                       <CheckCircle className="w-10 h-10 text-green-600" />
                     </div>
                     <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">Transfer Requested</CardTitle>
-                      <p className="text-sm text-gray-600 mt-2">Your transfer has been submitted successfully</p>
+                      <CardTitle className="text-2xl font-bold text-gray-900">{t.transferRequested}</CardTitle>
+                      <p className="text-sm text-gray-600 mt-2">{t.transferSubmittedSuccessfully}</p>
                     </div>
                   </div>
                 </CardHeader>
@@ -1219,51 +1218,51 @@ export default function RealCryptoTransferSection({
                   <Alert className="bg-yellow-50 border-2 border-yellow-200">
                     <Clock className="h-4 w-4 text-yellow-600" />
                     <AlertDescription className="text-sm text-yellow-800">
-                      <strong>Status: Under Review</strong>
+                      <strong>{t.statusUnderReview}</strong>
                       <br />
-                      Your transfer is being processed. You'll be notified once it's completed.
+                      {t.transferBeingProcessed}
                     </AlertDescription>
                   </Alert>
 
                   <div className="space-y-4 bg-gray-50 border-2 border-gray-100 p-6">
-                    <h3 className="font-semibold text-gray-900 border-b-2 border-gray-200 pb-2">Transaction Receipt</h3>
+                    <h3 className="font-semibold text-gray-900 border-b-2 border-gray-200 pb-2">{t.transactionReceipt}</h3>
 
                     <div className="space-y-3">
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Reference ID</span>
+                        <span className="text-sm text-gray-600">{t.referenceId}</span>
                         <span className="font-mono text-sm font-medium text-gray-900">
-                          {lastTransactionId ? lastTransactionId.slice(0, 12).toUpperCase() : "Generating..."}
+                          {lastTransactionId ? lastTransactionId.slice(0, 12).toUpperCase() : t.generating}
                         </span>
                       </div>
 
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Status</span>
+                        <span className="text-sm text-gray-600">{t.status}</span>
                         <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                          Pending
+                          {t.pending}
                         </Badge>
                       </div>
 
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Submitted</span>
+                        <span className="text-sm text-gray-600">{t.submitted}</span>
                         <span className="text-sm text-gray-900">{new Date().toLocaleString()}</span>
                       </div>
 
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Amount Sent</span>
+                        <span className="text-sm text-gray-600">{t.amountSent}</span>
                         <span className="font-medium text-gray-900">
                           {formatCryptoAmount(amount, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
                       </div>
 
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Total Deducted</span>
+                        <span className="text-sm text-gray-600">{t.totalDeducted}</span>
                         <span className="font-bold text-[#b91c1c]">
                           {formatCryptoAmount(totalAmount, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
                       </div>
 
                       <div className="flex justify-between items-start">
-                        <span className="text-sm text-gray-600">Recipient</span>
+                        <span className="text-sm text-gray-600">{t.recipient}</span>
                         <span className="font-mono text-xs text-gray-900 text-right break-all max-w-xs">
                           {formData.recipient_address}
                         </span>
@@ -1275,9 +1274,9 @@ export default function RealCryptoTransferSection({
                     <div className="flex items-start gap-2">
                       <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="space-y-1 text-sm text-blue-900">
-                        <p><strong>Estimated completion:</strong> {selectedNetwork.estimatedTime[formData.fee_speed]}</p>
+                        <p><strong>{t.estimatedCompletion}</strong> {selectedNetwork.estimatedTime[formData.fee_speed]}</p>
                         <p className="text-xs text-blue-700 mt-2">
-                          Processing times may vary depending on network congestion and security verification requirements
+                          {t.processingTimesMayVary}
                         </p>
                       </div>
                     </div>
@@ -1289,7 +1288,7 @@ export default function RealCryptoTransferSection({
                       className="bg-[#b91c1c] hover:bg-[#991b1b] text-white h-12 px-8 w-full"
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      Done
+                      {t.done}
                     </Button>
                   </div>
                 </CardContent>
@@ -1300,7 +1299,7 @@ export default function RealCryptoTransferSection({
 
         <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0">
           <CardHeader className="border-b-2 border-gray-100">
-            <CardTitle className="text-xl font-bold">Transfer History</CardTitle>
+            <CardTitle className="text-xl font-bold">{t.transferHistory}</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-4 mb-6">
@@ -1310,7 +1309,7 @@ export default function RealCryptoTransferSection({
                   <Input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by address or hash..."
+                    placeholder={t.searchByAddressOrHash}
                     className="pl-10 h-10 bg-white"
                   />
                 </div>
@@ -1319,41 +1318,41 @@ export default function RealCryptoTransferSection({
                   className="border-2 border-gray-200 hover:border-[#b91c1c] h-10 px-4"
                 >
                   <Filter className="w-4 h-4 mr-2" />
-                  Filters
+                  {t.filters}
                 </Button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 <Select value={filterCoin} onValueChange={setFilterCoin}>
                   <SelectTrigger className="h-10 bg-white border-2">
-                    <SelectValue placeholder="All Coins" />
+                    <SelectValue placeholder={t.allCoins} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Coins</SelectItem>
-                    <SelectItem value="BTC">Bitcoin</SelectItem>
-                    <SelectItem value="ETH">Ethereum</SelectItem>
-                    <SelectItem value="USDT">Tether USD</SelectItem>
+                    <SelectItem value="all">{t.allCoins}</SelectItem>
+                    <SelectItem value="BTC">{t.bitcoin}</SelectItem>
+                    <SelectItem value="ETH">{t.ethereum}</SelectItem>
+                    <SelectItem value="USDT">{t.tetherUsd}</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="h-10 bg-white border-2">
-                    <SelectValue placeholder="All Statuses" />
+                    <SelectValue placeholder={t.allStatuses} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="pending">Under Review</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
+                    <SelectItem value="all">{t.allStatuses}</SelectItem>
+                    <SelectItem value="pending">{t.underReview}</SelectItem>
+                    <SelectItem value="completed">{t.completed}</SelectItem>
+                    <SelectItem value="failed">{t.failed}</SelectItem>
                   </SelectContent>
                 </Select>
 
                 <Select value={filterNetwork} onValueChange={setFilterNetwork}>
                   <SelectTrigger className="h-10 bg-white border-2">
-                    <SelectValue placeholder="All Networks" />
+                    <SelectValue placeholder={t.allNetworks} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Networks</SelectItem>
+                    <SelectItem value="all">{t.allNetworks}</SelectItem>
                     <SelectItem value="bitcoin">Bitcoin</SelectItem>
                     <SelectItem value="ethereum">Ethereum</SelectItem>
                     <SelectItem value="polygon">Polygon</SelectItem>
@@ -1367,10 +1366,10 @@ export default function RealCryptoTransferSection({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="7">Last 7 days</SelectItem>
-                    <SelectItem value="30">Last 30 days</SelectItem>
-                    <SelectItem value="90">Last 90 days</SelectItem>
-                    <SelectItem value="custom">Custom range</SelectItem>
+                    <SelectItem value="7">{t.last7Days}</SelectItem>
+                    <SelectItem value="30">{t.last30Days}</SelectItem>
+                    <SelectItem value="90">{t.last90Days}</SelectItem>
+                    <SelectItem value="custom">{t.customRange}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1379,8 +1378,8 @@ export default function RealCryptoTransferSection({
             {filteredTransactions.length === 0 ? (
               <div className="text-center py-12">
                 <Send className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">{searchQuery || filterCoin !== "all" || filterStatus !== "all" || filterNetwork !== "all" ? "No matching transfers found" : t.noCryptoTransfers}</p>
-                <p className="text-gray-400 text-sm">{searchQuery || filterCoin !== "all" || filterStatus !== "all" || filterNetwork !== "all" ? "Try adjusting your filters" : t.cryptoTransferHistoryAppear}</p>
+                <p className="text-gray-500 text-lg">{searchQuery || filterCoin !== "all" || filterStatus !== "all" || filterNetwork !== "all" ? t.noMatchingTransfers : t.noCryptoTransfers}</p>
+                <p className="text-gray-400 text-sm">{searchQuery || filterCoin !== "all" || filterStatus !== "all" || filterNetwork !== "all" ? t.tryAdjustingFilters : t.cryptoTransferHistoryAppear}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -1398,7 +1397,7 @@ export default function RealCryptoTransferSection({
                           <div className="flex items-center gap-3 flex-wrap">
                             {getStatusIcon(transaction.status)}
                             <p className="font-medium text-gray-900">
-                              {transaction.crypto_type} Transfer
+                              {transaction.crypto_type} {t.transferTo}
                             </p>
                             <Badge variant="outline" className="border-[#b91c1c] text-[#b91c1c]">
                               {getStatusBadge(transaction.status)}
@@ -1407,35 +1406,35 @@ export default function RealCryptoTransferSection({
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
                             <div>
-                              <span className="text-gray-600">Amount: </span>
+                              <span className="text-gray-600">{t.amount}: </span>
                               <span className="font-medium text-gray-900">
                                 {formatCryptoAmount(Number(transaction.amount), crypto?.decimals || 8)} {transaction.crypto_type}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Fee: </span>
+                              <span className="text-gray-600">{t.fee}: </span>
                               <span className="font-medium text-gray-900">
                                 {formatCryptoAmount(Number(transaction.gas_fee), crypto?.decimals || 8)} {transaction.crypto_type}
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Network: </span>
+                              <span className="text-gray-600">{t.network}: </span>
                               <span className="font-medium text-gray-900">{transaction.network}</span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Ref: </span>
+                              <span className="text-gray-600">{t.ref}: </span>
                               <span className="font-mono text-xs font-medium text-gray-900">{txId}</span>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-2 text-xs text-gray-500">
                             <Calendar className="w-3 h-3" />
-                            <span>Submitted: {new Date(transaction.created_at).toLocaleString()}</span>
+                            <span>{t.submittedColon} {new Date(transaction.created_at).toLocaleString()}</span>
                           </div>
 
                           {transaction.transaction_hash && (
                             <div className="flex items-center gap-2 text-xs">
-                              <span className="text-gray-600">Hash:</span>
+                              <span className="text-gray-600">{t.hashColon}</span>
                               <span className="font-mono text-gray-900">{transaction.transaction_hash.substring(0, 16)}...</span>
                             </div>
                           )}
@@ -1480,7 +1479,7 @@ export default function RealCryptoTransferSection({
                                 className="border-2 border-gray-200 hover:border-[#b91c1c]"
                               >
                                 <ExternalLink className="w-4 h-4 mr-1" />
-                                Explorer
+                                {t.explorer}
                               </Button>
                             </>
                           )}
