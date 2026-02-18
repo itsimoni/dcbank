@@ -400,7 +400,7 @@ function DashboardContent({
 
     return () => {
       mounted = false;
-      abortController.abort();
+      abortController.abort("Component unmounting");
     };
   }, [userProfile?.id, userProfile?.email]);
 
@@ -528,7 +528,7 @@ function DashboardContent({
     const cleanup = setupCryptoSubscription();
     return () => {
       mounted = false;
-      abortController.abort();
+      abortController.abort("Component unmounting");
       cleanup();
     };
   }, [userProfile?.id]);
@@ -608,7 +608,7 @@ function DashboardContent({
     const cleanup = setupTransactionSubscription();
     return () => {
       mounted = false;
-      abortController.abort();
+      abortController.abort("Component unmounting");
       cleanup();
     };
   }, [userProfile?.id]);
