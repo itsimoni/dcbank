@@ -53,6 +53,7 @@ interface Message {
   message_type: string;
   is_read: boolean;
   created_at: string;
+  folder: FolderType;
 }
 
 type FolderType = "inbox" | "alerts" | "statements" | "security" | "archived";
@@ -92,7 +93,7 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setMessages(data || []);
+      setMessages((data as Message[]) || []);
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
@@ -239,6 +240,9 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
   const filteredMessages = useMemo(() => {
     let filtered = messages;
 
+    // ✅ Folder filtering (uses the new Supabase `folder` column)
+    filtered = filtered.filter((msg) => msg.folder === selectedFolder);
+
     if (searchQuery) {
       filtered = filtered.filter(
         (msg) =>
@@ -260,7 +264,7 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
     }
 
     return filtered;
-  }, [messages, searchQuery, typeFilter, statusFilter, sortOrder]);
+  }, [messages, selectedFolder, searchQuery, typeFilter, statusFilter, sortOrder]);
 
   const unreadCount = messages.filter((m) => !m.is_read).length;
 
