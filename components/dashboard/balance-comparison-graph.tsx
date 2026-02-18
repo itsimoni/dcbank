@@ -399,7 +399,6 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
             <div className="text-center text-gray-500">
               <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm">No balance data available yet</p>
-              <p className="text-xs mt-1">Complete your first transaction to see the graph</p>
             </div>
           </div>
         )}
