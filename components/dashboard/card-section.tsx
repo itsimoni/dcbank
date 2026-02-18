@@ -380,34 +380,34 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
         {cards.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Card className="bg-white border-l-4 border-l-green-600 border-y-0 border-r-0 rounded-none">
+            <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
                 <p className="text-sm text-gray-600">Active Cards</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.active}
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-white border-l-4 border-l-yellow-600 border-y-0 border-r-0 rounded-none">
+            <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
                 <p className="text-sm text-gray-600">Pending Requests</p>
-                <p className="text-2xl font-bold text-yellow-600">
+                <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.pending}
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-white border-l-4 border-l-blue-600 border-y-0 border-r-0 rounded-none">
+            <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
                 <p className="text-sm text-gray-600">Approved Cards</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.approved}
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-white border-l-4 border-l-red-600 border-y-0 border-r-0 rounded-none">
+            <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
                 <p className="text-sm text-gray-600">Frozen Cards</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.frozen}
                 </p>
               </CardContent>
