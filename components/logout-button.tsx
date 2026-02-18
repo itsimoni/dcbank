@@ -2,12 +2,10 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
-import { usePresenceLogout } from "./client-presence-tracker"
 import { LogOut } from "lucide-react"
 
 export default function LogoutButton() {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const { markUserOffline } = usePresenceLogout()
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
@@ -20,15 +18,9 @@ export default function LogoutButton() {
 
       if (user) {
         console.log("Logging out user:", user.id)
-
-        // First mark user as offline
-        await markUserOffline(user.id)
-
-        // Small delay to ensure the presence update completes
-        await new Promise((resolve) => setTimeout(resolve, 500))
       }
 
-      // Then sign out
+      // Sign out
       const { error } = await supabase.auth.signOut()
 
       if (error) {
