@@ -272,33 +272,33 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-white p-3 border border-[#b91c1c]">
                   <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-yellow-700">
+                    <span className="text-sm font-medium text-black">
                       {t.pending}
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-yellow-800">
+                  <p className="text-lg font-bold text-black">
                     {formatCurrency(taxStats.pending.amount)}
                   </p>
                 </div>
 
                 <div className="bg-white p-3 border border-[#b91c1c]">
                   <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-blue-700">
+                    <span className="text-sm font-medium text-black">
                       {t.onHold}
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-blue-800">
+                  <p className="text-lg font-bold text-black">
                     {formatCurrency(taxStats.on_hold.amount)}
                   </p>
                 </div>
 
                 <div className="bg-white p-3 border border-[#b91c1c]">
                   <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-green-700">
+                    <span className="text-sm font-medium text-black">
                       {t.paid}
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-green-800">
+                  <p className="text-lg font-bold text-black">
                     {formatCurrency(taxStats.paid.amount)}
                   </p>
                 </div>
