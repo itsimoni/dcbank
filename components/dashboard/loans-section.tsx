@@ -1163,7 +1163,7 @@ export default function LoansSection({}: LoansSectionProps) {
           </div>
         </div>
 
-        <Alert className="mb-6 bg-blue-50 border-blue-200 text-blue-900">
+        <Alert className="mb-6 bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none text-gray-900">
           <Info className="h-4 w-4" />
           <AlertDescription>
             <p className="font-semibold mb-2">Eligibility Notice</p>
