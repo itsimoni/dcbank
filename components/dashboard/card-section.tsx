@@ -17,9 +17,23 @@ import {
   Languages,
   ChevronDown,
   Check,
+  Shield,
+  CheckCircle,
+  AlertCircle,
+  Clock,
 } from "lucide-react";
 import { Language, getTranslations } from "../../lib/translations";
 import { useLanguage } from "../../contexts/LanguageContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 interface UserProfile {
   id: string;
@@ -41,9 +55,15 @@ export default function CardSection({ userProfile }: CardSectionProps) {
   const [showCardDetails, setShowCardDetails] = useState<{
     [key: string]: boolean;
   }>({});
+  const [revealedFields, setRevealedFields] = useState<{
+    [key: string]: { pin: boolean; cvv: boolean };
+  }>({});
   const [showCardSettings, setShowCardSettings] = useState<{
     [key: string]: boolean;
   }>({});
+  const [confirmRevealCard, setConfirmRevealCard] = useState<string | null>(
+    null
+  );
   const [formData, setFormData] = useState({
     spending_limit: "5000",
     daily_limit: "1000",
@@ -56,12 +76,12 @@ export default function CardSection({ userProfile }: CardSectionProps) {
   const t = getTranslations(language);
 
   const languages: { code: Language; label: string }[] = [
-    { code: 'en', label: 'English' },
-    { code: 'fr', label: 'Français' },
-    { code: 'de', label: 'Deutsch' },
-    { code: 'es', label: 'Español' },
-    { code: 'it', label: 'Italiano' },
-    { code: 'el', label: 'Ελληνικά' },
+    { code: "en", label: "English" },
+    { code: "fr", label: "Français" },
+    { code: "de", label: "Deutsch" },
+    { code: "es", label: "Español" },
+    { code: "it", label: "Italiano" },
+    { code: "el", label: "Ελληνικά" },
   ];
 
   useEffect(() => {
@@ -72,13 +92,16 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const fetchCards = async () => {
@@ -139,7 +162,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
         pin: generatePIN(),
         account_number: generateAccountNumber(),
         card_type: "Virtual",
-        card_design: "orange-gradient",
+        card_design: "white",
         spending_limit: Number.parseFloat(formData.spending_limit),
         daily_limit: Number.parseFloat(formData.daily_limit),
         international_enabled: formData.international_enabled,
@@ -161,7 +184,27 @@ export default function CardSection({ userProfile }: CardSectionProps) {
       fetchCards();
       alert(t.newCardRequestSubmitted);
     } catch (error: any) {
-      alert(t.errorMessage.replace('{{message}}', error.message));
+      alert(t.errorMessage.replace("{{message}}", error.message));
+    }
+  };
+
+  const activateCard = async (cardId: string) => {
+    try {
+      const { error } = await supabase
+        .from("cards")
+        .update({
+          status: "Active",
+          is_activated: true,
+          activated_at: new Date().toISOString(),
+        })
+        .eq("id", cardId);
+
+      if (error) throw error;
+
+      fetchCards();
+      alert("Card activated successfully!");
+    } catch (error: any) {
+      alert(t.errorMessage.replace("{{message}}", error.message));
     }
   };
 
@@ -169,14 +212,6 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     try {
       const newStatus = currentStatus === "Active" ? "Frozen" : "Active";
       const updateData: any = { status: newStatus };
-
-      if (
-        newStatus === "Active" &&
-        !cards.find((c) => c.id === cardId)?.is_activated
-      ) {
-        updateData.is_activated = true;
-        updateData.activated_at = new Date().toISOString();
-      }
 
       const { error } = await supabase
         .from("cards")
@@ -186,16 +221,38 @@ export default function CardSection({ userProfile }: CardSectionProps) {
       if (error) throw error;
 
       fetchCards();
-      alert(t.cardStatusSuccess.replace('{{status}}', newStatus.toLowerCase() === 'active' ? t.cardActive : t.frozen));
+      alert(
+        t.cardStatusSuccess.replace(
+          "{{status}}",
+          newStatus.toLowerCase() === "active" ? t.cardActive : t.frozen
+        )
+      );
     } catch (error: any) {
-      alert(t.errorMessage.replace('{{message}}', error.message));
+      alert(t.errorMessage.replace("{{message}}", error.message));
     }
   };
 
-  const toggleCardDetails = (cardId: string) => {
-    setShowCardDetails((prev) => ({
+  const handleRevealCardClick = (cardId: string) => {
+    setConfirmRevealCard(cardId);
+  };
+
+  const confirmReveal = () => {
+    if (confirmRevealCard) {
+      setShowCardDetails((prev) => ({
+        ...prev,
+        [confirmRevealCard]: !prev[confirmRevealCard],
+      }));
+      setConfirmRevealCard(null);
+    }
+  };
+
+  const toggleFieldVisibility = (cardId: string, field: "pin" | "cvv") => {
+    setRevealedFields((prev) => ({
       ...prev,
-      [cardId]: !prev[cardId],
+      [cardId]: {
+        ...(prev[cardId] || { pin: false, cvv: false }),
+        [field]: !prev[cardId]?.[field],
+      },
     }));
   };
 
@@ -204,28 +261,6 @@ export default function CardSection({ userProfile }: CardSectionProps) {
       ...prev,
       [cardId]: !prev[cardId],
     }));
-  };
-
-  const getMaskedCardInfo = (card: any, field: string) => {
-    if (card.status === "Pending") {
-      switch (field) {
-        case "cardNumber":
-          return "**** **** **** ****";
-        case "cvv":
-          return "***";
-        case "pin":
-          return "****";
-        case "expiryMonth":
-          return "**";
-        case "expiryYear":
-          return "**";
-        case "accountNumber":
-          return "************";
-        default:
-          return "****";
-      }
-    }
-    return null;
   };
 
   const formatCardNumber = (cardNumber: string, show: boolean, card: any) => {
@@ -239,27 +274,18 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     return "**** **** **** " + cardNumber.slice(-4);
   };
 
-  const getCardColor = (cardDesign: string) => {
-    switch (cardDesign?.toLowerCase()) {
-      case "orange-gradient":
-        return "from-[#F26623] to-[#E55A1F]";
-      case "blue-gradient":
-        return "from-blue-500 to-blue-700";
-      case "red-gradient":
-        return "from-red-500 to-orange-500";
-      case "green-gradient":
-        return "from-green-500 to-teal-600";
-      case "purple-gradient":
-        return "from-purple-500 to-purple-700";
-      case "pink-gradient":
-        return "from-pink-500 to-rose-500";
-      case "black-gradient":
-        return "from-gray-800 to-black";
-      case "gold-gradient":
-        return "from-yellow-400 to-yellow-600";
-      default:
-        return "from-[#F26623] to-[#E55A1F]";
-    }
+  const getCardCounts = () => {
+    return {
+      active: cards.filter((c) => c.status === "Active").length,
+      pending: cards.filter((c) => c.status === "Pending").length,
+      frozen: cards.filter((c) => c.status === "Frozen").length,
+      approved: cards.filter((c) => c.status === "Approved").length,
+    };
+  };
+
+  const calculateLimitProgress = (used: number, limit: number) => {
+    const percentage = (used / limit) * 100;
+    return Math.min(percentage, 100);
   };
 
   if (loading) {
@@ -270,26 +296,35 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     );
   }
 
+  const cardCounts = getCardCounts();
+
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="p-6 pt-4 pt-xs-16 space-y-6 max-w-4xl min-h-full">
         <div className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-2xl font-bold">{t.myCards}</h2>
           <div className="flex items-center gap-2">
-            <div ref={dropdownRef} className="relative inline-block flex-shrink-0">
+            <div
+              ref={dropdownRef}
+              className="relative inline-block flex-shrink-0"
+            >
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 bg-white border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:border-[#F26623] focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md"
+                className="flex items-center gap-2 bg-white border-2 border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-[#b91c1c] focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md"
               >
                 <Languages className="w-4 h-4 text-gray-600" />
                 <span className="hidden sm:inline">
-                  {languages.find(lang => lang.code === language)?.label}
+                  {languages.find((lang) => lang.code === language)?.label}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`w-4 h-4 text-gray-600 transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border-2 border-gray-200 rounded-lg shadow-lg overflow-hidden z-10">
+                <div className="absolute right-0 mt-2 w-40 bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
@@ -299,13 +334,13 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                       }}
                       className={`w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors ${
                         language === lang.code
-                          ? 'bg-orange-50 text-[#F26623] font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
+                          ? "bg-red-50 text-[#b91c1c] font-medium"
+                          : "text-gray-700 hover:bg-gray-50"
                       }`}
                     >
                       <span>{lang.label}</span>
                       {language === lang.code && (
-                        <Check className="w-4 h-4 text-[#F26623]" />
+                        <Check className="w-4 h-4 text-[#b91c1c]" />
                       )}
                     </button>
                   ))}
@@ -314,7 +349,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
             </div>
             <Button
               onClick={() => setShowCardForm(true)}
-              className="bg-[#F26623] hover:bg-[#E55A1F]"
+              className="bg-[#b91c1c] hover:bg-[#991b1b]"
             >
               <Plus className="w-4 h-4 mr-2" />
               {t.requestNewCard}
@@ -322,8 +357,45 @@ export default function CardSection({ userProfile }: CardSectionProps) {
           </div>
         </div>
 
+        {cards.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Card className="bg-white border-l-4 border-l-green-600 border-y-0 border-r-0 rounded-none">
+              <CardContent className="p-4">
+                <p className="text-sm text-gray-600">Active Cards</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {cardCounts.active}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white border-l-4 border-l-yellow-600 border-y-0 border-r-0 rounded-none">
+              <CardContent className="p-4">
+                <p className="text-sm text-gray-600">Pending Requests</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {cardCounts.pending}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white border-l-4 border-l-blue-600 border-y-0 border-r-0 rounded-none">
+              <CardContent className="p-4">
+                <p className="text-sm text-gray-600">Approved Cards</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {cardCounts.approved}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white border-l-4 border-l-red-600 border-y-0 border-r-0 rounded-none">
+              <CardContent className="p-4">
+                <p className="text-sm text-gray-600">Frozen Cards</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {cardCounts.frozen}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {showCardForm && (
-          <Card>
+          <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
             <CardHeader>
               <CardTitle>{t.requestNewVirtualCard}</CardTitle>
             </CardHeader>
@@ -378,14 +450,11 @@ export default function CardSection({ userProfile }: CardSectionProps) {
               <div className="flex gap-2">
                 <Button
                   onClick={createCard}
-                  className="bg-[#F26623] hover:bg-[#E55A1F]"
+                  className="bg-[#b91c1c] hover:bg-[#991b1b]"
                 >
                   {t.createCard}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowCardForm(false)}
-                >
+                <Button variant="outline" onClick={() => setShowCardForm(false)}>
                   {t.cancel}
                 </Button>
               </div>
@@ -395,29 +464,26 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
         <div className="space-y-6 pb-6">
           {cards.length === 0 ? (
-            <Card>
+            <Card className="bg-white border-l-4 border-l-gray-300 border-y-0 border-r-0 rounded-none">
               <CardContent className="p-6 text-center">
                 <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-500">
-                  {t.noCardsFound}
-                </p>
+                <p className="text-gray-500">{t.noCardsFound}</p>
               </CardContent>
             </Card>
           ) : (
             cards.map((card) => (
               <div key={card.id} className="space-y-4">
                 <div className="flex">
-                  <div
-                    className={`w-full max-w-sm bg-gradient-to-r ${getCardColor(
-                      card.card_design
-                    )} rounded-xl p-6 text-white shadow-lg pointer-events-none relative`}
-                  >
+                  <div className="w-full max-w-sm bg-white border-l-8 border-l-[#b91c1c] p-6 shadow-lg pointer-events-none relative">
                     {card.status === "Pending" && (
-                      <div className="absolute inset-0 bg-black bg-opacity-30 rounded-xl flex items-center justify-center">
+                      <div className="absolute inset-0 bg-gray-100 bg-opacity-90 flex items-center justify-center">
                         <div className="text-center">
-                          <Lock className="w-8 h-8 mx-auto mb-2 opacity-80" />
-                          <p className="text-sm font-medium opacity-90">
-                            {t.pendingApproval}
+                          <Clock className="w-8 h-8 mx-auto mb-2 text-gray-600" />
+                          <p className="text-sm font-medium text-gray-800">
+                            Request Submitted
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            Awaiting Bank Review
                           </p>
                         </div>
                       </div>
@@ -425,18 +491,25 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
                     <div className="flex justify-between items-start mb-8">
                       <div>
-                        <p className="text-sm opacity-80">
-                          {card.issuer || t.digitalChainBank}
+                        <p className="text-sm font-semibold text-gray-900">
+                          Virtual Visa Debit
                         </p>
-                        <p className="text-xs opacity-60">
-                          {card.card_type === "Virtual" ? t.virtualCard : card.card_type} • {card.network || t.visa}
+                        <p className="text-xs text-gray-600">
+                          Issued by Malta Global Crypto Bank
                         </p>
                       </div>
-                      <div className="w-8 h-8 bg-white rounded-full opacity-80"></div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 font-medium">
+                          SECURED
+                        </span>
+                        <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 font-medium">
+                          3D Secure
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mb-6">
-                      <p className="text-lg font-mono tracking-wider break-all">
+                      <p className="text-lg font-mono tracking-wider break-all text-gray-900">
                         {formatCardNumber(
                           card.card_number,
                           showCardDetails[card.id],
@@ -447,16 +520,16 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
                     <div className="flex justify-between items-end">
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs opacity-60">{t.cardHolder}</p>
-                        <p className="text-sm font-medium truncate">
+                        <p className="text-xs text-gray-600">{t.cardHolder}</p>
+                        <p className="text-sm font-medium truncate text-gray-900">
                           {card.status === "Pending"
                             ? "******* ******"
                             : card.card_holder_name}
                         </p>
                       </div>
                       <div className="ml-4">
-                        <p className="text-xs opacity-60">{t.expires}</p>
-                        <p className="text-sm font-medium">
+                        <p className="text-xs text-gray-600">{t.expires}</p>
+                        <p className="text-sm font-medium text-gray-900">
                           {card.status === "Pending"
                             ? "**/**"
                             : `${card.expiry_month
@@ -470,131 +543,315 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                   </div>
                 </div>
 
-                <Card className="relative">
+                <Card className="relative bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
                   <CardContent className="p-4">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium">{card.card_type === "Virtual" ? t.virtualCard : card.card_type} {t.cardWord}</p>
-                        <p className="text-sm text-gray-600 break-words">
-                          {t.spending}: $
-                          {Number(card.spending_limit).toLocaleString()} •
-                          {t.daily}: ${Number(card.daily_limit).toLocaleString()}
+                        <p className="font-medium">
+                          {card.card_type === "Virtual"
+                            ? t.virtualCard
+                            : card.card_type}{" "}
+                          {t.cardWord}
                         </p>
-                        <p
-                          className={`text-sm font-medium ${
-                            card.status === "Active"
-                              ? "text-green-600"
-                              : card.status === "Pending"
-                              ? "text-yellow-600"
-                              : card.status === "Approved"
-                              ? "text-blue-600"
-                              : "text-red-600"
-                          }`}
-                        >
-                          {t.status}: {card.status === "Pending" ? t.pending : card.status === "Approved" ? t.approved : card.status === "Active" ? t.Active : t.Frozen}{" "}
-                          {card.is_activated
-                            ? `• ${t.activated}`
-                            : `• ${t.notActivated}`}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 flex-shrink-0">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => toggleCardDetails(card.id)}
-                          disabled={card.status === "Pending"}
-                          className={
-                            card.status === "Pending"
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }
-                        >
-                          {showCardDetails[card.id] ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => toggleCardSettings(card.id)}
-                        >
-                          <Settings className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => toggleCardStatus(card.id, card.status)}
-                          disabled={card.status === "Pending"}
-                          className={
-                            card.status === "Pending"
-                              ? "text-gray-400 cursor-not-allowed"
-                              : card.status === "Active"
-                              ? "text-red-600"
-                              : "text-green-600"
-                          }
-                        >
-                          {card.status === "Active" ? (
+                        <div className="space-y-2 mt-2">
+                          <div>
+                            <div className="flex justify-between text-xs text-gray-600 mb-1">
+                              <span>Daily Limit</span>
+                              <span>
+                                $
+                                {(
+                                  card.daily_used || 0
+                                ).toLocaleString()} / $
+                                {Number(card.daily_limit).toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 h-2">
+                              <div
+                                className="bg-[#b91c1c] h-2 transition-all"
+                                style={{
+                                  width: `${calculateLimitProgress(
+                                    card.daily_used || 0,
+                                    card.daily_limit
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex justify-between text-xs text-gray-600 mb-1">
+                              <span>Spending Limit</span>
+                              <span>
+                                $
+                                {(
+                                  card.total_spent || 0
+                                ).toLocaleString()} / $
+                                {Number(card.spending_limit).toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 h-2">
+                              <div
+                                className="bg-[#b91c1c] h-2 transition-all"
+                                style={{
+                                  width: `${calculateLimitProgress(
+                                    card.total_spent || 0,
+                                    card.spending_limit
+                                  )}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        {card.status === "Active" && (
+                          <p className="text-sm font-medium text-green-600 mt-2 flex items-center gap-1">
+                            <CheckCircle className="w-4 h-4" />
+                            Active • Ready for payments
+                          </p>
+                        )}
+                        {card.status === "Approved" && (
+                          <p className="text-sm font-medium text-blue-600 mt-2 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            Approved • Activate to use
+                          </p>
+                        )}
+                        {card.status === "Pending" && (
+                          <p className="text-sm font-medium text-yellow-600 mt-2 flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            Waiting for approval
+                          </p>
+                        )}
+                        {card.status === "Frozen" && (
+                          <p className="text-sm font-medium text-red-600 mt-2 flex items-center gap-1">
                             <Lock className="w-4 h-4" />
-                          ) : card.status === "Pending" ? (
-                            <Lock className="w-4 h-4" />
-                          ) : (
-                            <Unlock className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {showCardDetails[card.id] && card.status !== "Pending" && (
-                      <div className="border-t pt-4 space-y-2">
-                        <p className="text-sm break-all">
-                          <span className="font-medium">{t.fullNumber}:</span>{" "}
-                          {card.card_number}
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium">{t.cvv}:</span> {card.cvv}
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium">{t.pin}:</span> {card.pin}
-                        </p>
-                        <p className="text-sm break-all">
-                          <span className="font-medium">{t.accountNumber}:</span>{" "}
-                          {card.account_number}
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium">{t.routingNumber}:</span>{" "}
-                          {card.routing_number}
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium">{t.created}:</span>{" "}
-                          {new Date(card.created_at).toLocaleDateString()}
-                        </p>
-                        {card.activated_at && (
-                          <p className="text-sm">
-                            <span className="font-medium">{t.activated}:</span>{" "}
-                            {new Date(card.activated_at).toLocaleDateString()}
+                            Card temporarily blocked
                           </p>
                         )}
                       </div>
-                    )}
+                      <div className="flex gap-2 flex-shrink-0">
+                        {card.status === "Approved" && (
+                          <Button
+                            onClick={() => activateCard(card.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            Activate Card
+                          </Button>
+                        )}
+                        {card.status === "Active" && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleRevealCardClick(card.id)}
+                            >
+                              {showCardDetails[card.id] ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => toggleCardSettings(card.id)}
+                            >
+                              <Settings className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() =>
+                                toggleCardStatus(card.id, card.status)
+                              }
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Lock className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                        {card.status === "Frozen" && (
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => toggleCardStatus(card.id, card.status)}
+                            className="text-green-600 hover:text-green-700 border-green-600 hover:border-green-700"
+                          >
+                            <Unlock className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
 
                     {card.status === "Pending" && (
-                      <div className="border-t pt-4">
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                          <div className="flex items-center">
-                            <Lock className="w-4 h-4 text-yellow-600 mr-2" />
-                            <p className="text-sm text-yellow-800">
-                              {t.cardDetailsAvailable}
+                      <div className="border-l-4 border-l-yellow-600 bg-yellow-50 p-3 mt-4">
+                        <div className="flex items-start">
+                          <Clock className="w-4 h-4 text-yellow-700 mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-yellow-900">
+                              Waiting for approval from bank
+                            </p>
+                            <p className="text-xs text-yellow-700 mt-1">
+                              Your card details will be available once approved
                             </p>
                           </div>
                         </div>
                       </div>
                     )}
 
+                    {card.status === "Approved" && (
+                      <div className="border-l-4 border-l-blue-600 bg-blue-50 p-3 mt-4">
+                        <div className="flex items-start">
+                          <CheckCircle className="w-4 h-4 text-blue-700 mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-blue-900">
+                              Approved — Activate your card
+                            </p>
+                            <p className="text-xs text-blue-700 mt-1">
+                              Click the Activate Card button to start using it
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {card.status === "Frozen" && (
+                      <div className="border-l-4 border-l-red-600 bg-red-50 p-3 mt-4">
+                        <div className="flex items-start">
+                          <AlertCircle className="w-4 h-4 text-red-700 mr-2 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-red-900">
+                              Card temporarily blocked
+                            </p>
+                            <p className="text-xs text-red-700 mt-1">
+                              Click unlock to reactivate this card
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="border-t pt-4 mt-4">
+                      <p className="text-sm font-medium mb-2 text-gray-700">
+                        Card Timeline
+                      </p>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        {card.created_at && (
+                          <p>
+                            <span className="font-medium">Requested:</span>{" "}
+                            {new Date(card.created_at).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        )}
+                        {card.approved_at ? (
+                          <p>
+                            <span className="font-medium">Approved:</span>{" "}
+                            {new Date(card.approved_at).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        ) : (
+                          card.status !== "Pending" && (
+                            <p>
+                              <span className="font-medium">Approved:</span> —
+                            </p>
+                          )
+                        )}
+                        {card.activated_at ? (
+                          <p>
+                            <span className="font-medium">Activated:</span>{" "}
+                            {new Date(card.activated_at).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        ) : (
+                          ["Active", "Frozen", "Approved"].includes(
+                            card.status
+                          ) && (
+                            <p>
+                              <span className="font-medium">Activated:</span> —
+                            </p>
+                          )
+                        )}
+                      </div>
+                    </div>
+
+                    {showCardDetails[card.id] && card.status === "Active" && (
+                      <div className="border-t pt-4 mt-4 space-y-3">
+                        <p className="text-sm font-medium text-gray-700 mb-3">
+                          Card Details
+                        </p>
+                        <p className="text-sm break-all">
+                          <span className="font-medium">{t.fullNumber}:</span>{" "}
+                          {card.card_number}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">CVV:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">
+                              {revealedFields[card.id]?.cvv
+                                ? card.cvv
+                                : "•••"}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                toggleFieldVisibility(card.id, "cvv")
+                              }
+                              className="h-6 px-2 text-xs"
+                            >
+                              {revealedFields[card.id]?.cvv ? "Hide" : "Reveal"}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">PIN:</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">
+                              {revealedFields[card.id]?.pin
+                                ? card.pin
+                                : "••••"}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                toggleFieldVisibility(card.id, "pin")
+                              }
+                              className="h-6 px-2 text-xs"
+                            >
+                              {revealedFields[card.id]?.pin ? "Hide" : "Reveal"}
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="text-sm break-all">
+                          <span className="font-medium">{t.accountNumber}:</span>{" "}
+                          {card.account_number}
+                        </p>
+                        <p className="text-sm">
+                          <span className="font-medium">{t.routingNumber}:</span>{" "}
+                          {card.routing_number || "—"}
+                        </p>
+                      </div>
+                    )}
+
                     {showCardSettings[card.id] && (
-                      <div className="border-t pt-4 space-y-2">
-                        <p className="text-sm font-medium mb-2">
+                      <div className="border-t pt-4 mt-4 space-y-2">
+                        <p className="text-sm font-medium mb-2 text-gray-700">
                           {t.cardSettings}
                         </p>
                         <p className="text-sm">
@@ -609,24 +866,6 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                           <span className="font-medium">{t.onlinePayments}:</span>{" "}
                           {card.online_enabled ? t.enabled : t.disabled}
                         </p>
-                        {card.delivery_address && (
-                          <p className="text-sm break-words">
-                            <span className="font-medium">
-                              {t.deliveryAddress}:
-                            </span>{" "}
-                            {card.delivery_address}
-                          </p>
-                        )}
-                        {card.expected_delivery && (
-                          <p className="text-sm">
-                            <span className="font-medium">
-                              {t.expectedDelivery}:
-                            </span>{" "}
-                            {new Date(
-                              card.expected_delivery
-                            ).toLocaleDateString()}
-                          </p>
-                        )}
                         {card.last_used_at && (
                           <p className="text-sm">
                             <span className="font-medium">{t.lastUsed}:</span>{" "}
@@ -642,6 +881,33 @@ export default function CardSection({ userProfile }: CardSectionProps) {
           )}
         </div>
       </div>
+
+      <AlertDialog
+        open={confirmRevealCard !== null}
+        onOpenChange={() => setConfirmRevealCard(null)}
+      >
+        <AlertDialogContent className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-[#b91c1c]" />
+              Security Confirmation
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to reveal your card details? Make sure no one
+              is watching your screen.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmReveal}
+              className="bg-[#b91c1c] hover:bg-[#991b1b]"
+            >
+              Yes, Reveal Details
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
