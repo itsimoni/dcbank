@@ -356,14 +356,14 @@ export default function AuthForm() {
               <div className="flex items-center w-full xs:w-auto justify-center xs:justify-start">
               </div>
 
-              <div className="flex items-center gap-2 w-full xs:w-auto justify-center xs:justify-end">
-                <div className="relative flex-1 xs:flex-none">
+              <div className="flex items-center gap-2 justify-center xs:justify-end">
+                <div className="relative">
                   <Button
                     variant="outline"
-                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-300 flex items-center gap-1.5 sm:gap-2 w-full xs:w-auto justify-center"
+                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs transition-all duration-300 flex items-center gap-1.5"
                     onClick={toggleLanguageMenu}
                   >
-                    <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <Globe className="h-3.5 w-3.5" />
                     <span className="truncate">{languageNames[language]}</span>
                   </Button>
 
@@ -387,7 +387,7 @@ export default function AuthForm() {
 
                 <Button
                   variant="outline"
-                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-300 flex-1 xs:flex-none whitespace-nowrap"
+                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs rounded-md transition-all duration-300 whitespace-nowrap"
                   onClick={toggleSignUp}
                 >
                   {isSignUp ? t.signIn : t.createAccount}
