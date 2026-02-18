@@ -65,9 +65,19 @@ function getSupabase() {
       },
       fetch: (url, options = {}) => {
         console.log('[Supabase] Fetch:', url.substring(0, 50))
-        return fetch(url, options).catch(err => {
-          console.error('[Supabase] Fetch error:', err)
-          throw err
+        return fetch(url, options).catch((err: any) => {
+          // Abort is expected when component unmounts or effect reruns
+          const isAbort =
+            err?.name === "AbortError" ||
+            err?.code === 20 ||
+            String(err)?.toLowerCase().includes("aborted") ||
+            String(err)?.toLowerCase().includes("component unmounting");
+
+          if (!isAbort) {
+            console.error("[Supabase] Fetch error:", err);
+          }
+
+          throw err;
         })
       },
     },

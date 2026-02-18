@@ -400,9 +400,9 @@ function DashboardContent({
 
     return () => {
       mounted = false;
-      abortController.abort("Component unmounting");
+      abortController.abort();
     };
-  }, [userProfile?.id, userProfile?.email]);
+  }, [userProfile?.id]);
 
   // Fetch crypto balances from the correct table (newcrypto_balances)
   useEffect(() => {
@@ -528,7 +528,7 @@ function DashboardContent({
     const cleanup = setupCryptoSubscription();
     return () => {
       mounted = false;
-      abortController.abort("Component unmounting");
+      abortController.abort();
       cleanup();
     };
   }, [userProfile?.id]);
@@ -608,7 +608,7 @@ function DashboardContent({
     const cleanup = setupTransactionSubscription();
     return () => {
       mounted = false;
-      abortController.abort("Component unmounting");
+      abortController.abort();
       cleanup();
     };
   }, [userProfile?.id]);
