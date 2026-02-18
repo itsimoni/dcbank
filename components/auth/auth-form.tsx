@@ -497,9 +497,6 @@ export default function AuthForm() {
                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                       {t.createAccountTitle}
                     </h2>
-                    <p className="text-gray-600 text-sm">
-                      {t.createAccountSubtitle}
-                    </p>
                   </div>
 
                   <form onSubmit={handleSignUp} className="space-y-4">
