@@ -352,47 +352,42 @@ export default function AuthForm() {
           </div>
 
           <div className="w-full lg:w-3/5 flex flex-col rounded-b-lg sm:rounded-b-2xl lg:rounded-r-2xl lg:rounded-bl-none overflow-hidden">
-            <div className="flex flex-col xs:flex-row items-center justify-between px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-white gap-2 sm:gap-3">
-              <div className="flex items-center w-full xs:w-auto justify-center xs:justify-start">
-              </div>
-
-              <div className="flex items-center gap-2 justify-center xs:justify-end">
-                <div className="relative">
-                  <Button
-                    variant="outline"
-                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs transition-all duration-300 flex items-center gap-1.5"
-                    onClick={toggleLanguageMenu}
-                  >
-                    <Globe className="h-3.5 w-3.5" />
-                    <span className="truncate">{languageNames[language]}</span>
-                  </Button>
-
-                  {showLanguageMenu && (
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-lg z-50 min-w-[140px] overflow-hidden">
-                      {(Object.keys(languageNames) as Language[]).map((lang) => (
-                        <button
-                          key={lang}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-xs sm:text-sm transition-colors"
-                          onClick={() => {
-                            setLanguage(lang);
-                            setShowLanguageMenu(false);
-                          }}
-                        >
-                          {languageNames[lang]}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
+            <div className="flex items-center justify-end px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-white gap-2">
+              <div className="relative">
                 <Button
                   variant="outline"
-                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs rounded-md transition-all duration-300 whitespace-nowrap"
-                  onClick={toggleSignUp}
+                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs transition-all duration-300 flex items-center gap-1.5"
+                  onClick={toggleLanguageMenu}
                 >
-                  {isSignUp ? t.signIn : t.createAccount}
+                  <Globe className="h-3.5 w-3.5" />
+                  <span className="truncate">{languageNames[language]}</span>
                 </Button>
+
+                {showLanguageMenu && (
+                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-lg z-50 min-w-[140px] overflow-hidden">
+                    {(Object.keys(languageNames) as Language[]).map((lang) => (
+                      <button
+                        key={lang}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-xs sm:text-sm transition-colors"
+                        onClick={() => {
+                          setLanguage(lang);
+                          setShowLanguageMenu(false);
+                        }}
+                      >
+                        {languageNames[lang]}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              <Button
+                variant="outline"
+                className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs rounded-md transition-all duration-300 whitespace-nowrap"
+                onClick={toggleSignUp}
+              >
+                {isSignUp ? t.signIn : t.createAccount}
+              </Button>
             </div>
 
             <div className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col justify-center overflow-y-auto">
