@@ -377,7 +377,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             <div ref={dropdownRef} className="relative inline-block">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
+                className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
               >
                 <Languages className="w-4 h-4 text-gray-600" />
                 <span className="flex-1 text-left">
@@ -397,13 +397,13 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       }}
                       className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
                         language === lang.code
-                          ? 'bg-blue-50 text-blue-600 font-medium'
+                          ? 'bg-red-50 text-[#b91c1c] font-medium'
                           : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
                       <span>{lang.label}</span>
                       {language === lang.code && (
-                        <Check className="w-4 h-4 text-blue-600" />
+                        <Check className="w-4 h-4 text-[#b91c1c]" />
                       )}
                     </button>
                   ))}
@@ -418,7 +418,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             onClick={() => setViewMode("new")}
             className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
               viewMode === "new"
-                ? "bg-blue-600 text-white"
+                ? "bg-[#b91c1c] text-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
@@ -428,7 +428,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             onClick={() => setViewMode("pending")}
             className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
               viewMode === "pending"
-                ? "bg-blue-600 text-white"
+                ? "bg-[#b91c1c] text-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
@@ -443,7 +443,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             onClick={() => setViewMode("history")}
             className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
               viewMode === "history"
-                ? "bg-blue-600 text-white"
+                ? "bg-[#b91c1c] text-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             }`}
           >
@@ -460,13 +460,13 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                   onClick={() => setFormData({ ...formData, payment_type: type.name })}
                   className={`cursor-pointer transition-all bg-white border-l-4 p-4 ${
                     formData.payment_type === type.name
-                      ? "border-l-blue-600 shadow-md border border-gray-200"
-                      : "border-l-gray-300 border border-gray-200 hover:shadow-md hover:border-l-blue-600"
+                      ? "border-l-[#b91c1c] shadow-md border border-gray-200"
+                      : "border-l-gray-300 border border-gray-200 hover:shadow-md hover:border-l-[#b91c1c]"
                   }`}
                 >
                   <div className="flex items-start gap-4">
                     <type.icon className={`w-6 h-6 mt-1 flex-shrink-0 ${
-                      formData.payment_type === type.name ? "text-blue-600" : "text-gray-400"
+                      formData.payment_type === type.name ? "text-[#b91c1c]" : "text-gray-400"
                     }`} />
                     <div className="min-w-0">
                       <h3 className="font-medium">{type.name}</h3>
@@ -479,7 +479,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               ))}
             </div>
 
-            <Card className="bg-white border-t-4 border-t-blue-600">
+            <Card className="bg-white border-t-4 border-t-[#b91c1c]">
               <CardHeader>
                 <CardTitle>{t.paymentDetails}</CardTitle>
               </CardHeader>
@@ -615,7 +615,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <div className="flex gap-2 pt-4">
                   <Button
                     onClick={handleReviewPayment}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-[#b91c1c] hover:bg-[#991b1b]"
                   >
                     {t.reviewPayment}
                   </Button>
@@ -627,7 +627,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
         {viewMode === "new" && showReviewStep && (
           <div className="space-y-6">
-            <Card className="bg-white border-t-4 border-t-blue-600">
+            <Card className="bg-white border-t-4 border-t-[#b91c1c]">
               <CardHeader>
                 <CardTitle>{t.reviewPayment}</CardTitle>
                 <p className="text-sm text-gray-600">
@@ -635,7 +635,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="bg-gray-50 p-4 space-y-3 border-l-4 border-l-blue-600">
+                <div className="bg-gray-50 p-4 space-y-3 border-l-4 border-l-[#b91c1c]">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">{t.paymentType}</span>
                     <span className="text-sm font-medium">{formData.payment_type}</span>
@@ -693,7 +693,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <div className="flex gap-2">
                   <Button
                     onClick={handleConfirmPayment}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-[#b91c1c] hover:bg-[#991b1b]"
                   >
                     {t.confirmPayment}
                   </Button>
@@ -886,7 +886,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       <p className="text-sm font-mono">{selectedPayment.id.slice(0, 8)}...</p>
                       <button
                         onClick={() => handleCopyReference(selectedPayment.id)}
-                        className="text-blue-600 hover:text-blue-700"
+                        className="text-[#b91c1c] hover:text-[#991b1b]"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
@@ -956,7 +956,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                           <p className="text-sm font-mono">{selectedPayment.reference}</p>
                           <button
                             onClick={() => handleCopyReference(selectedPayment.reference!)}
-                            className="text-blue-600 hover:text-blue-700"
+                            className="text-[#b91c1c] hover:text-[#991b1b]"
                           >
                             <Copy className="w-4 h-4" />
                           </button>
