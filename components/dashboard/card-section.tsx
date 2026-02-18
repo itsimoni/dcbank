@@ -34,6 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { toast } from "sonner";
 
 interface UserProfile {
   id: string;
@@ -182,9 +183,15 @@ export default function CardSection({ userProfile }: CardSectionProps) {
       });
       setShowCardForm(false);
       fetchCards();
-      alert(t.newCardRequestSubmitted);
+      toast.success("Card Request Submitted", {
+        description: "Your card is pending approval. You'll be notified once it's ready.",
+        duration: 5000,
+      });
     } catch (error: any) {
-      alert(t.errorMessage.replace("{{message}}", error.message));
+      toast.error("Failed to Create Card", {
+        description: error.message,
+        duration: 5000,
+      });
     }
   };
 
@@ -202,9 +209,15 @@ export default function CardSection({ userProfile }: CardSectionProps) {
       if (error) throw error;
 
       fetchCards();
-      alert("Card activated successfully!");
+      toast.success("Card Activated", {
+        description: "Your card is now active and ready for payments.",
+        duration: 5000,
+      });
     } catch (error: any) {
-      alert(t.errorMessage.replace("{{message}}", error.message));
+      toast.error("Failed to Activate Card", {
+        description: error.message,
+        duration: 5000,
+      });
     }
   };
 
@@ -221,14 +234,22 @@ export default function CardSection({ userProfile }: CardSectionProps) {
       if (error) throw error;
 
       fetchCards();
-      alert(
-        t.cardStatusSuccess.replace(
-          "{{status}}",
-          newStatus.toLowerCase() === "active" ? t.cardActive : t.frozen
-        )
-      );
+      if (newStatus === "Active") {
+        toast.success("Card Unlocked", {
+          description: "Your card has been reactivated and is ready to use.",
+          duration: 5000,
+        });
+      } else {
+        toast.success("Card Frozen", {
+          description: "Your card has been temporarily blocked for security.",
+          duration: 5000,
+        });
+      }
     } catch (error: any) {
-      alert(t.errorMessage.replace("{{message}}", error.message));
+      toast.error("Failed to Update Card Status", {
+        description: error.message,
+        duration: 5000,
+      });
     }
   };
 
