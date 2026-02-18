@@ -15,19 +15,30 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 import {
-  Receipt,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "../ui/sheet";
+import {
+  Building,
   FileText,
   AlertTriangle,
-  Building,
-  Zap,
-  CreditCard,
   ArrowUpDown,
   Languages,
   Check,
   ChevronDown,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Copy,
+  X,
 } from "lucide-react";
 import { Language, getTranslations } from "../../lib/translations";
 import { useLanguage } from "../../contexts/LanguageContext";
+import { useToast } from "../../hooks/use-toast";
 
 interface UserProfile {
   id: string;
@@ -44,32 +55,62 @@ interface PaymentsSectionProps {
 
 interface Payment {
   id: string;
+  user_id: string;
+  payment_type: string;
   amount: number;
   currency: string;
-  recipient: string;
+  description: string | null;
+  recipient: string | null;
+  due_date: string | null;
   status: string;
   created_at: string;
-  due_date?: string;
-  payment_type: string;
-  description: string;
+  scheduled_for: string | null;
+  executed_at: string | null;
+  posted_at: string | null;
+  reference: string | null;
+  method: string | null;
+  channel: string | null;
+  beneficiary_name: string | null;
+  beneficiary_account: string | null;
+  beneficiary_bank_name: string | null;
+  beneficiary_bank_bic: string | null;
+  beneficiary_country: string | null;
+  fee_amount: number;
+  total_debit_amount: number | null;
+  end_to_end_id: string | null;
+  external_id: string | null;
+  status_reason: string | null;
+  metadata: any;
 }
+
+type ViewMode = "new" | "pending" | "history";
 
 export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("new");
+  const [showReviewStep, setShowReviewStep] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
+
   const [formData, setFormData] = useState({
     payment_type: "",
     amount: "",
     currency: "EUR",
     description: "",
-    recipient: "",
-    due_date: "",
+    beneficiary_name: "",
+    beneficiary_account: "",
+    beneficiary_bank_name: "",
+    beneficiary_bank_bic: "",
+    beneficiary_country: "",
+    scheduled_for: new Date().toISOString().split('T')[0],
+    method: "SEPA Transfer",
   });
 
   const { language, setLanguage } = useLanguage();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const t = getTranslations(language);
 
@@ -118,32 +159,51 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     }
   };
 
-  const submitPayment = async () => {
+  const handleReviewPayment = () => {
+    if (!formData.payment_type || !formData.amount || !formData.beneficiary_name) {
+      toast({
+        title: t.error,
+        description: "Please fill all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+    setShowReviewStep(true);
+  };
+
+  const handleConfirmPayment = async () => {
     if (!userProfile?.id) return;
 
     try {
+      const feeAmount = 0;
+      const totalDebitAmount = Number.parseFloat(formData.amount) + feeAmount;
+      const reference = `PAY-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+
       const { error } = await supabase.from("payments").insert({
         user_id: userProfile.id,
         payment_type: formData.payment_type,
         amount: Number.parseFloat(formData.amount),
         currency: formData.currency,
-        description: formData.description,
-        recipient: formData.recipient,
-        due_date: formData.due_date || null,
+        description: formData.description || null,
+        beneficiary_name: formData.beneficiary_name,
+        beneficiary_account: formData.beneficiary_account || null,
+        beneficiary_bank_name: formData.beneficiary_bank_name || null,
+        beneficiary_bank_bic: formData.beneficiary_bank_bic || null,
+        beneficiary_country: formData.beneficiary_country || null,
+        scheduled_for: formData.scheduled_for,
+        method: formData.method,
+        channel: "Web",
+        reference: reference,
         status: "Pending",
+        fee_amount: feeAmount,
+        total_debit_amount: totalDebitAmount,
       });
 
       if (error) throw error;
 
-      await supabase.from("transactions").insert({
-        user_id: userProfile.id,
-        type: "Payment",
-        amount: Number.parseFloat(formData.amount),
-        currency: formData.currency,
-        description: `${formData.payment_type} - ${formData.description}`,
-        platform: "Digital Chain Bank",
-        status: "Pending",
-        recipient_name: formData.recipient,
+      toast({
+        title: t.paymentSubmittedSuccess,
+        description: `${t.reference}: ${reference}`,
       });
 
       setFormData({
@@ -151,15 +211,57 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
         amount: "",
         currency: "EUR",
         description: "",
-        recipient: "",
-        due_date: "",
+        beneficiary_name: "",
+        beneficiary_account: "",
+        beneficiary_bank_name: "",
+        beneficiary_bank_bic: "",
+        beneficiary_country: "",
+        scheduled_for: new Date().toISOString().split('T')[0],
+        method: "SEPA Transfer",
       });
-      setShowPaymentForm(false);
+      setShowReviewStep(false);
+      setViewMode("pending");
       fetchPayments();
-      alert(t.paymentSubmittedSuccess);
     } catch (error: any) {
-      alert(`${t.error} ${error.message}`);
+      toast({
+        title: t.error,
+        description: error.message,
+        variant: "destructive",
+      });
     }
+  };
+
+  const handleCancelPayment = async (paymentId: string) => {
+    try {
+      const { error } = await supabase
+        .from("payments")
+        .update({ status: "Cancelled", status_reason: "Cancelled by user" })
+        .eq("id", paymentId)
+        .eq("user_id", userProfile.id);
+
+      if (error) throw error;
+
+      toast({
+        title: t.paymentCancelled,
+      });
+
+      setShowDetailsDrawer(false);
+      setSelectedPayment(null);
+      fetchPayments();
+    } catch (error: any) {
+      toast({
+        title: t.error,
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCopyReference = (reference: string) => {
+    navigator.clipboard.writeText(reference);
+    toast({
+      title: t.referenceCopied,
+    });
   };
 
   const paymentTypes = [
@@ -189,24 +291,89 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     },
   ];
 
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { color: string; icon: any }> = {
+      Pending: { color: "text-yellow-600 bg-yellow-50", icon: Clock },
+      Processing: { color: "text-blue-600 bg-blue-50", icon: AlertCircle },
+      Completed: { color: "text-green-600 bg-green-50", icon: CheckCircle2 },
+      Rejected: { color: "text-red-600 bg-red-50", icon: XCircle },
+      Cancelled: { color: "text-gray-600 bg-gray-50", icon: X },
+      Returned: { color: "text-orange-600 bg-orange-50", icon: AlertCircle },
+    };
+
+    const config = statusConfig[status] || statusConfig.Pending;
+    const Icon = config.icon;
+
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${config.color}`}>
+        <Icon className="w-3 h-3" />
+        {t[status.toLowerCase() as keyof typeof t] || status}
+      </span>
+    );
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString(language, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const formatDateTime = (dateString: string | null) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleString(language, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatAmount = (amount: number, currency: string) => {
+    return new Intl.NumberFormat(language, {
+      style: "currency",
+      currency: currency,
+    }).format(amount);
+  };
+
+  const pendingPayments = payments.filter(
+    (p) => p.status === "Pending" || p.status === "Processing"
+  );
+
+  const scheduledPayments = pendingPayments.filter((p) => {
+    if (!p.scheduled_for) return false;
+    const scheduledDate = new Date(p.scheduled_for);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return scheduledDate > today;
+  });
+
+  const pendingReviewPayments = pendingPayments.filter((p) => {
+    if (!p.scheduled_for) return true;
+    const scheduledDate = new Date(p.scheduled_for);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return scheduledDate <= today;
+  });
+
+  const historyPayments = payments.filter(
+    (p) => p.status === "Completed" || p.status === "Rejected" || p.status === "Cancelled" || p.status === "Returned"
+  );
+
   if (loading) {
     return <div className="p-6">{t.loadingPayments}</div>;
   }
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto bg-gray-50">
       <div className="p-6 pt-4 pt-xs-16 space-y-6">
         <div className="flex justify-between items-center gap-4">
           <h2 className="text-2xl font-bold">{t.payments}</h2>
 
           <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setShowPaymentForm(true)}
-              className="bg-[#F26623] hover:bg-[#E55A1F]"
-            >
-              {t.newPayment}
-            </Button>
-
             <div ref={dropdownRef} className="relative inline-block">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -246,191 +413,614 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {paymentTypes.map((type) => (
-            <Card
-              key={type.id}
-              className="cursor-pointer hover:shadow-md transition-shadow"
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                  <type.icon className="w-6 h-6 text-[#F26623] mt-1 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <h3 className="font-medium">{type.name}</h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {type.description}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex gap-2 border-b-2 border-gray-200 bg-white p-1 rounded-lg">
+          <button
+            onClick={() => setViewMode("new")}
+            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              viewMode === "new"
+                ? "bg-[#F26623] text-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            {t.newPayment}
+          </button>
+          <button
+            onClick={() => setViewMode("pending")}
+            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors relative ${
+              viewMode === "pending"
+                ? "bg-[#F26623] text-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            {t.pendingScheduled}
+            {pendingPayments.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {pendingPayments.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setViewMode("history")}
+            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              viewMode === "history"
+                ? "bg-[#F26623] text-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            {t.history}
+          </button>
         </div>
 
-        {showPaymentForm && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.newPayment}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>{t.paymentType}</Label>
-                  <Select
-                    value={formData.payment_type}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, payment_type: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t.selectPaymentType} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {paymentTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.name}>
-                          {type.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+        {viewMode === "new" && !showReviewStep && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {paymentTypes.map((type) => (
+                <Card
+                  key={type.id}
+                  onClick={() => setFormData({ ...formData, payment_type: type.name })}
+                  className={`cursor-pointer transition-all bg-white ${
+                    formData.payment_type === type.name
+                      ? "border-2 border-[#F26623] shadow-md"
+                      : "border border-gray-200 hover:shadow-md"
+                  }`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <type.icon className={`w-6 h-6 mt-1 flex-shrink-0 ${
+                        formData.payment_type === type.name ? "text-[#F26623]" : "text-gray-400"
+                      }`} />
+                      <div className="min-w-0">
+                        <h3 className="font-medium">{type.name}</h3>
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {type.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="bg-white border-t-4 border-t-[#F26623]">
+              <CardHeader>
+                <CardTitle>{t.paymentDetails}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">{t.beneficiaryName} *</Label>
+                    <Input
+                      value={formData.beneficiary_name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, beneficiary_name: e.target.value })
+                      }
+                      placeholder={t.enterRecipientName}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">{t.beneficiaryAccount}</Label>
+                    <Input
+                      value={formData.beneficiary_account}
+                      onChange={(e) =>
+                        setFormData({ ...formData, beneficiary_account: e.target.value })
+                      }
+                      placeholder="IBAN or Account Number"
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">{t.beneficiaryBank}</Label>
+                    <Input
+                      value={formData.beneficiary_bank_name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, beneficiary_bank_name: e.target.value })
+                      }
+                      placeholder={t.enterBankName}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">{t.beneficiaryCountry}</Label>
+                    <Input
+                      value={formData.beneficiary_country}
+                      onChange={(e) =>
+                        setFormData({ ...formData, beneficiary_country: e.target.value })
+                      }
+                      placeholder={t.enterCountry}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">{t.amount} *</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={formData.amount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, amount: e.target.value })
+                      }
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">{t.currency}</Label>
+                    <Select
+                      value={formData.currency}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, currency: value })
+                      }
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EUR">EUR</SelectItem>
+                        <SelectItem value="USD">USD</SelectItem>
+                        <SelectItem value="CAD">CAD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">{t.executionDate}</Label>
+                    <Input
+                      type="date"
+                      value={formData.scheduled_for}
+                      onChange={(e) =>
+                        setFormData({ ...formData, scheduled_for: e.target.value })
+                      }
+                      min={new Date().toISOString().split('T')[0]}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label>{t.currency}</Label>
+                  <Label className="text-sm font-medium">{t.paymentMethod}</Label>
                   <Select
-                    value={formData.currency}
+                    value={formData.method}
                     onValueChange={(value) =>
-                      setFormData({ ...formData, currency: value })
+                      setFormData({ ...formData, method: value })
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="EUR">{t.euroCurrency}</SelectItem>
-                      <SelectItem value="USD">{t.usdCurrency}</SelectItem>
-                      <SelectItem value="CAD">{t.cadCurrency}</SelectItem>
+                      <SelectItem value="SEPA Transfer">{t.sepaTransfer}</SelectItem>
+                      <SelectItem value="Internal Transfer">{t.internalTransfer}</SelectItem>
+                      <SelectItem value="Bank Transfer">{t.bankTransfer}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+
                 <div>
-                  <Label>{t.amount}</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={formData.amount}
+                  <Label className="text-sm font-medium">{t.description}</Label>
+                  <Textarea
+                    value={formData.description}
                     onChange={(e) =>
-                      setFormData({ ...formData, amount: e.target.value })
+                      setFormData({ ...formData, description: e.target.value })
                     }
-                    placeholder="0.00"
+                    placeholder={t.enterPaymentDescription}
+                    rows={3}
+                    className="mt-1"
                   />
                 </div>
-                <div>
-                  <Label>{t.dueDateOptional}</Label>
-                  <Input
-                    type="date"
-                    value={formData.due_date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, due_date: e.target.value })
-                    }
-                  />
+
+                <div className="flex gap-2 pt-4">
+                  <Button
+                    onClick={handleReviewPayment}
+                    className="bg-[#F26623] hover:bg-[#E55A1F]"
+                  >
+                    {t.reviewPayment}
+                  </Button>
                 </div>
-              </div>
-              <div>
-                <Label>{t.recipientPayee}</Label>
-                <Input
-                  value={formData.recipient}
-                  onChange={(e) =>
-                    setFormData({ ...formData, recipient: e.target.value })
-                  }
-                  placeholder={t.enterRecipientName}
-                />
-              </div>
-              <div>
-                <Label>{t.description}</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder={t.enterPaymentDescription}
-                  rows={3}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={submitPayment}
-                  className="bg-[#F26623] hover:bg-[#E55A1F]"
-                >
-                  {t.submitPayment}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowPaymentForm(false)}
-                >
-                  {t.cancel}
-                </Button>
-              </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {viewMode === "new" && showReviewStep && (
+          <div className="space-y-6">
+            <Card className="bg-white border-t-4 border-t-[#F26623]">
+              <CardHeader>
+                <CardTitle>{t.reviewPayment}</CardTitle>
+                <p className="text-sm text-gray-600">
+                  Please review the payment details before confirming
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">{t.paymentType}</span>
+                    <span className="text-sm font-medium">{formData.payment_type}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">{t.beneficiaryName}</span>
+                    <span className="text-sm font-medium">{formData.beneficiary_name}</span>
+                  </div>
+                  {formData.beneficiary_account && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">{t.beneficiaryAccount}</span>
+                      <span className="text-sm font-medium">{formData.beneficiary_account}</span>
+                    </div>
+                  )}
+                  {formData.beneficiary_bank_name && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">{t.beneficiaryBank}</span>
+                      <span className="text-sm font-medium">{formData.beneficiary_bank_name}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">{t.amount}</span>
+                    <span className="text-sm font-medium">
+                      {formatAmount(Number.parseFloat(formData.amount), formData.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">{t.feeAmount}</span>
+                    <span className="text-sm font-medium">
+                      {formatAmount(0, formData.currency)}
+                    </span>
+                  </div>
+                  <div className="border-t pt-3 flex justify-between">
+                    <span className="text-sm font-medium">{t.totalDebitAmount}</span>
+                    <span className="text-base font-bold text-[#F26623]">
+                      {formatAmount(Number.parseFloat(formData.amount), formData.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">{t.paymentMethod}</span>
+                    <span className="text-sm font-medium">{formData.method}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">{t.executionDate}</span>
+                    <span className="text-sm font-medium">{formatDate(formData.scheduled_for)}</span>
+                  </div>
+                  {formData.description && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">{t.description}</span>
+                      <span className="text-sm font-medium">{formData.description}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleConfirmPayment}
+                    className="bg-[#F26623] hover:bg-[#E55A1F]"
+                  >
+                    {t.confirmPayment}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowReviewStep(false)}
+                  >
+                    {t.back}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {viewMode === "pending" && (
+          <div className="space-y-6">
+            {scheduledPayments.length > 0 && (
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-blue-600" />
+                    {t.scheduledPayments}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {scheduledPayments.map((payment) => (
+                      <div
+                        key={payment.id}
+                        onClick={() => {
+                          setSelectedPayment(payment);
+                          setShowDetailsDrawer(true);
+                        }}
+                        className="flex justify-between items-center p-4 bg-white border-l-4 border-l-blue-500 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">
+                            {payment.beneficiary_name || payment.recipient}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {payment.reference || payment.description}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {t.scheduledFor}: {formatDate(payment.scheduled_for)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-gray-900">
+                            {formatAmount(payment.amount, payment.currency)}
+                          </p>
+                          {getStatusBadge(payment.status)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {pendingReviewPayments.length > 0 && (
+              <Card className="bg-white">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+                    {t.pendingReview}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {pendingReviewPayments.map((payment) => (
+                      <div
+                        key={payment.id}
+                        onClick={() => {
+                          setSelectedPayment(payment);
+                          setShowDetailsDrawer(true);
+                        }}
+                        className="flex justify-between items-center p-4 bg-white border-l-4 border-l-yellow-500 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">
+                            {payment.beneficiary_name || payment.recipient}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {payment.reference || payment.description}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {t.scheduledFor}: {formatDate(payment.scheduled_for)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-gray-900">
+                            {formatAmount(payment.amount, payment.currency)}
+                          </p>
+                          {getStatusBadge(payment.status)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {pendingPayments.length === 0 && (
+              <Card className="bg-white">
+                <CardContent className="p-12 text-center">
+                  <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">{t.noPendingPayments}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {viewMode === "history" && (
+          <Card className="bg-white">
+            <CardHeader>
+              <CardTitle>{t.history}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {historyPayments.length === 0 ? (
+                <div className="p-12 text-center">
+                  <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">{t.noPaymentsYet}</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {historyPayments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      onClick={() => {
+                        setSelectedPayment(payment);
+                        setShowDetailsDrawer(true);
+                      }}
+                      className={`flex justify-between items-center p-4 bg-white border-l-4 rounded-lg cursor-pointer hover:shadow-md transition-shadow ${
+                        payment.status === "Completed"
+                          ? "border-l-green-500"
+                          : payment.status === "Rejected"
+                          ? "border-l-red-500"
+                          : "border-l-gray-400"
+                      }`}
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">
+                          {payment.beneficiary_name || payment.recipient}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {payment.reference || payment.description}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {payment.posted_at
+                            ? formatDateTime(payment.posted_at)
+                            : formatDateTime(payment.created_at)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-gray-900">
+                          {formatAmount(payment.amount, payment.currency)}
+                        </p>
+                        {getStatusBadge(payment.status)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.paymentHistory}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {payments.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">{t.noPaymentsYet}</p>
-            ) : (
-              <div className="space-y-4">
-                {payments.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="flex justify-between items-center p-4 border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">{payment.payment_type}</p>
-                      <p className="text-sm text-gray-600">
-                        {payment.description}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {t.to} {payment.recipient}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(payment.created_at).toLocaleString()}
-                      </p>
-                      {payment.due_date && (
-                        <p className="text-xs text-gray-500">
-                          {t.due} {new Date(payment.due_date).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">
-                        {Number(payment.amount).toLocaleString()}{" "}
-                        {payment.currency}
-                      </p>
-                      <p
-                        className={`text-sm font-medium ${
-                          payment.status === "Success"
-                            ? "text-green-600"
-                            : payment.status === "Pending"
-                            ? "text-yellow-600"
-                            : "text-red-600"
-                        }`}
+      <Sheet open={showDetailsDrawer} onOpenChange={setShowDetailsDrawer}>
+        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+          {selectedPayment && (
+            <>
+              <SheetHeader>
+                <SheetTitle>{t.paymentDetails}</SheetTitle>
+                <SheetDescription>
+                  {selectedPayment.status === "Pending" && t.thisPaymentIsPending}
+                  {selectedPayment.status === "Processing" && t.thisPaymentIsPending}
+                  {selectedPayment.status === "Completed" && t.paymentCompleted}
+                  {selectedPayment.status === "Rejected" && t.paymentRejected}
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="mt-6 space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">{t.paymentId}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-mono">{selectedPayment.id.slice(0, 8)}...</p>
+                      <button
+                        onClick={() => handleCopyReference(selectedPayment.id)}
+                        className="text-[#F26623] hover:text-[#E55A1F]"
                       >
-                        {payment.status}
-                      </p>
+                        <Copy className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                ))}
+
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">{t.status}</p>
+                    {getStatusBadge(selectedPayment.status)}
+                  </div>
+
+                  {selectedPayment.status_reason && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-xs text-gray-500 mb-1">{t.statusReason}</p>
+                      <p className="text-sm text-red-900">{selectedPayment.status_reason}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t pt-4 space-y-3">
+                  <h4 className="font-medium text-sm text-gray-900">{t.beneficiaryDetails}</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">{t.beneficiaryName}</p>
+                      <p className="text-sm">{selectedPayment.beneficiary_name || selectedPayment.recipient || "-"}</p>
+                    </div>
+                    {selectedPayment.beneficiary_account && (
+                      <div>
+                        <p className="text-xs text-gray-500">{t.beneficiaryAccount}</p>
+                        <p className="text-sm font-mono">{selectedPayment.beneficiary_account}</p>
+                      </div>
+                    )}
+                    {selectedPayment.beneficiary_bank_name && (
+                      <div>
+                        <p className="text-xs text-gray-500">{t.beneficiaryBank}</p>
+                        <p className="text-sm">{selectedPayment.beneficiary_bank_name}</p>
+                      </div>
+                    )}
+                    {selectedPayment.beneficiary_country && (
+                      <div>
+                        <p className="text-xs text-gray-500">{t.beneficiaryCountry}</p>
+                        <p className="text-sm">{selectedPayment.beneficiary_country}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="border-t pt-4 space-y-3">
+                  <h4 className="font-medium text-sm text-gray-900">{t.paymentDetails}</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-500">{t.amount}</p>
+                      <p className="text-lg font-medium">{formatAmount(selectedPayment.amount, selectedPayment.currency)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">{t.feeAmount}</p>
+                      <p className="text-sm">{formatAmount(selectedPayment.fee_amount, selectedPayment.currency)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">{t.totalDebitAmount}</p>
+                      <p className="text-sm font-medium">{formatAmount(selectedPayment.total_debit_amount || selectedPayment.amount, selectedPayment.currency)}</p>
+                    </div>
+                    {selectedPayment.reference && (
+                      <div>
+                        <p className="text-xs text-gray-500">{t.reference}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-mono">{selectedPayment.reference}</p>
+                          <button
+                            onClick={() => handleCopyReference(selectedPayment.reference!)}
+                            className="text-[#F26623] hover:text-[#E55A1F]"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    {selectedPayment.method && (
+                      <div>
+                        <p className="text-xs text-gray-500">{t.paymentMethod}</p>
+                        <p className="text-sm">{selectedPayment.method}</p>
+                      </div>
+                    )}
+                    {selectedPayment.description && (
+                      <div>
+                        <p className="text-xs text-gray-500">{t.description}</p>
+                        <p className="text-sm">{selectedPayment.description}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="border-t pt-4 space-y-2">
+                  <div>
+                    <p className="text-xs text-gray-500">{t.instructionSubmitted}</p>
+                    <p className="text-sm">{formatDateTime(selectedPayment.created_at)}</p>
+                  </div>
+                  {selectedPayment.scheduled_for && (
+                    <div>
+                      <p className="text-xs text-gray-500">{t.executionDate}</p>
+                      <p className="text-sm">{formatDate(selectedPayment.scheduled_for)}</p>
+                    </div>
+                  )}
+                  {selectedPayment.executed_at && (
+                    <div>
+                      <p className="text-xs text-gray-500">{t.executedOn}</p>
+                      <p className="text-sm">{formatDateTime(selectedPayment.executed_at)}</p>
+                    </div>
+                  )}
+                  {selectedPayment.posted_at && (
+                    <div>
+                      <p className="text-xs text-gray-500">{t.postedDate}</p>
+                      <p className="text-sm">{formatDateTime(selectedPayment.posted_at)}</p>
+                    </div>
+                  )}
+                </div>
+
+                {selectedPayment.status === "Pending" && (
+                  <div className="border-t pt-4">
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleCancelPayment(selectedPayment.id)}
+                      className="w-full"
+                    >
+                      {t.cancelPayment}
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
