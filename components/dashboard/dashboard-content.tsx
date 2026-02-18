@@ -549,8 +549,8 @@ function DashboardContent({
           .from("TransactionHistory")
           .select("*")
           .eq("uuid", userProfile.id)
-          .order("created_at", { ascending: true })
-          .limit(5)
+          .order("created_at", { ascending: false })
+          .limit(2)
           .abortSignal(abortController.signal);
 
         if (error) {
