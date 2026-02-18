@@ -270,7 +270,7 @@ export default function Sidebar({
       <div
         className={`
           fixed md:relative
-          w-64 bg-[#fef2f2] h-screen flex flex-col
+          w-64 bg-white h-screen flex flex-col
           transform transition-transform duration-300 ease-in-out z-50
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0
@@ -353,7 +353,7 @@ export default function Sidebar({
         </nav>
 
         <div className="p-6 flex-shrink-0 border-t border-gray-200/50">
-          <div className="bg-[#b91c1c] rounded-2xl px-4 py-3 text-white relative">
+          <div className="bg-[#b91c1c] px-4 py-3 text-white relative">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <span className="font-medium text-base">
