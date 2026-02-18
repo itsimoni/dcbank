@@ -10,8 +10,6 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle,
-  Languages,
-  ChevronDown,
 } from "lucide-react";
 
 interface ProfileProps {
@@ -44,19 +42,9 @@ export default function Profile({ userProfile }: ProfileProps) {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const { language, setLanguage } = useLanguage();
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const { language } = useLanguage();
 
   const t = useMemo(() => getTranslations(language), [language]);
-
-  const languageNames: Record<Language, string> = {
-    en: "English",
-    fr: "Français",
-    de: "Deutsch",
-    es: "Español",
-    it: "Italiano",
-    el: "Ελληνικά",
-  };
 
   useEffect(() => {
     fetchUserData();
@@ -201,65 +189,21 @@ export default function Profile({ userProfile }: ProfileProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="w-8 h-8 border-4 border-blue-700 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-[#b91c1c] border-t-transparent animate-spin"></div>
       </div>
     );
   }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <div className="border-l-4 border-[#b91c1c] pl-4">
           <h1 className="text-2xl font-semibold text-gray-900">{t.profileTitle}</h1>
           <p className="text-sm text-gray-600 mt-1">{t.emailLabel}: {userData?.email}</p>
         </div>
-        <div className="relative">
-          <button
-            onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-            className="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-colors"
-          >
-            <Languages className="h-4 w-4 text-gray-600" />
-            <span>{languageNames[language]}</span>
-            <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
-
-          {isLanguageDropdownOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setIsLanguageDropdownOpen(false)}
-              />
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 overflow-hidden">
-                {Object.entries(languageNames).map(([code, name]) => (
-                  <button
-                    key={code}
-                    onClick={() => {
-                      setLanguage(code as Language);
-                      setIsLanguageDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                      language === code
-                        ? 'bg-blue-700 text-white font-medium'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>{name}</span>
-                      {language === code && (
-                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 mb-4">
+      <div className="bg-white border border-gray-200 shadow-sm p-6 mb-4">
         <div className="border-b border-gray-100 pb-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
@@ -274,7 +218,7 @@ export default function Profile({ userProfile }: ProfileProps) {
               </h2>
               <p className="text-sm text-gray-600 mt-1">{getRoleLabel()}</p>
             </div>
-            <div className={`px-3 py-1 rounded text-xs font-medium ${getKycStatusColor(userData?.kyc_status || 'not_started')}`}>
+            <div className={`px-3 py-1 text-xs font-medium ${getKycStatusColor(userData?.kyc_status || 'not_started')}`}>
               {userData?.kyc_status === 'approved' ? t.kycApprovedStatus :
                userData?.kyc_status === 'pending' ? t.kycPendingStatus :
                userData?.kyc_status === 'rejected' ? t.kycRejectedStatus :
@@ -347,7 +291,7 @@ export default function Profile({ userProfile }: ProfileProps) {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+      <div className="bg-white border border-gray-200 shadow-sm p-6">
         <div className="border-b border-gray-100 pb-4 mb-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center">
             <Lock className="w-5 h-5 mr-2 text-gray-600" />
@@ -376,7 +320,7 @@ export default function Profile({ userProfile }: ProfileProps) {
                   currentPassword: e.target.value,
                 })
               }
-              className="w-full h-11 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
+              className="w-full h-11 px-4 border border-gray-300 focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent text-sm"
               required
             />
           </div>
@@ -398,7 +342,7 @@ export default function Profile({ userProfile }: ProfileProps) {
                   newPassword: e.target.value,
                 })
               }
-              className="w-full h-11 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
+              className="w-full h-11 px-4 border border-gray-300 focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent text-sm"
               required
               minLength={6}
             />
@@ -422,21 +366,21 @@ export default function Profile({ userProfile }: ProfileProps) {
                   confirmPassword: e.target.value,
                 })
               }
-              className="w-full h-11 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm"
+              className="w-full h-11 px-4 border border-gray-300 focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent text-sm"
               required
               minLength={6}
             />
           </div>
 
           {passwordError && (
-            <div className="flex items-start p-3 border border-red-200 bg-red-50 text-red-800 rounded-md text-sm">
+            <div className="flex items-start p-3 border border-red-200 bg-red-50 text-red-800 text-sm">
               <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
               <span>{passwordError}</span>
             </div>
           )}
 
           {passwordSuccess && (
-            <div className="flex items-start p-3 border border-green-200 bg-green-50 text-green-800 rounded-md text-sm">
+            <div className="flex items-start p-3 border border-green-200 bg-green-50 text-green-800 text-sm">
               <CheckCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
               <span>{passwordSuccess}</span>
             </div>
@@ -446,11 +390,11 @@ export default function Profile({ userProfile }: ProfileProps) {
             <Button
               type="submit"
               disabled={isChangingPassword}
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold h-11 rounded-md transition-colors"
+              className="w-full bg-[#b91c1c] hover:bg-[#991b1b] text-white font-semibold h-11 transition-colors"
             >
               {isChangingPassword ? (
                 <div className="flex items-center justify-center">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin mr-2"></div>
                   {t.updatingPasswordButton}
                 </div>
               ) : (
