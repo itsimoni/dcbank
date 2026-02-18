@@ -6,7 +6,6 @@ export const translations = {
     signInSubtitle: "Enter your Digital Chain Bank Account details.",
     createAccount: "Create Account",
     createAccountTitle: "Create your Digital Chain Bank Account",
-    createAccountSubtitle: "Apply now and you will get access to your account within the next few days.",
     email: "Email",
     password: "Password",
     firstName: "First Name",
