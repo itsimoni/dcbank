@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getTranslations, Language } from "@/lib/translations";
+import { Input } from "@/components/ui/input";
+import { getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Mail,
@@ -13,9 +14,23 @@ import {
   CheckCircle,
   RefreshCw,
   Trash2,
-  Languages,
+  ChevronRight,
+  Search,
+  X,
   ChevronDown,
+  Inbox,
+  Bell,
+  FileText,
+  Shield,
+  Archive,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface UserProfile {
   id: string;
@@ -30,22 +45,35 @@ interface MessageSectionProps {
   userProfile: UserProfile;
 }
 
+interface Message {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  message_type: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+type FolderType = "inbox" | "alerts" | "statements" | "security" | "archived";
+type FilterType = "all" | "alert" | "info" | "success" | "warning";
+type StatusFilter = "all" | "unread";
+type SortOrder = "newest" | "oldest";
+
 export default function MessageSection({ userProfile }: MessageSectionProps) {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
-  const { language, setLanguage } = useLanguage();
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const { language } = useLanguage();
+  const [selectedFolder, setSelectedFolder] = useState<FolderType>("inbox");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<FilterType>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const t = useMemo(() => getTranslations(language), [language]);
-
-  const languageNames: Record<Language, string> = {
-    en: "English",
-    fr: "Français",
-    de: "Deutsch",
-    es: "Español",
-    it: "Italiano",
-    el: "Ελληνικά",
-  };
 
   useEffect(() => {
     if (userProfile?.id) {
@@ -65,7 +93,6 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
 
       if (error) throw error;
       setMessages(data || []);
-      console.log("Fetched messages from database:", data);
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
@@ -81,9 +108,7 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
         .eq("id", messageId);
 
       if (error) throw error;
-
       fetchMessages();
-      console.log("Message marked as read:", messageId);
     } catch (error: any) {
       alert(`Error: ${error.message}`);
     }
@@ -97,49 +122,153 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
         .eq("id", messageId);
 
       if (error) throw error;
-
       fetchMessages();
-      console.log("Message deleted:", messageId);
+      if (selectedMessage?.id === messageId) {
+        setIsDrawerOpen(false);
+        setSelectedMessage(null);
+      }
     } catch (error: any) {
       alert(`Error: ${error.message}`);
+    }
+  };
+
+  const bulkMarkAsRead = async () => {
+    try {
+      const messageIds = Array.from(selectedMessages);
+      await Promise.all(
+        messageIds.map((id) =>
+          supabase.from("user_messages").update({ is_read: true }).eq("id", id)
+        )
+      );
+      fetchMessages();
+      setSelectedMessages(new Set());
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const bulkDelete = async () => {
+    try {
+      const messageIds = Array.from(selectedMessages);
+      await Promise.all(
+        messageIds.map((id) =>
+          supabase.from("user_messages").delete().eq("id", id)
+        )
+      );
+      fetchMessages();
+      setSelectedMessages(new Set());
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const toggleMessageSelection = (messageId: string) => {
+    const newSelection = new Set(selectedMessages);
+    if (newSelection.has(messageId)) {
+      newSelection.delete(messageId);
+    } else {
+      newSelection.add(messageId);
+    }
+    setSelectedMessages(newSelection);
+  };
+
+  const openMessageDrawer = (message: Message) => {
+    setSelectedMessage(message);
+    setIsDrawerOpen(true);
+    if (!message.is_read) {
+      markAsRead(message.id);
     }
   };
 
   const getMessageIcon = (type: string) => {
     switch (type) {
       case "alert":
-        return <AlertTriangle className="w-5 h-5 text-red-500" />;
+        return <AlertTriangle className="w-4 h-4 text-red-600" />;
       case "info":
-        return <Info className="w-5 h-5 text-blue-500" />;
+        return <Info className="w-4 h-4 text-blue-600" />;
       case "success":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
       case "warning":
-        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+        return <AlertTriangle className="w-4 h-4 text-amber-600" />;
       default:
-        return <Mail className="w-5 h-5 text-gray-500" />;
+        return <Mail className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  const getMessageBorderColor = (type: string) => {
-    switch (type) {
-      case "alert":
-        return "border-l-red-500";
-      case "info":
-        return "border-l-blue-500";
-      case "success":
-        return "border-l-green-500";
-      case "warning":
-        return "border-l-yellow-500";
-      default:
-        return "border-l-gray-500";
+  const getMessageBadge = (type: string) => {
+    const badges = {
+      alert: { text: t.securityAlertBadge, color: "bg-red-50 text-red-700 border-red-200" },
+      info: { text: t.accountInfoBadge, color: "bg-blue-50 text-blue-700 border-blue-200" },
+      success: { text: t.transactionUpdateBadge, color: "bg-green-50 text-green-700 border-green-200" },
+      warning: { text: t.systemMessageBadge, color: "bg-amber-50 text-amber-700 border-amber-200" },
+      default: { text: t.systemMessageBadge, color: "bg-gray-50 text-gray-700 border-gray-200" },
+    };
+    return badges[type as keyof typeof badges] || badges.default;
+  };
+
+  const getFolderIcon = (folder: FolderType) => {
+    switch (folder) {
+      case "inbox":
+        return <Inbox className="w-4 h-4" />;
+      case "alerts":
+        return <Bell className="w-4 h-4" />;
+      case "statements":
+        return <FileText className="w-4 h-4" />;
+      case "security":
+        return <Shield className="w-4 h-4" />;
+      case "archived":
+        return <Archive className="w-4 h-4" />;
     }
   };
+
+  const getFolderName = (folder: FolderType) => {
+    switch (folder) {
+      case "inbox":
+        return t.inboxFolder;
+      case "alerts":
+        return t.alertsFolder;
+      case "statements":
+        return t.statementsFolder;
+      case "security":
+        return t.securityFolder;
+      case "archived":
+        return t.archivedFolder;
+    }
+  };
+
+  const filteredMessages = useMemo(() => {
+    let filtered = messages;
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (msg) =>
+          msg.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (typeFilter !== "all") {
+      filtered = filtered.filter((msg) => msg.message_type === typeFilter);
+    }
+
+    if (statusFilter === "unread") {
+      filtered = filtered.filter((msg) => !msg.is_read);
+    }
+
+    if (sortOrder === "oldest") {
+      filtered = [...filtered].reverse();
+    }
+
+    return filtered;
+  }, [messages, searchQuery, typeFilter, statusFilter, sortOrder]);
+
+  const unreadCount = messages.filter((m) => !m.is_read).length;
 
   if (loading) {
     return (
       <div className="h-full w-full flex items-center justify-center">
         <div className="flex items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623]"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c]"></div>
           <span className="ml-2">{t.loadingMessagesText}</span>
         </div>
       </div>
@@ -147,178 +276,307 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
   }
 
   return (
-    <div className="h-full w-full overflow-auto">
-      <div className="p-6 pt-4 pt-xs-16 space-y-6 max-w-4xl">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold">{t.messagesTitle}</h2>
-            <p className="text-sm text-gray-600">
-              {t.welcomeUser} {userProfile.full_name}
+    <div className="h-full w-full flex bg-gray-50">
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-60 bg-white border-r border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">{t.messagesTitle}</h2>
+            <p className="text-xs text-gray-600 mt-1">
+              {unreadCount} {t.unreadMessages}
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <button
-                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <Languages className="h-4 w-4 text-[#F26623]" />
-                <span>{languageNames[language]}</span>
-                <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
 
-              {isLanguageDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsLanguageDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
-                    {Object.entries(languageNames).map(([code, name]) => (
-                      <button
-                        key={code}
-                        onClick={() => {
-                          setLanguage(code as Language);
-                          setIsLanguageDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
-                          language === code
-                            ? 'bg-[#F26623] text-white font-medium'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{name}</span>
-                          {language === code && (
-                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </>
+          <div className="flex-1 overflow-y-auto p-2">
+            <div className="space-y-1">
+              {(["inbox", "alerts", "statements", "security", "archived"] as FolderType[]).map(
+                (folder) => (
+                  <button
+                    key={folder}
+                    onClick={() => setSelectedFolder(folder)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm transition-colors ${
+                      selectedFolder === folder
+                        ? "bg-red-50 text-red-700 border-l-4 border-[#b91c1c]"
+                        : "text-gray-700 hover:bg-gray-50 border-l-4 border-transparent"
+                    }`}
+                  >
+                    {getFolderIcon(folder)}
+                    <span className="font-medium">{getFolderName(folder)}</span>
+                  </button>
+                )
               )}
             </div>
-            <span className="text-sm text-gray-600">
-              {messages.filter((m) => !m.is_read).length} {t.unreadCount}
-            </span>
-            <Button variant="outline" size="sm" onClick={fetchMessages}>
-              <RefreshCw className="w-4 h-4 mr-2" />
-              {t.refreshButton}
-            </Button>
+          </div>
+
+          <div className="p-4 border-t border-gray-200">
+            <div className="space-y-1">
+              <button className="w-full flex items-center text-xs text-gray-600 hover:text-gray-900 py-1.5">
+                <span>{t.allMessages}</span>
+              </button>
+              <button className="w-full flex items-center text-xs text-gray-600 hover:text-gray-900 py-1.5">
+                <span>{t.unreadMessages}</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          {messages.length === 0 ? (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Mail className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-500">{t.noMessagesText}</p>
-              </CardContent>
-            </Card>
-          ) : (
-            messages.map((message) => (
-              <Card
-                key={message.id}
-                className={`border-l-4 ${getMessageBorderColor(
-                  message.message_type
-                )}`}
+        <div className="flex-1 flex flex-col">
+          <div className="bg-white border-b border-gray-200 p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder={t.searchMessages}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 border-gray-300"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchMessages}
+                className="border-gray-300"
               >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      {getMessageIcon(message.message_type)}
-                      <div>
-                        <CardTitle className="text-lg">
-                          {message.title}
-                        </CardTitle>
-                        <p className="text-sm text-gray-500">
-                          {new Date(message.created_at).toLocaleDateString()} {t.atTimeText}{" "}
-                          {new Date(message.created_at).toLocaleTimeString()}
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Select value={typeFilter} onValueChange={(value: FilterType) => setTypeFilter(value)}>
+                <SelectTrigger className="w-32 border-gray-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t.allMessages}</SelectItem>
+                  <SelectItem value="alert">{t.securityAlertBadge}</SelectItem>
+                  <SelectItem value="info">{t.accountInfoBadge}</SelectItem>
+                  <SelectItem value="success">{t.transactionUpdateBadge}</SelectItem>
+                  <SelectItem value="warning">{t.systemMessageBadge}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
+                <SelectTrigger className="w-32 border-gray-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t.allMessages}</SelectItem>
+                  <SelectItem value="unread">{t.unreadMessages}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sortOrder} onValueChange={(value: SortOrder) => setSortOrder(value)}>
+                <SelectTrigger className="w-32 border-gray-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">{t.sortNewest}</SelectItem>
+                  <SelectItem value="oldest">{t.sortOldest}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex-1" />
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={bulkMarkAsRead}
+                disabled={selectedMessages.size === 0}
+                className="border-gray-300"
+              >
+                {t.markReadBulk}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={bulkDelete}
+                disabled={selectedMessages.size === 0}
+                className="border-gray-300 text-red-600 hover:text-red-700"
+              >
+                {t.deleteSelected}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto bg-white">
+            {filteredMessages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full p-8">
+                <div className="w-16 h-16 bg-gray-100 flex items-center justify-center mb-4">
+                  <Mail className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.allCaughtUp}</h3>
+                <p className="text-sm text-gray-600 text-center max-w-md">
+                  {t.emptyStateHelp}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {filteredMessages.map((message) => {
+                  const badge = getMessageBadge(message.message_type);
+                  const isSelected = selectedMessages.has(message.id);
+
+                  return (
+                    <div
+                      key={message.id}
+                      className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-l-4 ${
+                        !message.is_read ? "border-[#b91c1c] bg-red-50/30" : "border-transparent"
+                      } ${isSelected ? "bg-blue-50" : ""}`}
+                      onClick={() => openMessageDrawer(message)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          toggleMessageSelection(message.id);
+                        }}
+                        className="w-4 h-4 text-[#b91c1c] border-gray-300 focus:ring-[#b91c1c]"
+                      />
+
+                      <div className="flex items-center gap-2">
+                        {!message.is_read && (
+                          <div className="w-2 h-2 bg-[#b91c1c]" />
+                        )}
+                        {getMessageIcon(message.message_type)}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3
+                            className={`text-sm truncate ${
+                              !message.is_read ? "font-semibold text-gray-900" : "font-normal text-gray-700"
+                            }`}
+                          >
+                            {message.title}
+                          </h3>
+                          <span className={`text-xs px-2 py-0.5 border ${badge.color}`}>
+                            {badge.text}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 truncate line-clamp-1">
+                          {message.content}
                         </p>
                       </div>
+
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500 tabular-nums whitespace-nowrap">
+                          {new Date(message.created_at).toLocaleDateString()}
+                        </span>
+                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {!message.is_read && (
-                        <div className="w-2 h-2 bg-[#F26623] rounded-full"></div>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteMessage(message.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-                <CardContent className="space-y-3">
-                  <p className="text-gray-700">{message.content}</p>
-
-                  <div className="flex gap-2 pt-2">
-                    {!message.is_read && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => markAsRead(message.id)}
-                      >
-                        {t.markAsReadButton}
-                      </Button>
-                    )}
-                    {message.message_type === "alert" && (
-                      <Button
-                        size="sm"
-                        className="bg-[#F26623] hover:bg-[#E55A1F]"
-                      >
-                        {t.takeActionButton}
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="text-xs text-gray-500 border-t pt-2">
-                    <p>{t.messageIdLabel} {message.id}</p>
-                    <p>{t.messageTypeLabel} {message.message_type}</p>
-                    <p>{t.messageStatusLabel} {message.is_read ? t.readStatus : t.unreadStatusLabel}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
+          <div className="bg-white border-t border-gray-200 p-4">
+            <div className="flex items-center justify-between text-xs text-gray-600">
+              <span>
+                {filteredMessages.length} {t.messagesTitle.toLowerCase()}
+              </span>
+              {selectedMessages.size > 0 && (
+                <span className="text-[#b91c1c]">
+                  {selectedMessages.size} {t.selectMessages.toLowerCase()}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.quickActionsTitle}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button
-              variant="outline"
-              className="w-full justify-start bg-transparent"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              {t.contactSupportButton}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start bg-transparent"
-            >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              {t.reportIssueButton}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start bg-transparent"
-            >
-              <Info className="w-4 h-4 mr-2" />
-              {t.accountInfoButton}
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="w-80 bg-white border-l border-gray-200 p-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">{t.helpAndSupport}</h3>
+          <div className="space-y-2">
+            <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 border border-gray-200 transition-colors">
+              <span>{t.contactSupport}</span>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </button>
+            <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 border border-gray-200 transition-colors">
+              <span>{t.reportSuspicious}</span>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </button>
+            <button className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 border border-gray-200 transition-colors">
+              <span>{t.viewDocuments}</span>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+        </div>
       </div>
+
+      {isDrawerOpen && selectedMessage && (
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30 z-40"
+            onClick={() => setIsDrawerOpen(false)}
+          />
+          <div className="fixed right-0 top-0 bottom-0 w-[600px] bg-white shadow-xl z-50 flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">{t.messageDetails}</h2>
+              <button
+                onClick={() => setIsDrawerOpen(false)}
+                className="p-2 hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  {getMessageIcon(selectedMessage.message_type)}
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {selectedMessage.title}
+                    </h3>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span
+                        className={`text-xs px-2 py-1 border ${
+                          getMessageBadge(selectedMessage.message_type).color
+                        }`}
+                      >
+                        {getMessageBadge(selectedMessage.message_type).text}
+                      </span>
+                      <span className="text-xs text-gray-500 tabular-nums">
+                        {new Date(selectedMessage.created_at).toLocaleDateString()} {t.atTimeText}{" "}
+                        {new Date(selectedMessage.created_at).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {selectedMessage.content}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex gap-3">
+                {!selectedMessage.is_read && (
+                  <Button
+                    variant="outline"
+                    onClick={() => markAsRead(selectedMessage.id)}
+                    className="flex-1 border-gray-300"
+                  >
+                    {t.markAsReadButton}
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={() => deleteMessage(selectedMessage.id)}
+                  className="flex-1 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t.deleteSelected}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
