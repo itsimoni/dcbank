@@ -17,7 +17,6 @@ import {
   ChevronRight,
   Search,
   X,
-  ChevronDown,
   Inbox,
   Bell,
   FileText,
@@ -45,6 +44,8 @@ interface MessageSectionProps {
   userProfile: UserProfile;
 }
 
+type FolderType = "inbox" | "alerts" | "statements" | "security" | "archived";
+
 interface Message {
   id: string;
   user_id: string;
@@ -56,7 +57,6 @@ interface Message {
   folder: FolderType;
 }
 
-type FolderType = "inbox" | "alerts" | "statements" | "security" | "archived";
 type FilterType = "all" | "alert" | "info" | "success" | "warning";
 type StatusFilter = "all" | "unread";
 type SortOrder = "newest" | "oldest";
@@ -115,6 +115,48 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
     }
   };
 
+  // ✅ Gmail-style archive: move out of Inbox into Archived
+  const archiveMessage = async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from("user_messages")
+        .update({ folder: "archived" })
+        .eq("id", messageId);
+
+      if (error) throw error;
+
+      fetchMessages();
+
+      if (selectedMessage?.id === messageId) {
+        setIsDrawerOpen(false);
+        setSelectedMessage(null);
+      }
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  // ✅ Gmail-style "Move to Inbox" when viewing Archived
+  const unarchiveMessage = async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from("user_messages")
+        .update({ folder: "inbox" })
+        .eq("id", messageId);
+
+      if (error) throw error;
+
+      fetchMessages();
+
+      if (selectedMessage?.id === messageId) {
+        setIsDrawerOpen(false);
+        setSelectedMessage(null);
+      }
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
   const deleteMessage = async (messageId: string) => {
     try {
       const { error } = await supabase
@@ -139,6 +181,36 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
       await Promise.all(
         messageIds.map((id) =>
           supabase.from("user_messages").update({ is_read: true }).eq("id", id)
+        )
+      );
+      fetchMessages();
+      setSelectedMessages(new Set());
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const bulkArchive = async () => {
+    try {
+      const messageIds = Array.from(selectedMessages);
+      await Promise.all(
+        messageIds.map((id) =>
+          supabase.from("user_messages").update({ folder: "archived" }).eq("id", id)
+        )
+      );
+      fetchMessages();
+      setSelectedMessages(new Set());
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const bulkMoveToInbox = async () => {
+    try {
+      const messageIds = Array.from(selectedMessages);
+      await Promise.all(
+        messageIds.map((id) =>
+          supabase.from("user_messages").update({ folder: "inbox" }).eq("id", id)
         )
       );
       fetchMessages();
@@ -240,8 +312,17 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
   const filteredMessages = useMemo(() => {
     let filtered = messages;
 
-    // ✅ Folder filtering (uses the new Supabase `folder` column)
-    filtered = filtered.filter((msg) => msg.folder === selectedFolder);
+    // ✅ Gmail hierarchy:
+    // Inbox = everything not archived (shows ALL non-archived regardless of other folders)
+    // Archived = only archived
+    // Other folders = only that folder, excluding archived
+    if (selectedFolder === "inbox") {
+      filtered = filtered.filter((msg) => msg.folder !== "archived");
+    } else if (selectedFolder === "archived") {
+      filtered = filtered.filter((msg) => msg.folder === "archived");
+    } else {
+      filtered = filtered.filter((msg) => msg.folder === selectedFolder);
+    }
 
     if (searchQuery) {
       filtered = filtered.filter(
@@ -266,7 +347,7 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
     return filtered;
   }, [messages, selectedFolder, searchQuery, typeFilter, statusFilter, sortOrder]);
 
-  const unreadCount = messages.filter((m) => !m.is_read).length;
+  const unreadCount = messages.filter((m) => !m.is_read && m.folder !== "archived").length;
 
   if (loading) {
     return (
@@ -390,6 +471,31 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
               >
                 {t.markReadBulk}
               </Button>
+
+              {selectedFolder !== "archived" ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={bulkArchive}
+                  disabled={selectedMessages.size === 0}
+                  className="border-gray-300"
+                >
+                  <Archive className="w-4 h-4 mr-2" />
+                  {t.archivedFolder}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={bulkMoveToInbox}
+                  disabled={selectedMessages.size === 0}
+                  className="border-gray-300"
+                >
+                  <Inbox className="w-4 h-4 mr-2" />
+                  {t.inboxFolder}
+                </Button>
+              )}
+
               <Button
                 variant="outline"
                 size="sm"
@@ -568,6 +674,27 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
                     {t.markAsReadButton}
                   </Button>
                 )}
+
+                {selectedMessage.folder !== "archived" ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => archiveMessage(selectedMessage.id)}
+                    className="flex-1 border-gray-300"
+                  >
+                    <Archive className="w-4 h-4 mr-2" />
+                    {t.archivedFolder}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => unarchiveMessage(selectedMessage.id)}
+                    className="flex-1 border-gray-300"
+                  >
+                    <Inbox className="w-4 h-4 mr-2" />
+                    {t.inboxFolder}
+                  </Button>
+                )}
+
                 <Button
                   variant="outline"
                   onClick={() => deleteMessage(selectedMessage.id)}
