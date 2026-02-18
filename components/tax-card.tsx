@@ -196,13 +196,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
       <CardContent className="p-2">
         <div className="space-y-4 mt-6">
           <div className="bg-white p-4 border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xl font-bold text-black mt-1">
-                  {t.taxManagement}
-                </p>
-              </div>
-            </div>
+
 
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-white p-3 border border-[#b91c1c]">
