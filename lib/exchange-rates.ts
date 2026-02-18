@@ -100,46 +100,80 @@ export class ExchangeRateService {
         }
       }
 
-      // Fetch crypto prices from CoinGecko (free, no API key required)
-      try {
-        console.log("Fetching crypto prices...");
-        const cryptoResponse = await fetch(
-          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,cardano,polkadot,chainlink&vs_currencies=usd",
-          {
-            headers: {
-              Accept: "application/json",
-            },
+      const cryptoSources = [
+        {
+          name: "CoinCap",
+          fetch: async () => {
+            const symbols = ["bitcoin", "ethereum", "tether", "cardano", "polkadot", "chainlink"];
+            const promises = symbols.map(async (id) => {
+              const response = await fetch(
+                `https://api.coincap.io/v2/assets/${id}`,
+                {
+                  signal: AbortSignal.timeout(8000),
+                  headers: { Accept: "application/json" }
+                }
+              );
+              if (!response.ok) throw new Error(`CoinCap failed for ${id}`);
+              const data = await response.json();
+              return { id, usd: parseFloat(data.data.priceUsd) };
+            });
+            const results = await Promise.all(promises);
+            return {
+              BTC: results.find(r => r.id === "bitcoin")?.usd || 85000,
+              ETH: results.find(r => r.id === "ethereum")?.usd || 3200,
+              USDT: results.find(r => r.id === "tether")?.usd || 1,
+              ADA: results.find(r => r.id === "cardano")?.usd || 0.9,
+              DOT: results.find(r => r.id === "polkadot")?.usd || 7,
+              LINK: results.find(r => r.id === "chainlink")?.usd || 22,
+            };
           }
-        );
-
-        if (cryptoResponse.ok) {
-          const cryptoData = await cryptoResponse.json();
-
-          rates.crypto = {
-            BTC: cryptoData.bitcoin?.usd || 45000,
-            ETH: cryptoData.ethereum?.usd || 2500,
-            USDT: cryptoData.tether?.usd || 1,
-            ADA: cryptoData.cardano?.usd || 0.5,
-            DOT: cryptoData.polkadot?.usd || 7,
-            LINK: cryptoData.chainlink?.usd || 15,
-          };
-          console.log("Crypto rates fetched successfully");
-        } else {
-          throw new Error(`Crypto API error: ${cryptoResponse.status}`);
+        },
+        {
+          name: "CoinGecko",
+          fetch: async () => {
+            const cryptoResponse = await fetch(
+              "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,cardano,polkadot,chainlink&vs_currencies=usd",
+              {
+                signal: AbortSignal.timeout(10000),
+                headers: { Accept: "application/json" }
+              }
+            );
+            if (!cryptoResponse.ok) throw new Error(`CoinGecko failed: ${cryptoResponse.status}`);
+            const cryptoData = await cryptoResponse.json();
+            return {
+              BTC: cryptoData.bitcoin?.usd || 85000,
+              ETH: cryptoData.ethereum?.usd || 3200,
+              USDT: cryptoData.tether?.usd || 1,
+              ADA: cryptoData.cardano?.usd || 0.9,
+              DOT: cryptoData.polkadot?.usd || 7,
+              LINK: cryptoData.chainlink?.usd || 22,
+            };
+          }
         }
-      } catch (cryptoError: any) {
-        console.warn(
-          "Failed to fetch crypto rates, using fallback:",
-          cryptoError.message
-        );
-        // Use fallback crypto rates if API fails
+      ];
+
+      let cryptoFetched = false;
+      for (const source of cryptoSources) {
+        try {
+          console.log(`Fetching crypto prices from ${source.name}...`);
+          rates.crypto = await source.fetch();
+          console.log(`Crypto rates fetched successfully from ${source.name}`);
+          cryptoFetched = true;
+          break;
+        } catch (cryptoError: any) {
+          console.warn(`${source.name} failed:`, cryptoError.message);
+        }
+      }
+
+      if (!cryptoFetched) {
+        console.warn("All crypto sources failed, using fallback");
         rates.crypto = {
-          BTC: 45000,
-          ETH: 2500,
+          BTC: 85000,
+          ETH: 3200,
           USDT: 1,
-          ADA: 0.5,
+          ADA: 0.9,
           DOT: 7,
-          LINK: 15,
+          LINK: 22,
         };
       }
 
@@ -164,12 +198,12 @@ export class ExchangeRateService {
           CHF: 0.92,
         },
         crypto: {
-          BTC: 45000,
-          ETH: 2500,
+          BTC: 85000,
+          ETH: 3200,
           USDT: 1,
-          ADA: 0.5,
+          ADA: 0.9,
           DOT: 7,
-          LINK: 15,
+          LINK: 22,
         },
         lastUpdated: Date.now(),
       };

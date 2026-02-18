@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { priceService } from "@/lib/price-service";
 
 interface RealtimeData {
   balances: {
@@ -36,7 +37,7 @@ export function useRealtimeData(): RealtimeData {
       eur_to_usd: 1.18,
       cad_to_usd: 0.74,
     },
-    cryptoPrices: { bitcoin: 45000, ethereum: 3000 },
+    cryptoPrices: { bitcoin: 85000, ethereum: 3200 },
     messages: [],
     deposits: [],
     cryptoTransactions: [],
@@ -100,22 +101,19 @@ export function useRealtimeData(): RealtimeData {
   };
 
   const fetchCryptoPrices = async () => {
-    const basePrices = {
-      bitcoin: 45000,
-      ethereum: 3000,
-    };
-
-    const variation = () => (Math.random() - 0.5) * 0.1;
-    return {
-      bitcoin: Math.max(
-        1000,
-        Math.round(basePrices.bitcoin * (1 + variation()))
-      ),
-      ethereum: Math.max(
-        100,
-        Math.round(basePrices.ethereum * (1 + variation()))
-      ),
-    };
+    try {
+      const prices = await priceService.getCryptoPrices();
+      return {
+        bitcoin: Math.round(prices.bitcoin?.eur || 85000),
+        ethereum: Math.round(prices.ethereum?.eur || 3200),
+      };
+    } catch (error) {
+      console.error("Error fetching crypto prices:", error);
+      return {
+        bitcoin: 85000,
+        ethereum: 3200,
+      };
+    }
   };
 
   const fetchMessages = async (userId: string) => {
