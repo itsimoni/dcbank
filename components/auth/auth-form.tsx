@@ -360,7 +360,7 @@ export default function AuthForm() {
                 <div className="relative">
                   <Button
                     variant="outline"
-                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-3 py-2 text-sm rounded-md transition-all duration-300 flex items-center gap-2"
+                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-3 py-2 text-sm transition-all duration-300 flex items-center gap-2"
                     onClick={toggleLanguageMenu}
                   >
                     <Globe className="h-4 w-4" />
