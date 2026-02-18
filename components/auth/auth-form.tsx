@@ -387,7 +387,7 @@ export default function AuthForm() {
 
                 <Button
                   variant="outline"
-                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-md transition-all duration-300 flex-1 xs:flex-none whitespace-nowrap"
+                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-300 flex-1 xs:flex-none whitespace-nowrap"
                   onClick={toggleSignUp}
                 >
                   {isSignUp ? t.signIn : t.createAccount}
