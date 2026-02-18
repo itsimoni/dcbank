@@ -328,9 +328,9 @@ export default function AuthForm() {
 
   return (
     <>
-      <div className="h-screen bg-[#b91c1c] flex items-center justify-center p-2 sm:p-4 overflow-hidden">
-        <div className="bg-white shadow-2xl max-w-5xl w-full h-auto sm:h-[600px] flex flex-col lg:flex-row overflow-visible">
-          <div className="relative w-full lg:w-2/5 h-32 sm:h-48 lg:h-full overflow-visible rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none hidden sm:block">
+      <div className="min-h-screen h-auto bg-[#b91c1c] flex items-center justify-center p-2 sm:p-4 md:p-6 py-4 sm:py-6">
+        <div className="bg-white shadow-2xl max-w-5xl w-full min-h-[500px] h-auto sm:min-h-[600px] flex flex-col lg:flex-row rounded-lg sm:rounded-2xl overflow-hidden">
+          <div className="relative w-full lg:w-2/5 h-40 sm:h-48 md:h-56 lg:h-auto overflow-hidden rounded-t-lg sm:rounded-t-2xl lg:rounded-l-2xl lg:rounded-tr-none">
             <div
               className="absolute inset-y-0 right-0 w-4 pointer-events-none hidden lg:block"
               style={{
@@ -338,41 +338,41 @@ export default function AuthForm() {
                   "linear-gradient(to left, rgba(0,0,0,0.3), transparent)",
               }}
             />
-            <div className="h-full flex items-center justify-center p-2 sm:p-4 pb-0 overflow-visible">
-              <div className="overflow-visible">
+            <div className="h-full flex items-center justify-center p-2 sm:p-4 overflow-hidden">
+              <div className="w-full h-full flex items-center justify-center">
                 <img
                   src="/logo2.svg"
                   alt="Digital Chain Bank ATM"
                   loading="lazy"
                   decoding="async"
-                  className="h-[200px] sm:h-[400px] lg:h-[1000px] w-auto object-contain scale-110 sm:scale-125 lg:scale-150"
+                  className="h-full w-auto max-h-[120px] sm:max-h-[180px] md:max-h-[220px] lg:max-h-[500px] xl:max-h-[600px] object-contain scale-110 sm:scale-125 lg:scale-150"
                 />
               </div>
             </div>
           </div>
 
-          <div className="w-full lg:w-3/5 flex flex-col rounded-2xl lg:rounded-r-2xl lg:rounded-l-none overflow-hidden">
-            <div className="flex flex-col sm:flex-row items-center justify-between px-4 bg-white gap-4 sm:gap-0">
-              <div className="flex items-center">
+          <div className="w-full lg:w-3/5 flex flex-col rounded-b-lg sm:rounded-b-2xl lg:rounded-r-2xl lg:rounded-bl-none overflow-hidden">
+            <div className="flex flex-col xs:flex-row items-center justify-between px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-white gap-2 sm:gap-3">
+              <div className="flex items-center w-full xs:w-auto justify-center xs:justify-start">
               </div>
 
-              <div className="flex items-center gap-2 pt-4">
-                <div className="relative">
+              <div className="flex items-center gap-2 w-full xs:w-auto justify-center xs:justify-end">
+                <div className="relative flex-1 xs:flex-none">
                   <Button
                     variant="outline"
-                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-3 py-2 text-sm transition-all duration-300 flex items-center gap-2"
+                    className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-300 flex items-center gap-1.5 sm:gap-2 w-full xs:w-auto justify-center"
                     onClick={toggleLanguageMenu}
                   >
-                    <Globe className="h-4 w-4" />
-                    {languageNames[language]}
+                    <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <span className="truncate">{languageNames[language]}</span>
                   </Button>
 
                   {showLanguageMenu && (
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-lg z-10 min-w-[140px]">
+                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-lg z-50 min-w-[140px] rounded-md overflow-hidden">
                       {(Object.keys(languageNames) as Language[]).map((lang) => (
                         <button
                           key={lang}
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors"
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-xs sm:text-sm transition-colors"
                           onClick={() => {
                             setLanguage(lang);
                             setShowLanguageMenu(false);
@@ -387,7 +387,7 @@ export default function AuthForm() {
 
                 <Button
                   variant="outline"
-                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-4 py-2 text-sm rounded-md transition-all duration-300 w-full sm:w-auto"
+                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-md transition-all duration-300 flex-1 xs:flex-none whitespace-nowrap"
                   onClick={toggleSignUp}
                 >
                   {isSignUp ? t.signIn : t.createAccount}
@@ -395,20 +395,20 @@ export default function AuthForm() {
               </div>
             </div>
 
-            <div className="flex-1 p-4 sm:p-6 lg:p-8 flex flex-col justify-center">
+            <div className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col justify-center overflow-y-auto">
               {error && (
-                <Alert variant="destructive" className="mb-4">
+                <Alert variant="destructive" className="mb-3 sm:mb-4">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-sm">
+                  <AlertDescription className="text-xs sm:text-sm">
                     {error}
                   </AlertDescription>
                 </Alert>
               )}
 
               {success && (
-                <Alert className="mb-4 border-green-200 bg-green-50">
+                <Alert className="mb-3 sm:mb-4 border-green-200 bg-green-50">
                   <AlertCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800 text-sm">
+                  <AlertDescription className="text-green-800 text-xs sm:text-sm">
                     {success}
                   </AlertDescription>
                 </Alert>
@@ -416,14 +416,14 @@ export default function AuthForm() {
 
               {!isSignUp ? (
                 <div className="max-w-sm mx-auto w-full">
-                  <div className="mb-6 sm:mb-8">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  <div className="mb-4 sm:mb-6 md:mb-8">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">
                       {t.signIn}
                     </h2>
-                    <p className="text-gray-600 text-sm">{t.signInSubtitle}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm">{t.signInSubtitle}</p>
                   </div>
 
-                  <form onSubmit={handleSignIn} className="space-y-6">
+                  <form onSubmit={handleSignIn} className="space-y-4 sm:space-y-5 md:space-y-6">
                     <div>
                       <input
                         type="email"
@@ -436,7 +436,7 @@ export default function AuthForm() {
                           }))
                         }
                         required
-                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
+                        className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
                       />
                     </div>
 
@@ -452,13 +452,13 @@ export default function AuthForm() {
                           }))
                         }
                         required
-                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
+                        className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-transparent"
                         onClick={toggleShowPassword}
                       >
                         {showPassword ? (
@@ -476,7 +476,7 @@ export default function AuthForm() {
                       />
                       <Label
                         htmlFor="remember"
-                        className="text-sm text-gray-600 cursor-pointer"
+                        className="text-xs sm:text-sm text-gray-600 cursor-pointer"
                       >
                         {t.rememberMe}
                       </Label>
@@ -484,7 +484,7 @@ export default function AuthForm() {
 
                     <Button
                       type="submit"
-                      className="w-24 h-10 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
+                      className="w-full sm:w-28 h-9 sm:h-10 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50 text-sm"
                       disabled={loading}
                     >
                       {loading ? t.loading : t.signInButton}
@@ -493,14 +493,14 @@ export default function AuthForm() {
                 </div>
               ) : (
                 <div className="max-w-md mx-auto w-full">
-                  <div className="mb-6 sm:mb-8">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  <div className="mb-4 sm:mb-6 md:mb-8">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">
                       {t.createAccountTitle}
                     </h2>
                   </div>
 
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <form onSubmit={handleSignUp} className="space-y-3 sm:space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <input
                           type="text"
@@ -513,7 +513,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
+                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
                         />
                       </div>
                       <div>
@@ -528,12 +528,12 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
+                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <input
                           type="email"
@@ -546,7 +546,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
+                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
                         />
                       </div>
                       <div>
@@ -561,7 +561,7 @@ export default function AuthForm() {
                             }))
                           }
                           required
-                          className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
+                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
                         />
                       </div>
                     </div>
@@ -578,14 +578,14 @@ export default function AuthForm() {
                           }))
                         }
                         required
-                        className="w-full h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-12 bg-transparent text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c]"
+                        className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 sm:pr-12 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
                       />
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 p-0"
+                          className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-transparent"
                           onClick={toggleShowPassword}
                         >
                           {showPassword ? (
@@ -597,10 +597,10 @@ export default function AuthForm() {
                       </div>
                     </div>
 
-                    <div className="pt-6">
+                    <div className="pt-3 sm:pt-4 md:pt-6">
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50"
+                        className="w-full h-10 sm:h-11 md:h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50 text-sm sm:text-base"
                         disabled={loading}
                       >
                         {loading ? t.creatingAccount : t.createAccount}
@@ -608,8 +608,8 @@ export default function AuthForm() {
                     </div>
                   </form>
 
-                  <div className="flex flex-col sm:flex-row justify-between items-center mt-6 sm:mt-8 text-xs gap-2 sm:gap-0">
-                    <button className="text-gray-500 hover:text-[#b91c1c] transition-colors">
+                  <div className="flex flex-col sm:flex-row justify-between items-center mt-4 sm:mt-6 md:mt-8 text-xs gap-2 sm:gap-0">
+                    <button className="text-gray-500 hover:text-[#b91c1c] transition-colors text-center sm:text-left">
                       {t.returnHome}
                     </button>
                     <span className="text-gray-400 text-center sm:text-right">
