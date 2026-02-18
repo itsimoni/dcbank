@@ -1362,7 +1362,7 @@ export default function TransfersSection({
           border: 2px solid #e5e7eb;
         }
         .transfer-item {
-          background: #fafafa;
+          background: white;
           border: 1px solid #e5e7eb;
           transition: all 0.3s ease;
           cursor: pointer;
@@ -1426,7 +1426,7 @@ export default function TransfersSection({
                     className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
                       language === lang.code
                         ? "bg-white text-red-600 font-medium border-l-2 border-red-600"
-                        : "text-gray-700 hover:bg-gray-50"
+                        : "text-gray-700 hover:bg-white"
                     }`}
                   >
                     <span>{lang.label}</span>
@@ -1601,7 +1601,7 @@ export default function TransfersSection({
                               <SelectItem
                                 key={currency.code}
                                 value={currency.code}
-                                className="py-3 hover:bg-slate-50"
+                                className="py-3 hover:bg-white"
                               >
                                 {renderCurrencyOption(currency)}
                               </SelectItem>
@@ -1647,7 +1647,7 @@ export default function TransfersSection({
                               <SelectItem
                                 key={currency.code}
                                 value={currency.code}
-                                className="py-3 hover:bg-slate-50"
+                                className="py-3 hover:bg-white"
                               >
                                 {renderCurrencyOption(currency)}
                               </SelectItem>
@@ -1783,7 +1783,7 @@ export default function TransfersSection({
                               <SelectItem
                                 key={currency.code}
                                 value={currency.code}
-                                className="py-3 hover:bg-slate-50"
+                                className="py-3 hover:bg-white"
                               >
                                 {renderCurrencyOption(currency)}
                               </SelectItem>
@@ -1829,7 +1829,7 @@ export default function TransfersSection({
                               <SelectItem
                                 key={currency.code}
                                 value={currency.code}
-                                className="py-3 hover:bg-slate-50"
+                                className="py-3 hover:bg-white"
                               >
                                 {renderCurrencyOption(currency)}
                               </SelectItem>
@@ -2238,7 +2238,7 @@ export default function TransfersSection({
                           </span>
 
                           {transfer.reference_number && (
-                            <span className="text-slate-600 bg-slate-100 px-2 py-1 text-xs font-mono">
+                            <span className="text-slate-600 bg-white border border-slate-300 px-2 py-1 text-xs font-mono">
                               {transfer.reference_number}
                             </span>
                           )}
