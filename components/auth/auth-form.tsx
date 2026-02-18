@@ -343,8 +343,8 @@ export default function AuthForm() {
                 <img
                   src="/logo2.svg"
                   alt="Digital Chain Bank ATM"
-                  loading="lazy"
-                  decoding="async"
+                  loading="eager"
+                  fetchPriority="high"
                   className="h-full w-auto max-h-[120px] sm:max-h-[180px] md:max-h-[220px] lg:max-h-[500px] xl:max-h-[600px] object-contain scale-110 sm:scale-125 lg:scale-150"
                 />
               </div>
