@@ -456,7 +456,8 @@ export default function RealCryptoTransferSection({
         saveBeneficiary();
       }
 
-      const { data, error } = await supabase.rpc("process_real_crypto_transfer", {
+      // ✅ UPDATED: use the returned transaction id from RPC (no extra select query)
+      const { data: txId, error } = await supabase.rpc("process_real_crypto_transfer", {
         p_user_id: userProfile.id,
         p_crypto_type: formData.crypto_type,
         p_network: formData.network,
@@ -473,22 +474,12 @@ export default function RealCryptoTransferSection({
         return;
       }
 
+      setLastTransactionId(txId);
+
       setCryptoBalances((prev) => ({
         ...prev,
         [`${formData.crypto_type.toLowerCase()}_balance`]: currentBalance - totalAmount,
       }));
-
-      const { data: transactionData } = await supabase
-        .from("crypto_transactions")
-        .select("id")
-        .eq("user_id", userProfile.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (transactionData) {
-        setLastTransactionId(transactionData.id);
-      }
 
       await supabase.from("transactions").insert({
         user_id: userProfile.id,
@@ -1241,7 +1232,7 @@ export default function RealCryptoTransferSection({
                       <div className="flex justify-between items-start">
                         <span className="text-sm text-gray-600">Reference ID</span>
                         <span className="font-mono text-sm font-medium text-gray-900">
-                          {lastTransactionId || "Generating..."}
+                          {lastTransactionId ? lastTransactionId.slice(0, 12).toUpperCase() : "Generating..."}
                         </span>
                       </div>
 
