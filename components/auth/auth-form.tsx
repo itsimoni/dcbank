@@ -368,7 +368,7 @@ export default function AuthForm() {
                   </Button>
 
                   {showLanguageMenu && (
-                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-lg z-50 min-w-[140px] rounded-md overflow-hidden">
+                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-lg z-50 min-w-[140px] overflow-hidden">
                       {(Object.keys(languageNames) as Language[]).map((lang) => (
                         <button
                           key={lang}
