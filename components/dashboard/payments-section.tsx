@@ -305,7 +305,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     const Icon = config.icon;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${config.color}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium ${config.color}`}>
         <Icon className="w-3 h-3" />
         {t[status.toLowerCase() as keyof typeof t] || status}
       </span>
@@ -377,7 +377,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             <div ref={dropdownRef} className="relative inline-block">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-3 bg-white border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
+                className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#F26623] focus:outline-none focus:ring-2 focus:ring-[#F26623] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
               >
                 <Languages className="w-4 h-4 text-gray-600" />
                 <span className="flex-1 text-left">
@@ -387,7 +387,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg overflow-hidden z-10">
+                <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
@@ -413,10 +413,10 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           </div>
         </div>
 
-        <div className="flex gap-2 border-b-2 border-gray-200 bg-white p-1 rounded-lg">
+        <div className="flex gap-2 bg-white p-1">
           <button
             onClick={() => setViewMode("new")}
-            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
               viewMode === "new"
                 ? "bg-[#F26623] text-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -426,7 +426,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           </button>
           <button
             onClick={() => setViewMode("pending")}
-            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors relative ${
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
               viewMode === "pending"
                 ? "bg-[#F26623] text-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -434,14 +434,14 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           >
             {t.pendingScheduled}
             {pendingPayments.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center">
                 {pendingPayments.length}
               </span>
             )}
           </button>
           <button
             onClick={() => setViewMode("history")}
-            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
               viewMode === "history"
                 ? "bg-[#F26623] text-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -455,29 +455,27 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {paymentTypes.map((type) => (
-                <Card
+                <div
                   key={type.id}
                   onClick={() => setFormData({ ...formData, payment_type: type.name })}
-                  className={`cursor-pointer transition-all bg-white ${
+                  className={`cursor-pointer transition-all bg-white border-l-4 p-4 ${
                     formData.payment_type === type.name
-                      ? "border-2 border-[#F26623] shadow-md"
-                      : "border border-gray-200 hover:shadow-md"
+                      ? "border-l-[#F26623] shadow-md border border-gray-200"
+                      : "border-l-gray-300 border border-gray-200 hover:shadow-md hover:border-l-[#F26623]"
                   }`}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      <type.icon className={`w-6 h-6 mt-1 flex-shrink-0 ${
-                        formData.payment_type === type.name ? "text-[#F26623]" : "text-gray-400"
-                      }`} />
-                      <div className="min-w-0">
-                        <h3 className="font-medium">{type.name}</h3>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {type.description}
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-4">
+                    <type.icon className={`w-6 h-6 mt-1 flex-shrink-0 ${
+                      formData.payment_type === type.name ? "text-[#F26623]" : "text-gray-400"
+                    }`} />
+                    <div className="min-w-0">
+                      <h3 className="font-medium">{type.name}</h3>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {type.description}
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -637,7 +635,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                <div className="bg-gray-50 p-4 space-y-3 border-l-4 border-l-[#F26623]">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">{t.paymentType}</span>
                     <span className="text-sm font-medium">{formData.payment_type}</span>
@@ -730,7 +728,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                           setSelectedPayment(payment);
                           setShowDetailsDrawer(true);
                         }}
-                        className="flex justify-between items-center p-4 bg-white border-l-4 border-l-blue-500 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                        className="flex justify-between items-center p-4 bg-white border-l-4 border-l-blue-500 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
                       >
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">
@@ -773,7 +771,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                           setSelectedPayment(payment);
                           setShowDetailsDrawer(true);
                         }}
-                        className="flex justify-between items-center p-4 bg-white border-l-4 border-l-yellow-500 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                        className="flex justify-between items-center p-4 bg-white border-l-4 border-l-yellow-500 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
                       >
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">
@@ -830,7 +828,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         setSelectedPayment(payment);
                         setShowDetailsDrawer(true);
                       }}
-                      className={`flex justify-between items-center p-4 bg-white border-l-4 rounded-lg cursor-pointer hover:shadow-md transition-shadow ${
+                      className={`flex justify-between items-center p-4 bg-white border-l-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow ${
                         payment.status === "Completed"
                           ? "border-l-green-500"
                           : payment.status === "Rejected"
@@ -901,7 +899,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                   </div>
 
                   {selectedPayment.status_reason && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="bg-red-50 border-l-4 border-l-red-500 border border-red-200 p-3">
                       <p className="text-xs text-gray-500 mb-1">{t.statusReason}</p>
                       <p className="text-sm text-red-900">{selectedPayment.status_reason}</p>
                     </div>
