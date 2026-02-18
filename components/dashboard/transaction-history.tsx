@@ -352,7 +352,7 @@ export default function TransactionHistory() {
           </Alert>
         )}
 
-        <div className="bg-white border-2 border-[#b91c1c] p-4 space-y-4">
+        <div className="bg-white border-2  p-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
