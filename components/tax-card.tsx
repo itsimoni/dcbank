@@ -270,7 +270,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
               </div>
 
               <div className="grid grid-cols-3 gap-3">
-                <div className="bg-yellow-50 p-3 border border-yellow-200">
+                <div className="bg-white p-3 border border-yellow-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-sm font-medium text-yellow-700">
                       {t.pending}
@@ -281,7 +281,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
                   </p>
                 </div>
 
-                <div className="bg-blue-50 p-3 border border-blue-200">
+                <div className="bg-white p-3 border border-blue-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-sm font-medium text-blue-700">
                       {t.onHold}
@@ -292,7 +292,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
                   </p>
                 </div>
 
-                <div className="bg-green-50 p-3 border border-green-200">
+                <div className="bg-white p-3 border border-green-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="text-sm font-medium text-green-700">
                       {t.paid}
