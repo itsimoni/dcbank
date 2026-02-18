@@ -3,25 +3,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
 import { getTranslations, Language } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Calculator,
-  DollarSign,
-  FileText,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Building2,
-  Receipt,
-  ChevronRight,
-  Pause,
-  PlusCircle,
-  Languages,
-  ChevronDown,
 } from "lucide-react";
 
 interface TaxRecord {
@@ -58,23 +44,8 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
     on_hold: { count: 0, amount: 0 },
     paid: { count: 0, amount: 0 },
   });
-  // Add language state
-  const { language, setLanguage } = useLanguage();
-  // Add language dropdown state
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
-
-  // Get translations
+  const { language } = useLanguage();
   const t = useMemo(() => getTranslations(language), [language]);
-
-  // Language names for the dropdown
-  const languageNames: Record<Language, string> = {
-    en: "English",
-    fr: "Français",
-    de: "Deutsch",
-    es: "Español",
-    it: "Italiano",
-    el: "Ελληνικά",
-  };
 
   useEffect(() => {
     fetchTaxes();
@@ -189,23 +160,6 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const getTotalTaxes = () => {
-    if (!taxRecord) return 0;
-    return (
-      Number(taxRecord.taxes) +
-      Number(taxRecord.on_hold) +
-      Number(taxRecord.paid)
-    );
-  };
-
   if (loading) {
     return (
       <Card className="animate-pulse">
@@ -240,110 +194,52 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
       </CardHeader>
 
       <CardContent className="p-2">
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger
-              value="overview"
-              className="flex items-center space-x-2"
-            >
-              <Calculator className="h-4 w-4" />
-              <span>{t.overview}</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              className="flex items-center space-x-2"
-            >
-              <Clock className="h-4 w-4" />
-              <span>{t.history}</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4 mt-6">
-            <div className="bg-white p-4 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-xl font-bold text-black mt-1">
-                    {t.taxManagement}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white p-3 border border-[#b91c1c]">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-black">
-                      {t.pending}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-black">
-                    {formatCurrency(taxStats.pending.amount)}
-                  </p>
-                </div>
-
-                <div className="bg-white p-3 border border-[#b91c1c]">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-black">
-                      {t.onHold}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-black">
-                    {formatCurrency(taxStats.on_hold.amount)}
-                  </p>
-                </div>
-
-                <div className="bg-white p-3 border border-[#b91c1c]">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-black">
-                      {t.paid}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-black">
-                    {formatCurrency(taxStats.paid.amount)}
-                  </p>
-                </div>
+        <div className="space-y-4 mt-6">
+          <div className="bg-white p-4 border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xl font-bold text-black mt-1">
+                  {t.taxManagement}
+                </p>
               </div>
             </div>
-          </TabsContent>
 
-          {/* History Tab */}
-          <TabsContent value="history" className="space-y-4 mt-6">
-            <div className="bg-white p-4 border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    {t.taxRecordHistory}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {t.lastUpdated}{" "}
-                    {taxRecord ? formatDate(taxRecord.updated_at) : t.never}
-                  </p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-white p-3 border border-[#b91c1c]">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-sm font-medium text-black">
+                    {t.pending}
+                  </span>
                 </div>
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-gray-600" />
-                </div>
+                <p className="text-lg font-bold text-black">
+                  {formatCurrency(taxStats.pending.amount)}
+                </p>
               </div>
 
-              {taxRecord ? (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-sm text-gray-600">
-                      {t.recordCreated}
-                    </span>
-                    <span className="text-sm font-medium">
-                      {formatDate(taxRecord.created_at)}
-                    </span>
-                  </div>
+              <div className="bg-white p-3 border border-[#b91c1c]">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-sm font-medium text-black">
+                    {t.onHold}
+                  </span>
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">{t.noTaxRecords}</p>
+                <p className="text-lg font-bold text-black">
+                  {formatCurrency(taxStats.on_hold.amount)}
+                </p>
+              </div>
+
+              <div className="bg-white p-3 border border-[#b91c1c]">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-sm font-medium text-black">
+                    {t.paid}
+                  </span>
                 </div>
-              )}
+                <p className="text-lg font-bold text-black">
+                  {formatCurrency(taxStats.paid.amount)}
+                </p>
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
