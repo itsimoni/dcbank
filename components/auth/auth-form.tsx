@@ -383,7 +383,7 @@ export default function AuthForm() {
 
               <Button
                 variant="outline"
-                className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs rounded-md transition-all duration-300 whitespace-nowrap"
+                className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs transition-all duration-300 whitespace-nowrap"
                 onClick={toggleSignUp}
               >
                 {isSignUp ? t.signIn : t.createAccount}
