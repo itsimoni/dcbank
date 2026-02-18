@@ -69,12 +69,6 @@ const MENU_ITEMS: MenuItem[] = [
     isEnabled: true,
   },
   {
-    id: "fund_account",
-    labelKey: "fundAccount",
-    icon: Wallet,
-    isEnabled: true,
-  },
-  {
     id: "transfers",
     labelKey: "transfers",
     icon: ArrowLeftRight,
