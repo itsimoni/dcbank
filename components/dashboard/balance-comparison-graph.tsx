@@ -249,25 +249,25 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
               size="sm"
               variant={viewMode === 'all' ? 'default' : 'outline'}
               onClick={() => setViewMode('all')}
-              className={viewMode === 'all' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none' : 'rounded-none'}
+              className={viewMode === 'all' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none focus:outline-none' : 'rounded-none focus:outline-none'}
             >
-              All
+              {t.viewModeAll}
             </Button>
             <Button
               size="sm"
               variant={viewMode === 'fiat' ? 'default' : 'outline'}
               onClick={() => setViewMode('fiat')}
-              className={viewMode === 'fiat' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none' : 'rounded-none'}
+              className={viewMode === 'fiat' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none focus:outline-none' : 'rounded-none focus:outline-none'}
             >
-              Fiat
+              {t.viewModeFiat}
             </Button>
             <Button
               size="sm"
               variant={viewMode === 'crypto' ? 'default' : 'outline'}
               onClick={() => setViewMode('crypto')}
-              className={viewMode === 'crypto' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none' : 'rounded-none'}
+              className={viewMode === 'crypto' ? 'bg-[#b91c1c] hover:bg-[#991b1b] rounded-none focus:outline-none' : 'rounded-none focus:outline-none'}
             >
-              Crypto
+              {t.viewModeCrypto}
             </Button>
           </div>
         </div>
@@ -385,10 +385,10 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                   fill="url(#colorValue)"
                   name={
                     viewMode === 'all'
-                      ? 'Total Balance'
+                      ? t.chartLegendTotalBalance
                       : viewMode === 'fiat'
-                        ? 'Fiat Balance'
-                        : 'Crypto Balance'
+                        ? t.chartLegendFiatBalance
+                        : t.chartLegendCryptoBalance
                   }
                 />
               </AreaChart>
@@ -398,7 +398,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
           <div className="h-80 w-full flex items-center justify-center bg-gray-50">
             <div className="text-center text-gray-500">
               <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No balance data available yet</p>
+              <p className="text-sm">{t.noBalanceDataAvailable}</p>
             </div>
           </div>
         )}
@@ -421,7 +421,7 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
                 €{rawBalances.euro.toFixed(2)}
               </div>
               <div className="text-gray-400 text-xs mt-1">
-                Base currency
+                {t.baseCurrency}
               </div>
             </div>
             <div className="p-3 bg-white rounded border border-gray-200">
