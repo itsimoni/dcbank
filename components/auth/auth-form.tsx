@@ -329,7 +329,7 @@ export default function AuthForm() {
   return (
     <>
       <div className="min-h-screen h-auto bg-[#b91c1c] flex items-center justify-center p-2 sm:p-4 md:p-6 py-4 sm:py-6">
-        <div className="bg-white shadow-2xl max-w-5xl w-full min-h-[500px] h-auto sm:min-h-[600px] flex flex-col lg:flex-row sm:rounded-2xl overflow-hidden">
+        <div className="bg-white shadow-2xl max-w-5xl w-full min-h-[500px] h-auto sm:min-h-[600px] flex flex-col lg:flex-row overflow-hidden">
           <div className="relative w-full lg:w-2/5 h-40 sm:h-48 md:h-56 lg:h-auto overflow-hidden">
             <div
               className="absolute inset-y-0 right-0 w-4 pointer-events-none hidden lg:block"
@@ -351,7 +351,7 @@ export default function AuthForm() {
             </div>
           </div>
 
-          <div className="w-full lg:w-3/5 flex flex-col rounded-b-lg sm:rounded-b-2xl lg:rounded-r-2xl lg:rounded-bl-none overflow-hidden">
+          <div className="w-full lg:w-3/5 flex flex-col overflow-hidden">
             <div className="flex items-center justify-end px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-white gap-2">
               <div className="relative">
                 <Button
