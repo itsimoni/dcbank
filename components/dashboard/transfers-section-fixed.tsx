@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRealtimeData } from "../../hooks/use-realtime-data";
 import { ExchangeRateService } from "../../lib/exchange-rates";
@@ -33,7 +33,6 @@ import {
   TrendingUp,
   ChevronUp,
   ChevronDown,
-  Languages,
   Check,
   Copy,
   FileText,
@@ -160,20 +159,9 @@ export default function TransfersSection({
     lastUpdated: 0,
   });
 
-  const { language, setLanguage } = useLanguage();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   const t = getTranslations(language);
-
-  const languages: { code: Language; label: string }[] = [
-    { code: "en", label: "English" },
-    { code: "fr", label: "Français" },
-    { code: "de", label: "Deutsch" },
-    { code: "es", label: "Español" },
-    { code: "it", label: "Italiano" },
-    { code: "el", label: "Ελληνικά" },
-  ];
 
   const [internalFormData, setInternalFormData] = useState({
     from_currency: "",
@@ -222,20 +210,6 @@ export default function TransfersSection({
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const [copiedField, setCopiedField] = useState<string>("");
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     if (userProfile?.id) {
@@ -1394,54 +1368,10 @@ export default function TransfersSection({
         }
       `}</style>
 
-      {/* Header Container - Language Button and Header */}
+      {/* Header Container */}
       <div className="flex-shrink-0 border-b-2 border-gray-200">
-        {/* Language Selector - Top Right */}
-        <div className="flex justify-end p-4 pb-0">
-          <div ref={dropdownRef} className="relative inline-block">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
-            >
-              <Languages className="w-4 h-4 text-gray-600" />
-              <span className="flex-1 text-left">
-                {languages.find((lang) => lang.code === language)?.label}
-              </span>
-              <ChevronDown
-                className={`w-4 h-4 text-gray-600 transition-transform ${
-                  isDropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => {
-                      setLanguage(lang.code);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
-                      language === lang.code
-                        ? "bg-white text-red-600 font-medium border-l-2 border-red-600"
-                        : "text-gray-700 hover:bg-white"
-                    }`}
-                  >
-                    <span>{lang.label}</span>
-                    {language === lang.code && (
-                      <Check className="w-4 h-4 text-red-600" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Header Content */}
-        <div className="text-center py-6 md:py-6 px-4 md:px-6">
+        <div className="text-center py-6 md:py-8 px-4 md:px-6">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
             {t.currencyTransfers}
           </h2>
