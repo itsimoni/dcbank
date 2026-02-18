@@ -368,7 +368,7 @@ export default function AuthForm() {
                     {(Object.keys(languageNames) as Language[]).map((lang) => (
                       <button
                         key={lang}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-xs sm:text-sm transition-colors"
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-xs border-none sm:text-sm transition-colors"
                         onClick={() => {
                           setLanguage(lang);
                           setShowLanguageMenu(false);
