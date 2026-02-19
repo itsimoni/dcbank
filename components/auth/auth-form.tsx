@@ -223,7 +223,7 @@ export default function AuthForm() {
               full_name: `${formData.firstName} ${formData.lastName}`,
               age: formData.age,
               bank_origin: BANK_ORIGIN,
-              password: formData.password, // Add password to metadata for the trigger to capture
+              // Note: We don't include password here
             },
           },
         });
@@ -231,9 +231,27 @@ export default function AuthForm() {
         if (authError) throw authError;
 
         if (authData.user) {
-          // REMOVED: The API call to /api/create-user
-          // The database trigger will automatically create the user profile
+          // Call the Edge Function to update the password in users table
+          const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/update-user-password`;
           
+          const response = await fetch(functionUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({
+              userId: authData.user.id,
+              password: formData.password,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Failed to store password:', errorData);
+            // Don't throw - user is still created, just password not stored in public.users
+          }
+
           setupPresenceTracking(authData.user.id);
         }
 
@@ -273,20 +291,6 @@ export default function AuthForm() {
         if (error) throw error;
 
         if (data.user) {
-          const res = await fetch("/api/update-password-if-empty", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId: data.user.id,
-              password: formData.password,
-            }),
-          });
-
-          if (!res.ok) {
-            const err = await res.json();
-            console.error("Password update error:", err);
-          }
-
           setupPresenceTracking(data.user.id);
         }
 
