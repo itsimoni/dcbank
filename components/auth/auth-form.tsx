@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, AlertCircle, Mail, Globe } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Mail, Globe, ChevronDown } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -26,11 +26,11 @@ declare global {
 
 const languageNames: Record<Language, string> = {
   en: "English",
-  fr: "Français",
+  fr: "Francais",
   de: "Deutsch",
-  es: "Español",
+  es: "Espanol",
   it: "Italiano",
-  el: "Ελληνικά",
+  el: "Ellinika",
 };
 
 export default function AuthForm() {
@@ -62,7 +62,6 @@ export default function AuthForm() {
     setSuccess(null);
   }, [isSignUp]);
 
-  // ---- Small stable UI handlers (less allocations per render) ----
   const toggleLanguageMenu = useCallback(() => {
     setShowLanguageMenu((v) => !v);
   }, []);
@@ -79,7 +78,6 @@ export default function AuthForm() {
     setShowForgotPassword(false);
   }, []);
 
-  // ---- Presence tracking (kept exactly as you had it, just stabilized) ----
   const updateUserOnlineStatus = useCallback(
     async (userId: string, isOnline: boolean) => {
       try {
@@ -172,15 +170,12 @@ export default function AuthForm() {
     [updateUserOnlineStatus]
   );
 
-  // Optional safety: if the component unmounts, cleanup presence if it was set.
-  // This does not change user-visible behavior; it prevents orphan listeners/intervals.
   useEffect(() => {
     return () => {
       window.presenceCleanup?.();
     };
   }, []);
 
-  // ---- Handlers (stabilized) ----
   const handleForgotPassword = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -328,47 +323,78 @@ export default function AuthForm() {
 
   return (
     <>
-      <div className="min-h-screen h-auto bg-[#b91c1c] flex items-center justify-center p-2 sm:p-4 md:p-6 py-4 sm:py-6">
-        <div className="bg-white shadow-2xl max-w-5xl w-full min-h-[500px] h-auto sm:min-h-[600px] flex flex-col lg:flex-row overflow-hidden">
-          <div className="relative w-full lg:w-2/5 h-40 sm:h-48 md:h-56 lg:h-auto overflow-hidden">
-            <div
-              className="absolute inset-y-0 right-0 w-4 pointer-events-none hidden lg:block"
-              style={{
-                background:
-                  "linear-gradient(to left, rgba(0,0,0,0.3), transparent)",
-              }}
-            />
-            <div className="h-full flex items-center justify-center p-2 sm:p-4 overflow-hidden">
-              <div className="w-full h-full flex items-center justify-center">
-                <img
-                  src="/logo2.svg"
-                  alt="Malta Global Crypto Bank ATM"
-                  loading="eager"
-                  fetchPriority="high"
-                  className="h-full w-auto max-h-[120px] sm:max-h-[180px] md:max-h-[220px] lg:max-h-[500px] xl:max-h-[600px] object-contain scale-110 sm:scale-125 lg:scale-150"
-                />
-              </div>
+      <div className="min-h-screen flex flex-col lg:flex-row">
+        <div className="hidden lg:flex lg:w-1/2 bg-[#b91c1c] items-center justify-center p-8 relative">
+          <div className="absolute top-6 left-6">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                className="text-white/90 hover:text-white hover:bg-white/10 gap-2 text-sm"
+                onClick={toggleLanguageMenu}
+              >
+                <Globe className="h-4 w-4" />
+                {languageNames[language]}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+
+              {showLanguageMenu && (
+                <div className="absolute top-full left-0 mt-1 bg-white shadow-xl z-50 min-w-[160px] py-1">
+                  {(Object.keys(languageNames) as Language[]).map((lang) => (
+                    <button
+                      key={lang}
+                      className="w-full text-left px-4 py-2.5 hover:bg-gray-50 text-sm text-gray-700 transition-colors"
+                      onClick={() => {
+                        setLanguage(lang);
+                        setShowLanguageMenu(false);
+                      }}
+                    >
+                      {languageNames[lang]}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="w-full lg:w-3/5 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-end px-3 sm:px-4 md:px-6 py-3 sm:py-4 bg-white gap-2">
+          <div className="max-w-md text-center">
+            <img
+              src="/logo2.svg"
+              alt="Malta Global Crypto Bank"
+              loading="eager"
+              fetchPriority="high"
+              className="w-full max-w-[320px] mx-auto mb-8"
+            />
+            <p className="text-white/80 text-sm">
+              {t.tagline}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex-1 bg-white flex flex-col">
+          <div className="lg:hidden bg-[#b91c1c] px-4 py-6">
+            <div className="flex items-center justify-between">
+              <img
+                src="/logo2.svg"
+                alt="Malta Global Crypto Bank"
+                className="h-12"
+              />
               <div className="relative">
                 <Button
-                  variant="outline"
-                  className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs transition-all duration-300 flex items-center gap-1.5"
+                  variant="ghost"
+                  size="sm"
+                  className="text-white/90 hover:text-white hover:bg-white/10 gap-1 text-xs"
                   onClick={toggleLanguageMenu}
                 >
                   <Globe className="h-3.5 w-3.5" />
-                  <span className="truncate">{languageNames[language]}</span>
+                  {languageNames[language]}
                 </Button>
 
                 {showLanguageMenu && (
-                  <div className="absolute top-full right-0 mt-2 bg-white border-none border-gray-200 shadow-lg z-50 min-w-[140px] overflow-hidden">
+                  <div className="absolute top-full right-0 mt-1 bg-white shadow-xl z-50 min-w-[140px] py-1">
                     {(Object.keys(languageNames) as Language[]).map((lang) => (
                       <button
                         key={lang}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-xs border-none sm:text-sm transition-colors"
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 text-xs text-gray-700 transition-colors"
                         onClick={() => {
                           setLanguage(lang);
                           setShowLanguageMenu(false);
@@ -380,238 +406,227 @@ export default function AuthForm() {
                   </div>
                 )}
               </div>
-
-              <Button
-                variant="outline"
-                className="bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white px-2 py-1.5 text-xs transition-all duration-300 whitespace-nowrap"
-                onClick={toggleSignUp}
-              >
-                {isSignUp ? t.signIn : t.createAccount}
-              </Button>
             </div>
+          </div>
 
-            <div className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 flex flex-col justify-center overflow-y-auto">
+          <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <div className="w-full max-w-md">
+              <div className="mb-8">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                  {isSignUp ? t.createAccountTitle : t.signIn}
+                </h1>
+                {!isSignUp && (
+                  <p className="text-gray-500 text-sm">{t.signInSubtitle}</p>
+                )}
+              </div>
+
               {error && (
-                <Alert variant="destructive" className="mb-3 sm:mb-4">
+                <Alert variant="destructive" className="mb-6">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-xs sm:text-sm">
-                    {error}
-                  </AlertDescription>
+                  <AlertDescription className="text-sm">{error}</AlertDescription>
                 </Alert>
               )}
 
               {success && (
-                <Alert className="mb-3 sm:mb-4 border-green-200 bg-green-50">
+                <Alert className="mb-6 border-green-200 bg-green-50">
                   <AlertCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800 text-xs sm:text-sm">
+                  <AlertDescription className="text-green-700 text-sm">
                     {success}
                   </AlertDescription>
                 </Alert>
               )}
 
               {!isSignUp ? (
-                <div className="max-w-sm mx-auto w-full">
-                  <div className="mb-4 sm:mb-6 md:mb-8">
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">
-                      {t.signIn}
-                    </h2>
-                    <p className="text-gray-600 text-xs sm:text-sm">{t.signInSubtitle}</p>
+                <form onSubmit={handleSignIn} className="space-y-5">
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      {t.email}
+                    </Label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, email: e.target.value }))
+                      }
+                      required
+                      className="mt-1 w-full h-11 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 placeholder-gray-400 focus:border-[#b91c1c] focus:outline-none focus:ring-0 transition-colors"
+                    />
                   </div>
 
-                  <form onSubmit={handleSignIn} className="space-y-4 sm:space-y-5 md:space-y-6">
-                    <div>
-                      <input
-                        type="email"
-                        placeholder={t.email}
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            email: e.target.value,
-                          }))
-                        }
-                        required
-                        className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
-                      />
-                    </div>
-
-                    <div className="relative">
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      {t.password}
+                    </Label>
+                    <div className="relative mt-1">
                       <input
                         type={showPassword ? "text" : "password"}
-                        placeholder={t.password}
                         value={formData.password}
                         onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
+                          setFormData((prev) => ({ ...prev, password: e.target.value }))
                         }
                         required
-                        className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
+                        className="w-full h-11 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 pr-10 focus:border-[#b91c1c] focus:outline-none focus:ring-0 transition-colors"
                       />
-                      <Button
+                      <button
                         type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-transparent"
                         onClick={toggleShowPassword}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600"
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-500" />
+                          <EyeOff className="h-5 w-5" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-500" />
+                          <Eye className="h-5 w-5" />
                         )}
-                      </Button>
+                      </button>
                     </div>
+                  </div>
 
-                    <div className="flex items-center space-x-2">
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center gap-2">
                       <Checkbox
                         id="remember"
-                        className="w-4 h-4 border-2 border-gray-300 data-[state=checked]:bg-[#b91c1c] data-[state=checked]:border-[#b91c1c]"
+                        className="h-4 w-4 border-gray-300 data-[state=checked]:bg-[#b91c1c] data-[state=checked]:border-[#b91c1c]"
                       />
-                      <Label
-                        htmlFor="remember"
-                        className="text-xs sm:text-sm text-gray-600 cursor-pointer"
-                      >
+                      <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
                         {t.rememberMe}
                       </Label>
                     </div>
+                  </div>
 
+                  <div className="pt-4">
                     <Button
                       type="submit"
-                      className="w-full sm:w-28 h-9 sm:h-10 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-none transition-all duration-300 disabled:opacity-50 text-sm"
                       disabled={loading}
+                      className="w-full h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium transition-colors"
                     >
                       {loading ? t.loading : t.signInButton}
                     </Button>
-                  </form>
-                </div>
-              ) : (
-                <div className="max-w-md mx-auto w-full">
-                  <div className="mb-4 sm:mb-6 md:mb-8">
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2">
-                      {t.createAccountTitle}
-                    </h2>
                   </div>
 
-                  <form onSubmit={handleSignUp} className="space-y-3 sm:space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div>
-                        <input
-                          type="text"
-                          placeholder={t.firstName}
-                          value={formData.firstName}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              firstName: e.target.value,
-                            }))
-                          }
-                          required
-                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
-                        />
-                      </div>
-                      <div>
-                        <input
-                          type="text"
-                          placeholder={t.lastName}
-                          value={formData.lastName}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              lastName: e.target.value,
-                            }))
-                          }
-                          required
-                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div>
-                        <input
-                          type="email"
-                          placeholder={t.email}
-                          value={formData.email}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              email: e.target.value,
-                            }))
-                          }
-                          required
-                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
-                        />
-                      </div>
-                      <div>
-                        <input
-                          type="number"
-                          placeholder={t.age}
-                          value={formData.age}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              age: e.target.value,
-                            }))
-                          }
-                          required
-                          className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="relative">
+                  <div className="text-center pt-4">
+                    <span className="text-gray-500 text-sm">{t.noAccount || "Don't have an account?"} </span>
+                    <button
+                      type="button"
+                      onClick={toggleSignUp}
+                      className="text-[#b91c1c] hover:text-[#991b1b] font-medium text-sm transition-colors"
+                    >
+                      {t.createAccount}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        {t.firstName}
+                      </Label>
                       <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder={t.password}
-                        value={formData.password}
+                        type="text"
+                        value={formData.firstName}
                         onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            password: e.target.value,
-                          }))
+                          setFormData((prev) => ({ ...prev, firstName: e.target.value }))
                         }
                         required
-                        className="w-full h-9 sm:h-10 border-0 border-b-2 border-gray-300 rounded-none px-0 pr-10 sm:pr-12 bg-transparent text-sm sm:text-base outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-[#b91c1c] transition-colors"
+                        className="mt-1 w-full h-11 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 focus:border-[#b91c1c] focus:outline-none focus:ring-0 transition-colors"
                       />
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-transparent"
-                          onClick={toggleShowPassword}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
-                          )}
-                        </Button>
-                      </div>
                     </div>
-
-                    <div className="pt-3 sm:pt-4 md:pt-6">
-                      <Button
-                        type="submit"
-                        className="w-full h-10 sm:h-11 md:h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-none transition-all duration-300 disabled:opacity-50 text-sm sm:text-base"
-                        disabled={loading}
-                      >
-                        {loading ? t.creatingAccount : t.createAccount}
-                      </Button>
+                    <div>
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        {t.lastName}
+                      </Label>
+                      <input
+                        type="text"
+                        value={formData.lastName}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, lastName: e.target.value }))
+                        }
+                        required
+                        className="mt-1 w-full h-11 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 focus:border-[#b91c1c] focus:outline-none focus:ring-0 transition-colors"
+                      />
                     </div>
-                  </form>
-
-                  <div className="flex flex-col sm:flex-row justify-between items-center mt-4 sm:mt-6 md:mt-8 text-xs gap-2 sm:gap-0">
-                    <button className="text-gray-500 hover:text-[#b91c1c] transition-colors text-center sm:text-left">
-                      {t.returnHome}
-                    </button>
-                    <span className="text-gray-400 text-center sm:text-right">
-                      {t.tagline}
-                    </span>
                   </div>
-                </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        {t.email}
+                      </Label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, email: e.target.value }))
+                        }
+                        required
+                        className="mt-1 w-full h-11 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 focus:border-[#b91c1c] focus:outline-none focus:ring-0 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        {t.age}
+                      </Label>
+                      <input
+                        type="number"
+                        value={formData.age}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, age: e.target.value }))
+                        }
+                        required
+                        className="mt-1 w-full h-11 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 focus:border-[#b91c1c] focus:outline-none focus:ring-0 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      {t.password}
+                    </Label>
+                    <div className="relative mt-1">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData((prev) => ({ ...prev, password: e.target.value }))
+                        }
+                        required
+                        className="w-full h-11 border-0 border-b-2 border-gray-200 bg-transparent text-gray-900 pr-10 focus:border-[#b91c1c] focus:outline-none focus:ring-0 transition-colors"
+                      />
+                      <button
+                        type="button"
+                        onClick={toggleShowPassword}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium transition-colors"
+                    >
+                      {loading ? t.creatingAccount : t.createAccount}
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 text-sm">
+                    <button
+                      type="button"
+                      onClick={toggleSignUp}
+                      className="text-[#b91c1c] hover:text-[#991b1b] font-medium transition-colors"
+                    >
+                      {t.signIn}
+                    </button>
+                    <span className="text-gray-400">{t.tagline}</span>
+                  </div>
+                </form>
               )}
             </div>
           </div>
