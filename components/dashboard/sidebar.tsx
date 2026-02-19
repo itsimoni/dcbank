@@ -319,6 +319,28 @@ export default function Sidebar({
               )}
             </div>
           </div>
+
+          <div className="pb-4 pt-2">
+            <div className="text-[10px] text-gray-500 leading-relaxed space-y-1.5">
+              <p className="font-medium text-gray-600">
+                Licensed & Regulated Financial Institution
+              </p>
+              <p>
+                Member of European Banking Federation. Deposits protected up to EUR 100,000 under EU Deposit Guarantee Scheme.
+              </p>
+              <p>
+                Reg. No. CH-2847193 | SWIFT: DGCHXXXX
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <span className="inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[9px] font-medium rounded">
+                  PCI DSS Certified
+                </span>
+                <span className="inline-flex items-center px-1.5 py-0.5 bg-gray-100 text-gray-600 text-[9px] font-medium rounded">
+                  ISO 27001
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <nav className="flex-1 px-6 overflow-y-auto scrollbar-hide">
