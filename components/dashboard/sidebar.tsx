@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Image from "next/image";
 
 const scrollbarHideStyles = `
   .scrollbar-hide {
@@ -279,11 +280,12 @@ export default function Sidebar({
       >
         <div className="px-6 pt-2 flex-shrink-0 border-b border-gray-200/50">
           <div className="flex items-center justify-between">
-            <img
-              src="/logo2.svg"
+            <Image
+              src="/logo2.png"
               alt="Digital Chain Bank Logo"
               width={160}
               height={96}
+              priority
               className="mr-3 w-[160px] h-[96px] object-contain"
             />
             <div className="relative">
