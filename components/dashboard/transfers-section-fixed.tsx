@@ -1281,15 +1281,6 @@ export default function TransfersSection({
     );
   };
 
-  if (loading) {
-    return (
-      <div className="p-8 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-b-2 border-red-600"></div>
-        <span className="ml-3 text-slate-600">{t.loadingTransfers}</span>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="p-8 flex items-center justify-center">

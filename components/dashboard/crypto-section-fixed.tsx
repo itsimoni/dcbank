@@ -596,17 +596,6 @@ export default function RealCryptoTransferSection({
 
   const isNewAddress = formData.recipient_address && !savedBeneficiaries.some((b) => b.address === formData.recipient_address);
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-          <p className="text-gray-600">{t.loadingCryptoData}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full overflow-y-auto bg-gray-50">
       <div className="p-6 pt-4 pt-xs-16 space-y-6 relative min-h-full max-w-7xl mx-auto">

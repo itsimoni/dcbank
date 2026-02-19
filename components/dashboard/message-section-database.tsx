@@ -349,17 +349,6 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
 
   const unreadCount = messages.filter((m) => !m.is_read && m.folder !== "archived").length;
 
-  if (loading) {
-    return (
-      <div className="h-full w-full flex items-center justify-center">
-        <div className="flex items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c]"></div>
-          <span className="ml-2">{t.loadingMessagesText}</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full w-full flex flex-col lg:flex-row bg-gray-50 overflow-hidden">
       <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">

@@ -363,10 +363,6 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     (p) => p.status === "Completed" || p.status === "Rejected" || p.status === "Cancelled" || p.status === "Returned"
   );
 
-  if (loading) {
-    return <div className="p-6">{t.loadingPayments}</div>;
-  }
-
   return (
     <div className="h-full overflow-y-auto bg-gray-50">
       <div className="p-6 pt-4 pt-xs-16 space-y-6">

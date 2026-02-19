@@ -309,14 +309,6 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     return Math.min(percentage, 100);
   };
 
-  if (loading) {
-    return (
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6">{t.loadingCards}</div>
-      </div>
-    );
-  }
-
   const cardCounts = getCardCounts();
 
   return (
