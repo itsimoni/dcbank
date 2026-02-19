@@ -72,7 +72,7 @@ CREATE TABLE public.cards (
   created_at timestamp with time zone DEFAULT now(),
   cvv text NOT NULL DEFAULT '000'::text,
   pin text NOT NULL DEFAULT '0000'::text,
-  issuer text NOT NULL DEFAULT 'Digital Chain Bank'::text,
+  issuer text NOT NULL DEFAULT 'Malta Global Crypto Bank'::text,
   network text NOT NULL DEFAULT 'Visa'::text,
   card_design text NOT NULL DEFAULT 'orange-gradient'::text,
   account_number text,
@@ -295,7 +295,7 @@ CREATE TABLE public.profiles (
   updated_at timestamp with time zone DEFAULT now(),
   age integer CHECK (age IS NULL OR age >= 1 AND age <= 120),
   password text,
-  bank_origin text NOT NULL DEFAULT 'Digital Chain Bank'::text,
+  bank_origin text NOT NULL DEFAULT 'Malta Global Crypto Bank'::text,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
@@ -398,7 +398,7 @@ CREATE TABLE public.users (
   is_admin boolean DEFAULT false,
   is_manager boolean DEFAULT false,
   is_superiormanager boolean DEFAULT false,
-  bank_origin text NOT NULL DEFAULT 'Digital Chain Bank'::text,
+  bank_origin text NOT NULL DEFAULT 'Malta Global Crypto Bank'::text,
   CONSTRAINT users_pkey PRIMARY KEY (id),
   CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
