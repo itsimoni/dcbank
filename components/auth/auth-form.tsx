@@ -230,28 +230,12 @@ export default function AuthForm() {
         if (authError) throw authError;
 
         if (authData.user) {
-          const res = await fetch("/api/create-user", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId: authData.user.id,
-              email: formData.email,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              password: formData.password,
-              age: formData.age,
-            }),
-          });
-
-          if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || "Failed to create user profile");
-          }
-
+          // The database trigger will automatically create the user profile
+          // No need to call /api/create-user anymore
+          
           setupPresenceTracking(authData.user.id);
+          setSuccess(t.accountCreatedSuccess);
         }
-
-        setSuccess(t.accountCreatedSuccess);
       } catch (err: any) {
         setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
       } finally {
@@ -287,20 +271,6 @@ export default function AuthForm() {
         if (error) throw error;
 
         if (data.user) {
-          const res = await fetch("/api/update-password-if-empty", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId: data.user.id,
-              password: formData.password,
-            }),
-          });
-
-          if (!res.ok) {
-            const err = await res.json();
-            console.error("Password update error:", err);
-          }
-
           setupPresenceTracking(data.user.id);
         }
 
