@@ -45,7 +45,7 @@ BEGIN
     ),
     COALESCE((NEW.raw_user_meta_data->>'age')::integer, NULL),
     'not_started',
-    'Digital Chain Bank',
+    'Malta Global Crypto Bank',
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
@@ -75,7 +75,7 @@ BEGIN
              ))
     ),
     COALESCE((NEW.raw_user_meta_data->>'age')::integer, NULL),
-    'Digital Chain Bank',
+    'Malta Global Crypto Bank',
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
