@@ -362,7 +362,7 @@ export default function AuthForm() {
               alt="Malta Global Crypto Bank"
               loading="eager"
               fetchPriority="high"
-              className="w-full max-w-[400px] mx-auto mb-8"
+              className="w-full max-w-[320px] mx-auto mb-8"
             />
             <p className="text-white/80 text-sm">
               {t.tagline}
