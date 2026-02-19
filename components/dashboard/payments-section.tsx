@@ -39,6 +39,14 @@ import {
   Bitcoin,
   Wallet,
   Building2,
+  Send,
+  ArrowDownLeft,
+  History,
+  ExternalLink,
+  Zap,
+  Shield,
+  TrendingUp,
+  ArrowRight,
 } from "lucide-react";
 import { Language, getTranslations } from "../../lib/translations";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -79,7 +87,36 @@ interface CryptoBalances {
   updated_at: string;
 }
 
+interface CryptoTransaction {
+  id: string;
+  user_id: string;
+  transaction_type: string;
+  crypto_type: string;
+  amount: number;
+  amount_usd: number | null;
+  network: string;
+  from_address: string | null;
+  to_address: string | null;
+  tx_hash: string | null;
+  confirmations: number;
+  required_confirmations: number;
+  status: string;
+  fee_crypto: number;
+  fee_usd: number | null;
+  reference: string | null;
+  description: string | null;
+  recipient_name: string | null;
+  exchange_rate: number | null;
+  priority: string;
+  estimated_completion: string | null;
+  completed_at: string | null;
+  failed_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 type PaymentMethod = "crypto" | "bank";
+type CryptoTab = "wallet" | "send" | "receive" | "history";
 
 interface Payment {
   id: string;
@@ -125,6 +162,20 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const [selectedCrypto, setSelectedCrypto] = useState<string>("BTC");
   const [loadingWallets, setLoadingWallets] = useState(true);
   const [cryptoBalances, setCryptoBalances] = useState<CryptoBalances | null>(null);
+  const [cryptoTab, setCryptoTab] = useState<CryptoTab>("wallet");
+  const [cryptoTransactions, setCryptoTransactions] = useState<CryptoTransaction[]>([]);
+  const [showCryptoReview, setShowCryptoReview] = useState(false);
+  const [sendingCrypto, setSendingCrypto] = useState(false);
+
+  const [cryptoSendForm, setCryptoSendForm] = useState({
+    crypto_type: "BTC",
+    amount: "",
+    to_address: "",
+    recipient_name: "",
+    network: "Mainnet",
+    description: "",
+    priority: "medium",
+  });
 
   const [formData, setFormData] = useState({
     payment_type: "",
@@ -172,8 +223,27 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
       fetchPayments();
       fetchCryptoWallets();
       fetchCryptoBalances();
+      fetchCryptoTransactions();
     }
   }, [userProfile?.id]);
+
+  const fetchCryptoTransactions = async () => {
+    if (!userProfile?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("crypto_transactions")
+        .select("*")
+        .eq("user_id", userProfile.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setCryptoTransactions(data || []);
+    } catch (error) {
+      console.error("Error fetching crypto transactions:", error);
+    }
+  };
 
   const fetchCryptoBalances = async () => {
     try {
@@ -347,6 +417,120 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
       title: "Wallet address copied",
       description: "The wallet address has been copied to your clipboard",
     });
+  };
+
+  const handleCryptoSendReview = () => {
+    const amount = parseFloat(cryptoSendForm.amount);
+    const balance = getBalanceForCrypto(cryptoSendForm.crypto_type);
+
+    if (!cryptoSendForm.amount || amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount to send",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount > balance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You don't have enough ${cryptoSendForm.crypto_type} to complete this transaction`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!cryptoSendForm.to_address) {
+      toast({
+        title: "Invalid Address",
+        description: "Please enter a valid recipient wallet address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setShowCryptoReview(true);
+  };
+
+  const handleConfirmCryptoSend = async () => {
+    if (!userProfile?.id) return;
+
+    setSendingCrypto(true);
+    try {
+      const amount = parseFloat(cryptoSendForm.amount);
+      const feePercentage = cryptoSendForm.priority === "urgent" ? 0.002 : cryptoSendForm.priority === "high" ? 0.001 : 0.0005;
+      const fee = amount * feePercentage;
+
+      const { error } = await supabase.from("crypto_transactions").insert({
+        user_id: userProfile.id,
+        transaction_type: "payment",
+        crypto_type: cryptoSendForm.crypto_type,
+        amount: amount,
+        network: cryptoSendForm.network,
+        to_address: cryptoSendForm.to_address,
+        recipient_name: cryptoSendForm.recipient_name || null,
+        description: cryptoSendForm.description || null,
+        priority: cryptoSendForm.priority,
+        fee_crypto: fee,
+        status: "pending",
+        required_confirmations: cryptoSendForm.crypto_type === "BTC" ? 3 : 12,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Transaction Submitted",
+        description: `Your ${cryptoSendForm.crypto_type} transaction has been submitted for processing`,
+      });
+
+      setCryptoSendForm({
+        crypto_type: "BTC",
+        amount: "",
+        to_address: "",
+        recipient_name: "",
+        network: "Mainnet",
+        description: "",
+        priority: "medium",
+      });
+      setShowCryptoReview(false);
+      setCryptoTab("history");
+      fetchCryptoTransactions();
+    } catch (error: any) {
+      toast({
+        title: "Transaction Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSendingCrypto(false);
+    }
+  };
+
+  const getCryptoNetworks = (cryptoType: string): string[] => {
+    switch (cryptoType) {
+      case "BTC":
+        return ["Bitcoin Mainnet", "Lightning Network"];
+      case "ETH":
+        return ["Ethereum Mainnet", "Arbitrum", "Optimism", "Base"];
+      case "USDT":
+        return ["ERC20 (Ethereum)", "TRC20 (Tron)", "BEP20 (BSC)"];
+      default:
+        return ["Mainnet"];
+    }
+  };
+
+  const getTransactionStatusConfig = (status: string) => {
+    const configs: Record<string, { color: string; bgColor: string; icon: any }> = {
+      pending: { color: "text-yellow-600", bgColor: "bg-yellow-50", icon: Clock },
+      processing: { color: "text-blue-600", bgColor: "bg-blue-50", icon: Zap },
+      confirming: { color: "text-blue-600", bgColor: "bg-blue-50", icon: Shield },
+      confirmed: { color: "text-emerald-600", bgColor: "bg-emerald-50", icon: CheckCircle2 },
+      completed: { color: "text-green-600", bgColor: "bg-green-50", icon: CheckCircle2 },
+      failed: { color: "text-red-600", bgColor: "bg-red-50", icon: XCircle },
+      cancelled: { color: "text-gray-600", bgColor: "bg-gray-50", icon: X },
+    };
+    return configs[status] || configs.pending;
   };
 
   const cryptoConfig: Record<string, { name: string; color: string; bgColor: string; icon: string }> = {
@@ -601,161 +785,609 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
         {paymentMethod === "crypto" && (
           <div className="space-y-6">
-            <Card className="bg-white border-t-4 border-t-[#b91c1c]">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wallet className="w-5 h-5 text-[#b91c1c]" />
-                  Crypto Wallets
-                </CardTitle>
-                <p className="text-sm text-gray-600">
-                  Select a cryptocurrency to view your balance and deposit wallet address
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {loadingWallets ? (
-                  <div className="flex justify-center py-12">
-                    <div className="w-8 h-8 border-4 border-gray-200 border-t-[#b91c1c] rounded-full animate-spin" />
-                  </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex gap-1 bg-white p-1 border border-gray-200">
+              <button
+                onClick={() => { setCryptoTab("wallet"); setShowCryptoReview(false); }}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  cryptoTab === "wallet"
+                    ? "bg-[#b91c1c] text-white"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                <Wallet className="w-4 h-4" />
+                Wallet
+              </button>
+              <button
+                onClick={() => { setCryptoTab("send"); setShowCryptoReview(false); }}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  cryptoTab === "send"
+                    ? "bg-[#b91c1c] text-white"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                <Send className="w-4 h-4" />
+                Send
+              </button>
+              <button
+                onClick={() => { setCryptoTab("receive"); setShowCryptoReview(false); }}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  cryptoTab === "receive"
+                    ? "bg-[#b91c1c] text-white"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                <ArrowDownLeft className="w-4 h-4" />
+                Receive
+              </button>
+              <button
+                onClick={() => { setCryptoTab("history"); setShowCryptoReview(false); }}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative ${
+                  cryptoTab === "history"
+                    ? "bg-[#b91c1c] text-white"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                <History className="w-4 h-4" />
+                History
+                {cryptoTransactions.filter(t => t.status === "pending" || t.status === "processing").length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {cryptoTransactions.filter(t => t.status === "pending" || t.status === "processing").length}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {cryptoTab === "wallet" && (
+              <Card className="bg-white border-t-4 border-t-[#b91c1c]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-[#b91c1c]" />
+                    Portfolio Overview
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Your cryptocurrency holdings and balances
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {loadingWallets ? (
+                    <div className="flex justify-center py-12">
+                      <div className="w-8 h-8 border-4 border-gray-200 border-t-[#b91c1c] rounded-full animate-spin" />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
                       {availableCryptos.map((cryptoType) => {
                         const config = cryptoConfig[cryptoType];
                         const balance = getBalanceForCrypto(cryptoType);
+                        const wallet = cryptoWallets.find(w => w.crypto_type === cryptoType);
                         return (
-                          <button
+                          <div
                             key={cryptoType}
-                            onClick={() => setSelectedCrypto(cryptoType)}
-                            className={`relative p-5 border-2 transition-all ${
-                              selectedCrypto === cryptoType
-                                ? "border-[#b91c1c] shadow-lg"
-                                : "border-gray-200 hover:border-gray-300 hover:shadow-md"
-                            } ${config.bgColor}`}
+                            className={`p-4 border-2 border-gray-100 hover:border-gray-200 transition-all ${config.bgColor}`}
                           >
-                            {selectedCrypto === cryptoType && (
-                              <div className="absolute top-3 right-3">
-                                <Check className="w-5 h-5 text-[#b91c1c]" />
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div
+                                  className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                                  style={{ backgroundColor: config.color }}
+                                >
+                                  {config.icon}
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-900">{config.name}</p>
+                                  <p className="text-sm text-gray-500">{cryptoType}</p>
+                                </div>
                               </div>
-                            )}
-                            <div className="flex items-center gap-4">
-                              <div
-                                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                                style={{ backgroundColor: config.color }}
-                              >
-                                {config.icon}
-                              </div>
-                              <div className="text-left">
-                                <p className="font-semibold text-gray-900">{cryptoType}</p>
-                                <p className="text-xs text-gray-500">{config.name}</p>
-                                <p className="text-lg font-bold mt-1" style={{ color: config.color }}>
+                              <div className="text-right">
+                                <p className="text-xl font-bold" style={{ color: config.color }}>
                                   {formatCryptoBalance(balance, cryptoType)} {cryptoType}
                                 </p>
+                                {wallet && (
+                                  <p className="text-xs text-green-600 flex items-center justify-end gap-1 mt-1">
+                                    <Shield className="w-3 h-3" />
+                                    Wallet Active
+                                  </p>
+                                )}
                               </div>
                             </div>
-                          </button>
+                            <div className="flex gap-2 mt-4">
+                              <Button
+                                size="sm"
+                                onClick={() => { setSelectedCrypto(cryptoType); setCryptoSendForm({...cryptoSendForm, crypto_type: cryptoType}); setCryptoTab("send"); }}
+                                className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b]"
+                              >
+                                <Send className="w-4 h-4 mr-1" />
+                                Send
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => { setSelectedCrypto(cryptoType); setCryptoTab("receive"); }}
+                                className="flex-1"
+                              >
+                                <ArrowDownLeft className="w-4 h-4 mr-1" />
+                                Receive
+                              </Button>
+                            </div>
+                          </div>
                         );
                       })}
                     </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
-                    <div className="mt-6 border-t pt-6">
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-gray-50 p-6 flex flex-col items-center justify-center">
-                          {getSelectedWallet() ? (
-                            <>
-                              <div className="bg-white p-4 shadow-lg mb-4">
-                                <QRCodeSVG
-                                  value={getSelectedWallet()!.wallet_address}
-                                  size={180}
-                                  level="H"
-                                  includeMargin={true}
-                                  fgColor={cryptoConfig[selectedCrypto]?.color || "#000000"}
-                                />
-                              </div>
-                              <p className="text-sm text-gray-500 text-center">
-                                Scan QR code to deposit {selectedCrypto}
-                              </p>
-                            </>
-                          ) : (
-                            <div className="text-center py-8">
-                              <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                              <p className="text-gray-500">No deposit address available</p>
-                              <p className="text-sm text-gray-400 mt-2">Contact support to set up your {selectedCrypto} wallet</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-4">
-                          <div>
-                            <Label className="text-xs text-gray-500 uppercase tracking-wide">Cryptocurrency</Label>
-                            <div className="flex items-center gap-3 mt-1">
-                              <div
-                                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                                style={{ backgroundColor: cryptoConfig[selectedCrypto]?.color || "#6B7280" }}
+            {cryptoTab === "send" && !showCryptoReview && (
+              <Card className="bg-white border-t-4 border-t-[#b91c1c]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Send className="w-5 h-5 text-[#b91c1c]" />
+                    Send Cryptocurrency
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Transfer crypto to another wallet address
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm font-medium">Select Cryptocurrency *</Label>
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                          {availableCryptos.map((cryptoType) => {
+                            const config = cryptoConfig[cryptoType];
+                            const balance = getBalanceForCrypto(cryptoType);
+                            return (
+                              <button
+                                key={cryptoType}
+                                onClick={() => setCryptoSendForm({...cryptoSendForm, crypto_type: cryptoType, network: getCryptoNetworks(cryptoType)[0]})}
+                                className={`p-3 border-2 transition-all ${
+                                  cryptoSendForm.crypto_type === cryptoType
+                                    ? "border-[#b91c1c] bg-red-50"
+                                    : "border-gray-200 hover:border-gray-300"
+                                }`}
                               >
-                                {selectedCrypto}
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900">{cryptoConfig[selectedCrypto]?.name || selectedCrypto}</p>
-                                <p className="text-sm text-gray-500">{selectedCrypto}</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label className="text-xs text-gray-500 uppercase tracking-wide">Your Balance</Label>
-                            <p className="text-2xl font-bold mt-1" style={{ color: cryptoConfig[selectedCrypto]?.color }}>
-                              {formatCryptoBalance(getBalanceForCrypto(selectedCrypto), selectedCrypto)} {selectedCrypto}
-                            </p>
-                          </div>
-
-                          {getSelectedWallet() && (
-                            <>
-                              <div>
-                                <Label className="text-xs text-gray-500 uppercase tracking-wide">Network</Label>
-                                <p className="font-medium text-gray-900 mt-1">{getSelectedWallet()!.network}</p>
-                              </div>
-
-                              <div>
-                                <Label className="text-xs text-gray-500 uppercase tracking-wide">Deposit Address</Label>
-                                <div className="mt-1 bg-gray-100 p-3 border border-gray-200">
-                                  <p className="font-mono text-sm text-gray-900 break-all">
-                                    {getSelectedWallet()!.wallet_address}
-                                  </p>
-                                </div>
-                                <Button
-                                  onClick={() => handleCopyWalletAddress(getSelectedWallet()!.wallet_address)}
-                                  className="w-full mt-3 bg-[#b91c1c] hover:bg-[#991b1b]"
+                                <div
+                                  className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs mx-auto mb-1"
+                                  style={{ backgroundColor: config.color }}
                                 >
-                                  <Copy className="w-4 h-4 mr-2" />
-                                  Copy Address
-                                </Button>
-                              </div>
-                            </>
-                          )}
+                                  {config.icon}
+                                </div>
+                                <p className="text-xs font-medium text-center">{cryptoType}</p>
+                                <p className="text-xs text-gray-500 text-center truncate">{formatCryptoBalance(balance, cryptoType)}</p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Network *</Label>
+                        <Select
+                          value={cryptoSendForm.network}
+                          onValueChange={(value) => setCryptoSendForm({...cryptoSendForm, network: value})}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue placeholder="Select network" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getCryptoNetworks(cryptoSendForm.crypto_type).map((network) => (
+                              <SelectItem key={network} value={network}>{network}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Amount *</Label>
+                        <div className="relative mt-1">
+                          <Input
+                            type="number"
+                            step="0.00000001"
+                            value={cryptoSendForm.amount}
+                            onChange={(e) => setCryptoSendForm({...cryptoSendForm, amount: e.target.value})}
+                            placeholder="0.00000000"
+                            className="pr-16"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-500">
+                            {cryptoSendForm.crypto_type}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Available: {formatCryptoBalance(getBalanceForCrypto(cryptoSendForm.crypto_type), cryptoSendForm.crypto_type)} {cryptoSendForm.crypto_type}
+                        </p>
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          className="text-[#b91c1c] p-0 h-auto text-xs"
+                          onClick={() => setCryptoSendForm({...cryptoSendForm, amount: getBalanceForCrypto(cryptoSendForm.crypto_type).toString()})}
+                        >
+                          Send Max
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm font-medium">Recipient Wallet Address *</Label>
+                        <Input
+                          value={cryptoSendForm.to_address}
+                          onChange={(e) => setCryptoSendForm({...cryptoSendForm, to_address: e.target.value})}
+                          placeholder="Enter wallet address"
+                          className="mt-1 font-mono text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Recipient Name (Optional)</Label>
+                        <Input
+                          value={cryptoSendForm.recipient_name}
+                          onChange={(e) => setCryptoSendForm({...cryptoSendForm, recipient_name: e.target.value})}
+                          placeholder="Enter recipient name"
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Transaction Priority</Label>
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                          {[
+                            { value: "low", label: "Low", desc: "~30 min", fee: "0.05%" },
+                            { value: "medium", label: "Medium", desc: "~10 min", fee: "0.1%" },
+                            { value: "high", label: "High", desc: "~2 min", fee: "0.2%" },
+                          ].map((priority) => (
+                            <button
+                              key={priority.value}
+                              onClick={() => setCryptoSendForm({...cryptoSendForm, priority: priority.value})}
+                              className={`p-3 border-2 text-left transition-all ${
+                                cryptoSendForm.priority === priority.value
+                                  ? "border-[#b91c1c] bg-red-50"
+                                  : "border-gray-200 hover:border-gray-300"
+                              }`}
+                            >
+                              <p className="text-sm font-medium">{priority.label}</p>
+                              <p className="text-xs text-gray-500">{priority.desc}</p>
+                              <p className="text-xs text-gray-400">Fee: {priority.fee}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Note (Optional)</Label>
+                        <Textarea
+                          value={cryptoSendForm.description}
+                          onChange={(e) => setCryptoSendForm({...cryptoSendForm, description: e.target.value})}
+                          placeholder="Add a note for this transaction"
+                          rows={2}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-4 border-t">
+                    <Button
+                      onClick={handleCryptoSendReview}
+                      className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b]"
+                    >
+                      <ArrowRight className="w-4 h-4 mr-2" />
+                      Review Transaction
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {cryptoTab === "send" && showCryptoReview && (
+              <Card className="bg-white border-t-4 border-t-[#b91c1c]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-[#b91c1c]" />
+                    Confirm Transaction
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Please review the details before confirming
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="bg-gray-50 p-6 space-y-4 border-l-4 border-l-[#b91c1c]">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Cryptocurrency</span>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                          style={{ backgroundColor: cryptoConfig[cryptoSendForm.crypto_type]?.color }}
+                        >
+                          {cryptoSendForm.crypto_type.slice(0, 1)}
+                        </div>
+                        <span className="font-medium">{cryptoConfig[cryptoSendForm.crypto_type]?.name}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Amount</span>
+                      <span className="text-lg font-bold" style={{ color: cryptoConfig[cryptoSendForm.crypto_type]?.color }}>
+                        {cryptoSendForm.amount} {cryptoSendForm.crypto_type}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Network</span>
+                      <span className="font-medium">{cryptoSendForm.network}</span>
+                    </div>
+                    <div className="flex justify-between items-start">
+                      <span className="text-sm text-gray-600">To Address</span>
+                      <span className="font-mono text-sm text-right max-w-[250px] break-all">{cryptoSendForm.to_address}</span>
+                    </div>
+                    {cryptoSendForm.recipient_name && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Recipient</span>
+                        <span className="font-medium">{cryptoSendForm.recipient_name}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Priority</span>
+                      <span className="font-medium capitalize">{cryptoSendForm.priority}</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t pt-4">
+                      <span className="text-sm text-gray-600">Estimated Fee</span>
+                      <span className="font-medium">
+                        {(parseFloat(cryptoSendForm.amount || "0") * (cryptoSendForm.priority === "high" ? 0.002 : cryptoSendForm.priority === "medium" ? 0.001 : 0.0005)).toFixed(8)} {cryptoSendForm.crypto_type}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-200 p-4">
+                    <div className="flex gap-3">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-amber-800">Please verify carefully</p>
+                        <p className="text-sm text-amber-700 mt-1">
+                          Cryptocurrency transactions are irreversible. Make sure the recipient address and network are correct.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCryptoReview(false)}
+                      className="flex-1"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      onClick={handleConfirmCryptoSend}
+                      disabled={sendingCrypto}
+                      className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b]"
+                    >
+                      {sendingCrypto ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      ) : (
+                        <Check className="w-4 h-4 mr-2" />
+                      )}
+                      Confirm & Send
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {cryptoTab === "receive" && (
+              <Card className="bg-white border-t-4 border-t-[#b91c1c]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ArrowDownLeft className="w-5 h-5 text-[#b91c1c]" />
+                    Receive Cryptocurrency
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Share your wallet address to receive crypto payments
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex gap-2">
+                    {availableCryptos.map((cryptoType) => {
+                      const config = cryptoConfig[cryptoType];
+                      return (
+                        <button
+                          key={cryptoType}
+                          onClick={() => setSelectedCrypto(cryptoType)}
+                          className={`flex-1 p-3 border-2 transition-all ${
+                            selectedCrypto === cryptoType
+                              ? "border-[#b91c1c] bg-red-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs mx-auto mb-1"
+                            style={{ backgroundColor: config.color }}
+                          >
+                            {config.icon}
+                          </div>
+                          <p className="text-sm font-medium text-center">{cryptoType}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6 pt-4 border-t">
+                    <div className="bg-gray-50 p-6 flex flex-col items-center justify-center">
+                      {getSelectedWallet() ? (
+                        <>
+                          <div className="bg-white p-4 shadow-lg mb-4">
+                            <QRCodeSVG
+                              value={getSelectedWallet()!.wallet_address}
+                              size={200}
+                              level="H"
+                              includeMargin={true}
+                              fgColor={cryptoConfig[selectedCrypto]?.color || "#000000"}
+                            />
+                          </div>
+                          <p className="text-sm text-gray-500 text-center">
+                            Scan to receive {selectedCrypto}
+                          </p>
+                        </>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                          <p className="text-gray-500">No wallet address available</p>
+                          <p className="text-sm text-gray-400 mt-2">Contact support to set up your {selectedCrypto} wallet</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+                          style={{ backgroundColor: cryptoConfig[selectedCrypto]?.color || "#6B7280" }}
+                        >
+                          {selectedCrypto}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{cryptoConfig[selectedCrypto]?.name}</p>
+                          <p className="text-sm text-gray-500">{selectedCrypto}</p>
                         </div>
                       </div>
 
                       {getSelectedWallet() && (
-                        <div className="mt-6 bg-amber-50 border border-amber-200 p-4">
-                          <div className="flex gap-3">
-                            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                              <p className="font-medium text-amber-800">Important Notice</p>
-                              <ul className="text-sm text-amber-700 mt-2 space-y-1">
-                                <li>Only send {selectedCrypto} to this address on the {getSelectedWallet()!.network} network.</li>
-                                <li>Sending any other cryptocurrency may result in permanent loss.</li>
-                                <li>Minimum deposit and network fees may apply.</li>
-                                <li>Deposits are typically credited after network confirmations.</li>
-                              </ul>
-                            </div>
+                        <>
+                          <div>
+                            <Label className="text-xs text-gray-500 uppercase tracking-wide">Network</Label>
+                            <p className="font-medium text-gray-900 mt-1">{getSelectedWallet()!.network}</p>
                           </div>
-                        </div>
+
+                          <div>
+                            <Label className="text-xs text-gray-500 uppercase tracking-wide">Deposit Address</Label>
+                            <div className="mt-1 bg-gray-100 p-3 border border-gray-200">
+                              <p className="font-mono text-sm text-gray-900 break-all">
+                                {getSelectedWallet()!.wallet_address}
+                              </p>
+                            </div>
+                            <Button
+                              onClick={() => handleCopyWalletAddress(getSelectedWallet()!.wallet_address)}
+                              className="w-full mt-3 bg-[#b91c1c] hover:bg-[#991b1b]"
+                            >
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy Address
+                            </Button>
+                          </div>
+                        </>
                       )}
                     </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+                  </div>
+
+                  {getSelectedWallet() && (
+                    <div className="bg-amber-50 border border-amber-200 p-4">
+                      <div className="flex gap-3">
+                        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-amber-800">Important Notice</p>
+                          <ul className="text-sm text-amber-700 mt-2 space-y-1">
+                            <li>Only send {selectedCrypto} to this address on the {getSelectedWallet()!.network} network.</li>
+                            <li>Sending any other cryptocurrency may result in permanent loss.</li>
+                            <li>Minimum deposit and network fees may apply.</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {cryptoTab === "history" && (
+              <Card className="bg-white border-t-4 border-t-[#b91c1c]">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <History className="w-5 h-5 text-[#b91c1c]" />
+                    Transaction History
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Your recent cryptocurrency transactions
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {cryptoTransactions.length === 0 ? (
+                    <div className="text-center py-12">
+                      <History className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500">No transactions yet</p>
+                      <p className="text-sm text-gray-400 mt-2">Your crypto transaction history will appear here</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {cryptoTransactions.map((tx) => {
+                        const config = cryptoConfig[tx.crypto_type] || { color: "#6B7280", name: tx.crypto_type, icon: tx.crypto_type };
+                        const statusConfig = getTransactionStatusConfig(tx.status);
+                        const StatusIcon = statusConfig.icon;
+                        return (
+                          <div
+                            key={tx.id}
+                            className="p-4 border border-gray-200 hover:border-gray-300 transition-all"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                                  style={{ backgroundColor: config.color }}
+                                >
+                                  {config.icon}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium text-gray-900 capitalize">{tx.transaction_type}</p>
+                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium ${statusConfig.color} ${statusConfig.bgColor}`}>
+                                      <StatusIcon className="w-3 h-3" />
+                                      {tx.status}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-500">{tx.network}</p>
+                                  {tx.to_address && (
+                                    <p className="text-xs text-gray-400 font-mono truncate max-w-[200px]">
+                                      To: {tx.to_address.slice(0, 10)}...{tx.to_address.slice(-8)}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold" style={{ color: config.color }}>
+                                  {tx.transaction_type === "deposit" ? "+" : "-"}{formatCryptoBalance(tx.amount, tx.crypto_type)} {tx.crypto_type}
+                                </p>
+                                <p className="text-xs text-gray-500">{formatDateTime(tx.created_at)}</p>
+                                {tx.reference && (
+                                  <p className="text-xs text-gray-400 font-mono">{tx.reference}</p>
+                                )}
+                              </div>
+                            </div>
+                            {tx.status === "confirming" && (
+                              <div className="mt-3 bg-blue-50 p-2 flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                                <span className="text-xs text-blue-700">
+                                  {tx.confirmations}/{tx.required_confirmations} confirmations
+                                </span>
+                              </div>
+                            )}
+                            {tx.tx_hash && (
+                              <div className="mt-2 flex items-center gap-2">
+                                <span className="text-xs text-gray-500">TX:</span>
+                                <span className="text-xs font-mono text-gray-600 truncate flex-1">{tx.tx_hash}</span>
+                                <button
+                                  onClick={() => handleCopyWalletAddress(tx.tx_hash!)}
+                                  className="text-[#b91c1c] hover:text-[#991b1b]"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 
