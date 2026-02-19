@@ -98,18 +98,10 @@ export default function Dashboard() {
 
         <div className="flex-1 md:ml-64 overflow-auto">
           {SectionComponent && (
-            <React.Suspense
-              fallback={
-                <div className="min-h-screen flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623]"></div>
-                </div>
-              }
-            >
-              <SectionComponent
-                userProfile={userProfile}
-                setActiveTab={handleTabChange}
-              />
-            </React.Suspense>
+            <SectionComponent
+              userProfile={userProfile}
+              setActiveTab={handleTabChange}
+            />
           )}
         </div>
       </div>
