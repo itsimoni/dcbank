@@ -198,8 +198,6 @@ export function useRealtimeData(): RealtimeData {
         }
       } catch (err: any) {
         if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
-          console.log('[Realtime] Auth call aborted, skipping initialization');
-          setData((prev) => ({ ...prev, loading: false }));
           return;
         }
         throw err;
@@ -241,6 +239,9 @@ export function useRealtimeData(): RealtimeData {
         error: null,
       });
     } catch (error: any) {
+      if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+        return;
+      }
       console.error("Error initializing data:", error);
       setData((prev) => ({
         ...prev,
@@ -257,7 +258,6 @@ export function useRealtimeData(): RealtimeData {
       user = result.data?.user;
     } catch (err: any) {
       if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
-        console.log('[Realtime] Auth call aborted during subscription setup');
         return;
       }
       console.error('[Realtime] Error getting user:', err);
@@ -411,11 +411,33 @@ export function useRealtimeData(): RealtimeData {
   }, []);
 
   useEffect(() => {
-    initializeData();
-    const cleanup = setupRealtimeSubscriptions();
+    let isActive = true;
+    let cleanupFn: (() => void) | null = null;
+
+    const init = async () => {
+      if (!isActive) return;
+      await initializeData();
+      const cleanup = await setupRealtimeSubscriptions();
+      if (isActive) {
+        cleanupFn = cleanup;
+      } else {
+        cleanup?.();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isActive) {
+        initializeData();
+      }
+    };
+
+    init();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      cleanup?.then((fn) => fn?.());
+      isActive = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      cleanupFn?.();
     };
   }, []);
 
