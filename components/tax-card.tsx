@@ -190,7 +190,10 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
           <div className="bg-white p-4 border border-gray-200 shadow-sm">
 
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-white p-3 border border-[#b91c1c]">
+              <div
+                className="bg-white p-3 border border-[#b91c1c] cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setActiveTab("payments")}
+              >
                 <div className="flex items-center space-x-2 mb-2">
                   <span className="text-sm font-medium text-black">
                     {t.pending}
