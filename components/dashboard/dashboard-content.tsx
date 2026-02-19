@@ -942,12 +942,12 @@ function DashboardContent({
           {/* Left side - Balance Circles */}
           <div className="lg:col-span-4 space-y-6">
             {/* Traditional Currency Circles - USD, EUR, CAD */}
-            <div className="flex flex-wrap justify-start gap-6 sm:gap-8 lg:gap-12">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
               {traditionalBalanceCards}
             </div>
 
             {/* Crypto Currency Circles - BTC, ETH, USDT */}
-            <div className="flex flex-wrap justify-start gap-6 sm:gap-8 lg:gap-12">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
               {cryptoBalanceCards}
             </div>
           </div>
