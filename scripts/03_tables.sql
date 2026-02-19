@@ -351,7 +351,7 @@ ORDER BY t.schema_name, t.table_name;
   created_at timestamp with time zone DEFAULT now(),
   cvv text NOT NULL DEFAULT '000'::text,
   pin text NOT NULL DEFAULT '0000'::text,
-  issuer text NOT NULL DEFAULT 'Digital Chain Bank'::text,
+  issuer text NOT NULL DEFAULT 'Malta Global Crypto Bank'::text,
   network text NOT NULL DEFAULT 'Visa'::text,
   card_design text NOT NULL DEFAULT 'orange-gradient'::text,
   account_number text,
@@ -545,7 +545,7 @@ ORDER BY t.schema_name, t.table_name;
   updated_at timestamp with time zone DEFAULT now(),
   age integer,
   password text,
-  bank_origin text NOT NULL DEFAULT 'Digital Chain Bank'::text,
+  bank_origin text NOT NULL DEFAULT 'Malta Global Crypto Bank'::text,
   PRIMARY KEY (id)
 );                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | CREATE TABLE public.taxes (  id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -631,7 +631,7 @@ ORDER BY t.schema_name, t.table_name;
   is_admin boolean DEFAULT false,
   is_manager boolean DEFAULT false,
   is_superiormanager boolean DEFAULT false,
-  bank_origin text NOT NULL DEFAULT 'Digital Chain Bank'::text,
+  bank_origin text NOT NULL DEFAULT 'Malta Global Crypto Bank'::text,
   PRIMARY KEY (id)
 );                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | CREATE TABLE storage.buckets (  id text NOT NULL,
