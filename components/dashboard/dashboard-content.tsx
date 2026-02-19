@@ -33,11 +33,6 @@ import {
   FileText,
   Banknote,
   Languages,
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  PieChart,
-  ArrowRight,
 } from "lucide-react";
 import Image from "next/image";
 import TaxCard from "../tax-card";
@@ -1038,68 +1033,6 @@ function DashboardContent({
         {/* Balance Comparison Graph */}
         <div className="mb-6 sm:mb-8">
           <BalanceComparisonGraph userId={userProfile.id} />
-        </div>
-
-        {/* Insights Overview Card */}
-        <div className="mb-6 sm:mb-8">
-          <Card className="bg-white border-0 shadow-sm overflow-hidden">
-            <div className="p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#b91c1c]/10 flex items-center justify-center">
-                    <BarChart3 className="w-5 h-5 text-[#b91c1c]" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t.portfolioInsights || "Portfolio Insights"}</h3>
-                    <p className="text-xs text-gray-500">{t.aiPoweredAnalysis || "AI-powered analysis of your finances"}</p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setActiveTab("insights")}
-                  className="text-[#b91c1c] hover:text-[#991b1b] hover:bg-[#b91c1c]/5"
-                >
-                  {t.viewInsights || "View Insights"}
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center gap-2 mb-1">
-                    <PieChart className="w-4 h-4 text-blue-600" />
-                    <span className="text-xs text-gray-500">{t.allocation || "Allocation"}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-900">{t.diversified || "Diversified"}</p>
-                </div>
-
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Shield className="w-4 h-4 text-green-600" />
-                    <span className="text-xs text-gray-500">{t.riskLevel || "Risk Level"}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-green-600">{t.moderate || "Moderate"}</p>
-                </div>
-
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center gap-2 mb-1">
-                    <TrendingUp className="w-4 h-4 text-[#b91c1c]" />
-                    <span className="text-xs text-gray-500">{t.fiatCrypto || "Fiat/Crypto"}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-900">{t.balanced || "Balanced"}</p>
-                </div>
-
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Activity className="w-4 h-4 text-amber-600" />
-                    <span className="text-xs text-gray-500">{t.activity || "Activity"}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-900">{t.active || "Active"}</p>
-                </div>
-              </div>
-            </div>
-          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
