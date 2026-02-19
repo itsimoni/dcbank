@@ -6,50 +6,20 @@ import Dashboard from "@/components/dashboard/dashboard";
 import KYCVerification from "@/components/auth/kyc-verification";
 import type { User } from "@supabase/supabase-js";
 
-// Session cache to prevent unnecessary refetches
-const sessionCache = {
-  user: null as User | null,
-  kycStatus: null as string | null,
-  timestamp: 0,
-  CACHE_DURATION: 60000, // 1 minute
-};
-
 export default function Page() {
-  const [user, setUser] = useState<User | null>(() => sessionCache.user);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [kycStatus, setKycStatus] = useState<string | null>(() => sessionCache.kycStatus);
+  const [kycStatus, setKycStatus] = useState<string | null>(null);
   const hasInitialized = useRef(false);
-  const isVisible = useRef(true);
 
-  // Track page visibility
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      isVisible.current = !document.hidden;
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
-
-  // Initialize authentication with caching
+  // Initialize authentication - SIMPLIFIED
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
     const initAuth = async () => {
       try {
-        // Check if we have fresh cached session
-        const isCacheFresh = sessionCache.user &&
-          Date.now() - sessionCache.timestamp < sessionCache.CACHE_DURATION;
-
-        if (isCacheFresh && sessionCache.user) {
-          setUser(sessionCache.user);
-          setKycStatus(sessionCache.kycStatus);
-          setLoading(false);
-          return;
-        }
-
-        // Fetch fresh session
+        // Single session check - no redundant validation
         const { data: { user: authUser } } = await supabase.auth.getUser();
 
         if (!authUser) {
@@ -59,21 +29,14 @@ export default function Page() {
 
         setUser(authUser);
 
-        // Check KYC status
+        // Check KYC status in parallel with profile creation (handled by dashboard now)
         const { data: userData } = await supabase
           .from("users")
           .select("kyc_status")
           .eq("id", authUser.id)
           .maybeSingle();
 
-        const status = userData?.kyc_status || "not_started";
-
-        // Update cache
-        sessionCache.user = authUser;
-        sessionCache.kycStatus = status;
-        sessionCache.timestamp = Date.now();
-
-        setKycStatus(status);
+        setKycStatus(userData?.kyc_status || "not_started");
         setLoading(false);
       } catch (error) {
         console.error("Auth initialization error:", error);
@@ -84,7 +47,7 @@ export default function Page() {
     initAuth();
   }, []);
 
-  // Auth state listener
+  // Auth state listener - SIMPLIFIED
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "INITIAL_SESSION") return;
@@ -99,21 +62,9 @@ export default function Page() {
           .eq("id", session.user.id)
           .maybeSingle();
 
-        const status = userData?.kyc_status || "not_started";
-
-        // Update cache
-        sessionCache.user = session.user;
-        sessionCache.kycStatus = status;
-        sessionCache.timestamp = Date.now();
-
-        setKycStatus(status);
+        setKycStatus(userData?.kyc_status || "not_started");
         setLoading(false);
       } else if (event === "SIGNED_OUT") {
-        // Clear cache on sign out
-        sessionCache.user = null;
-        sessionCache.kycStatus = null;
-        sessionCache.timestamp = 0;
-
         setUser(null);
         setKycStatus(null);
         setLoading(false);

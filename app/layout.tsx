@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="preload" href="/logo2.svg" as="image" fetchPriority="high" />
+        <link rel="preload" href="/logo2.svg" as="image" fetchpriority="high" />
       </head>
       <body>
         <Providers>

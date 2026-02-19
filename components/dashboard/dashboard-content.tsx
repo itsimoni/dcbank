@@ -1083,6 +1083,7 @@ function DashboardContent({
           <div className="lg:col-span-1">
             <TaxCard userProfile={userProfile} setActiveTab={setActiveTab} />
           </div>
+
           {/* Latest Message Card */}
           <div className="lg:col-span-1">
             <Card className="bg-white">
