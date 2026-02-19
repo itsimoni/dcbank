@@ -520,7 +520,5 @@ export default function Page() {
       </div>
     );
   }
-
-  console.log("🎯 Loading dashboard for user:", user.id);
   return <Dashboard />;
 }
