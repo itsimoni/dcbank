@@ -205,75 +205,70 @@ export default function AuthForm() {
     [forgotPasswordEmail, t.passwordResetSent, t.resetEmailFailed]
   );
 
-  const handleSignUp = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoading(true);
-      setError(null);
-      setSuccess(null);
+const handleSignUp = useCallback(
+  async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-      try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            data: {
-              first_name: formData.firstName,
-              last_name: formData.lastName,
-              full_name: `${formData.firstName} ${formData.lastName}`,
-              age: formData.age,
-              bank_origin: BANK_ORIGIN,
-              // Note: We don't include password here
-            },
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            age: formData.age,
+            bank_origin: BANK_ORIGIN,
+            // Don't include password here
           },
+        },
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        // Call API to update ONLY the password in users table
+        const res = await fetch("/api/update-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: authData.user.id,
+            password: formData.password,
+          }),
         });
 
-        if (authError) throw authError;
-
-        if (authData.user) {
-          // Call the Edge Function to update the password in users table
-          const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/update-user-password`;
-          
-          const response = await fetch(functionUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-            },
-            body: JSON.stringify({
-              userId: authData.user.id,
-              password: formData.password,
-            }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Failed to store password:', errorData);
-            // Don't throw - user is still created, just password not stored in public.users
-          }
-
-          setupPresenceTracking(authData.user.id);
+        if (!res.ok) {
+          const err = await res.json();
+          console.error("Failed to save password to users table:", err);
+          // Don't throw - user is still created in auth
         }
 
-        setSuccess(t.accountCreatedSuccess);
-      } catch (err: any) {
-        setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
-      } finally {
-        setLoading(false);
+        setupPresenceTracking(authData.user.id);
       }
-    },
-    [
-      formData.email,
-      formData.password,
-      formData.firstName,
-      formData.lastName,
-      formData.age,
-      setupPresenceTracking,
-      t.accountCreatedSuccess,
-      t.signupFailed,
-      t.unknownError,
-    ]
-  );
+
+      setSuccess(t.accountCreatedSuccess);
+    } catch (err: any) {
+      setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
+    } finally {
+      setLoading(false);
+    }
+  },
+  [
+    formData.email,
+    formData.password,
+    formData.firstName,
+    formData.lastName,
+    formData.age,
+    setupPresenceTracking,
+    t.accountCreatedSuccess,
+    t.signupFailed,
+    t.unknownError,
+  ]
+);
 
   const handleSignIn = useCallback(
     async (e: React.FormEvent) => {
