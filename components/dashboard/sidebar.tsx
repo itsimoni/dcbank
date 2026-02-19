@@ -251,7 +251,7 @@ export default function Sidebar({
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 right-4 z-50 md:hidden bg-white shadow-md"
+        className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
         {isMobileMenuOpen ? (
@@ -271,10 +271,9 @@ export default function Sidebar({
       <div
         className={`
           fixed md:relative
-          right-0
           w-64 bg-white h-screen flex flex-col
           transform transition-transform duration-300 ease-in-out z-50
-          ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
           md:translate-x-0
           overflow-hidden
         `}
