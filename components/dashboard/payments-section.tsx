@@ -69,6 +69,16 @@ interface CryptoWallet {
   updated_at: string;
 }
 
+interface CryptoBalances {
+  id: string;
+  user_id: string;
+  btc_balance: number;
+  eth_balance: number;
+  usdt_balance: number;
+  created_at: string;
+  updated_at: string;
+}
+
 type PaymentMethod = "crypto" | "bank";
 
 interface Payment {
@@ -114,6 +124,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const [cryptoWallets, setCryptoWallets] = useState<CryptoWallet[]>([]);
   const [selectedCrypto, setSelectedCrypto] = useState<string>("BTC");
   const [loadingWallets, setLoadingWallets] = useState(true);
+  const [cryptoBalances, setCryptoBalances] = useState<CryptoBalances | null>(null);
 
   const [formData, setFormData] = useState({
     payment_type: "",
@@ -160,8 +171,27 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     if (userProfile?.id) {
       fetchPayments();
       fetchCryptoWallets();
+      fetchCryptoBalances();
     }
   }, [userProfile?.id]);
+
+  const fetchCryptoBalances = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) return;
+
+      const { data, error } = await supabase
+        .from("newcrypto_balances")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setCryptoBalances(data);
+    } catch (error) {
+      console.error("Error fetching crypto balances:", error);
+    }
+  };
 
   const fetchCryptoWallets = async () => {
     if (!userProfile?.id) return;
@@ -335,6 +365,29 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const getSelectedWallet = () => {
     return cryptoWallets.find(w => w.crypto_type === selectedCrypto);
   };
+
+  const getBalanceForCrypto = (cryptoType: string): number => {
+    if (!cryptoBalances) return 0;
+    switch (cryptoType) {
+      case "BTC":
+        return Number(cryptoBalances.btc_balance) || 0;
+      case "ETH":
+        return Number(cryptoBalances.eth_balance) || 0;
+      case "USDT":
+        return Number(cryptoBalances.usdt_balance) || 0;
+      default:
+        return 0;
+    }
+  };
+
+  const formatCryptoBalance = (balance: number, cryptoType: string): string => {
+    if (cryptoType === "USDT") {
+      return balance.toFixed(2);
+    }
+    return balance.toFixed(8);
+  };
+
+  const availableCryptos = ["BTC", "ETH", "USDT"];
 
   const paymentTypes = [
     {
@@ -552,10 +605,10 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-[#b91c1c]" />
-                  Receive Cryptocurrency
+                  Crypto Wallets
                 </CardTitle>
                 <p className="text-sm text-gray-600">
-                  Select a cryptocurrency to view your deposit wallet address
+                  Select a cryptocurrency to view your balance and deposit wallet address
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -563,117 +616,126 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                   <div className="flex justify-center py-12">
                     <div className="w-8 h-8 border-4 border-gray-200 border-t-[#b91c1c] rounded-full animate-spin" />
                   </div>
-                ) : cryptoWallets.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Wallets Available</h3>
-                    <p className="text-gray-500 max-w-md mx-auto">
-                      Your crypto wallets have not been set up yet. Please contact support to enable cryptocurrency deposits.
-                    </p>
-                  </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                      {cryptoWallets.map((wallet) => {
-                        const config = cryptoConfig[wallet.crypto_type] || {
-                          name: wallet.crypto_type,
-                          color: "#6B7280",
-                          bgColor: "bg-gray-50",
-                          icon: wallet.crypto_type
-                        };
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {availableCryptos.map((cryptoType) => {
+                        const config = cryptoConfig[cryptoType];
+                        const balance = getBalanceForCrypto(cryptoType);
                         return (
                           <button
-                            key={wallet.id}
-                            onClick={() => setSelectedCrypto(wallet.crypto_type)}
-                            className={`relative p-4 border-2 transition-all ${
-                              selectedCrypto === wallet.crypto_type
+                            key={cryptoType}
+                            onClick={() => setSelectedCrypto(cryptoType)}
+                            className={`relative p-5 border-2 transition-all ${
+                              selectedCrypto === cryptoType
                                 ? "border-[#b91c1c] shadow-lg"
                                 : "border-gray-200 hover:border-gray-300 hover:shadow-md"
                             } ${config.bgColor}`}
                           >
-                            {selectedCrypto === wallet.crypto_type && (
-                              <div className="absolute top-2 right-2">
-                                <Check className="w-4 h-4 text-[#b91c1c]" />
+                            {selectedCrypto === cryptoType && (
+                              <div className="absolute top-3 right-3">
+                                <Check className="w-5 h-5 text-[#b91c1c]" />
                               </div>
                             )}
-                            <div
-                              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm mb-2 mx-auto"
-                              style={{ backgroundColor: config.color }}
-                            >
-                              {config.icon.slice(0, 3)}
+                            <div className="flex items-center gap-4">
+                              <div
+                                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                                style={{ backgroundColor: config.color }}
+                              >
+                                {config.icon}
+                              </div>
+                              <div className="text-left">
+                                <p className="font-semibold text-gray-900">{cryptoType}</p>
+                                <p className="text-xs text-gray-500">{config.name}</p>
+                                <p className="text-lg font-bold mt-1" style={{ color: config.color }}>
+                                  {formatCryptoBalance(balance, cryptoType)} {cryptoType}
+                                </p>
+                              </div>
                             </div>
-                            <p className="font-medium text-gray-900 text-center">{wallet.crypto_type}</p>
-                            <p className="text-xs text-gray-500 text-center">{config.name}</p>
                           </button>
                         );
                       })}
                     </div>
 
-                    {getSelectedWallet() && (
-                      <div className="mt-6 border-t pt-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <div className="bg-gray-50 p-6 flex flex-col items-center justify-center">
-                            <div className="bg-white p-4 shadow-lg mb-4">
-                              <QRCodeSVG
-                                value={getSelectedWallet()!.wallet_address}
-                                size={180}
-                                level="H"
-                                includeMargin={true}
-                                fgColor={cryptoConfig[selectedCrypto]?.color || "#000000"}
-                              />
+                    <div className="mt-6 border-t pt-6">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="bg-gray-50 p-6 flex flex-col items-center justify-center">
+                          {getSelectedWallet() ? (
+                            <>
+                              <div className="bg-white p-4 shadow-lg mb-4">
+                                <QRCodeSVG
+                                  value={getSelectedWallet()!.wallet_address}
+                                  size={180}
+                                  level="H"
+                                  includeMargin={true}
+                                  fgColor={cryptoConfig[selectedCrypto]?.color || "#000000"}
+                                />
+                              </div>
+                              <p className="text-sm text-gray-500 text-center">
+                                Scan QR code to deposit {selectedCrypto}
+                              </p>
+                            </>
+                          ) : (
+                            <div className="text-center py-8">
+                              <Wallet className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                              <p className="text-gray-500">No deposit address available</p>
+                              <p className="text-sm text-gray-400 mt-2">Contact support to set up your {selectedCrypto} wallet</p>
                             </div>
-                            <p className="text-sm text-gray-500 text-center">
-                              Scan QR code to get the wallet address
+                          )}
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <Label className="text-xs text-gray-500 uppercase tracking-wide">Cryptocurrency</Label>
+                            <div className="flex items-center gap-3 mt-1">
+                              <div
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                                style={{ backgroundColor: cryptoConfig[selectedCrypto]?.color || "#6B7280" }}
+                              >
+                                {selectedCrypto}
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">{cryptoConfig[selectedCrypto]?.name || selectedCrypto}</p>
+                                <p className="text-sm text-gray-500">{selectedCrypto}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <Label className="text-xs text-gray-500 uppercase tracking-wide">Your Balance</Label>
+                            <p className="text-2xl font-bold mt-1" style={{ color: cryptoConfig[selectedCrypto]?.color }}>
+                              {formatCryptoBalance(getBalanceForCrypto(selectedCrypto), selectedCrypto)} {selectedCrypto}
                             </p>
                           </div>
 
-                          <div className="space-y-4">
-                            <div>
-                              <Label className="text-xs text-gray-500 uppercase tracking-wide">Cryptocurrency</Label>
-                              <div className="flex items-center gap-3 mt-1">
-                                <div
-                                  className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                                  style={{ backgroundColor: cryptoConfig[selectedCrypto]?.color || "#6B7280" }}
-                                >
-                                  {selectedCrypto.slice(0, 3)}
-                                </div>
-                                <div>
-                                  <p className="font-medium text-gray-900">{cryptoConfig[selectedCrypto]?.name || selectedCrypto}</p>
-                                  <p className="text-sm text-gray-500">{selectedCrypto}</p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <Label className="text-xs text-gray-500 uppercase tracking-wide">Network</Label>
-                              <p className="font-medium text-gray-900 mt-1">{getSelectedWallet()!.network}</p>
-                            </div>
-
-                            <div>
-                              <Label className="text-xs text-gray-500 uppercase tracking-wide">Wallet Address</Label>
-                              <div className="mt-1 bg-gray-100 p-3 border border-gray-200">
-                                <p className="font-mono text-sm text-gray-900 break-all">
-                                  {getSelectedWallet()!.wallet_address}
-                                </p>
-                              </div>
-                              <Button
-                                onClick={() => handleCopyWalletAddress(getSelectedWallet()!.wallet_address)}
-                                className="w-full mt-3 bg-[#b91c1c] hover:bg-[#991b1b]"
-                              >
-                                <Copy className="w-4 h-4 mr-2" />
-                                Copy Address
-                              </Button>
-                            </div>
-
-                            {getSelectedWallet()!.label && (
+                          {getSelectedWallet() && (
+                            <>
                               <div>
-                                <Label className="text-xs text-gray-500 uppercase tracking-wide">Label</Label>
-                                <p className="font-medium text-gray-900 mt-1">{getSelectedWallet()!.label}</p>
+                                <Label className="text-xs text-gray-500 uppercase tracking-wide">Network</Label>
+                                <p className="font-medium text-gray-900 mt-1">{getSelectedWallet()!.network}</p>
                               </div>
-                            )}
-                          </div>
-                        </div>
 
+                              <div>
+                                <Label className="text-xs text-gray-500 uppercase tracking-wide">Deposit Address</Label>
+                                <div className="mt-1 bg-gray-100 p-3 border border-gray-200">
+                                  <p className="font-mono text-sm text-gray-900 break-all">
+                                    {getSelectedWallet()!.wallet_address}
+                                  </p>
+                                </div>
+                                <Button
+                                  onClick={() => handleCopyWalletAddress(getSelectedWallet()!.wallet_address)}
+                                  className="w-full mt-3 bg-[#b91c1c] hover:bg-[#991b1b]"
+                                >
+                                  <Copy className="w-4 h-4 mr-2" />
+                                  Copy Address
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {getSelectedWallet() && (
                         <div className="mt-6 bg-amber-50 border border-amber-200 p-4">
                           <div className="flex gap-3">
                             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -688,8 +750,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </>
                 )}
               </CardContent>
