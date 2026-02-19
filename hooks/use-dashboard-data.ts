@@ -50,19 +50,33 @@ export interface DashboardData {
   error: string | null;
 }
 
+// GLOBAL CACHE - persists across component mounts
+const globalCache = {
+  data: null as DashboardData | null,
+  timestamp: 0,
+  isLoading: false,
+  CACHE_DURATION: 30000, // 30 seconds
+};
+
 export function useDashboardData() {
-  const [data, setData] = useState<DashboardData>({
-    userProfile: null,
-    balances: { usd: 0, euro: 0, cad: 0 },
-    cryptoBalances: { BTC: 0, ETH: 0, USDT: 0 },
-    transactions: [],
-    userData: null,
-    loading: true,
-    error: null,
+  const [data, setData] = useState<DashboardData>(() => {
+    // Initialize with cached data if available and fresh
+    if (globalCache.data && Date.now() - globalCache.timestamp < globalCache.CACHE_DURATION) {
+      return globalCache.data;
+    }
+    return {
+      userProfile: null,
+      balances: { usd: 0, euro: 0, cad: 0 },
+      cryptoBalances: { BTC: 0, ETH: 0, USDT: 0 },
+      transactions: [],
+      userData: null,
+      loading: true,
+      error: null,
+    };
   });
 
   const mountedRef = useRef(true);
-  const fetchedRef = useRef(false);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -72,8 +86,26 @@ export function useDashboardData() {
   }, []);
 
   useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
+    // Check if we have fresh cached data
+    const isCacheFresh = globalCache.data &&
+      Date.now() - globalCache.timestamp < globalCache.CACHE_DURATION;
+
+    if (isCacheFresh) {
+      // Use cached data instead of fetching
+      if (!hasInitializedRef.current) {
+        setData(globalCache.data!);
+        hasInitializedRef.current = true;
+      }
+      return;
+    }
+
+    // Prevent duplicate fetches
+    if (hasInitializedRef.current || globalCache.isLoading) {
+      return;
+    }
+
+    hasInitializedRef.current = true;
+    globalCache.isLoading = true;
 
     const fetchAllData = async () => {
       try {
@@ -84,9 +116,12 @@ export function useDashboardData() {
           throw new Error('Not authenticated');
         }
 
-        if (!mountedRef.current) return;
+        if (!mountedRef.current) {
+          globalCache.isLoading = false;
+          return;
+        }
 
-        // Step 2: Fetch ALL data in parallel (not sequential!)
+        // Step 2: Fetch ALL data in parallel
         const [
           profileResult,
           usdResult,
@@ -114,7 +149,10 @@ export function useDashboardData() {
           supabase.from('users').select('first_name, last_name, full_name, email').eq('id', user.id).maybeSingle(),
         ]);
 
-        if (!mountedRef.current) return;
+        if (!mountedRef.current) {
+          globalCache.isLoading = false;
+          return;
+        }
 
         // Extract profile or create it
         let profile: UserProfile;
@@ -169,9 +207,7 @@ export function useDashboardData() {
             ? userDataResult.value.data
             : null;
 
-        if (!mountedRef.current) return;
-
-        setData({
+        const newData: DashboardData = {
           userProfile: profile,
           balances,
           cryptoBalances,
@@ -179,16 +215,32 @@ export function useDashboardData() {
           userData,
           loading: false,
           error: null,
-        });
+        };
+
+        if (mountedRef.current) {
+          // Update global cache
+          globalCache.data = newData;
+          globalCache.timestamp = Date.now();
+          globalCache.isLoading = false;
+
+          setData(newData);
+        }
 
       } catch (error: any) {
         console.error('Dashboard data fetch error:', error);
+        globalCache.isLoading = false;
+
         if (mountedRef.current) {
-          setData(prev => ({
-            ...prev,
+          const errorData = {
+            userProfile: null,
+            balances: { usd: 0, euro: 0, cad: 0 },
+            cryptoBalances: { BTC: 0, ETH: 0, USDT: 0 },
+            transactions: [],
+            userData: null,
             loading: false,
             error: error.message || 'Failed to load dashboard data',
-          }));
+          };
+          setData(errorData);
         }
       }
     };
@@ -196,5 +248,100 @@ export function useDashboardData() {
     fetchAllData();
   }, []);
 
+  // Set up real-time subscriptions for data updates (optional but recommended)
+  useEffect(() => {
+    if (!data.userProfile?.id) return;
+
+    const userId = data.userProfile.id;
+
+    // Subscribe to balance changes
+    const balanceChannel = supabase
+      .channel(`balance-updates-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'usd_balances',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          // Invalidate cache on balance change
+          globalCache.timestamp = 0;
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'euro_balances',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          globalCache.timestamp = 0;
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cad_balances',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          globalCache.timestamp = 0;
+        }
+      )
+      .subscribe();
+
+    // Subscribe to crypto balance changes
+    const cryptoChannel = supabase
+      .channel(`crypto-updates-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'newcrypto_balances',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          globalCache.timestamp = 0;
+        }
+      )
+      .subscribe();
+
+    // Subscribe to transaction changes
+    const txChannel = supabase
+      .channel(`tx-updates-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'TransactionHistory',
+          filter: `uuid=eq.${userId}`,
+        },
+        () => {
+          globalCache.timestamp = 0;
+        }
+      )
+      .subscribe();
+
+    return () => {
+      balanceChannel.unsubscribe();
+      cryptoChannel.unsubscribe();
+      txChannel.unsubscribe();
+    };
+  }, [data.userProfile?.id]);
+
   return data;
+}
+
+// Export function to manually invalidate cache (useful for manual refresh)
+export function invalidateDashboardCache() {
+  globalCache.timestamp = 0;
+  globalCache.data = null;
 }
