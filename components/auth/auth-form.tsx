@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const BANK_ORIGIN = "Digital Chain Bank";
+const BANK_ORIGIN = "Malta Global Crypto Bank";
 
 declare global {
   interface Window {
@@ -342,7 +342,7 @@ export default function AuthForm() {
               <div className="w-full h-full flex items-center justify-center">
                 <img
                   src="/logo2.svg"
-                  alt="Digital Chain Bank ATM"
+                  alt="Malta Global Crypto Bank ATM"
                   loading="eager"
                   fetchPriority="high"
                   className="h-full w-auto max-h-[120px] sm:max-h-[180px] md:max-h-[220px] lg:max-h-[500px] xl:max-h-[600px] object-contain scale-110 sm:scale-125 lg:scale-150"
