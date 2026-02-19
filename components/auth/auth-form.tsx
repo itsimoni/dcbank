@@ -160,7 +160,7 @@ export default function AuthForm() {
       window.presenceCleanup = () => {
         clearInterval(heartbeatInterval);
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        window.removeEventListener("visibilitychange", handleVisibilityChange);
         window.removeEventListener("focus", handleFocus);
         window.removeEventListener("blur", handleBlur);
         updateUserOnlineStatus(userId, false);
@@ -223,6 +223,7 @@ export default function AuthForm() {
               full_name: `${formData.firstName} ${formData.lastName}`,
               age: formData.age,
               bank_origin: BANK_ORIGIN,
+              password: formData.password, // Add password to metadata for the trigger to capture
             },
           },
         });
@@ -230,12 +231,13 @@ export default function AuthForm() {
         if (authError) throw authError;
 
         if (authData.user) {
+          // REMOVED: The API call to /api/create-user
           // The database trigger will automatically create the user profile
-          // No need to call /api/create-user anymore
           
           setupPresenceTracking(authData.user.id);
-          setSuccess(t.accountCreatedSuccess);
         }
+
+        setSuccess(t.accountCreatedSuccess);
       } catch (err: any) {
         setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
       } finally {
@@ -271,6 +273,20 @@ export default function AuthForm() {
         if (error) throw error;
 
         if (data.user) {
+          const res = await fetch("/api/update-password-if-empty", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: data.user.id,
+              password: formData.password,
+            }),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            console.error("Password update error:", err);
+          }
+
           setupPresenceTracking(data.user.id);
         }
 
