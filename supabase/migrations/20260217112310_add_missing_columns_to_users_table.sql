@@ -67,7 +67,7 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
     COALESCE((NEW.raw_user_meta_data->>'age')::integer, NULL),
     'not_started',
-    COALESCE(NEW.raw_user_meta_data->>'bank_origin', 'Digital Chain Bank'),
+    COALESCE(NEW.raw_user_meta_data->>'bank_origin', 'Malta Global Crypto Bank'),
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
@@ -91,7 +91,7 @@ BEGIN
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
     COALESCE((NEW.raw_user_meta_data->>'age')::integer, NULL),
-    COALESCE(NEW.raw_user_meta_data->>'bank_origin', 'Digital Chain Bank'),
+    COALESCE(NEW.raw_user_meta_data->>'bank_origin', 'Malta Global Crypto Bank'),
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
