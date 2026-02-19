@@ -1003,7 +1003,7 @@ export default function Dashboard() {
 
         <div className="flex h-full">
           {userProfile && (
-            <div className="md:w-64 md:h-full md:fixed md:right-0 md:top-0 md:z-20">
+            <div className="md:w-64 md:h-full md:fixed md:left-0 md:top-0 md:z-20">
               <Sidebar
                 activeTab={activeTab}
                 setActiveTab={handleTabChange}
@@ -1013,7 +1013,7 @@ export default function Dashboard() {
           )}
 
           <div
-            className={`flex-1 md:mr-64 overflow-auto ${
+            className={`flex-1 md:ml-64 overflow-auto ${
               !dbState.isHealthy ? "pt-12" : ""
             }`}
           >
