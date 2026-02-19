@@ -1035,49 +1035,6 @@ function DashboardContent({
           <BalanceComparisonGraph userId={userProfile.id} />
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <Button
-            onClick={handleTransferClick}
-            className="h-12 sm:h-16 bg-[#b91c1c] hover:bg-[#991b1b] text-white text-sm sm:text-base rounded-none"
-          >
-            <Send className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {t.transferMoney}
-          </Button>
-          <Button
-            onClick={handleDepositClick}
-            variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent rounded-none"
-          >
-            <Wallet className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {t.depositFunds}
-          </Button>
-          <Button
-            onClick={handleCryptoClick}
-            variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent rounded-none"
-          >
-            <Bitcoin className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {t.cryptoTrading}
-          </Button>
-          <Button
-            onClick={handleCardClick}
-            variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent rounded-none"
-          >
-            <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {t.manageCards}
-          </Button>
-          <Button
-            onClick={() => setActiveTab("loans")}
-            variant="outline"
-            className="h-12 sm:h-16 text-sm sm:text-base bg-transparent border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white rounded-none"
-          >
-            <Banknote className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            {t.applyForLoan}
-          </Button>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Tax Card */}
           <div className="lg:col-span-1">
