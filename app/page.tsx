@@ -47,24 +47,13 @@ export default function Page() {
     initAuth();
   }, []);
 
-  // Auth state listener - SIMPLIFIED
+  // Auth state listener - only handle actual sign in/out, ignore token refreshes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "INITIAL_SESSION") return;
+      // Ignore events that don't require action
+      if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") return;
 
-      if (event === "SIGNED_IN" && session?.user) {
-        setUser(session.user);
-        setLoading(true);
-
-        const { data: userData } = await supabase
-          .from("users")
-          .select("kyc_status")
-          .eq("id", session.user.id)
-          .maybeSingle();
-
-        setKycStatus(userData?.kyc_status || "not_started");
-        setLoading(false);
-      } else if (event === "SIGNED_OUT") {
+      if (event === "SIGNED_OUT") {
         setUser(null);
         setKycStatus(null);
         setLoading(false);
