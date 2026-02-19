@@ -324,7 +324,7 @@ export default function AuthForm() {
   return (
     <>
       <div className="min-h-screen flex flex-col lg:flex-row">
-        <div className="hidden lg:flex lg:w-[55%] bg-[#b91c1c] items-center justify-center p-12 relative">
+        <div className="hidden lg:flex lg:w-1/2 bg-[#b91c1c] items-center justify-center p-8 relative">
           <div className="absolute top-6 left-6">
             <div className="relative">
               <Button
@@ -367,7 +367,7 @@ export default function AuthForm() {
           </div>
         </div>
 
-        <div className="flex-1 lg:w-[45%] bg-white flex flex-col">
+        <div className="flex-1 bg-white flex flex-col">
           <div className="lg:hidden bg-[#b91c1c] px-4 py-6">
             <div className="flex items-center justify-between">
               <img
