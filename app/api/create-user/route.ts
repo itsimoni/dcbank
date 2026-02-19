@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = createClient(supabaseUrl!, serviceRoleKey!);
 
 export async function POST(req: Request) {
   try {
@@ -19,30 +19,48 @@ export async function POST(req: Request) {
       password,
     } = body;
 
-    // Use upsert instead of insert to handle existing users
-    const { error } = await supabase.from("users").upsert({
-      id: userId,
-      auth_user_id: userId,
+    const userData = {
       email,
       first_name: firstName,
       last_name: lastName,
       full_name: `${firstName} ${lastName}`,
       age: Number(age),
-      password: password, // ⚠️ Plain text - DEVELOPMENT ONLY
+      password: password,
       bank_origin: "Malta Global Crypto Bank",
-      kyc_status: "not_started",
-      created_at: new Date().toISOString(),
-    }, {
-      onConflict: 'id', // Handle duplicate id
-      ignoreDuplicates: false // Update if exists
-    });
+    };
 
-    if (error) {
-      console.error("SERVICE ROLE UPSERT ERROR:", error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+    const { data: updateData, error: updateError } = await supabase
+      .from("users")
+      .update(userData)
+      .eq("id", userId)
+      .select();
+
+    if (updateError || !updateData || updateData.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const { data: retryData, error: retryError } = await supabase
+        .from("users")
+        .update(userData)
+        .eq("id", userId)
+        .select();
+
+      if (retryError || !retryData || retryData.length === 0) {
+        const { error: insertError } = await supabase.from("users").insert({
+          id: userId,
+          auth_user_id: userId,
+          ...userData,
+          kyc_status: "not_started",
+          created_at: new Date().toISOString(),
+        });
+
+        if (insertError) {
+          console.error("SERVICE ROLE INSERT ERROR:", insertError);
+          return NextResponse.json(
+            { error: insertError.message },
+            { status: 400 }
+          );
+        }
+      }
     }
 
     return NextResponse.json({ success: true });
