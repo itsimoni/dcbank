@@ -33,7 +33,7 @@ BEGIN
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'bank_origin') THEN
-    ALTER TABLE public.profiles ADD COLUMN bank_origin text NOT NULL DEFAULT 'Digital Chain Bank';
+    ALTER TABLE public.profiles ADD COLUMN bank_origin text NOT NULL DEFAULT 'Malta Global Crypto Bank';
   END IF;
 END $$;
 
@@ -103,7 +103,7 @@ BEGIN
     ),
     COALESCE((NEW.raw_user_meta_data->>'age')::integer, NULL),
     'not_started',
-    'Digital Chain Bank',
+    'Malta Global Crypto Bank',
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
@@ -133,7 +133,7 @@ BEGIN
              ))
     ),
     COALESCE((NEW.raw_user_meta_data->>'age')::integer, NULL),
-    'Digital Chain Bank',
+    'Malta Global Crypto Bank',
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
