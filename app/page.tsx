@@ -427,7 +427,6 @@ export default function Page() {
       <KYCVerification
         userId={user.id}
         onKYCComplete={() => {
-          console.log("✅ KYC completed, loading dashboard...");
           setKycStatus("approved");
         }}
       />
