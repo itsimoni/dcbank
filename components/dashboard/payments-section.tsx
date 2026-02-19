@@ -70,8 +70,8 @@ interface CryptoWallet {
   user_id: string;
   crypto_type: string;
   wallet_address: string;
-  network: string;
-  label: string | null;
+  label: string;
+  symbol: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -264,21 +264,26 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   };
 
   const fetchCryptoWallets = async () => {
-    if (!userProfile?.id) return;
-
     try {
       setLoadingWallets(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        setLoadingWallets(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("crypto_wallets")
         .select("*")
-        .eq("user_id", userProfile.id)
+        .eq("user_id", session.user.id)
         .eq("is_active", true)
         .order("crypto_type", { ascending: true });
 
       if (error) throw error;
       setCryptoWallets(data || []);
       if (data && data.length > 0) {
-        setSelectedCrypto(data[0].crypto_type);
+        const displaySymbol = cryptoTypeMap[data[0].crypto_type] || data[0].symbol;
+        setSelectedCrypto(displaySymbol);
       }
     } catch (error) {
       console.error("Error fetching crypto wallets:", error);
@@ -533,21 +538,39 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     return configs[status] || configs.pending;
   };
 
-  const cryptoConfig: Record<string, { name: string; color: string; bgColor: string; icon: string }> = {
-    BTC: { name: "Bitcoin", color: "#F7931A", bgColor: "bg-orange-50", icon: "BTC" },
-    ETH: { name: "Ethereum", color: "#627EEA", bgColor: "bg-blue-50", icon: "ETH" },
-    USDT: { name: "Tether", color: "#26A17B", bgColor: "bg-emerald-50", icon: "USDT" },
-    USDC: { name: "USD Coin", color: "#2775CA", bgColor: "bg-sky-50", icon: "USDC" },
-    XRP: { name: "Ripple", color: "#23292F", bgColor: "bg-gray-50", icon: "XRP" },
-    LTC: { name: "Litecoin", color: "#BFBBBB", bgColor: "bg-slate-50", icon: "LTC" },
-    BNB: { name: "BNB", color: "#F3BA2F", bgColor: "bg-yellow-50", icon: "BNB" },
-    SOL: { name: "Solana", color: "#9945FF", bgColor: "bg-violet-50", icon: "SOL" },
-    DOGE: { name: "Dogecoin", color: "#C2A633", bgColor: "bg-amber-50", icon: "DOGE" },
-    ADA: { name: "Cardano", color: "#0033AD", bgColor: "bg-blue-50", icon: "ADA" },
+  const cryptoTypeMap: Record<string, string> = {
+    bitcoin: "BTC",
+    ethereum: "ETH",
+    usdt_erc20: "USDT",
+    usdt_trc20: "USDT",
+  };
+
+  const reverseCryptoTypeMap: Record<string, string> = {
+    BTC: "bitcoin",
+    ETH: "ethereum",
+    USDT: "usdt_erc20",
+  };
+
+  const cryptoConfig: Record<string, { name: string; color: string; bgColor: string; icon: string; network?: string }> = {
+    BTC: { name: "Bitcoin", color: "#F7931A", bgColor: "bg-orange-50", icon: "BTC", network: "Bitcoin Mainnet" },
+    ETH: { name: "Ethereum", color: "#627EEA", bgColor: "bg-blue-50", icon: "ETH", network: "Ethereum Mainnet" },
+    USDT: { name: "Tether", color: "#26A17B", bgColor: "bg-emerald-50", icon: "USDT", network: "ERC20/TRC20" },
+    bitcoin: { name: "Bitcoin", color: "#F7931A", bgColor: "bg-orange-50", icon: "BTC", network: "Bitcoin Mainnet" },
+    ethereum: { name: "Ethereum", color: "#627EEA", bgColor: "bg-blue-50", icon: "ETH", network: "Ethereum Mainnet" },
+    usdt_erc20: { name: "Tether (ERC20)", color: "#26A17B", bgColor: "bg-emerald-50", icon: "USDT", network: "ERC20 (Ethereum)" },
+    usdt_trc20: { name: "Tether (TRC20)", color: "#26A17B", bgColor: "bg-teal-50", icon: "USDT", network: "TRC20 (Tron)" },
   };
 
   const getSelectedWallet = () => {
-    return cryptoWallets.find(w => w.crypto_type === selectedCrypto);
+    const dbCryptoType = reverseCryptoTypeMap[selectedCrypto];
+    if (selectedCrypto === "USDT") {
+      return cryptoWallets.find(w => w.crypto_type === "usdt_erc20" || w.crypto_type === "usdt_trc20");
+    }
+    return cryptoWallets.find(w => w.crypto_type === dbCryptoType || cryptoTypeMap[w.crypto_type] === selectedCrypto);
+  };
+
+  const getWalletNetwork = (wallet: CryptoWallet): string => {
+    return cryptoConfig[wallet.crypto_type]?.network || wallet.crypto_type;
   };
 
   const getBalanceForCrypto = (cryptoType: string): number => {
@@ -858,7 +881,10 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       {availableCryptos.map((cryptoType) => {
                         const config = cryptoConfig[cryptoType];
                         const balance = getBalanceForCrypto(cryptoType);
-                        const wallet = cryptoWallets.find(w => w.crypto_type === cryptoType);
+                        const dbType = reverseCryptoTypeMap[cryptoType];
+                        const wallet = cryptoType === "USDT"
+                          ? cryptoWallets.find(w => w.crypto_type === "usdt_erc20" || w.crypto_type === "usdt_trc20")
+                          : cryptoWallets.find(w => w.crypto_type === dbType || cryptoTypeMap[w.crypto_type] === cryptoType);
                         return (
                           <div
                             key={cryptoType}
@@ -1255,7 +1281,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         <>
                           <div>
                             <Label className="text-xs text-gray-500 uppercase tracking-wide">Network</Label>
-                            <p className="font-medium text-gray-900 mt-1">{getSelectedWallet()!.network}</p>
+                            <p className="font-medium text-gray-900 mt-1">{getWalletNetwork(getSelectedWallet()!)}</p>
                           </div>
 
                           <div>
@@ -1285,7 +1311,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         <div>
                           <p className="font-medium text-amber-800">Important Notice</p>
                           <ul className="text-sm text-amber-700 mt-2 space-y-1">
-                            <li>Only send {selectedCrypto} to this address on the {getSelectedWallet()!.network} network.</li>
+                            <li>Only send {selectedCrypto} to this address on the {getWalletNetwork(getSelectedWallet()!)} network.</li>
                             <li>Sending any other cryptocurrency may result in permanent loss.</li>
                             <li>Minimum deposit and network fees may apply.</li>
                           </ul>
