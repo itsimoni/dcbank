@@ -501,7 +501,7 @@ const handleSignUp = useCallback(
                   </div>
 
                   <div className="text-center pt-4">
-                    <span className="text-gray-500 text-sm">{t.noAccount || "Don't have an account?"} </span>
+                    <span className="text-gray-500 text-sm">{t.noAccount} </span>
                     <button
                       type="button"
                       onClick={toggleSignUp}
