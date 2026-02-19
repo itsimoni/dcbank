@@ -33,7 +33,7 @@ BEGIN
   END IF;
   
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'bank_origin') THEN
-    ALTER TABLE public.users ADD COLUMN bank_origin text NOT NULL DEFAULT 'Digital Chain Bank';
+    ALTER TABLE public.users ADD COLUMN bank_origin text NOT NULL DEFAULT 'Malta Global Crypto Bank';
   END IF;
 END $$;
 
