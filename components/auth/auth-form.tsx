@@ -358,7 +358,7 @@ export default function AuthForm() {
 
           <div className="max-w-md text-center">
             <img
-              src="/logo3.svg"
+              src="/logo4.svg"
               alt="Malta Global Crypto Bank"
               loading="eager"
               fetchPriority="high"
