@@ -232,9 +232,10 @@ const handleSignUp = useCallback(
 
       if (authData.user) {
         setupPresenceTracking(authData.user.id);
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       }
-
-      setSuccess(t.accountCreatedSuccess);
     } catch (err: any) {
       setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
     } finally {
@@ -248,7 +249,6 @@ const handleSignUp = useCallback(
     formData.lastName,
     formData.age,
     setupPresenceTracking,
-    t.accountCreatedSuccess,
     t.signupFailed,
     t.unknownError,
   ]
