@@ -364,9 +364,6 @@ export default function AuthForm() {
               fetchPriority="high"
               className="w-full max-w-[640px] mx-auto mb-8"
             />
-            <p className="text-white/80 text-sm">
-              {t.tagline}
-            </p>
           </div>
         </div>
 
