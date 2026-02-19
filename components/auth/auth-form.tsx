@@ -364,6 +364,37 @@ export default function AuthForm() {
               fetchPriority="high"
               className="w-full max-w-[800px] mx-auto mb-8"
             />
+
+            <div className="mt-8 text-left max-w-md mx-auto">
+              <div className="text-white/90 text-xs leading-relaxed space-y-3">
+                <p className="font-semibold text-white text-sm border-b border-white/20 pb-2">
+                  Licensed & Regulated Financial Institution
+                </p>
+                <p>
+                  Authorised by the Malta Financial Services Authority (MFSA) under the Financial Institutions Act. Member of the European Banking Federation.
+                </p>
+                <p>
+                  Client deposits are protected up to EUR 100,000 under the EU Deposit Guarantee Scheme Directive 2014/49/EU.
+                </p>
+                <p className="font-medium">
+                  Licence No. IF-2847193 | SWIFT/BIC: MGCBMTMT
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <span className="inline-flex items-center px-2 py-1 bg-white/10 text-white/90 text-[10px] font-medium rounded border border-white/20">
+                    PCI DSS Level 1
+                  </span>
+                  <span className="inline-flex items-center px-2 py-1 bg-white/10 text-white/90 text-[10px] font-medium rounded border border-white/20">
+                    ISO 27001
+                  </span>
+                  <span className="inline-flex items-center px-2 py-1 bg-white/10 text-white/90 text-[10px] font-medium rounded border border-white/20">
+                    SOC 2 Type II
+                  </span>
+                </div>
+                <p className="text-[10px] text-white/60 pt-2 border-t border-white/10">
+                  Registered Office: 171 Old Bakery Street, Valletta VLT 1455, Malta. Company Reg. No. C 84291
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
