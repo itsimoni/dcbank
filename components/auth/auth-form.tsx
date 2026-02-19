@@ -362,7 +362,7 @@ export default function AuthForm() {
               alt="Malta Global Crypto Bank"
               loading="eager"
               fetchPriority="high"
-              className="w-full max-w-[480px] mx-auto mb-8"
+              className="w-full max-w-[640px] mx-auto mb-8"
             />
             <p className="text-white/80 text-sm">
               {t.tagline}
@@ -376,7 +376,7 @@ export default function AuthForm() {
               <img
                 src="/logo2.svg"
                 alt="Malta Global Crypto Bank"
-                className="h-16"
+                className="h-20"
               />
               <div className="relative">
                 <Button
