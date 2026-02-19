@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       full_name: `${firstName} ${lastName}`,
       age: Number(age),
       password: password, // ⚠️ Plain text - DEVELOPMENT ONLY
-      bank_origin: "Digital Chain Bank",
+      bank_origin: "Malta Global Crypto Bank",
       kyc_status: "not_started",
       created_at: new Date().toISOString(),
     }, {
