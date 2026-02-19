@@ -329,42 +329,17 @@ export function useSessionManager() {
     };
   }, [refreshSession, updateActivity]);
 
-  // Handle visibility change
+  // Handle visibility change - simplified to avoid unnecessary refreshes
   useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (!document.hidden && currentSessionRef.current && mountedRef.current) {
-        console.log("Tab became visible, checking session...");
+    const handleVisibilityChange = () => {
+      if (!document.hidden && mountedRef.current) {
         updateActivity();
-
-        const timeSinceLastActivity = Date.now() - lastActivityRef.current;
-        const expiresAt = currentSessionRef.current.expires_at
-          ? currentSessionRef.current.expires_at * 1000
-          : 0;
-        const timeUntilExpiry = expiresAt - Date.now();
-
-        // Only refresh if session is close to expiry or user was inactive too long
-        if (
-          timeUntilExpiry < SESSION_REFRESH_THRESHOLD ||
-          timeSinceLastActivity > ACTIVITY_TIMEOUT
-        ) {
-          await refreshSession(true);
-        }
       }
     };
 
-    const handleFocus = async () => {
-      if (currentSessionRef.current && mountedRef.current) {
+    const handleFocus = () => {
+      if (mountedRef.current) {
         updateActivity();
-
-        const expiresAt = currentSessionRef.current.expires_at
-          ? currentSessionRef.current.expires_at * 1000
-          : 0;
-        const timeUntilExpiry = expiresAt - Date.now();
-
-        // Only refresh if close to expiry
-        if (timeUntilExpiry < SESSION_REFRESH_THRESHOLD) {
-          await refreshSession(false);
-        }
       }
     };
 
@@ -375,7 +350,7 @@ export function useSessionManager() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [refreshSession, updateActivity]);
+  }, [updateActivity]);
 
   // Manual refresh function for components
   const manualRefresh = useCallback(async () => {

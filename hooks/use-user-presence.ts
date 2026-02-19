@@ -182,29 +182,34 @@ export function useEnhancedPresenceTracker({
     };
   }, [updatePresenceWithLocation, enabled, userId, heartbeatInterval]);
 
-  // Handle page visibility changes
+  // Handle page visibility changes - simplified to avoid unnecessary updates
   useEffect(() => {
     if (!enabled || !userId) return;
 
+    let hiddenTimeout: NodeJS.Timeout | null = null;
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        console.log("Page hidden, will mark offline in 60 seconds");
-        setTimeout(() => {
+        hiddenTimeout = setTimeout(() => {
           if (document.hidden) {
-            console.log("Page still hidden after 60s, marking offline");
             updatePresenceWithLocation(false, true);
           }
         }, 60000);
       } else {
-        console.log("Page visible, marking online with location");
+        if (hiddenTimeout) {
+          clearTimeout(hiddenTimeout);
+          hiddenTimeout = null;
+        }
         lastActivityRef.current = Date.now();
-        updatePresenceWithLocation(true, true);
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (hiddenTimeout) {
+        clearTimeout(hiddenTimeout);
+      }
     };
   }, [updatePresenceWithLocation, enabled, userId]);
 
