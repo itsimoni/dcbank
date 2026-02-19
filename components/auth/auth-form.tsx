@@ -341,7 +341,7 @@ export default function AuthForm() {
             <div className="h-full flex items-center justify-center p-2 sm:p-4 overflow-hidden">
               <div className="w-full h-full flex items-center justify-center">
                 <img
-                  src="/logo2.svg"
+                  src="/logo-optimized.png"
                   alt="Malta Global Crypto Bank ATM"
                   loading="eager"
                   fetchPriority="high"

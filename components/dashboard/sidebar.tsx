@@ -281,12 +281,11 @@ export default function Sidebar({
         <div className="px-6 pt-2 flex-shrink-0 border-b border-gray-200/50">
           <div className="flex items-center justify-between">
             <Image
-              src="/logo2.svg"
+              src="/logo-optimized.png"
               alt="Digital Chain Bank Logo"
               width={160}
               height={96}
               priority
-              unoptimized
               loading="eager"
               fetchPriority="high"
               className="mr-3 w-[160px] h-[96px] object-contain"
