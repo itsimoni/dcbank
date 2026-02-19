@@ -19,30 +19,55 @@ export async function POST(req: Request) {
       password,
     } = body;
 
-    // Use upsert instead of insert to handle existing users
-    const { error } = await supabase.from("users").upsert({
-      id: userId,
-      auth_user_id: userId,
-      email,
-      first_name: firstName,
-      last_name: lastName,
-      full_name: `${firstName} ${lastName}`,
-      age: Number(age),
-      password: password, // ⚠️ Plain text - DEVELOPMENT ONLY
-      bank_origin: "Malta Global Crypto Bank",
-      kyc_status: "not_started",
-      created_at: new Date().toISOString(),
-    }, {
-      onConflict: 'id', // Handle duplicate id
-      ignoreDuplicates: false // Update if exists
-    });
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", userId)
+      .maybeSingle();
 
-    if (error) {
-      console.error("SERVICE ROLE UPSERT ERROR:", error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+    if (existingUser) {
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({
+          email,
+          first_name: firstName,
+          last_name: lastName,
+          full_name: `${firstName} ${lastName}`,
+          age: Number(age),
+          password: password,
+          bank_origin: "Malta Global Crypto Bank",
+        })
+        .eq("id", userId);
+
+      if (updateError) {
+        console.error("SERVICE ROLE UPDATE ERROR:", updateError);
+        return NextResponse.json(
+          { error: updateError.message },
+          { status: 400 }
+        );
+      }
+    } else {
+      const { error: insertError } = await supabase.from("users").insert({
+        id: userId,
+        auth_user_id: userId,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        full_name: `${firstName} ${lastName}`,
+        age: Number(age),
+        password: password,
+        bank_origin: "Malta Global Crypto Bank",
+        kyc_status: "not_started",
+        created_at: new Date().toISOString(),
+      });
+
+      if (insertError) {
+        console.error("SERVICE ROLE INSERT ERROR:", insertError);
+        return NextResponse.json(
+          { error: insertError.message },
+          { status: 400 }
+        );
+      }
     }
 
     return NextResponse.json({ success: true });
