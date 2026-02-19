@@ -271,9 +271,11 @@ const handleSignUp = useCallback(
 
         if (data.user) {
           setupPresenceTracking(data.user.id);
+          setSuccess(t.signedInSuccess);
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
         }
-
-        setSuccess(t.signedInSuccess);
       } catch (err: any) {
         setError(`${t.signInFailed}: ${err.message || t.unknownError}`);
       } finally {
