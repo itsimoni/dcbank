@@ -76,7 +76,6 @@ export function useDashboardData() {
   });
 
   const mountedRef = useRef(true);
-  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -86,25 +85,40 @@ export function useDashboardData() {
   }, []);
 
   useEffect(() => {
+    let checkInterval: NodeJS.Timeout | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     // Check if we have fresh cached data
     const isCacheFresh = globalCache.data &&
       Date.now() - globalCache.timestamp < globalCache.CACHE_DURATION;
 
     if (isCacheFresh) {
-      // Use cached data instead of fetching
-      if (!hasInitializedRef.current) {
-        setData(globalCache.data!);
-        hasInitializedRef.current = true;
-      }
+      // Use cached data immediately
+      setData(globalCache.data!);
       return;
     }
 
-    // Prevent duplicate fetches
-    if (hasInitializedRef.current || globalCache.isLoading) {
-      return;
+    // If already loading, wait for it to complete
+    if (globalCache.isLoading) {
+      // Set up a listener for when the fetch completes
+      checkInterval = setInterval(() => {
+        if (!globalCache.isLoading && globalCache.data && mountedRef.current) {
+          setData(globalCache.data);
+          if (checkInterval) clearInterval(checkInterval);
+        }
+      }, 100);
+
+      // Clear interval after 10 seconds to prevent memory leak
+      timeoutId = setTimeout(() => {
+        if (checkInterval) clearInterval(checkInterval);
+      }, 10000);
+
+      return () => {
+        if (checkInterval) clearInterval(checkInterval);
+        if (timeoutId) clearTimeout(timeoutId);
+      };
     }
 
-    hasInitializedRef.current = true;
     globalCache.isLoading = true;
 
     const fetchAllData = async () => {
