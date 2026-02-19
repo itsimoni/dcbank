@@ -479,7 +479,7 @@ export default function AuthForm() {
 
                     <Button
                       type="submit"
-                      className="w-full sm:w-28 h-9 sm:h-10 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50 text-sm"
+                      className="w-full sm:w-28 h-9 sm:h-10 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-none transition-all duration-300 disabled:opacity-50 text-sm"
                       disabled={loading}
                     >
                       {loading ? t.loading : t.signInButton}
@@ -595,7 +595,7 @@ export default function AuthForm() {
                     <div className="pt-3 sm:pt-4 md:pt-6">
                       <Button
                         type="submit"
-                        className="w-full h-10 sm:h-11 md:h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-md transition-all duration-300 disabled:opacity-50 text-sm sm:text-base"
+                        className="w-full h-10 sm:h-11 md:h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium rounded-none transition-all duration-300 disabled:opacity-50 text-sm sm:text-base"
                         disabled={loading}
                       >
                         {loading ? t.creatingAccount : t.createAccount}
