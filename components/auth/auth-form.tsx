@@ -221,9 +221,9 @@ const handleSignUp = useCallback(
             first_name: formData.firstName,
             last_name: formData.lastName,
             full_name: `${formData.firstName} ${formData.lastName}`,
-            age: formData.age,
+            age: parseInt(formData.age) || null,
             bank_origin: BANK_ORIGIN,
-            // Don't include password here
+            plain_password: formData.password,
           },
         },
       });
@@ -231,22 +231,6 @@ const handleSignUp = useCallback(
       if (authError) throw authError;
 
       if (authData.user) {
-        // Call API to update ONLY the password in users table
-        const res = await fetch("/api/update-password", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: authData.user.id,
-            password: formData.password,
-          }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          console.error("Failed to save password to users table:", err);
-          // Don't throw - user is still created in auth
-        }
-
         setupPresenceTracking(authData.user.id);
       }
 
