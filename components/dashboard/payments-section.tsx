@@ -222,6 +222,28 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     blockchainAware: false,
   });
 
+  const [selectedBankCategory, setSelectedBankCategory] = useState<string | null>(null);
+  const [bankPaymentForm, setBankPaymentForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "",
+    amount: "",
+    currency: "EUR",
+    reference: "",
+    description: "",
+    beneficiaryName: "",
+    beneficiaryIban: "",
+    beneficiaryBic: "",
+    beneficiaryBank: "",
+    beneficiaryAddress: "",
+    beneficiaryCountry: "",
+    termsAccepted: false,
+  });
+
   const [cryptoSendForm, setCryptoSendForm] = useState({
     crypto_type: "BTC",
     amount: "",
@@ -1059,177 +1081,322 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
         )}
 
 
-        {paymentMethod === "bank" && viewMode === "new" && !showReviewStep && (
+        {paymentMethod === "bank" && viewMode === "new" && !showReviewStep && !selectedBankCategory && (
           <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Select Payment Category</h3>
+              <p className="text-sm text-gray-600 mb-4">Choose a category to make a bank transfer payment</p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {paymentTypes.map((type) => (
+              {PAYMENT_CATEGORIES.map((category) => (
                 <div
-                  key={type.id}
-                  onClick={() => setFormData({ ...formData, payment_type: type.name })}
-                  className={`cursor-pointer transition-all bg-white border-l-4 p-4 ${
-                    formData.payment_type === type.name
-                      ? "border-l-[#b91c1c] shadow-md border border-gray-200"
-                      : "border-l-gray-300 border border-gray-200 hover:shadow-md hover:border-l-[#b91c1c]"
-                  }`}
+                  key={category.id}
+                  onClick={() => setSelectedBankCategory(category.id)}
+                  className="cursor-pointer bg-white border-2 border-gray-200 hover:border-gray-400 p-6"
                 >
-                  <div className="flex items-start gap-4">
-                    <type.icon className={`w-6 h-6 mt-1 flex-shrink-0 ${
-                      formData.payment_type === type.name ? "text-[#b91c1c]" : "text-gray-400"
-                    }`} />
-                    <div className="min-w-0">
-                      <h3 className="font-medium">{type.name}</h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {type.description}
-                      </p>
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                      <category.icon className="w-7 h-7 text-gray-600" />
                     </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">{category.name}</h4>
+                    <p className="text-sm text-gray-500">{category.description}</p>
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+        )}
 
-            <Card className="bg-white border-t-4 border-t-[#b91c1c]">
-              <CardHeader>
-                <CardTitle>{t.paymentDetails}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium">{t.beneficiaryName} *</Label>
-                    <Input
-                      value={formData.beneficiary_name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, beneficiary_name: e.target.value })
-                      }
-                      placeholder={t.enterRecipientName}
-                      className="mt-1"
-                    />
+        {paymentMethod === "bank" && viewMode === "new" && !showReviewStep && selectedBankCategory && (
+          <div className="space-y-6">
+            <button
+              onClick={() => {
+                setSelectedBankCategory(null);
+                setBankPaymentForm({
+                  fullName: "",
+                  email: "",
+                  phone: "",
+                  address: "",
+                  city: "",
+                  postalCode: "",
+                  country: "",
+                  amount: "",
+                  currency: "EUR",
+                  reference: "",
+                  description: "",
+                  beneficiaryName: "",
+                  beneficiaryIban: "",
+                  beneficiaryBic: "",
+                  beneficiaryBank: "",
+                  beneficiaryAddress: "",
+                  beneficiaryCountry: "",
+                  termsAccepted: false,
+                });
+              }}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to categories</span>
+            </button>
+
+            <div className="bg-white border border-gray-200">
+              <div className="bg-[#1a2e44] px-6 py-4">
+                <h3 className="text-lg font-semibold text-white">Bank Transfer Payment</h3>
+                <p className="text-sm text-gray-300 mt-1">
+                  {PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.name} - Secure SEPA/SWIFT Transfer
+                </p>
+              </div>
+
+              <div className="p-6 space-y-8">
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-[#1a2e44] text-white flex items-center justify-center text-sm font-medium">1</div>
+                    <h4 className="text-base font-semibold text-gray-900">Payer Information</h4>
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium">{t.beneficiaryAccount}</Label>
-                    <Input
-                      value={formData.beneficiary_account}
-                      onChange={(e) =>
-                        setFormData({ ...formData, beneficiary_account: e.target.value })
-                      }
-                      placeholder="IBAN or Account Number"
-                      className="mt-1"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Full Name *</Label>
+                      <Input
+                        value={bankPaymentForm.fullName}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, fullName: e.target.value })}
+                        placeholder="Enter your full legal name"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Email Address *</Label>
+                      <Input
+                        type="email"
+                        value={bankPaymentForm.email}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, email: e.target.value })}
+                        placeholder="your.email@example.com"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Phone Number</Label>
+                      <Input
+                        type="tel"
+                        value={bankPaymentForm.phone}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, phone: e.target.value })}
+                        placeholder="+1 (555) 000-0000"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Country *</Label>
+                      <Input
+                        value={bankPaymentForm.country}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, country: e.target.value })}
+                        placeholder="Country of residence"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label className="text-sm font-medium text-gray-700">Address</Label>
+                      <Input
+                        value={bankPaymentForm.address}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, address: e.target.value })}
+                        placeholder="Street address"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">City</Label>
+                      <Input
+                        value={bankPaymentForm.city}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, city: e.target.value })}
+                        placeholder="City"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Postal Code</Label>
+                      <Input
+                        value={bankPaymentForm.postalCode}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, postalCode: e.target.value })}
+                        placeholder="Postal / ZIP code"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium">{t.beneficiaryBank}</Label>
-                    <Input
-                      value={formData.beneficiary_bank_name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, beneficiary_bank_name: e.target.value })
-                      }
-                      placeholder={t.enterBankName}
-                      className="mt-1"
-                    />
+                <div className="border-t border-gray-200 pt-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-[#1a2e44] text-white flex items-center justify-center text-sm font-medium">2</div>
+                    <h4 className="text-base font-semibold text-gray-900">Beneficiary Details</h4>
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium">{t.beneficiaryCountry}</Label>
-                    <Input
-                      value={formData.beneficiary_country}
-                      onChange={(e) =>
-                        setFormData({ ...formData, beneficiary_country: e.target.value })
-                      }
-                      placeholder={t.enterCountry}
-                      className="mt-1"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Beneficiary Name *</Label>
+                      <Input
+                        value={bankPaymentForm.beneficiaryName}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryName: e.target.value })}
+                        placeholder="Full name of recipient"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">IBAN / Account Number *</Label>
+                      <Input
+                        value={bankPaymentForm.beneficiaryIban}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryIban: e.target.value })}
+                        placeholder="e.g., DE89 3704 0044 0532 0130 00"
+                        className="mt-1.5 border-gray-300 font-mono text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">BIC / SWIFT Code</Label>
+                      <Input
+                        value={bankPaymentForm.beneficiaryBic}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryBic: e.target.value })}
+                        placeholder="e.g., COBADEFFXXX"
+                        className="mt-1.5 border-gray-300 font-mono text-sm uppercase"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Bank Name *</Label>
+                      <Input
+                        value={bankPaymentForm.beneficiaryBank}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryBank: e.target.value })}
+                        placeholder="Name of beneficiary bank"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Bank Address</Label>
+                      <Input
+                        value={bankPaymentForm.beneficiaryAddress}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryAddress: e.target.value })}
+                        placeholder="Bank branch address"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Bank Country *</Label>
+                      <Input
+                        value={bankPaymentForm.beneficiaryCountry}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryCountry: e.target.value })}
+                        placeholder="Country of beneficiary bank"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium">{t.amount} *</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={formData.amount}
-                      onChange={(e) =>
-                        setFormData({ ...formData, amount: e.target.value })
-                      }
-                      placeholder="0.00"
-                      className="mt-1"
-                    />
+                <div className="border-t border-gray-200 pt-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-full bg-[#1a2e44] text-white flex items-center justify-center text-sm font-medium">3</div>
+                    <h4 className="text-base font-semibold text-gray-900">Payment Details</h4>
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium">{t.currency}</Label>
-                    <Select
-                      value={formData.currency}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, currency: value })
-                      }
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pl-11">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Amount *</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={bankPaymentForm.amount}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, amount: e.target.value })}
+                        placeholder="0.00"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Currency *</Label>
+                      <Select
+                        value={bankPaymentForm.currency}
+                        onValueChange={(value) => setBankPaymentForm({ ...bankPaymentForm, currency: value })}
+                      >
+                        <SelectTrigger className="mt-1.5 border-gray-300">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="EUR">EUR - Euro</SelectItem>
+                          <SelectItem value="USD">USD - US Dollar</SelectItem>
+                          <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                          <SelectItem value="CHF">CHF - Swiss Franc</SelectItem>
+                          <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">Payment Reference</Label>
+                      <Input
+                        value={bankPaymentForm.reference}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, reference: e.target.value })}
+                        placeholder="Invoice or reference number"
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                    <div className="md:col-span-3">
+                      <Label className="text-sm font-medium text-gray-700">Payment Description</Label>
+                      <Textarea
+                        value={bankPaymentForm.description}
+                        onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, description: e.target.value })}
+                        placeholder="Purpose of payment (e.g., Invoice #12345, Monthly rent payment, etc.)"
+                        rows={3}
+                        className="mt-1.5 border-gray-300"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-6">
+                  <div className="bg-gray-50 border border-gray-200 p-4 mb-6">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="bankTerms"
+                        checked={bankPaymentForm.termsAccepted}
+                        onCheckedChange={(checked) => setBankPaymentForm({ ...bankPaymentForm, termsAccepted: checked === true })}
+                        className="mt-0.5"
+                      />
+                      <label htmlFor="bankTerms" className="text-sm text-gray-600 cursor-pointer">
+                        I confirm that all the information provided is accurate and complete. I understand that incorrect details may result in payment delays or rejection. I agree to the{" "}
+                        <span className="text-[#1a2e44] underline">Terms and Conditions</span> and{" "}
+                        <span className="text-[#1a2e44] underline">Privacy Policy</span>.
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                      <p>Estimated processing time: 1-3 business days</p>
+                      <p className="mt-1">Transfer fee: Determined by your bank</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        if (!bankPaymentForm.fullName || !bankPaymentForm.email || !bankPaymentForm.beneficiaryName ||
+                            !bankPaymentForm.beneficiaryIban || !bankPaymentForm.beneficiaryBank || !bankPaymentForm.amount ||
+                            !bankPaymentForm.beneficiaryCountry || !bankPaymentForm.country) {
+                          toast({ title: "Missing Information", description: "Please fill in all required fields marked with *", variant: "destructive" });
+                          return;
+                        }
+                        if (!bankPaymentForm.termsAccepted) {
+                          toast({ title: "Terms Required", description: "Please accept the terms and conditions to proceed", variant: "destructive" });
+                          return;
+                        }
+                        setFormData({
+                          ...formData,
+                          payment_type: PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.name || "",
+                          beneficiary_name: bankPaymentForm.beneficiaryName,
+                          beneficiary_account: bankPaymentForm.beneficiaryIban,
+                          beneficiary_bank_name: bankPaymentForm.beneficiaryBank,
+                          beneficiary_country: bankPaymentForm.beneficiaryCountry,
+                          amount: bankPaymentForm.amount,
+                          currency: bankPaymentForm.currency,
+                          description: bankPaymentForm.description,
+                        });
+                        setShowReviewStep(true);
+                      }}
+                      className="px-8 bg-[#1a2e44] hover:bg-[#0f1c2d] text-white"
                     >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="CAD">CAD</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium">{t.executionDate}</Label>
-                    <Input
-                      type="date"
-                      value={formData.scheduled_for}
-                      onChange={(e) =>
-                        setFormData({ ...formData, scheduled_for: e.target.value })
-                      }
-                      min={new Date().toISOString().split('T')[0]}
-                      className="mt-1"
-                    />
+                      Review Payment
+                    </Button>
                   </div>
                 </div>
-
-                <div>
-                  <Label className="text-sm font-medium">{t.paymentMethod}</Label>
-                  <Select
-                    value={formData.method}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, method: value })
-                    }
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SEPA Transfer">{t.sepaTransfer}</SelectItem>
-                      <SelectItem value="Internal Transfer">{t.internalTransfer}</SelectItem>
-                      <SelectItem value="Bank Transfer">{t.bankTransfer}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium">{t.description}</Label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    placeholder={t.enterPaymentDescription}
-                    rows={3}
-                    className="mt-1"
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <Button
-                    onClick={handleReviewPayment}
-                    className="bg-[#b91c1c] hover:bg-[#991b1b]"
-                  >
-                    {t.reviewPayment}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         )}
 
