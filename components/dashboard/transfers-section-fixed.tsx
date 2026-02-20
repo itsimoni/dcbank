@@ -40,6 +40,8 @@ import {
   Filter,
   AlertCircle,
   Info,
+  Wallet,
+  Send,
 } from "lucide-react";
 import { Language, getTranslations } from "../../lib/translations";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -127,7 +129,13 @@ interface Transfer {
 }
 
 type TransferStatus = "pending" | "processing" | "approved" | "completed" | "rejected";
-type TransferType = "internal" | "bank_transfer" | "all";
+type TransferType = "internal" | "bank_transfer" | "crypto_internal" | "crypto_external" | "all";
+
+interface CryptoWalletDetails {
+  wallet_address: string;
+  network: string;
+  memo_tag: string;
+}
 
 interface ConfirmationData {
   reference_number: string;
@@ -173,6 +181,23 @@ export default function TransfersSection({
     from_currency: "",
     to_currency: "",
     amount: "",
+  });
+
+  const [cryptoInternalFormData, setCryptoInternalFormData] = useState({
+    from_currency: "",
+    to_currency: "",
+    amount: "",
+  });
+
+  const [cryptoExternalFormData, setCryptoExternalFormData] = useState({
+    from_currency: "",
+    amount: "",
+  });
+
+  const [cryptoWalletDetails, setCryptoWalletDetails] = useState<CryptoWalletDetails>({
+    wallet_address: "",
+    network: "",
+    memo_tag: "",
   });
 
   const [bankDetails, setBankDetails] = useState<BankDetails>({
@@ -295,22 +320,38 @@ export default function TransfersSection({
   };
 
   useEffect(() => {
-    const formData = activeTab === "internal" ? internalFormData : bankFormData;
+    const getFormData = () => {
+      switch (activeTab) {
+        case "internal": return internalFormData;
+        case "bank": return bankFormData;
+        case "crypto_internal": return cryptoInternalFormData;
+        case "crypto_external": return { ...cryptoExternalFormData, to_currency: cryptoExternalFormData.from_currency };
+        default: return internalFormData;
+      }
+    };
+    const formData = getFormData();
     if (
       formData.from_currency &&
-      formData.to_currency &&
       formData.amount &&
       liveRates.lastUpdated > 0
     ) {
       calculateRealTimeExchange();
     }
-  }, [internalFormData, bankFormData, liveRates, activeTab]);
+  }, [internalFormData, bankFormData, cryptoInternalFormData, cryptoExternalFormData, liveRates, activeTab]);
 
   const calculateRealTimeExchange = () => {
-    const currentFormData =
-      activeTab === "internal" ? internalFormData : bankFormData;
+    const getCurrentFormData = () => {
+      switch (activeTab) {
+        case "internal": return internalFormData;
+        case "bank": return bankFormData;
+        case "crypto_internal": return cryptoInternalFormData;
+        case "crypto_external": return { ...cryptoExternalFormData, to_currency: cryptoExternalFormData.from_currency };
+        default: return internalFormData;
+      }
+    };
+    const currentFormData = getCurrentFormData();
     const fromCurrency = currentFormData.from_currency.toUpperCase();
-    const toCurrency = currentFormData.to_currency.toUpperCase();
+    const toCurrency = (currentFormData.to_currency || fromCurrency).toUpperCase();
     const amount = Number(currentFormData.amount);
 
     if (!amount || fromCurrency === toCurrency) {
@@ -357,6 +398,10 @@ export default function TransfersSection({
           ? 50
           : 25;
       return baseFee + fixedFee;
+    } else if (activeTab === "crypto_internal") {
+      return amount * 0.005;
+    } else if (activeTab === "crypto_external") {
+      return amount * 0.015;
     } else {
       if (
         fromCurrencyInfo?.type === "crypto" ||
@@ -367,6 +412,16 @@ export default function TransfersSection({
         return amount * 0.005;
       }
     }
+  };
+
+  const getCryptoCurrencies = () => {
+    return currencies.filter((c) => c.type === "crypto");
+  };
+
+  const getFiatCurrencies = () => {
+    return currencies.filter((c) =>
+      c.type === "fiat" && ["USD", "EUR", "CAD"].includes(c.code)
+    );
   };
 
   const fetchTransfers = async () => {
@@ -380,7 +435,7 @@ export default function TransfersSection({
           bank_transfer:bank_transfers(*)
         `)
         .eq("user_id", userProfile.id)
-        .in("transfer_type", ["internal", "bank_transfer"])
+        .in("transfer_type", ["internal", "bank_transfer", "crypto_internal", "crypto_external"])
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -752,6 +807,287 @@ export default function TransfersSection({
       setShowConfirmationModal(true);
     } catch (error: any) {
       console.error("Bank transfer error:", error);
+      setValidationErrors([`${t.error}: ${error.message}`]);
+    }
+  };
+
+  const validateCryptoInternalTransfer = (): string[] => {
+    const errors: string[] = [];
+    const amount = Number.parseFloat(cryptoInternalFormData.amount);
+    const fromCurrency = cryptoInternalFormData.from_currency.toUpperCase();
+    const toCurrency = cryptoInternalFormData.to_currency.toUpperCase();
+
+    if (!fromCurrency || !toCurrency || !cryptoInternalFormData.amount) {
+      errors.push(t.allFieldsRequired || "All fields are required");
+    }
+
+    if (fromCurrency === toCurrency) {
+      errors.push(t.currenciesMustBeDifferent || "Currencies must be different");
+    }
+
+    if (amount <= 0) {
+      errors.push(t.amountMustBeGreaterThanZero || "Amount must be greater than zero");
+    }
+
+    const fromBalanceKey = getBalanceKey(fromCurrency);
+    const currentFromBalance = balances[fromBalanceKey] || 0;
+
+    if (currentFromBalance < amount + transferFee) {
+      errors.push(
+        (t.insufficientBalance || "Insufficient balance. Available: {available} {currency}, Required: {required}")
+          .replace('{available}', currentFromBalance.toFixed(8))
+          .replace('{currency}', fromCurrency)
+          .replace('{required}', (amount + transferFee).toFixed(8))
+      );
+    }
+
+    return errors;
+  };
+
+  const validateCryptoExternalTransfer = (): string[] => {
+    const errors: string[] = [];
+    const amount = Number.parseFloat(cryptoExternalFormData.amount);
+    const fromCurrency = cryptoExternalFormData.from_currency.toUpperCase();
+
+    if (!fromCurrency || !cryptoExternalFormData.amount) {
+      errors.push(t.allFieldsRequired || "All fields are required");
+    }
+
+    if (amount <= 0) {
+      errors.push(t.amountMustBeGreaterThanZero || "Amount must be greater than zero");
+    }
+
+    const fromBalanceKey = getBalanceKey(fromCurrency);
+    const currentFromBalance = balances[fromBalanceKey] || 0;
+
+    if (currentFromBalance < amount + transferFee) {
+      errors.push(
+        (t.insufficientBalance || "Insufficient balance. Available: {available} {currency}, Required: {required}")
+          .replace('{available}', currentFromBalance.toFixed(8))
+          .replace('{currency}', fromCurrency)
+          .replace('{required}', (amount + transferFee).toFixed(8))
+      );
+    }
+
+    if (!cryptoWalletDetails.wallet_address.trim()) {
+      errors.push("Wallet address is required");
+    }
+
+    if (!cryptoWalletDetails.network.trim()) {
+      errors.push("Network is required");
+    }
+
+    return errors;
+  };
+
+  const executeCryptoInternalTransfer = async () => {
+    if (!userProfile?.id) return;
+
+    const errors = validateCryptoInternalTransfer();
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors([]);
+
+    try {
+      const amount = Number.parseFloat(cryptoInternalFormData.amount);
+      const fromCurrency = cryptoInternalFormData.from_currency.toUpperCase();
+      const toCurrency = cryptoInternalFormData.to_currency.toUpperCase();
+
+      const fromBalanceKey = getBalanceKey(fromCurrency);
+      const toBalanceKey = getBalanceKey(toCurrency);
+
+      const currentFromBalance = balances[fromBalanceKey] || 0;
+      const currentToBalance = balances[toBalanceKey] || 0;
+
+      const toAmount = estimatedAmount;
+      const referenceNumber = generateReferenceNumber();
+      const now = new Date().toISOString();
+
+      const { data: transferData, error: transferError } = await supabase
+        .from("transfers")
+        .insert({
+          user_id: userProfile.id,
+          client_id: userProfile.client_id,
+          from_currency: cryptoInternalFormData.from_currency,
+          to_currency: cryptoInternalFormData.to_currency,
+          from_amount: amount,
+          to_amount: toAmount,
+          exchange_rate: exchangeRate,
+          status: "completed",
+          transfer_type: "crypto_internal",
+          description: `Crypto exchange from ${fromCurrency} to ${toCurrency}`,
+          reference_number: referenceNumber,
+          fee_amount: transferFee,
+          fee_currency: fromCurrency,
+          processed_at: now,
+          rate_source: "live_market",
+          rate_timestamp: new Date(liveRates.lastUpdated).toISOString(),
+        })
+        .select()
+        .single();
+
+      if (transferError) throw transferError;
+
+      const fromTable = getTableName(fromCurrency);
+      const toTable = getTableName(toCurrency);
+
+      if (fromTable && toTable) {
+        const newFromBalance = currentFromBalance - amount - transferFee;
+        const newToBalance = currentToBalance + toAmount;
+
+        await Promise.all([
+          supabase
+            .from(fromTable)
+            .update({ balance: newFromBalance })
+            .eq("user_id", userProfile.id),
+          supabase
+            .from(toTable)
+            .update({ balance: newToBalance })
+            .eq("user_id", userProfile.id),
+        ]);
+      }
+
+      await supabase.from("transactions").insert([
+        {
+          user_id: userProfile.id,
+          type: "Crypto Transfer Out",
+          amount: amount + transferFee,
+          currency: cryptoInternalFormData.from_currency,
+          description: `Crypto exchange to ${cryptoInternalFormData.to_currency} - ${referenceNumber}`,
+          status: "Completed",
+        },
+        {
+          user_id: userProfile.id,
+          type: "Crypto Transfer In",
+          amount: toAmount,
+          currency: cryptoInternalFormData.to_currency,
+          description: `Crypto exchange from ${cryptoInternalFormData.from_currency} - ${referenceNumber}`,
+          status: "Completed",
+        },
+      ]);
+
+      setConfirmationData({
+        reference_number: referenceNumber,
+        from_currency: fromCurrency,
+        to_currency: toCurrency,
+        from_amount: amount,
+        to_amount: toAmount,
+        fee_amount: transferFee,
+        total_debit: amount + transferFee,
+        exchange_rate: exchangeRate,
+        status: "completed",
+        transfer_type: "crypto_internal",
+        created_at: now,
+      });
+
+      setCryptoInternalFormData({ from_currency: "", to_currency: "", amount: "" });
+      setExchangeRate(1);
+      setEstimatedAmount(0);
+      setTransferFee(0);
+
+      await fetchTransfers();
+      setShowConfirmationModal(true);
+    } catch (error: any) {
+      console.error("Crypto internal transfer error:", error);
+      setValidationErrors([`${t.error}: ${error.message}`]);
+    }
+  };
+
+  const executeCryptoExternalTransfer = async () => {
+    if (!userProfile?.id) return;
+
+    const errors = validateCryptoExternalTransfer();
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors([]);
+
+    try {
+      const amount = Number.parseFloat(cryptoExternalFormData.amount);
+      const fromCurrency = cryptoExternalFormData.from_currency.toUpperCase();
+
+      const fromBalanceKey = getBalanceKey(fromCurrency);
+      const currentFromBalance = balances[fromBalanceKey] || 0;
+
+      const referenceNumber = generateReferenceNumber();
+      const now = new Date().toISOString();
+
+      const { data: transferData, error: transferError } = await supabase
+        .from("transfers")
+        .insert({
+          user_id: userProfile.id,
+          client_id: userProfile.client_id,
+          from_currency: cryptoExternalFormData.from_currency,
+          to_currency: cryptoExternalFormData.from_currency,
+          from_amount: amount,
+          to_amount: amount,
+          exchange_rate: 1,
+          status: "pending",
+          transfer_type: "crypto_external",
+          description: `External crypto transfer to ${cryptoWalletDetails.wallet_address.slice(0, 10)}...`,
+          reference_number: referenceNumber,
+          fee_amount: transferFee,
+          fee_currency: fromCurrency,
+          rate_source: "fixed",
+          rate_timestamp: now,
+        })
+        .select()
+        .single();
+
+      if (transferError) throw transferError;
+
+      await supabase.from("crypto_transfers").insert({
+        transfer_id: transferData.id,
+        wallet_address: cryptoWalletDetails.wallet_address,
+        network: cryptoWalletDetails.network,
+        memo_tag: cryptoWalletDetails.memo_tag || null,
+      });
+
+      const fromTable = getTableName(fromCurrency);
+      if (fromTable) {
+        const newFromBalance = currentFromBalance - amount - transferFee;
+        await supabase
+          .from(fromTable)
+          .update({ balance: newFromBalance })
+          .eq("user_id", userProfile.id);
+      }
+
+      await supabase.from("transactions").insert({
+        user_id: userProfile.id,
+        type: "Crypto Withdrawal",
+        amount: amount + transferFee,
+        currency: cryptoExternalFormData.from_currency,
+        description: `External transfer to ${cryptoWalletDetails.wallet_address.slice(0, 10)}... - ${referenceNumber}`,
+        status: "Pending",
+      });
+
+      setConfirmationData({
+        reference_number: referenceNumber,
+        from_currency: fromCurrency,
+        to_currency: fromCurrency,
+        from_amount: amount,
+        to_amount: amount,
+        fee_amount: transferFee,
+        total_debit: amount + transferFee,
+        exchange_rate: 1,
+        status: "pending",
+        transfer_type: "crypto_external",
+        created_at: now,
+      });
+
+      setCryptoExternalFormData({ from_currency: "", amount: "" });
+      setCryptoWalletDetails({ wallet_address: "", network: "", memo_tag: "" });
+      setExchangeRate(1);
+      setEstimatedAmount(0);
+      setTransferFee(0);
+
+      await fetchTransfers();
+      setShowConfirmationModal(true);
+    } catch (error: any) {
+      console.error("Crypto external transfer error:", error);
       setValidationErrors([`${t.error}: ${error.message}`]);
     }
   };
@@ -1402,17 +1738,29 @@ export default function TransfersSection({
                   }}
                   className="w-full"
                 >
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto gap-1">
                     <TabsTrigger
                       value="internal"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 text-xs sm:text-sm py-2"
                     >
-                      <Coins className="w-4 h-4" />
-                      {t.accountTransfer}
+                      <ArrowLeftRight className="w-4 h-4" />
+                      <span className="hidden sm:inline">{t.accountTransfer || "Fiat Transfer"}</span>
+                      <span className="sm:hidden">Fiat</span>
                     </TabsTrigger>
-                    <TabsTrigger value="bank" className="flex items-center gap-2">
+                    <TabsTrigger value="bank" className="flex items-center gap-2 text-xs sm:text-sm py-2">
                       <Building2 className="w-4 h-4" />
-                      {t.bankWire}
+                      <span className="hidden sm:inline">{t.bankWire || "Bank Wire"}</span>
+                      <span className="sm:hidden">Bank</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="crypto_internal" className="flex items-center gap-2 text-xs sm:text-sm py-2">
+                      <Coins className="w-4 h-4" />
+                      <span className="hidden sm:inline">Crypto Exchange</span>
+                      <span className="sm:hidden">Crypto</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="crypto_external" className="flex items-center gap-2 text-xs sm:text-sm py-2">
+                      <Send className="w-4 h-4" />
+                      <span className="hidden sm:inline">Crypto Withdraw</span>
+                      <span className="sm:hidden">Withdraw</span>
                     </TabsTrigger>
                   </TabsList>
 
@@ -1941,6 +2289,371 @@ export default function TransfersSection({
                       {t.submitTransferRequest}
                     </Button>
                   </TabsContent>
+
+                  <TabsContent value="crypto_internal" className="space-y-6 mt-6">
+                    {cryptoInternalFormData.from_currency && (
+                      <div className="bg-white border-2 border-gray-300 p-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-700 font-medium">
+                            Available {cryptoInternalFormData.from_currency}:
+                          </span>
+                          <span className="text-slate-900 font-bold">
+                            {(balances[getBalanceKey(cryptoInternalFormData.from_currency)] || 0).toFixed(8)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                      <div className="flex-1 w-full">
+                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
+                          From Crypto
+                        </Label>
+                        <Select
+                          value={cryptoInternalFormData.from_currency}
+                          onValueChange={(value) => {
+                            setCryptoInternalFormData({
+                              ...cryptoInternalFormData,
+                              from_currency: value,
+                            });
+                            setValidationErrors([]);
+                          }}
+                        >
+                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
+                            <SelectValue placeholder="Select crypto" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getCryptoCurrencies().map((currency) => (
+                              <SelectItem
+                                key={currency.code}
+                                value={currency.code}
+                                className="py-3 hover:bg-white"
+                              >
+                                {renderCurrencyOption(currency)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-center px-6 py-4">
+                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
+                          <Coins className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
+                          {exchangeRate === 1 ? "1:1" : exchangeRate.toFixed(6)}
+                        </div>
+                        {liveRates.lastUpdated > 0 && exchangeRate !== 1 && (
+                          <div className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3" />
+                            {t.live}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 w-full">
+                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
+                          To Crypto
+                        </Label>
+                        <Select
+                          value={cryptoInternalFormData.to_currency}
+                          onValueChange={(value) => {
+                            setCryptoInternalFormData({
+                              ...cryptoInternalFormData,
+                              to_currency: value,
+                            });
+                            setValidationErrors([]);
+                          }}
+                        >
+                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
+                            <SelectValue placeholder="Select crypto" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getCryptoCurrencies().map((currency) => (
+                              <SelectItem
+                                key={currency.code}
+                                value={currency.code}
+                                className="py-3 hover:bg-white"
+                              >
+                                {renderCurrencyOption(currency)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                      <div>
+                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
+                          {t.amount}
+                        </Label>
+                        <Input
+                          type="number"
+                          step="0.00000001"
+                          value={cryptoInternalFormData.amount}
+                          onChange={(e) => {
+                            setCryptoInternalFormData({
+                              ...cryptoInternalFormData,
+                              amount: e.target.value,
+                            });
+                            setValidationErrors([]);
+                          }}
+                          placeholder="0.00000000"
+                          className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
+                          {t.fees}
+                        </Label>
+                        <Input
+                          value={transferFee === 0 ? "0.00000000" : transferFee.toFixed(8)}
+                          readOnly
+                          className="h-12 text-lg font-semibold bg-white border-2 border-red-600 text-red-800"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="border-2 border-red-600 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
+                          {t.totalDebit}
+                        </p>
+                        <p className="text-2xl font-bold text-red-600">
+                          {(Number(cryptoInternalFormData.amount || 0) + transferFee).toFixed(8)}{" "}
+                          <span className="text-sm">{cryptoInternalFormData.from_currency || "—"}</span>
+                        </p>
+                      </div>
+                      <div className="border-2 border-gray-300 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
+                          {t.estimatedCredit}
+                        </p>
+                        <p className="text-2xl font-bold text-slate-800">
+                          {estimatedAmount === 0 ? "0.00000000" : estimatedAmount.toFixed(8)}{" "}
+                          <span className="text-sm">{cryptoInternalFormData.to_currency || "—"}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
+                      <p className="font-medium flex items-center gap-2">
+                        <Info className="w-4 h-4" />
+                        Instant Crypto Exchange
+                      </p>
+                      <p className="text-xs text-slate-600 mt-1">
+                        Exchange between cryptocurrencies instantly at live market rates. Rate is locked at submission.
+                      </p>
+                    </div>
+
+                    <Button
+                      onClick={executeCryptoInternalTransfer}
+                      disabled={
+                        !cryptoInternalFormData.from_currency ||
+                        !cryptoInternalFormData.to_currency ||
+                        !cryptoInternalFormData.amount ||
+                        loading
+                      }
+                      className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    >
+                      Exchange Crypto
+                    </Button>
+                  </TabsContent>
+
+                  <TabsContent value="crypto_external" className="space-y-6 mt-6">
+                    {cryptoExternalFormData.from_currency && (
+                      <div className="bg-white border-2 border-gray-300 p-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-700 font-medium">
+                            Available {cryptoExternalFormData.from_currency}:
+                          </span>
+                          <span className="text-slate-900 font-bold">
+                            {(balances[getBalanceKey(cryptoExternalFormData.from_currency)] || 0).toFixed(8)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                      <div className="flex-1 w-full">
+                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
+                          Select Crypto to Withdraw
+                        </Label>
+                        <Select
+                          value={cryptoExternalFormData.from_currency}
+                          onValueChange={(value) => {
+                            setCryptoExternalFormData({
+                              ...cryptoExternalFormData,
+                              from_currency: value,
+                            });
+                            setValidationErrors([]);
+                          }}
+                        >
+                          <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
+                            <SelectValue placeholder="Select crypto" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getCryptoCurrencies().map((currency) => (
+                              <SelectItem
+                                key={currency.code}
+                                value={currency.code}
+                                className="py-3 hover:bg-white"
+                              >
+                                {renderCurrencyOption(currency)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-center px-6 py-4">
+                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
+                          <Send className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
+                          External
+                        </div>
+                      </div>
+
+                      <div className="flex-1 w-full">
+                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
+                          {t.amount}
+                        </Label>
+                        <Input
+                          type="number"
+                          step="0.00000001"
+                          value={cryptoExternalFormData.amount}
+                          onChange={(e) => {
+                            setCryptoExternalFormData({
+                              ...cryptoExternalFormData,
+                              amount: e.target.value,
+                            });
+                            setValidationErrors([]);
+                          }}
+                          placeholder="0.00000000"
+                          className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 p-6 bg-white border border-slate-300">
+                      <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <Wallet className="w-5 h-5" />
+                        Destination Wallet Details
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                        <div className="col-span-2">
+                          <Label className="text-sm font-semibold mb-2 block text-slate-700">
+                            Wallet Address *
+                          </Label>
+                          <Input
+                            value={cryptoWalletDetails.wallet_address}
+                            onChange={(e) => {
+                              setCryptoWalletDetails({
+                                ...cryptoWalletDetails,
+                                wallet_address: e.target.value,
+                              });
+                              setValidationErrors([]);
+                            }}
+                            placeholder="Enter destination wallet address"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600 font-mono"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold mb-2 block text-slate-700">
+                            Network *
+                          </Label>
+                          <Select
+                            value={cryptoWalletDetails.network}
+                            onValueChange={(value) => {
+                              setCryptoWalletDetails({
+                                ...cryptoWalletDetails,
+                                network: value,
+                              });
+                              setValidationErrors([]);
+                            }}
+                          >
+                            <SelectTrigger className="border-slate-300 hover:border-red-600">
+                              <SelectValue placeholder="Select network" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="ethereum">Ethereum (ERC-20)</SelectItem>
+                              <SelectItem value="bsc">BNB Smart Chain (BEP-20)</SelectItem>
+                              <SelectItem value="polygon">Polygon</SelectItem>
+                              <SelectItem value="arbitrum">Arbitrum</SelectItem>
+                              <SelectItem value="optimism">Optimism</SelectItem>
+                              <SelectItem value="avalanche">Avalanche C-Chain</SelectItem>
+                              <SelectItem value="solana">Solana</SelectItem>
+                              <SelectItem value="cardano">Cardano</SelectItem>
+                              <SelectItem value="polkadot">Polkadot</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold mb-2 block text-slate-700">
+                            Memo/Tag (if required)
+                          </Label>
+                          <Input
+                            value={cryptoWalletDetails.memo_tag}
+                            onChange={(e) =>
+                              setCryptoWalletDetails({
+                                ...cryptoWalletDetails,
+                                memo_tag: e.target.value,
+                              })
+                            }
+                            placeholder="Optional"
+                            className="border-slate-300 hover:border-red-600 focus:border-red-600"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="border-2 border-red-600 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
+                          {t.totalDebit} (incl. fee)
+                        </p>
+                        <p className="text-2xl font-bold text-red-600">
+                          {(Number(cryptoExternalFormData.amount || 0) + transferFee).toFixed(8)}{" "}
+                          <span className="text-sm">{cryptoExternalFormData.from_currency || "—"}</span>
+                        </p>
+                      </div>
+                      <div className="border-2 border-gray-300 bg-white p-4">
+                        <p className="text-xs text-slate-600 font-medium mb-1">
+                          Network Fee
+                        </p>
+                        <p className="text-2xl font-bold text-slate-800">
+                          {transferFee.toFixed(8)}{" "}
+                          <span className="text-sm">{cryptoExternalFormData.from_currency || "—"}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white border-2 border-amber-400 p-3 text-sm text-slate-800">
+                      <p className="font-medium flex items-center gap-2 text-amber-700">
+                        <AlertCircle className="w-4 h-4" />
+                        Important Notice
+                      </p>
+                      <p className="text-xs text-slate-600 mt-1">
+                        External withdrawals require manual review for security. Ensure the wallet address and network are correct. Funds sent to the wrong address cannot be recovered.
+                      </p>
+                    </div>
+
+                    <Button
+                      onClick={executeCryptoExternalTransfer}
+                      disabled={
+                        !cryptoExternalFormData.from_currency ||
+                        !cryptoExternalFormData.amount ||
+                        !cryptoWalletDetails.wallet_address ||
+                        !cryptoWalletDetails.network ||
+                        loading
+                      }
+                      className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                    >
+                      Submit Withdrawal Request
+                    </Button>
+                  </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
@@ -2003,6 +2716,8 @@ export default function TransfersSection({
                       <SelectItem value="all">{t.allTypes}</SelectItem>
                       <SelectItem value="internal">{t.accountTransfer}</SelectItem>
                       <SelectItem value="bank_transfer">{t.bankWire}</SelectItem>
+                      <SelectItem value="crypto_internal">Crypto Exchange</SelectItem>
+                      <SelectItem value="crypto_external">Crypto Withdraw</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select
