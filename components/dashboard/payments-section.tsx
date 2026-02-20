@@ -1140,9 +1140,9 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             </button>
 
             <div className="bg-white border border-gray-200">
-              <div className="bg-[#1a2e44] px-6 py-4">
+              <div className="bg-[#b91c1c] px-6 py-4">
                 <h3 className="text-lg font-semibold text-white">Bank Transfer Payment</h3>
-                <p className="text-sm text-gray-300 mt-1">
+                <p className="text-sm text-red-100 mt-1">
                   {PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.name} - Secure SEPA/SWIFT Transfer
                 </p>
               </div>
@@ -1150,7 +1150,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               <div className="p-6 space-y-8">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-[#1a2e44] text-white flex items-center justify-center text-sm font-medium">1</div>
+                    <div className="w-8 h-8 rounded-full bg-[#b91c1c] text-white flex items-center justify-center text-sm font-medium">1</div>
                     <h4 className="text-base font-semibold text-gray-900">Payer Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
@@ -1224,7 +1224,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
                 <div className="border-t border-gray-200 pt-8">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-[#1a2e44] text-white flex items-center justify-center text-sm font-medium">2</div>
+                    <div className="w-8 h-8 rounded-full bg-[#b91c1c] text-white flex items-center justify-center text-sm font-medium">2</div>
                     <h4 className="text-base font-semibold text-gray-900">Beneficiary Details</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
@@ -1287,7 +1287,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
                 <div className="border-t border-gray-200 pt-8">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-[#1a2e44] text-white flex items-center justify-center text-sm font-medium">3</div>
+                    <div className="w-8 h-8 rounded-full bg-[#b91c1c] text-white flex items-center justify-center text-sm font-medium">3</div>
                     <h4 className="text-base font-semibold text-gray-900">Payment Details</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pl-11">
@@ -1353,8 +1353,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                       <label htmlFor="bankTerms" className="text-sm text-gray-600 cursor-pointer">
                         I confirm that all the information provided is accurate and complete. I understand that incorrect details may result in payment delays or rejection. I agree to the{" "}
-                        <span className="text-[#1a2e44] underline">Terms and Conditions</span> and{" "}
-                        <span className="text-[#1a2e44] underline">Privacy Policy</span>.
+                        <span className="text-[#b91c1c] underline">Terms and Conditions</span> and{" "}
+                        <span className="text-[#b91c1c] underline">Privacy Policy</span>.
                       </label>
                     </div>
                   </div>
@@ -1389,7 +1389,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         });
                         setShowReviewStep(true);
                       }}
-                      className="px-8 bg-[#1a2e44] hover:bg-[#0f1c2d] text-white"
+                      className="px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
                     >
                       Review Payment
                     </Button>
