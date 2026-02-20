@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
             Back
           </Button>
           <h1 className="text-3xl font-bold">Privacy Policy</h1>
-          <p className="text-red-100 mt-2">Last Updated: February 20, 2026</p>
+          <p className="text-red-100 mt-2">Last Updated: January 1, 2027</p>
         </div>
       </div>
 
@@ -30,13 +30,13 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">1. INTRODUCTION AND SCOPE</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Valore Digital Banking Services Limited ("Valore", "Company", "we", "us", or "our") is committed to protecting the privacy and security of your personal information. This Privacy Policy ("Policy") describes how we collect, use, disclose, store, and protect your personal data when you use our digital banking platform, mobile applications, websites, and related services (collectively, the "Services").
+              Malta Crypto Central Bank ("MCCB", "Bank", "Company", "we", "us", or "our") is committed to protecting the privacy and security of your personal information. This Privacy Policy ("Policy") describes how we collect, use, disclose, store, and protect your personal data when you use our digital banking platform, mobile applications, websites, and related services (collectively, the "Services").
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               This Policy applies to all individuals who access or use our Services, including customers, prospective customers, website visitors, and any other persons whose personal data we may process in connection with our business operations.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
-              We process your personal data in accordance with applicable data protection laws and regulations, including but not limited to the Swiss Federal Act on Data Protection (FADP), the European Union General Data Protection Regulation (GDPR), and other relevant privacy legislation in jurisdictions where we operate.
+              We process your personal data in accordance with applicable data protection laws and regulations, including but not limited to the European Union General Data Protection Regulation (GDPR), the Malta Data Protection Act (Chapter 586 of the Laws of Malta), and other relevant privacy legislation in jurisdictions where we operate.
             </p>
             <p className="text-gray-700 leading-relaxed">
               By using our Services, you acknowledge that you have read and understood this Privacy Policy. If you do not agree with our data practices as described herein, please discontinue use of our Services.
@@ -46,15 +46,15 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">2. DATA CONTROLLER INFORMATION</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              For the purposes of applicable data protection laws, Valore Digital Banking Services Limited is the data controller responsible for your personal data. Our contact details are:
+              For the purposes of applicable data protection laws, Malta Crypto Central Bank is the data controller responsible for your personal data. Our contact details are:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg text-gray-700 mb-4">
-              <p><strong>Valore Digital Banking Services Limited</strong></p>
-              <p>Bahnhofstrasse 42</p>
-              <p>8001 Zurich, Switzerland</p>
-              <p className="mt-2">Data Protection Officer: privacy@valore-bank.com</p>
-              <p>General Inquiries: support@valore-bank.com</p>
-              <p>Phone: +41 44 000 0000</p>
+              <p><strong>Malta Crypto Central Bank</strong></p>
+              <p>171 Old Bakery Street</p>
+              <p>VLT 1455 Valletta, Malta</p>
+              <p className="mt-2">Data Protection Officer: privacy@mccb.mt</p>
+              <p>General Inquiries: support@mccb.mt</p>
+              <p>Phone: +356 2122 0000</p>
             </div>
             <p className="text-gray-700 leading-relaxed">
               Our Data Protection Officer is responsible for overseeing compliance with this Privacy Policy and applicable data protection laws. If you have any questions about this Policy or our data practices, please contact our Data Protection Officer using the contact details provided above.
@@ -271,7 +271,7 @@ export default function PrivacyPolicyPage() {
 
             <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-3">6.4 Regulatory and Legal Authorities</h3>
             <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-4">
-              <li>Financial regulatory authorities (FINMA, etc.)</li>
+              <li>Financial regulatory authorities (MFSA, etc.)</li>
               <li>Tax authorities (domestic and international)</li>
               <li>Law enforcement agencies</li>
               <li>Courts and judicial bodies</li>
@@ -376,7 +376,7 @@ export default function PrivacyPolicyPage() {
 
             <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-3">Exercising Your Rights</h3>
             <p className="text-gray-700 leading-relaxed">
-              To exercise any of these rights, please contact our Data Protection Officer at privacy@valore-bank.com. We will respond to your request within 30 days. We may request verification of your identity before processing your request. In certain circumstances, we may be unable to comply with your request due to legal obligations or other legitimate grounds.
+              To exercise any of these rights, please contact our Data Protection Officer at privacy@mccb.mt. We will respond to your request within 30 days. We may request verification of your identity before processing your request. In certain circumstances, we may be unable to comply with your request due to legal obligations or other legitimate grounds.
             </p>
           </section>
 
@@ -491,13 +491,14 @@ export default function PrivacyPolicyPage() {
               If you are not satisfied with how we handle your personal data or respond to your requests, you have the right to lodge a complaint with a supervisory authority:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg text-gray-700 mb-4">
-              <p><strong>Swiss Federal Data Protection and Information Commissioner (FDPIC)</strong></p>
-              <p>Feldeggweg 1</p>
-              <p>CH-3003 Bern, Switzerland</p>
-              <p>Website: www.edoeb.admin.ch</p>
+              <p><strong>Office of the Information and Data Protection Commissioner (IDPC)</strong></p>
+              <p>Level 2, Airways House</p>
+              <p>High Street, Sliema SLM 1549, Malta</p>
+              <p>Website: www.idpc.org.mt</p>
+              <p>Email: idpc.info@idpc.org.mt</p>
             </div>
             <p className="text-gray-700 leading-relaxed">
-              If you are located in the European Economic Area, you may also contact your local data protection authority.
+              As Malta is a member of the European Union, you may also contact the European Data Protection Board or your local data protection authority if you are located in another EU Member State.
             </p>
           </section>
 
@@ -508,11 +509,11 @@ export default function PrivacyPolicyPage() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg text-gray-700">
               <p><strong>Data Protection Officer</strong></p>
-              <p>Valore Digital Banking Services Limited</p>
-              <p>Bahnhofstrasse 42</p>
-              <p>8001 Zurich, Switzerland</p>
-              <p className="mt-2">Email: privacy@valore-bank.com</p>
-              <p>Phone: +41 44 000 0000</p>
+              <p>Malta Crypto Central Bank</p>
+              <p>171 Old Bakery Street</p>
+              <p>VLT 1455 Valletta, Malta</p>
+              <p className="mt-2">Email: privacy@mccb.mt</p>
+              <p>Phone: +356 2122 0000</p>
               <p className="mt-2">Response Time: We aim to respond to all inquiries within 5 business days.</p>
             </div>
           </section>
@@ -522,7 +523,7 @@ export default function PrivacyPolicyPage() {
               This Privacy Policy is provided in English. In case of any discrepancy between translated versions and the English version, the English version shall prevail.
             </p>
             <p className="text-sm text-gray-500 text-center mt-2">
-              Document Version: 3.2.0 | Effective Date: February 20, 2026
+              Document Version: 3.2.0 | Effective Date: January 1, 2027
             </p>
           </div>
         </div>

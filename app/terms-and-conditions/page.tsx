@@ -20,7 +20,7 @@ export default function TermsAndConditionsPage() {
             Back
           </Button>
           <h1 className="text-3xl font-bold">Terms and Conditions</h1>
-          <p className="text-red-100 mt-2">Last Updated: February 20, 2026</p>
+          <p className="text-red-100 mt-2">Last Updated: January 1, 2027</p>
         </div>
       </div>
 
@@ -30,7 +30,7 @@ export default function TermsAndConditionsPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">1. ACCEPTANCE OF TERMS</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              These Terms and Conditions ("Terms", "Agreement") constitute a legally binding agreement between you ("User", "Customer", "you", or "your") and Valore Digital Banking Services Limited ("Valore", "Company", "we", "us", or "our"), a financial institution duly licensed and regulated under applicable banking laws and regulations.
+              These Terms and Conditions ("Terms", "Agreement") constitute a legally binding agreement between you ("User", "Customer", "you", or "your") and Malta Crypto Central Bank ("MCCB", "Bank", "Company", "we", "us", or "our"), a financial institution duly licensed and regulated under applicable banking laws and regulations.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               By accessing, browsing, or using our digital banking platform, mobile applications, websites, or any related services (collectively, the "Services"), you acknowledge that you have read, understood, and agree to be bound by these Terms in their entirety. If you do not agree to these Terms, you must immediately discontinue use of our Services.
@@ -46,7 +46,7 @@ export default function TermsAndConditionsPage() {
               For the purposes of this Agreement, the following terms shall have the meanings ascribed to them below:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li><strong>"Account"</strong> means any banking account, including but not limited to current accounts, savings accounts, fixed deposit accounts, and any other account type offered by Valore.</li>
+              <li><strong>"Account"</strong> means any banking account, including but not limited to current accounts, savings accounts, fixed deposit accounts, and any other account type offered by MCCB.</li>
               <li><strong>"Authorized User"</strong> means any individual who has been granted permission by the primary Account holder to access and operate the Account.</li>
               <li><strong>"Business Day"</strong> means any day other than a Saturday, Sunday, or public holiday in the jurisdiction where our principal office is located.</li>
               <li><strong>"Confidential Information"</strong> means any non-public information relating to a party's business, operations, technology, customers, or financial affairs.</li>
@@ -106,7 +106,7 @@ export default function TermsAndConditionsPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">5. BANKING SERVICES AND TRANSACTIONS</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              5.1 <strong>Fund Transfers:</strong> We provide various fund transfer services, including domestic transfers, international wire transfers (SWIFT), Single Euro Payments Area (SEPA) transfers, and internal transfers between Valore Accounts. Each transfer type is subject to its own processing times, fees, and limitations as published on our platform.
+              5.1 <strong>Fund Transfers:</strong> We provide various fund transfer services, including domestic transfers, international wire transfers (SWIFT), Single Euro Payments Area (SEPA) transfers, and internal transfers between MCCB Accounts. Each transfer type is subject to its own processing times, fees, and limitations as published on our platform.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               5.2 <strong>Transfer Limits:</strong> Daily, weekly, and monthly transfer limits apply to all Accounts. These limits may vary based on Account type, verification level, and transaction history. We reserve the right to modify these limits at any time, with or without notice.
@@ -175,7 +175,7 @@ export default function TermsAndConditionsPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">8. INTELLECTUAL PROPERTY RIGHTS</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              8.1 <strong>Ownership:</strong> All intellectual property rights in and to our Services, including but not limited to software, platforms, applications, websites, trademarks, logos, designs, content, and documentation, are owned exclusively by Valore or our licensors.
+              8.1 <strong>Ownership:</strong> All intellectual property rights in and to our Services, including but not limited to software, platforms, applications, websites, trademarks, logos, designs, content, and documentation, are owned exclusively by MCCB or our licensors.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               8.2 <strong>Limited License:</strong> Subject to your compliance with these Terms, we grant you a limited, non-exclusive, non-transferable, revocable license to access and use our Services solely for personal, non-commercial banking purposes.
@@ -194,7 +194,7 @@ export default function TermsAndConditionsPage() {
               9.1 <strong>Service Availability:</strong> WHILE WE ENDEAVOR TO MAINTAIN CONTINUOUS SERVICE AVAILABILITY, WE DO NOT GUARANTEE UNINTERRUPTED ACCESS TO OUR SERVICES. OUR SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
-              9.2 <strong>Exclusion of Liability:</strong> TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, VALORE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE, DATA, OR OTHER INTANGIBLE LOSSES.
+              9.2 <strong>Exclusion of Liability:</strong> TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, MCCB SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE, DATA, OR OTHER INTANGIBLE LOSSES.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               9.3 <strong>Liability Cap:</strong> IN NO EVENT SHALL OUR TOTAL LIABILITY TO YOU FOR ALL CLAIMS ARISING FROM OR RELATED TO THESE TERMS OR YOUR USE OF SERVICES EXCEED THE GREATER OF (A) THE FEES PAID BY YOU IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED EUROS (EUR 100).
@@ -210,7 +210,7 @@ export default function TermsAndConditionsPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">10. INDEMNIFICATION</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              You agree to indemnify, defend, and hold harmless Valore, its parent company, subsidiaries, affiliates, officers, directors, employees, agents, and licensors from and against any and all claims, damages, obligations, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising from:
+              You agree to indemnify, defend, and hold harmless MCCB, its parent company, subsidiaries, affiliates, officers, directors, employees, agents, and licensors from and against any and all claims, damages, obligations, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising from:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>Your use of or access to the Services</li>
@@ -252,13 +252,13 @@ export default function TermsAndConditionsPage() {
               12.1 <strong>Informal Resolution:</strong> Before initiating any formal dispute resolution proceeding, you agree to first attempt to resolve any dispute informally by contacting our customer service department.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
-              12.2 <strong>Governing Law:</strong> These Terms shall be governed by and construed in accordance with the laws of Switzerland, without regard to its conflict of law principles.
+              12.2 <strong>Governing Law:</strong> These Terms shall be governed by and construed in accordance with the laws of Malta and applicable European Union regulations, without regard to its conflict of law principles.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
-              12.3 <strong>Jurisdiction:</strong> Any disputes arising from or relating to these Terms or your use of Services shall be subject to the exclusive jurisdiction of the courts of Zurich, Switzerland.
+              12.3 <strong>Jurisdiction:</strong> Any disputes arising from or relating to these Terms or your use of Services shall be subject to the exclusive jurisdiction of the courts of Malta.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
-              12.4 <strong>Arbitration:</strong> Alternatively, at our sole discretion, disputes may be resolved through binding arbitration administered by the Swiss Chambers' Arbitration Institution in accordance with its rules.
+              12.4 <strong>Arbitration:</strong> Alternatively, at our sole discretion, disputes may be resolved through binding arbitration administered by the Malta Arbitration Centre in accordance with its rules.
             </p>
             <p className="text-gray-700 leading-relaxed">
               12.5 <strong>Class Action Waiver:</strong> YOU AGREE TO RESOLVE DISPUTES WITH US ON AN INDIVIDUAL BASIS AND WAIVE ANY RIGHT TO PARTICIPATE IN A CLASS ACTION, CLASS-WIDE ARBITRATION, OR ANY OTHER REPRESENTATIVE PROCEEDING.
@@ -294,7 +294,7 @@ export default function TermsAndConditionsPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">15. MISCELLANEOUS PROVISIONS</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              15.1 <strong>Entire Agreement:</strong> These Terms, together with our Privacy Policy and any other policies referenced herein, constitute the entire agreement between you and Valore regarding the Services.
+              15.1 <strong>Entire Agreement:</strong> These Terms, together with our Privacy Policy and any other policies referenced herein, constitute the entire agreement between you and MCCB regarding the Services.
             </p>
             <p className="text-gray-700 leading-relaxed mb-4">
               15.2 <strong>Severability:</strong> If any provision of these Terms is held to be invalid, illegal, or unenforceable, such provision shall be modified to the minimum extent necessary to make it valid and enforceable, and the remaining provisions shall continue in full force and effect.
@@ -316,10 +316,10 @@ export default function TermsAndConditionsPage() {
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-4">16. REGULATORY INFORMATION</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              Valore Digital Banking Services Limited is a licensed financial institution authorized and regulated by the Swiss Financial Market Supervisory Authority (FINMA). Our registration number is [Registration Number]. We are a member of the Swiss Bankers Association and participate in the Swiss deposit protection scheme.
+              Malta Crypto Central Bank is a licensed financial institution authorized and regulated by the Malta Financial Services Authority (MFSA) under the Virtual Financial Assets Act (VFA Act) and the Financial Institutions Act. Our license number is VFA/2024/001. We are a member of the Malta Bankers' Association and participate in the Depositor Compensation Scheme.
             </p>
             <p className="text-gray-700 leading-relaxed">
-              For regulatory complaints or inquiries, you may contact FINMA directly at their official website or registered address.
+              For regulatory complaints or inquiries, you may contact the MFSA directly at their official website (www.mfsa.mt) or registered address at Triq l-Imdina, Zone 1, Central Business District, Birkirkara CBD 1010, Malta.
             </p>
           </section>
 
@@ -329,21 +329,21 @@ export default function TermsAndConditionsPage() {
               If you have any questions, concerns, or complaints regarding these Terms or our Services, please contact us:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg text-gray-700">
-              <p><strong>Valore Digital Banking Services Limited</strong></p>
-              <p>Bahnhofstrasse 42</p>
-              <p>8001 Zurich, Switzerland</p>
-              <p className="mt-2">Email: legal@valore-bank.com</p>
-              <p>Phone: +41 44 000 0000</p>
+              <p><strong>Malta Crypto Central Bank</strong></p>
+              <p>171 Old Bakery Street</p>
+              <p>VLT 1455 Valletta, Malta</p>
+              <p className="mt-2">Email: legal@mccb.mt</p>
+              <p>Phone: +356 2122 0000</p>
               <p className="mt-2">Customer Service Hours: Monday - Friday, 09:00 - 18:00 CET</p>
             </div>
           </section>
 
           <div className="border-t border-gray-200 pt-8 mt-8">
             <p className="text-sm text-gray-500 text-center">
-              By using Valore Digital Banking Services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+              By using Malta Crypto Central Bank, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
             </p>
             <p className="text-sm text-gray-500 text-center mt-2">
-              Document Version: 2.4.1 | Effective Date: February 20, 2026
+              Document Version: 2.4.1 | Effective Date: January 1, 2027
             </p>
           </div>
         </div>
