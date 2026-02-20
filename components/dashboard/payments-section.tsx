@@ -1373,10 +1373,6 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                           toast({ title: "Missing Information", description: "Please fill in all required fields marked with *", variant: "destructive" });
                           return;
                         }
-                        if (!bankPaymentForm.termsAccepted) {
-                          toast({ title: "Terms Required", description: "Please accept the terms and conditions to proceed", variant: "destructive" });
-                          return;
-                        }
                         setFormData({
                           ...formData,
                           payment_type: PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.name || "",
@@ -1390,7 +1386,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         });
                         setShowReviewStep(true);
                       }}
-                      className="px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
+                      disabled={!bankPaymentForm.termsAccepted}
+                      className="px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
                       Review Payment
                     </Button>
