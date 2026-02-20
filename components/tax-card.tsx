@@ -7,7 +7,9 @@ import { getTranslations, Language } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Calculator,
+  FileText,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TaxRecord {
   id: string;
@@ -159,6 +161,153 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
     }).format(amount);
   };
 
+  const exportTaxReport = () => {
+    const totalTaxes = taxStats.pending.amount + taxStats.on_hold.amount + taxStats.paid.amount;
+    const reportDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const reportTime = new Date().toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tax Report - ${userProfile.full_name || userProfile.email}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #fff; color: #1a1a1a; }
+    .header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #b91c1c; }
+    .logo { font-size: 28px; font-weight: bold; color: #b91c1c; margin-bottom: 8px; }
+    .report-title { font-size: 22px; color: #333; margin-bottom: 4px; }
+    .report-date { font-size: 14px; color: #666; }
+    .section { margin-bottom: 30px; }
+    .section-title { font-size: 16px; font-weight: 600; color: #b91c1c; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #e5e5e5; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .info-item { padding: 10px; background: #f9f9f9; border-radius: 4px; }
+    .info-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+    .info-value { font-size: 14px; font-weight: 500; color: #333; }
+    .tax-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .tax-table th, .tax-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e5e5e5; }
+    .tax-table th { background: #b91c1c; color: white; font-weight: 600; font-size: 13px; }
+    .tax-table td { font-size: 14px; }
+    .tax-table tr:last-child td { border-bottom: none; }
+    .tax-table .amount { text-align: right; font-weight: 500; }
+    .status-pending { color: #d97706; }
+    .status-hold { color: #2563eb; }
+    .status-paid { color: #16a34a; }
+    .summary { margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 6px; }
+    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; }
+    .summary-row.total { border-top: 2px solid #b91c1c; margin-top: 10px; padding-top: 15px; font-size: 18px; font-weight: bold; }
+    .footer { margin-top: 50px; text-align: center; font-size: 11px; color: #999; padding-top: 20px; border-top: 1px solid #e5e5e5; }
+    .disclaimer { margin-top: 30px; padding: 15px; background: #fff8e5; border: 1px solid #f0e0a0; border-radius: 4px; font-size: 12px; color: #666; }
+    @media print { body { padding: 20px; } .no-print { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">Digital Chain</div>
+    <div class="report-title">Tax Report</div>
+    <div class="report-date">Generated on ${reportDate} at ${reportTime}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Account Information</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Account Holder</div>
+        <div class="info-value">${userProfile.full_name || "N/A"}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email</div>
+        <div class="info-value">${userProfile.email || "N/A"}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Client ID</div>
+        <div class="info-value">${userProfile.client_id || "N/A"}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Report Period</div>
+        <div class="info-value">Current Tax Year</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Tax Breakdown</div>
+    <table class="tax-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Status</th>
+          <th class="amount">Amount (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Pending Taxes</td>
+          <td><span class="status-pending">Awaiting Payment</span></td>
+          <td class="amount">${formatCurrency(taxStats.pending.amount)}</td>
+        </tr>
+        <tr>
+          <td>On Hold</td>
+          <td><span class="status-hold">Under Review</span></td>
+          <td class="amount">${formatCurrency(taxStats.on_hold.amount)}</td>
+        </tr>
+        <tr>
+          <td>Paid Taxes</td>
+          <td><span class="status-paid">Completed</span></td>
+          <td class="amount">${formatCurrency(taxStats.paid.amount)}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="summary">
+    <div class="summary-row">
+      <span>Pending Amount:</span>
+      <span>${formatCurrency(taxStats.pending.amount)}</span>
+    </div>
+    <div class="summary-row">
+      <span>On Hold Amount:</span>
+      <span>${formatCurrency(taxStats.on_hold.amount)}</span>
+    </div>
+    <div class="summary-row">
+      <span>Paid Amount:</span>
+      <span>${formatCurrency(taxStats.paid.amount)}</span>
+    </div>
+    <div class="summary-row total">
+      <span>Total Tax Liability:</span>
+      <span>${formatCurrency(totalTaxes)}</span>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Disclaimer:</strong> This report is generated for informational purposes only. Please consult with a qualified tax professional for official tax advice. The figures shown represent the current state of your tax account and may be subject to change.
+  </div>
+
+  <div class="footer">
+    <p>Digital Chain - Secure Banking Platform</p>
+    <p>This document was automatically generated and is valid without signature.</p>
+    <p>Report ID: TAX-${Date.now()}</p>
+  </div>
+</body>
+</html>`;
+
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+    }
+  };
+
   if (loading) {
     return (
       <Card className="animate-pulse">
@@ -226,6 +375,14 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
                 </p>
               </div>
             </div>
+
+            <Button
+              onClick={exportTaxReport}
+              className="w-full mt-4 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              {t.exportTaxReport || "Export Tax Report (PDF)"}
+            </Button>
           </div>
         </div>
       </CardContent>
