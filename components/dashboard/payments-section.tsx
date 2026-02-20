@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "../../lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -1353,8 +1354,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                       <label htmlFor="bankTerms" className="text-sm text-gray-600 cursor-pointer">
                         I confirm that all the information provided is accurate and complete. I understand that incorrect details may result in payment delays or rejection. I agree to the{" "}
-                        <span className="text-[#b91c1c] underline">Terms and Conditions</span> and{" "}
-                        <span className="text-[#b91c1c] underline">Privacy Policy</span>.
+                        <Link href="/terms-and-conditions" target="_blank" className="text-[#b91c1c] underline hover:text-[#991b1b]">Terms and Conditions</Link> and{" "}
+                        <Link href="/privacy-policy" target="_blank" className="text-[#b91c1c] underline hover:text-[#991b1b]">Privacy Policy</Link>.
                       </label>
                     </div>
                   </div>
