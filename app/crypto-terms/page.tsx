@@ -1,24 +1,7 @@
-"use client";
-
-import { ArrowLeft } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import { useRouter } from "next/navigation";
-
 export default function CryptoTermsPage() {
-  const router = useRouter();
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-6 text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-
         <div className="bg-white rounded-lg shadow-sm border p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             Cryptocurrency Payment Terms and Conditions
@@ -179,16 +162,6 @@ export default function CryptoTermsPage() {
             <p className="text-sm text-gray-500 mt-6">
               Last Updated: February 2026 | Version 3.1.0 | Document Reference: CRYPTO-TC-2026-V3
             </p>
-          </div>
-
-          <div className="mt-8 pt-6 border-t">
-            <Button
-              onClick={() => router.back()}
-              className="bg-[#b91c1c] hover:bg-[#991b1b] text-white"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Return to Payment
-            </Button>
           </div>
         </div>
       </div>
