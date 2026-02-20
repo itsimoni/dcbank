@@ -2640,7 +2640,7 @@ export default function TransfersSection({
               onClick={() => setShowHistoryOnMobile(!showHistoryOnMobile)}
               className="w-full flex items-center justify-between"
             >
-              <span>{t.transferHistoryWithCount.replace('{count}', transfers.length.toString())}</span>
+              <span>{t.transferHistoryWithCount.replace('{count}', Math.min(filteredTransfers.length, 4).toString())}</span>
               {showHistoryOnMobile ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -2729,7 +2729,7 @@ export default function TransfersSection({
                   </div>
                 ) : (
                   <div className="space-y-3 h-full overflow-y-auto custom-scrollbar pr-2">
-                    {filteredTransfers.map((transfer) => (
+                    {filteredTransfers.slice(0, 4).map((transfer) => (
                       <div
                         key={transfer.id}
                         className="transfer-item p-4"
