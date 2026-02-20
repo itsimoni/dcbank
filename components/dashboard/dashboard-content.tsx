@@ -937,15 +937,10 @@ function DashboardContent({
 
         {/* Balance Circles and Transaction History - Side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-6 mb-6 sm:mb-8">
-          {/* Left side - Balance Circles */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Traditional Currency Circles - USD, EUR, CAD */}
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12 mt-24">
+          {/* Left side - Balance Grid 3x3 */}
+          <div className="lg:col-span-4">
+            <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-24">
               {traditionalBalanceCards}
-            </div>
-
-            {/* Crypto Currency Circles - BTC, ETH, USDT */}
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-12">
               {cryptoBalanceCards}
             </div>
           </div>
