@@ -1192,94 +1192,77 @@ export default function RealCryptoTransferSection({
 
             {transferStep === "receipt" && selectedCrypto && selectedNetwork && (
               <>
-                <CardHeader className="pb-4 border-b-2 border-gray-100">
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
+                <CardHeader className="pb-2 sm:pb-4 border-b border-gray-100 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                     </div>
-                    <div className="px-2">
-                      <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">{t.transferRequested}</CardTitle>
-                      <p className="text-xs sm:text-sm text-gray-600 mt-2">{t.transferSubmittedSuccessfully}</p>
+                    <div className="min-w-0">
+                      <CardTitle className="text-base sm:text-xl font-bold text-gray-900">{t.transferRequested}</CardTitle>
+                      <p className="text-xs text-gray-600 mt-0.5">{t.transferSubmittedSuccessfully}</p>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 px-3 sm:px-6">
-                  <Alert className="bg-yellow-50 border-2 border-yellow-200">
-                    <Clock className="h-4 w-4 text-yellow-600 flex-shrink-0" />
-                    <AlertDescription className="text-xs sm:text-sm text-yellow-800">
-                      <strong>{t.statusUnderReview}</strong>
-                      <br />
-                      {t.transferBeingProcessed}
+                <CardContent className="space-y-3 sm:space-y-4 pt-3 sm:pt-4 px-3 sm:px-6 pb-3 sm:pb-6">
+                  <Alert className="bg-yellow-50 border border-yellow-200 py-2">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600 flex-shrink-0" />
+                    <AlertDescription className="text-xs text-yellow-800">
+                      <strong>{t.statusUnderReview}</strong> — {t.transferBeingProcessed}
                     </AlertDescription>
                   </Alert>
 
-                  <div className="space-y-3 sm:space-y-4 bg-gray-50 border-2 border-gray-100 p-3 sm:p-6 overflow-hidden">
-                    <h3 className="font-semibold text-gray-900 border-b-2 border-gray-200 pb-2 text-sm sm:text-base">{t.transactionReceipt}</h3>
-
-                    <div className="space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600">{t.referenceId}</span>
-                        <span className="font-mono text-xs sm:text-sm font-medium text-gray-900 break-all">
-                          {lastTransactionId ? lastTransactionId.slice(0, 12).toUpperCase() : t.generating}
+                  <div className="bg-gray-50 border border-gray-200 p-2 sm:p-4 overflow-hidden">
+                    <h3 className="font-semibold text-gray-900 border-b border-gray-200 pb-1.5 mb-2 text-xs sm:text-sm">{t.transactionReceipt}</h3>
+                    <div className="space-y-1.5 sm:space-y-2 text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">{t.referenceId}</span>
+                        <span className="font-mono font-medium text-gray-900">
+                          {lastTransactionId ? lastTransactionId.slice(0, 8).toUpperCase() : "..."}
                         </span>
                       </div>
-
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600">{t.status}</span>
-                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300 w-fit text-xs">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">{t.status}</span>
+                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs py-0 h-5">
                           {t.pending}
                         </Badge>
                       </div>
-
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600">{t.submitted}</span>
-                        <span className="text-xs sm:text-sm text-gray-900">{new Date().toLocaleString()}</span>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600">{t.amountSent}</span>
-                        <span className="font-medium text-gray-900 text-sm sm:text-base">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">{t.amountSent}</span>
+                        <span className="font-medium text-gray-900">
                           {formatCryptoAmount(amount, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
                       </div>
-
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600">{t.totalDeducted}</span>
-                        <span className="font-bold text-[#b91c1c] text-sm sm:text-base">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">{t.totalDeducted}</span>
+                        <span className="font-bold text-[#b91c1c]">
                           {formatCryptoAmount(totalAmount, selectedCrypto.decimals)} {formData.crypto_type}
                         </span>
                       </div>
-
-                      <div className="flex flex-col gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-gray-600">{t.recipient}</span>
-                        <span className="font-mono text-xs text-gray-900 break-all bg-white p-2 border border-gray-200 rounded">
+                      <div className="pt-1.5 border-t border-gray-200">
+                        <span className="text-gray-600 block mb-1">{t.recipient}</span>
+                        <span className="font-mono text-xs text-gray-900 break-all block">
                           {formData.recipient_address}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 border-2 border-blue-200 p-3 sm:p-4">
+                  <div className="bg-blue-50 border border-blue-200 p-2 sm:p-3">
                     <div className="flex items-start gap-2">
-                      <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="space-y-1 text-xs sm:text-sm text-blue-900 min-w-0">
-                        <p className="break-words"><strong>{t.estimatedCompletion}</strong> {selectedNetwork.estimatedTime[formData.fee_speed]}</p>
-                        <p className="text-xs text-blue-700 mt-2">
-                          {t.processingTimesMayVary}
-                        </p>
-                      </div>
+                      <Info className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-blue-900 min-w-0">
+                        <strong>{t.estimatedCompletion}</strong> {selectedNetwork.estimatedTime[formData.fee_speed]}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-2 sm:pt-4">
-                    <Button
-                      onClick={resetForm}
-                      className="bg-[#b91c1c] hover:bg-[#991b1b] text-white h-10 sm:h-12 px-4 sm:px-8 w-full text-sm sm:text-base"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      {t.done}
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={resetForm}
+                    className="bg-[#b91c1c] hover:bg-[#991b1b] text-white h-9 sm:h-10 w-full text-sm"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {t.done}
+                  </Button>
                 </CardContent>
               </>
             )}
