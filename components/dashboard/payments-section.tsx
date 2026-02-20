@@ -967,7 +967,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                       <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
                         I am 18 years of age or older and agree to the{" "}
-                        <span className="text-[#1a2e44] underline">Terms and Conditions</span>.
+                        <span className="text-[#b91c1c] underline">Terms and Conditions</span>.
                       </label>
                     </div>
                     <div className="flex items-start gap-3">
@@ -994,7 +994,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       }
                       toast({ title: "Payment Initiated", description: "Please send the cryptocurrency to the wallet address shown" });
                     }}
-                    className="w-auto px-8 bg-[#1a2e44] hover:bg-[#0f1c2d] text-white"
+                    className="w-auto px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
                   >
                     Continue
                   </Button>
@@ -1007,7 +1007,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     onClick={() => setSelectedCryptoPayment("bitcoin")}
                     className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "bitcoin"
-                        ? "bg-[#1a2e44] text-white"
+                        ? "bg-[#b91c1c] text-white"
                         : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
@@ -1017,7 +1017,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     onClick={() => setSelectedCryptoPayment("ethereum")}
                     className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "ethereum"
-                        ? "bg-[#1a2e44] text-white"
+                        ? "bg-[#b91c1c] text-white"
                         : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
@@ -1027,7 +1027,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     onClick={() => setSelectedCryptoPayment("usdt_erc20")}
                     className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "usdt_erc20"
-                        ? "bg-[#1a2e44] text-white"
+                        ? "bg-[#b91c1c] text-white"
                         : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
@@ -1037,7 +1037,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     onClick={() => setSelectedCryptoPayment("usdt_trc20")}
                     className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "usdt_trc20"
-                        ? "bg-[#1a2e44] text-white"
+                        ? "bg-[#b91c1c] text-white"
                         : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
@@ -1070,7 +1070,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     </button>
                   </div>
                   <div className="flex items-center gap-2 mt-6">
-                    <span className="bg-[#1a2e44] text-white text-sm font-medium px-4 py-1.5">Amount</span>
+                    <span className="bg-[#b91c1c] text-white text-sm font-medium px-4 py-1.5">Amount</span>
                     <span className="text-lg font-semibold text-gray-900">
                       {cryptoPaymentForm.amount ? `${cryptoPaymentForm.amount} EUR` : "0 EUR"}
                     </span>
