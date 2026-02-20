@@ -160,12 +160,14 @@ const BalanceCard = memo(
     formatCurrency: (amount: number, currency: string) => string;
     t: ReturnType<typeof getTranslations>;
   }) => (
-    <div className="flex flex-col items-center justify-center gap-2">
+    <div className="flex flex-col items-center justify-center gap-3">
       <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
         {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
       </div>
-      <div className="text-base sm:text-2xl font-bold text-black leading-tight text-center border-b-2 border-[#b91c1c] pb-1 px-2">
-        {formatCurrency(balance, currency)}
+      <div className="bg-white border border-[#b91c1c] px-6 py-4 sm:px-8 sm:py-5">
+        <div className="text-base sm:text-2xl font-bold text-black text-center">
+          {formatCurrency(balance, currency)}
+        </div>
       </div>
     </div>
   )
@@ -184,12 +186,14 @@ const CryptoCard = memo(
     t: ReturnType<typeof getTranslations>;
   }) => {
     return (
-      <div className="flex flex-col items-center justify-center gap-2">
+      <div className="flex flex-col items-center justify-center gap-3">
         <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
           {cryptoCurrency}
         </div>
-        <div className="text-base sm:text-2xl font-bold text-black leading-tight text-center border-b-2 border-[#b91c1c] pb-1 px-2">
-          {formatCurrency(balance, cryptoCurrency)}
+        <div className="bg-white border border-[#b91c1c] px-6 py-4 sm:px-8 sm:py-5">
+          <div className="text-base sm:text-2xl font-bold text-black text-center">
+            {formatCurrency(balance, cryptoCurrency)}
+          </div>
         </div>
       </div>
     );
