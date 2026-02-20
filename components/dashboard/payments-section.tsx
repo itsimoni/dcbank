@@ -872,11 +872,11 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <div
                   key={category.id}
                   onClick={() => setSelectedPaymentCategory(category.id)}
-                  className="cursor-pointer transition-all bg-white border-2 border-gray-200 hover:border-[#E97132] hover:shadow-lg p-6 group"
+                  className="cursor-pointer bg-white border-2 border-gray-200 hover:border-gray-400 p-6"
                 >
                   <div className="flex flex-col items-center text-center">
-                    <div className="w-14 h-14 rounded-full bg-gray-100 group-hover:bg-[#E97132]/10 flex items-center justify-center mb-4 transition-colors">
-                      <category.icon className="w-7 h-7 text-gray-600 group-hover:text-[#E97132] transition-colors" />
+                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                      <category.icon className="w-7 h-7 text-gray-600" />
                     </div>
                     <h4 className="font-semibold text-gray-900 mb-1">{category.name}</h4>
                     <p className="text-sm text-gray-500">{category.description}</p>
@@ -944,7 +944,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                       <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
                         I am 18 years of age or older and agree to the{" "}
-                        <span className="text-[#E97132] hover:underline">Terms and Conditions</span>.
+                        <span className="text-[#1a2e44] underline">Terms and Conditions</span>.
                       </label>
                     </div>
                     <div className="flex items-start gap-3">
@@ -982,40 +982,40 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <div className="grid grid-cols-2 gap-3 mb-6">
                   <button
                     onClick={() => setSelectedCryptoPayment("bitcoin")}
-                    className={`py-3 px-4 font-medium transition-all ${
+                    className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "bitcoin"
-                        ? "bg-[#E97132] text-white"
-                        : "bg-white border border-gray-300 text-gray-700 hover:border-[#E97132]"
+                        ? "bg-[#1a2e44] text-white"
+                        : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
                     Bitcoin
                   </button>
                   <button
                     onClick={() => setSelectedCryptoPayment("ethereum")}
-                    className={`py-3 px-4 font-medium transition-all ${
+                    className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "ethereum"
-                        ? "bg-[#E97132] text-white"
-                        : "bg-white border border-gray-300 text-gray-700 hover:border-[#E97132]"
+                        ? "bg-[#1a2e44] text-white"
+                        : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
                     Ethereum
                   </button>
                   <button
                     onClick={() => setSelectedCryptoPayment("usdt_erc20")}
-                    className={`py-3 px-4 font-medium transition-all ${
+                    className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "usdt_erc20"
-                        ? "bg-[#E97132] text-white"
-                        : "bg-white border border-gray-300 text-gray-700 hover:border-[#E97132]"
+                        ? "bg-[#1a2e44] text-white"
+                        : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
                     USDT ERC-20
                   </button>
                   <button
                     onClick={() => setSelectedCryptoPayment("usdt_trc20")}
-                    className={`py-3 px-4 font-medium transition-all ${
+                    className={`py-3 px-4 font-medium ${
                       selectedCryptoPayment === "usdt_trc20"
-                        ? "bg-[#E97132] text-white"
-                        : "bg-white border border-gray-300 text-gray-700 hover:border-[#E97132]"
+                        ? "bg-[#1a2e44] text-white"
+                        : "bg-white border border-gray-300 text-gray-700"
                     }`}
                   >
                     USDT TRC-20
@@ -1047,7 +1047,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     </button>
                   </div>
                   <div className="flex items-center gap-2 mt-6">
-                    <span className="bg-[#E97132] text-white text-sm font-medium px-4 py-1.5">Amount</span>
+                    <span className="bg-[#1a2e44] text-white text-sm font-medium px-4 py-1.5">Amount</span>
                     <span className="text-lg font-semibold text-gray-900">
                       {cryptoPaymentForm.amount ? `${cryptoPaymentForm.amount} EUR` : "0 EUR"}
                     </span>
