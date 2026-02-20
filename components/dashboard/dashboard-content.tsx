@@ -160,12 +160,12 @@ const BalanceCard = memo(
     formatCurrency: (amount: number, currency: string) => string;
     t: ReturnType<typeof getTranslations>;
   }) => (
-    <div className="flex flex-col items-center justify-center gap-3">
-      <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
+    <div className="flex flex-col items-center justify-center gap-2">
+      <div className="text-sm sm:text-base font-bold text-gray-900 uppercase">
         {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
       </div>
-      <div className="bg-white border border-[#b91c1c] px-6 py-4 sm:px-8 sm:py-5">
-        <div className="text-base sm:text-2xl font-bold text-black text-center">
+      <div className="bg-white border border-[#b91c1c] w-28 h-14 sm:w-36 sm:h-16 flex items-center justify-center">
+        <div className="text-xs sm:text-base font-bold text-black text-center px-1">
           {formatCurrency(balance, currency)}
         </div>
       </div>
@@ -186,12 +186,12 @@ const CryptoCard = memo(
     t: ReturnType<typeof getTranslations>;
   }) => {
     return (
-      <div className="flex flex-col items-center justify-center gap-3">
-        <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
+      <div className="flex flex-col items-center justify-center gap-2">
+        <div className="text-sm sm:text-base font-bold text-gray-900 uppercase">
           {cryptoCurrency}
         </div>
-        <div className="bg-white border border-[#b91c1c] px-6 py-4 sm:px-8 sm:py-5">
-          <div className="text-base sm:text-2xl font-bold text-black text-center">
+        <div className="bg-white border border-[#b91c1c] w-28 h-14 sm:w-36 sm:h-16 flex items-center justify-center">
+          <div className="text-xs sm:text-base font-bold text-black text-center px-1">
             {formatCurrency(balance, cryptoCurrency)}
           </div>
         </div>
@@ -938,8 +938,9 @@ function DashboardContent({
         {/* Balance Circles and Transaction History - Side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-6 mb-6 sm:mb-8">
           {/* Left side - Balance Grid 3x3 */}
-          <div className="lg:col-span-4">
-            <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-24">
+          <div className="lg:col-span-4 mt-24">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">Balances</h2>
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
               {traditionalBalanceCards}
               {cryptoBalanceCards}
             </div>
