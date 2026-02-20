@@ -160,14 +160,12 @@ const BalanceCard = memo(
     formatCurrency: (amount: number, currency: string) => string;
     t: ReturnType<typeof getTranslations>;
   }) => (
-    <div className="flex flex-col items-center justify-center gap-3">
+    <div className="flex flex-col items-center justify-center gap-2">
       <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
         {currency === "usd" ? "USD" : currency === "euro" ? "EUR" : "CAD"}
       </div>
-      <div className="relative w-32 h-12 sm:w-40 sm:h-16 bg-white border border-[#b91c1c] transition-all duration-200 flex flex-col items-center justify-center p-3">
-        <div className="text-base sm:text-2xl font-bold text-black leading-tight text-center">
-          {formatCurrency(balance, currency)}
-        </div>
+      <div className="text-base sm:text-2xl font-bold text-black leading-tight text-center border-b-2 border-[#b91c1c] pb-1 px-2">
+        {formatCurrency(balance, currency)}
       </div>
     </div>
   )
@@ -185,17 +183,13 @@ const CryptoCard = memo(
     formatCurrency: (amount: number, currency: string) => string;
     t: ReturnType<typeof getTranslations>;
   }) => {
-    const config = cryptoConfigs[cryptoCurrency as keyof typeof cryptoConfigs];
-
     return (
-      <div className="flex flex-col items-center justify-center gap-3">
+      <div className="flex flex-col items-center justify-center gap-2">
         <div className="text-lg sm:text-xl font-bold text-gray-900 uppercase">
           {cryptoCurrency}
         </div>
-        <div className={`relative w-32 h-12 sm:w-40 sm:h-16 ${config.bgColor} border ${config.borderColor} transition-all duration-200 flex flex-col items-center justify-center p-3`}>
-          <div className="text-sm sm:text-2xl font-bold leading-tight text-black text-center">
-            {formatCurrency(balance, cryptoCurrency)}
-          </div>
+        <div className="text-base sm:text-2xl font-bold text-black leading-tight text-center border-b-2 border-[#b91c1c] pb-1 px-2">
+          {formatCurrency(balance, cryptoCurrency)}
         </div>
       </div>
     );
