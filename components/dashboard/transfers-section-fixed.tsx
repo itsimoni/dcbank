@@ -682,7 +682,7 @@ export default function TransfersSection({
         },
       ]);
 
-      setConfirmationData({
+      const confirmData = {
         reference_number: referenceNumber,
         from_currency: fromCurrency,
         to_currency: toCurrency,
@@ -691,18 +691,19 @@ export default function TransfersSection({
         fee_amount: transferFee,
         total_debit: amount + transferFee,
         exchange_rate: exchangeRate,
-        status: "completed",
-        transfer_type: "internal",
+        status: "completed" as const,
+        transfer_type: "internal" as const,
         created_at: now,
-      });
+      };
 
       setInternalFormData({ from_currency: "", to_currency: "", amount: "" });
       setExchangeRate(1);
       setEstimatedAmount(0);
       setTransferFee(0);
 
-      await fetchTransfers();
+      setConfirmationData(confirmData);
       setShowConfirmationModal(true);
+      fetchTransfers();
     } catch (error: any) {
       console.error("Transfer error:", error);
       setValidationErrors([`${t.error}: ${error.message}`]);
@@ -782,7 +783,7 @@ export default function TransfersSection({
         status: t.pending,
       });
 
-      setConfirmationData({
+      const confirmData = {
         reference_number: referenceNumber,
         from_currency: fromCurrency,
         to_currency: toCurrency,
@@ -791,10 +792,10 @@ export default function TransfersSection({
         fee_amount: transferFee,
         total_debit: amount + transferFee,
         exchange_rate: exchangeRate,
-        status: "pending",
-        transfer_type: "bank_transfer",
+        status: "pending" as const,
+        transfer_type: "bank_transfer" as const,
         created_at: now,
-      });
+      };
 
       setBankFormData({ from_currency: "", to_currency: "", amount: "" });
       setBankDetails({
@@ -818,8 +819,9 @@ export default function TransfersSection({
       setEstimatedAmount(0);
       setTransferFee(0);
 
-      await fetchTransfers();
+      setConfirmationData(confirmData);
       setShowConfirmationModal(true);
+      fetchTransfers();
     } catch (error: any) {
       console.error("Bank transfer error:", error);
       setValidationErrors([`${t.error}: ${error.message}`]);
@@ -979,7 +981,7 @@ export default function TransfersSection({
         },
       ]);
 
-      setConfirmationData({
+      const confirmData = {
         reference_number: referenceNumber,
         from_currency: fromCurrency,
         to_currency: toCurrency,
@@ -988,18 +990,19 @@ export default function TransfersSection({
         fee_amount: transferFee,
         total_debit: amount + transferFee,
         exchange_rate: exchangeRate,
-        status: "completed",
-        transfer_type: "crypto_internal",
+        status: "completed" as const,
+        transfer_type: "crypto_internal" as const,
         created_at: now,
-      });
+      };
 
       setCryptoInternalFormData({ from_currency: "", to_currency: "", amount: "" });
       setExchangeRate(1);
       setEstimatedAmount(0);
       setTransferFee(0);
 
-      await fetchTransfers();
+      setConfirmationData(confirmData);
       setShowConfirmationModal(true);
+      fetchTransfers();
     } catch (error: any) {
       console.error("Crypto internal transfer error:", error);
       setValidationErrors([`${t.error}: ${error.message}`]);
@@ -1077,7 +1080,7 @@ export default function TransfersSection({
         status: "Pending",
       });
 
-      setConfirmationData({
+      const confirmData = {
         reference_number: referenceNumber,
         from_currency: fromCurrency,
         to_currency: fromCurrency,
@@ -1086,10 +1089,10 @@ export default function TransfersSection({
         fee_amount: transferFee,
         total_debit: amount + transferFee,
         exchange_rate: 1,
-        status: "pending",
-        transfer_type: "crypto_external",
+        status: "pending" as const,
+        transfer_type: "crypto_external" as const,
         created_at: now,
-      });
+      };
 
       setCryptoExternalFormData({ from_currency: "", amount: "" });
       setCryptoWalletDetails({ wallet_address: "", network: "", memo_tag: "" });
@@ -1097,8 +1100,9 @@ export default function TransfersSection({
       setEstimatedAmount(0);
       setTransferFee(0);
 
-      await fetchTransfers();
+      setConfirmationData(confirmData);
       setShowConfirmationModal(true);
+      fetchTransfers();
     } catch (error: any) {
       console.error("Crypto external transfer error:", error);
       setValidationErrors([`${t.error}: ${error.message}`]);
