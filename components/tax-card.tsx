@@ -161,7 +161,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
     }).format(amount);
   };
 
-  const exportTaxReport = () => {
+  const exportTaxReport = async () => {
     const totalTaxes = taxStats.pending.amount + taxStats.on_hold.amount + taxStats.paid.amount;
     const reportDate = new Date().toLocaleDateString("en-US", {
       year: "numeric",
@@ -173,134 +173,104 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
       minute: "2-digit",
     });
 
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Tax Report - ${userProfile.full_name || userProfile.email}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #fff; color: #1a1a1a; }
-    .header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #b91c1c; }
-    .logo { font-size: 28px; font-weight: bold; color: #b91c1c; margin-bottom: 8px; }
-    .report-title { font-size: 22px; color: #333; margin-bottom: 4px; }
-    .report-date { font-size: 14px; color: #666; }
-    .section { margin-bottom: 30px; }
-    .section-title { font-size: 16px; font-weight: 600; color: #b91c1c; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #e5e5e5; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-    .info-item { padding: 10px; background: #f9f9f9; border-radius: 4px; }
-    .info-label { font-size: 12px; color: #666; margin-bottom: 4px; }
-    .info-value { font-size: 14px; font-weight: 500; color: #333; }
-    .tax-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    .tax-table th, .tax-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e5e5e5; }
-    .tax-table th { background: #b91c1c; color: white; font-weight: 600; font-size: 13px; }
-    .tax-table td { font-size: 14px; }
-    .tax-table tr:last-child td { border-bottom: none; }
-    .tax-table .amount { text-align: right; font-weight: 500; }
-    .status-pending { color: #d97706; }
-    .status-hold { color: #2563eb; }
-    .status-paid { color: #16a34a; }
-    .summary { margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 6px; }
-    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; }
-    .summary-row.total { border-top: 2px solid #b91c1c; margin-top: 10px; padding-top: 15px; font-size: 18px; font-weight: bold; }
-    .footer { margin-top: 50px; text-align: center; font-size: 11px; color: #999; padding-top: 20px; border-top: 1px solid #e5e5e5; }
-    @media print { body { padding: 20px; } .no-print { display: none; } }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="logo">Digital Chain</div>
-    <div class="report-title">Tax Report</div>
-    <div class="report-date">Generated on ${reportDate} at ${reportTime}</div>
-  </div>
+    const container = document.createElement("div");
+    container.innerHTML = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #fff; color: #1a1a1a;">
+        <div style="text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #b91c1c;">
+          <div style="font-size: 28px; font-weight: bold; color: #b91c1c; margin-bottom: 8px;">Malta Crypto Central Bank</div>
+          <div style="font-size: 22px; color: #333; margin-bottom: 4px;">Tax Report</div>
+          <div style="font-size: 14px; color: #666;">Generated on ${reportDate} at ${reportTime}</div>
+        </div>
 
-  <div class="section">
-    <div class="section-title">Account Information</div>
-    <div class="info-grid">
-      <div class="info-item">
-        <div class="info-label">Account Holder</div>
-        <div class="info-value">${userProfile.full_name || "N/A"}</div>
+        <div style="margin-bottom: 30px;">
+          <div style="font-size: 16px; font-weight: 600; color: #b91c1c; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #e5e5e5;">Account Information</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Account Holder</div>
+              <div style="font-size: 14px; font-weight: 500; color: #333;">${userProfile.full_name || "N/A"}</div>
+            </div>
+            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Email</div>
+              <div style="font-size: 14px; font-weight: 500; color: #333;">${userProfile.email || "N/A"}</div>
+            </div>
+            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Client ID</div>
+              <div style="font-size: 14px; font-weight: 500; color: #333;">${userProfile.client_id || "N/A"}</div>
+            </div>
+            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Report Period</div>
+              <div style="font-size: 14px; font-weight: 500; color: #333;">Current Tax Year</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+          <div style="font-size: 16px; font-weight: 600; color: #b91c1c; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #e5e5e5;">Tax Breakdown</div>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+              <tr>
+                <th style="padding: 12px 15px; text-align: left; background: #b91c1c; color: white; font-weight: 600; font-size: 13px;">Category</th>
+                <th style="padding: 12px 15px; text-align: left; background: #b91c1c; color: white; font-weight: 600; font-size: 13px;">Status</th>
+                <th style="padding: 12px 15px; text-align: right; background: #b91c1c; color: white; font-weight: 600; font-size: 13px;">Amount (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px;">Pending Taxes</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; color: #d97706;">Awaiting Payment</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.pending.amount)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px;">On Hold</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; color: #2563eb;">Under Review</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.on_hold.amount)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 15px; font-size: 14px;">Paid Taxes</td>
+                <td style="padding: 12px 15px; font-size: 14px; color: #16a34a;">Completed</td>
+                <td style="padding: 12px 15px; font-size: 14px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.paid.amount)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+            <span>Pending Amount:</span>
+            <span>${formatCurrency(taxStats.pending.amount)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+            <span>On Hold Amount:</span>
+            <span>${formatCurrency(taxStats.on_hold.amount)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+            <span>Paid Amount:</span>
+            <span>${formatCurrency(taxStats.paid.amount)}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 2px solid #b91c1c; margin-top: 10px; padding-top: 15px; font-size: 18px; font-weight: bold;">
+            <span>Total Tax Liability:</span>
+            <span>${formatCurrency(totalTaxes)}</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #999; padding-top: 20px; border-top: 1px solid #e5e5e5;">
+          <p>Malta Crypto Central Bank - Secure Banking Platform</p>
+          <p>This document was automatically generated and is valid without signature.</p>
+          <p>Report ID: TAX-${Date.now()}</p>
+        </div>
       </div>
-      <div class="info-item">
-        <div class="info-label">Email</div>
-        <div class="info-value">${userProfile.email || "N/A"}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Client ID</div>
-        <div class="info-value">${userProfile.client_id || "N/A"}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Report Period</div>
-        <div class="info-value">Current Tax Year</div>
-      </div>
-    </div>
-  </div>
+    `;
 
-  <div class="section">
-    <div class="section-title">Tax Breakdown</div>
-    <table class="tax-table">
-      <thead>
-        <tr>
-          <th>Category</th>
-          <th>Status</th>
-          <th class="amount">Amount (USD)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Pending Taxes</td>
-          <td><span class="status-pending">Awaiting Payment</span></td>
-          <td class="amount">${formatCurrency(taxStats.pending.amount)}</td>
-        </tr>
-        <tr>
-          <td>On Hold</td>
-          <td><span class="status-hold">Under Review</span></td>
-          <td class="amount">${formatCurrency(taxStats.on_hold.amount)}</td>
-        </tr>
-        <tr>
-          <td>Paid Taxes</td>
-          <td><span class="status-paid">Completed</span></td>
-          <td class="amount">${formatCurrency(taxStats.paid.amount)}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    const html2pdf = (await import("html2pdf.js")).default;
+    const opt = {
+      margin: 10,
+      filename: `Tax_Report_${userProfile.client_id || "user"}_${new Date().toISOString().split("T")[0]}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
 
-  <div class="summary">
-    <div class="summary-row">
-      <span>Pending Amount:</span>
-      <span>${formatCurrency(taxStats.pending.amount)}</span>
-    </div>
-    <div class="summary-row">
-      <span>On Hold Amount:</span>
-      <span>${formatCurrency(taxStats.on_hold.amount)}</span>
-    </div>
-    <div class="summary-row">
-      <span>Paid Amount:</span>
-      <span>${formatCurrency(taxStats.paid.amount)}</span>
-    </div>
-    <div class="summary-row total">
-      <span>Total Tax Liability:</span>
-      <span>${formatCurrency(totalTaxes)}</span>
-    </div>
-  </div>
-
-  <div class="footer">
-    <p>Digital Chain - Secure Banking Platform</p>
-    <p>This document was automatically generated and is valid without signature.</p>
-    <p>Report ID: TAX-${Date.now()}</p>
-  </div>
-</body>
-</html>`;
-
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(htmlContent);
-      printWindow.document.close();
-      setTimeout(() => {
-        printWindow.print();
-      }, 250);
-    }
+    html2pdf().set(opt).from(container).save();
   };
 
   if (loading) {
