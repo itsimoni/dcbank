@@ -54,7 +54,18 @@ export default function AuthForm() {
     age: "",
   });
 
+  const [rememberMe, setRememberMe] = useState(false);
+
   const t = useMemo(() => getTranslations(language), [language]);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const wasRemembered = localStorage.getItem("rememberMe") === "true";
+    if (savedEmail && wasRemembered) {
+      setFormData((prev) => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
 
   useEffect(() => {
     setShowPassword(false);
@@ -270,6 +281,14 @@ const handleSignUp = useCallback(
         if (error) throw error;
 
         if (data.user) {
+          if (rememberMe) {
+            localStorage.setItem("rememberedEmail", formData.email);
+            localStorage.setItem("rememberMe", "true");
+          } else {
+            localStorage.removeItem("rememberedEmail");
+            localStorage.removeItem("rememberMe");
+          }
+
           setupPresenceTracking(data.user.id);
           setSuccess(t.signedInSuccess);
           setTimeout(() => {
@@ -285,6 +304,7 @@ const handleSignUp = useCallback(
     [
       formData.email,
       formData.password,
+      rememberMe,
       setupPresenceTracking,
       t.signedInSuccess,
       t.signInFailed,
@@ -484,6 +504,8 @@ const handleSignUp = useCallback(
                     <div className="flex items-center gap-2">
                       <Checkbox
                         id="remember"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) => setRememberMe(checked === true)}
                         className="h-4 w-4 border-gray-300 data-[state=checked]:bg-[#b91c1c] data-[state=checked]:border-[#b91c1c]"
                       />
                       <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
