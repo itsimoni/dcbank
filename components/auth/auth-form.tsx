@@ -456,13 +456,16 @@ const handleSignUp = useCallback(
               )}
 
               {!isSignUp ? (
-                <form onSubmit={handleSignIn} className="space-y-5">
+                <form onSubmit={handleSignIn} className="space-y-5" autoComplete="on">
                   <div>
-                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    <Label htmlFor="login-email" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                       {t.email}
                     </Label>
                     <input
+                      id="login-email"
+                      name="email"
                       type="email"
+                      autoComplete="username"
                       value={formData.email}
                       onChange={(e) =>
                         setFormData((prev) => ({ ...prev, email: e.target.value }))
@@ -473,12 +476,15 @@ const handleSignUp = useCallback(
                   </div>
 
                   <div>
-                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    <Label htmlFor="login-password" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                       {t.password}
                     </Label>
                     <div className="relative mt-1">
                       <input
+                        id="login-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
                         value={formData.password}
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, password: e.target.value }))
@@ -536,14 +542,17 @@ const handleSignUp = useCallback(
                   </div>
                 </form>
               ) : (
-                <form onSubmit={handleSignUp} className="space-y-4">
+                <form onSubmit={handleSignUp} className="space-y-4" autoComplete="on">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      <Label htmlFor="signup-firstname" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                         {t.firstName}
                       </Label>
                       <input
+                        id="signup-firstname"
+                        name="firstname"
                         type="text"
+                        autoComplete="given-name"
                         value={formData.firstName}
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, firstName: e.target.value }))
@@ -553,11 +562,14 @@ const handleSignUp = useCallback(
                       />
                     </div>
                     <div>
-                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      <Label htmlFor="signup-lastname" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                         {t.lastName}
                       </Label>
                       <input
+                        id="signup-lastname"
+                        name="lastname"
                         type="text"
+                        autoComplete="family-name"
                         value={formData.lastName}
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, lastName: e.target.value }))
@@ -570,11 +582,14 @@ const handleSignUp = useCallback(
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      <Label htmlFor="signup-email" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                         {t.email}
                       </Label>
                       <input
+                        id="signup-email"
+                        name="email"
                         type="email"
+                        autoComplete="email"
                         value={formData.email}
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, email: e.target.value }))
@@ -584,11 +599,14 @@ const handleSignUp = useCallback(
                       />
                     </div>
                     <div>
-                      <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      <Label htmlFor="signup-age" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                         {t.age}
                       </Label>
                       <input
+                        id="signup-age"
+                        name="age"
                         type="number"
+                        autoComplete="off"
                         value={formData.age}
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, age: e.target.value }))
@@ -600,12 +618,15 @@ const handleSignUp = useCallback(
                   </div>
 
                   <div>
-                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    <Label htmlFor="signup-password" className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                       {t.password}
                     </Label>
                     <div className="relative mt-1">
                       <input
+                        id="signup-password"
+                        name="password"
                         type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
                         value={formData.password}
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, password: e.target.value }))
