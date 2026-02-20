@@ -204,7 +204,6 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
     .summary-row { display: flex; justify-content: space-between; padding: 8px 0; }
     .summary-row.total { border-top: 2px solid #b91c1c; margin-top: 10px; padding-top: 15px; font-size: 18px; font-weight: bold; }
     .footer { margin-top: 50px; text-align: center; font-size: 11px; color: #999; padding-top: 20px; border-top: 1px solid #e5e5e5; }
-    .disclaimer { margin-top: 30px; padding: 15px; background: #fff8e5; border: 1px solid #f0e0a0; border-radius: 4px; font-size: 12px; color: #666; }
     @media print { body { padding: 20px; } .no-print { display: none; } }
   </style>
 </head>
@@ -284,10 +283,6 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
       <span>Total Tax Liability:</span>
       <span>${formatCurrency(totalTaxes)}</span>
     </div>
-  </div>
-
-  <div class="disclaimer">
-    <strong>Disclaimer:</strong> This report is generated for informational purposes only. Please consult with a qualified tax professional for official tax advice. The figures shown represent the current state of your tax account and may be subject to change.
   </div>
 
   <div class="footer">
