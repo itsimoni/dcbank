@@ -1497,131 +1497,86 @@ export default function TransfersSection({
 
     return (
       <Dialog open={showConfirmationModal} onOpenChange={setShowConfirmationModal}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+        <DialogContent className="max-w-md p-4 sm:p-5">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="text-base sm:text-lg font-bold flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
               {t.transferReceipt}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6">
-            {/* Reference Number */}
-            <div className="bg-white border-2 border-red-600 p-4 text-center">
-              <p className="text-xs text-slate-600 mb-1 font-medium">
-                {t.referenceNumber}
-              </p>
-              <p className="text-2xl font-bold text-slate-800">
-                {confirmationData.reference_number}
-              </p>
+          <div className="space-y-3">
+            <div className="bg-white border border-red-600 p-2 sm:p-3 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-slate-600">{t.referenceNumber}</p>
+                <p className="text-sm sm:text-base font-bold text-slate-800">
+                  {confirmationData.reference_number}
+                </p>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() =>
-                  copyToClipboard(
-                    confirmationData.reference_number,
-                    "confirmation"
-                  )
-                }
-                className="mt-2 text-slate-700"
+                onClick={() => copyToClipboard(confirmationData.reference_number, "confirmation")}
+                className="text-slate-700 h-8 px-2"
               >
-                {copiedField === "confirmation" ? (
-                  <Check className="w-4 h-4 mr-1" />
-                ) : (
-                  <Copy className="w-4 h-4 mr-1" />
-                )}
-                {copiedField === "confirmation" ? t.copied : t.copyReceipt}
+                {copiedField === "confirmation" ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               </Button>
             </div>
 
-            {/* Receipt Details */}
-            <div className="border border-slate-200 p-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="border border-slate-200 p-2 sm:p-3">
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.status}</p>
-                  <div className="mt-1">{getStatusBadge(confirmationData.status)}</div>
+                  <p className="text-slate-600">{t.status}</p>
+                  <div className="mt-0.5">{getStatusBadge(confirmationData.status)}</div>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.submitted}</p>
-                  <p className="text-sm font-medium">
-                    {new Date(confirmationData.created_at).toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.from}</p>
-                  <p className="text-sm font-medium">
-                    {confirmationData.from_currency}
+                  <p className="text-slate-600">{t.type}</p>
+                  <p className="font-medium">
+                    {confirmationData.transfer_type === "internal" ? t.accountTransfer : t.bankTransfer}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.to}</p>
-                  <p className="text-sm font-medium">
-                    {confirmationData.to_currency}
-                  </p>
+                  <p className="text-slate-600">{t.from}</p>
+                  <p className="font-medium">{confirmationData.from_currency}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.amount}</p>
-                  <p className="text-sm font-medium">
-                    {confirmationData.from_amount.toFixed(2)}{" "}
-                    {confirmationData.from_currency}
-                  </p>
+                  <p className="text-slate-600">{t.to}</p>
+                  <p className="font-medium">{confirmationData.to_currency}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.fees}</p>
-                  <p className="text-sm font-medium">
-                    {confirmationData.fee_amount.toFixed(2)}{" "}
-                    {confirmationData.from_currency}
-                  </p>
-                </div>
-                <div className="col-span-2 bg-white p-3 border-2 border-red-600">
-                  <p className="text-xs text-slate-600 mb-1 font-medium">
-                    {t.totalDebit}
-                  </p>
-                  <p className="text-xl font-bold text-red-600">
-                    {confirmationData.total_debit.toFixed(2)}{" "}
-                    {confirmationData.from_currency}
-                  </p>
-                </div>
-                <div className="col-span-2 bg-white p-3 border-2 border-gray-300">
-                  <p className="text-xs text-slate-600 mb-1 font-medium">
-                    {t.estimatedCredit}
-                  </p>
-                  <p className="text-xl font-bold text-slate-800">
-                    {confirmationData.to_amount.toFixed(2)}{" "}
-                    {confirmationData.to_currency}
-                  </p>
+                  <p className="text-slate-600">{t.amount}</p>
+                  <p className="font-medium">{confirmationData.from_amount.toFixed(2)} {confirmationData.from_currency}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.rateUsed}</p>
-                  <p className="text-sm font-medium">
-                    {confirmationData.exchange_rate.toFixed(6)}
+                  <p className="text-slate-600">{t.fees}</p>
+                  <p className="font-medium">{confirmationData.fee_amount.toFixed(2)} {confirmationData.from_currency}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200">
+                <div className="bg-red-50 p-2 border border-red-200">
+                  <p className="text-xs text-slate-600">{t.totalDebit}</p>
+                  <p className="text-sm sm:text-base font-bold text-red-600">
+                    {confirmationData.total_debit.toFixed(2)} {confirmationData.from_currency}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.type}</p>
-                  <p className="text-sm font-medium">
-                    {confirmationData.transfer_type === "internal"
-                      ? t.accountTransfer
-                      : t.bankTransfer}
+                <div className="bg-slate-50 p-2 border border-slate-200">
+                  <p className="text-xs text-slate-600">{t.estimatedCredit}</p>
+                  <p className="text-sm sm:text-base font-bold text-slate-800">
+                    {confirmationData.to_amount.toFixed(2)} {confirmationData.to_currency}
                   </p>
                 </div>
               </div>
             </div>
 
             {confirmationData.transfer_type === "bank_transfer" && (
-              <div className="bg-white border-2 border-gray-300 p-3 text-sm text-slate-800">
-                <p className="font-medium mb-1">
-                  {t.transferPendingReview}
-                </p>
-                <p className="text-xs text-slate-600">
-                  {t.transferProcessingNotification}
-                </p>
+              <div className="bg-yellow-50 border border-yellow-200 p-2 text-xs text-yellow-800">
+                <p className="font-medium">{t.transferPendingReview}</p>
               </div>
             )}
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-            <Button onClick={() => setShowConfirmationModal(false)}>
+          <div className="flex justify-end pt-3 border-t mt-3">
+            <Button onClick={() => setShowConfirmationModal(false)} size="sm" className="h-8">
               {t.done}
             </Button>
           </div>
