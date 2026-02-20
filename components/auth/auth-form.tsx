@@ -21,6 +21,11 @@ const BANK_ORIGIN = "Malta Global Crypto Bank";
 declare global {
   interface Window {
     presenceCleanup?: () => void;
+    PasswordCredential?: new (data: {
+      id: string;
+      password: string;
+      name?: string;
+    }) => Credential;
   }
 }
 
@@ -242,10 +247,21 @@ const handleSignUp = useCallback(
       if (authError) throw authError;
 
       if (authData.user) {
+        if (window.PasswordCredential) {
+          try {
+            const cred = new window.PasswordCredential({
+              id: formData.email,
+              password: formData.password,
+              name: `${formData.firstName} ${formData.lastName}`,
+            });
+            await navigator.credentials.store(cred);
+          } catch {}
+        }
+
         setupPresenceTracking(authData.user.id);
         setTimeout(() => {
           window.location.reload();
-        }, 500);
+        }, 800);
       }
     } catch (err: any) {
       setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
@@ -289,11 +305,22 @@ const handleSignUp = useCallback(
             localStorage.removeItem("rememberMe");
           }
 
+          if (window.PasswordCredential) {
+            try {
+              const cred = new window.PasswordCredential({
+                id: formData.email,
+                password: formData.password,
+                name: formData.email,
+              });
+              await navigator.credentials.store(cred);
+            } catch {}
+          }
+
           setupPresenceTracking(data.user.id);
           setSuccess(t.signedInSuccess);
           setTimeout(() => {
             window.location.reload();
-          }, 500);
+          }, 800);
         }
       } catch (err: any) {
         setError(`${t.signInFailed}: ${err.message || t.unknownError}`);
