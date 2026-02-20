@@ -1359,79 +1359,11 @@ export default function TransfersSection({
         }
       `}</style>
 
-      {/* Header Container */}
-      <div className="flex-shrink-0 border-b-2 border-gray-200">
-        {/* Header Content */}
-        <div className="text-center py-6 md:py-8 px-4 md:px-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-1">
-            {t.currencyTransfers}
-          </h2>
-          <p className="text-slate-600">
-            {t.accountTransfersBankWireSubtitle}
-          </p>
-          {liveRates.lastUpdated > 0 && (
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <TrendingUp className="w-4 h-4 text-green-600 live-rate-indicator" />
-              <span className="text-xs text-green-600 font-medium">
-                {t.ratesUpdated}{" "}
-                {new Date(liveRates.lastUpdated).toLocaleTimeString()}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Main Layout - Fixed Height */}
-      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden px-4 md:px-6 pb-6 gap-6">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden px-4 md:px-6 pb-6 gap-6 pt-6">
         {/* Main Content - Scrollable */}
         <div className="flex-1 lg:flex-1 overflow-y-auto custom-scrollbar min-h-0 mobile-form-priority">
           <div className="space-y-6 pr-4">
-            {/* Current Balances */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-              <Card className="balance-card">
-                <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 bg-red-600 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white text-lg font-bold">$</span>
-                  </div>
-
-                  <p className="text-xs text-slate-600 mb-1 font-medium">
-                    {t.usDollar}
-                  </p>
-                  <p className="text-xl font-bold text-slate-800">
-                    ${Number(balances.usd || 0).toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="balance-card">
-                <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 bg-red-600 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white text-lg font-bold">€</span>
-                  </div>
-                  <p className="text-xs text-slate-600 mb-1 font-medium">
-                    {t.euro}
-                  </p>
-                  <p className="text-xl font-bold text-slate-800">
-                    €{Number(balances.euro || 0).toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="balance-card">
-                <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 bg-red-600 flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white text-lg font-bold">C$</span>
-                  </div>
-                  <p className="text-xs text-slate-600 mb-1 font-medium">
-                    {t.canadianDollar}
-                  </p>
-                  <p className="text-xl font-bold text-slate-800">
-                    C${Number(balances.cad || 0).toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Validation Errors */}
             {validationErrors.length > 0 && (
               <div className="bg-white border-2 border-red-600 p-4">
