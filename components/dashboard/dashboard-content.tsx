@@ -940,7 +940,7 @@ function DashboardContent({
           {/* Left side - Balance Grid 3x3 */}
           <div className="lg:col-span-4">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">Balances</h2>
-            <div className="grid grid-cols-3 gap-3 sm:gap-6">
+            <div className="grid grid-cols-3 gap-3 sm:gap-8">
               {traditionalBalanceCards}
               {cryptoBalanceCards}
             </div>
