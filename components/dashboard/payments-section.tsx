@@ -186,14 +186,14 @@ const STATIC_WALLETS: Record<CryptoPaymentType, { name: string; address: string;
 };
 
 const PAYMENT_CATEGORIES = [
-  { id: "utilities", name: "Utilities & Bills", description: "Electricity, Water, Gas, Internet", icon: Lightbulb },
-  { id: "taxes", name: "Taxes & Government", description: "Income Tax, Property Tax, Fees", icon: Building },
-  { id: "car", name: "Car Payments", description: "Auto Loans, Insurance, Registration", icon: Car },
-  { id: "mortgage", name: "Mortgage & Rent", description: "Home Loans, Rental Payments", icon: Home },
-  { id: "education", name: "Education", description: "Tuition, Student Loans, Courses", icon: GraduationCap },
-  { id: "healthcare", name: "Healthcare", description: "Medical Bills, Insurance Premiums", icon: HeartPulse },
-  { id: "invoices", name: "Invoices", description: "Business Invoices, Subscriptions", icon: Receipt },
-  { id: "credit_cards", name: "Credit Cards", description: "Credit Card Payments, Debt", icon: CreditCard },
+  { id: "utilities", nameKey: "utilitiesBills", descKey: "utilitiesBillsDesc", icon: Lightbulb },
+  { id: "taxes", nameKey: "taxesGovernment", descKey: "taxesGovernmentDesc", icon: Building },
+  { id: "car", nameKey: "carPayments", descKey: "carPaymentsDesc", icon: Car },
+  { id: "mortgage", nameKey: "mortgageRent", descKey: "mortgageRentDesc", icon: Home },
+  { id: "education", nameKey: "educationCategory", descKey: "educationCategoryDesc", icon: GraduationCap },
+  { id: "healthcare", nameKey: "healthcareCategory", descKey: "healthcareCategoryDesc", icon: HeartPulse },
+  { id: "invoices", nameKey: "invoicesCategory", descKey: "invoicesCategoryDesc", icon: Receipt },
+  { id: "credit_cards", nameKey: "creditCardsCategory", descKey: "creditCardsCategoryDesc", icon: CreditCard },
 ];
 
 export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
@@ -829,7 +829,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             }`}
           >
             <Bitcoin className="w-5 h-5" />
-            Crypto Payment
+            {t.cryptoPayment}
           </button>
           <button
             onClick={() => setPaymentMethod("bank")}
@@ -840,7 +840,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             }`}
           >
             <Building2 className="w-5 h-5" />
-            Bank Transfer
+            {t.bankTransfer}
           </button>
         </div>
 
@@ -887,8 +887,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
         {paymentMethod === "crypto" && !selectedPaymentCategory && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Select Payment Category</h3>
-              <p className="text-sm text-gray-600 mb-4">Choose a category to pay with cryptocurrency</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.selectPaymentCategory}</h3>
+              <p className="text-sm text-gray-600 mb-4">{t.chooseCategoryForCrypto}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {PAYMENT_CATEGORIES.map((category) => (
@@ -901,8 +901,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                       <category.icon className="w-7 h-7 text-gray-600" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">{category.name}</h4>
-                    <p className="text-sm text-gray-500">{category.description}</p>
+                    <h4 className="font-semibold text-gray-900 mb-1">{t[category.nameKey as keyof typeof t]}</h4>
+                    <p className="text-sm text-gray-500">{t[category.descKey as keyof typeof t]}</p>
                   </div>
                 </div>
               ))}
@@ -920,15 +920,15 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to categories</span>
+              <span>{t.backToCategories}</span>
             </button>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-[#f8f9fa] p-8">
-                <h3 className="text-xl font-semibold text-gray-900 mb-6">Please fill out the fields below</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-6">{t.fillFieldsBelow}</h3>
                 <div className="space-y-5">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Your Name</Label>
+                    <Label className="text-sm font-medium text-gray-700">{t.yourNameLabel}</Label>
                     <Input
                       value={cryptoPaymentForm.name}
                       onChange={(e) => setCryptoPaymentForm({ ...cryptoPaymentForm, name: e.target.value })}
@@ -937,7 +937,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Email Address</Label>
+                    <Label className="text-sm font-medium text-gray-700">{t.emailAddressLabel}</Label>
                     <Input
                       type="email"
                       value={cryptoPaymentForm.email}
@@ -947,7 +947,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700">Amount</Label>
+                    <Label className="text-sm font-medium text-gray-700">{t.amount}</Label>
                     <Input
                       type="number"
                       step="0.01"
@@ -966,14 +966,14 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         className="mt-0.5"
                       />
                       <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
-                        I am 18 years of age or older and agree to the{" "}
+                        {t.termsCheckbox}{" "}
                         <Link
                           href="/crypto-terms"
                           target="_blank"
                           className="text-[#b91c1c] underline cursor-pointer hover:text-[#991b1b]"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          Terms and Conditions
+                          {t.termsAndConditions}
                         </Link>.
                       </label>
                     </div>
@@ -985,22 +985,22 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         className="mt-0.5"
                       />
                       <label htmlFor="blockchain" className="text-sm text-gray-600 cursor-pointer">
-                        I am aware that transactions on the blockchain can not be reversed, and I am responsible for using the correct information.
+                        {t.blockchainAwareCheckbox}
                       </label>
                     </div>
                   </div>
                   <Button
                     onClick={() => {
                       if (!cryptoPaymentForm.name || !cryptoPaymentForm.email || !cryptoPaymentForm.amount) {
-                        toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
+                        toast({ title: t.error, description: t.fillAllRequiredFields, variant: "destructive" });
                         return;
                       }
-                      toast({ title: "Payment Initiated", description: "Please send the cryptocurrency to the wallet address shown" });
+                      toast({ title: t.paymentInitiated, description: t.pleaseSendCrypto });
                     }}
                     disabled={!cryptoPaymentForm.termsAccepted || !cryptoPaymentForm.blockchainAware}
                     className="w-auto px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Continue
+                    {t.continueButton}
                   </Button>
                 </div>
               </div>
@@ -1066,7 +1066,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(STATIC_WALLETS[selectedCryptoPayment].address);
-                        toast({ title: "Copied", description: "Wallet address copied to clipboard" });
+                        toast({ title: t.copied, description: t.walletAddressCopied });
                       }}
                       className="text-gray-500 hover:text-gray-700 p-1"
                     >
@@ -1074,7 +1074,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     </button>
                   </div>
                   <div className="flex items-center gap-2 mt-6">
-                    <span className="bg-[#b91c1c] text-white text-sm font-medium px-4 py-1.5">Amount</span>
+                    <span className="bg-[#b91c1c] text-white text-sm font-medium px-4 py-1.5">{t.amount}</span>
                     <span className="text-lg font-semibold text-gray-900">
                       {cryptoPaymentForm.amount ? `${cryptoPaymentForm.amount} EUR` : "0 EUR"}
                     </span>
@@ -1089,8 +1089,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
         {paymentMethod === "bank" && viewMode === "new" && !showReviewStep && !selectedBankCategory && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Select Payment Category</h3>
-              <p className="text-sm text-gray-600 mb-4">Choose a category to make a bank transfer payment</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.selectPaymentCategory}</h3>
+              <p className="text-sm text-gray-600 mb-4">{t.chooseCategoryForBank}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {PAYMENT_CATEGORIES.map((category) => (
@@ -1103,8 +1103,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                       <category.icon className="w-7 h-7 text-gray-600" />
                     </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">{category.name}</h4>
-                    <p className="text-sm text-gray-500">{category.description}</p>
+                    <h4 className="font-semibold text-gray-900 mb-1">{t[category.nameKey as keyof typeof t]}</h4>
+                    <p className="text-sm text-gray-500">{t[category.descKey as keyof typeof t]}</p>
                   </div>
                 </div>
               ))}
@@ -1141,14 +1141,14 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to categories</span>
+              <span>{t.backToCategories}</span>
             </button>
 
             <div className="bg-white border border-gray-200">
               <div className="bg-[#b91c1c] px-6 py-4">
-                <h3 className="text-lg font-semibold text-white">Bank Transfer Payment</h3>
+                <h3 className="text-lg font-semibold text-white">{t.bankTransferPayment}</h3>
                 <p className="text-sm text-red-100 mt-1">
-                  {PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.name} - Secure SEPA/SWIFT Transfer
+                  {t[PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.nameKey as keyof typeof t]} - {t.secureSEPASWIFTTransfer}
                 </p>
               </div>
 
@@ -1156,20 +1156,20 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-full bg-[#b91c1c] text-white flex items-center justify-center text-sm font-medium">1</div>
-                    <h4 className="text-base font-semibold text-gray-900">Payer Information</h4>
+                    <h4 className="text-base font-semibold text-gray-900">{t.payerInformation}</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Full Name *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.fullNameRequired}</Label>
                       <Input
                         value={bankPaymentForm.fullName}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, fullName: e.target.value })}
-                        placeholder="Enter your full legal name"
+                        placeholder={t.enterFullLegalName}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Email Address *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.emailAddressRequired}</Label>
                       <Input
                         type="email"
                         value={bankPaymentForm.email}
@@ -1179,7 +1179,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Phone Number</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.phoneNumber}</Label>
                       <Input
                         type="tel"
                         value={bankPaymentForm.phone}
@@ -1189,38 +1189,38 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Country *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.countryRequired}</Label>
                       <Input
                         value={bankPaymentForm.country}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, country: e.target.value })}
-                        placeholder="Country of residence"
+                        placeholder={t.countryOfResidence}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <Label className="text-sm font-medium text-gray-700">Address</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.address}</Label>
                       <Input
                         value={bankPaymentForm.address}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, address: e.target.value })}
-                        placeholder="Street address"
+                        placeholder={t.streetAddress}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">City</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.city}</Label>
                       <Input
                         value={bankPaymentForm.city}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, city: e.target.value })}
-                        placeholder="City"
+                        placeholder={t.city}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Postal Code</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.postalCode}</Label>
                       <Input
                         value={bankPaymentForm.postalCode}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, postalCode: e.target.value })}
-                        placeholder="Postal / ZIP code"
+                        placeholder={t.postalCode}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
@@ -1230,20 +1230,20 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <div className="border-t border-gray-200 pt-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-full bg-[#b91c1c] text-white flex items-center justify-center text-sm font-medium">2</div>
-                    <h4 className="text-base font-semibold text-gray-900">Beneficiary Details</h4>
+                    <h4 className="text-base font-semibold text-gray-900">{t.beneficiaryDetails}</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-11">
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Beneficiary Name *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.beneficiaryName} *</Label>
                       <Input
                         value={bankPaymentForm.beneficiaryName}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryName: e.target.value })}
-                        placeholder="Full name of recipient"
+                        placeholder={t.fullNameOfRecipient}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">IBAN / Account Number *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.ibanAccountNumber}</Label>
                       <Input
                         value={bankPaymentForm.beneficiaryIban}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryIban: e.target.value })}
@@ -1252,7 +1252,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">BIC / SWIFT Code</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.bicSwiftCode}</Label>
                       <Input
                         value={bankPaymentForm.beneficiaryBic}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryBic: e.target.value })}
@@ -1261,29 +1261,29 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Bank Name *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.bankNameRequired}</Label>
                       <Input
                         value={bankPaymentForm.beneficiaryBank}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryBank: e.target.value })}
-                        placeholder="Name of beneficiary bank"
+                        placeholder={t.nameOfBeneficiaryBank}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Bank Address</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.bankAddressLabel}</Label>
                       <Input
                         value={bankPaymentForm.beneficiaryAddress}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryAddress: e.target.value })}
-                        placeholder="Bank branch address"
+                        placeholder={t.bankBranchAddress}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Bank Country *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.bankCountryRequired}</Label>
                       <Input
                         value={bankPaymentForm.beneficiaryCountry}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, beneficiaryCountry: e.target.value })}
-                        placeholder="Country of beneficiary bank"
+                        placeholder={t.countryOfBeneficiaryBank}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
@@ -1293,11 +1293,11 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <div className="border-t border-gray-200 pt-8">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 rounded-full bg-[#b91c1c] text-white flex items-center justify-center text-sm font-medium">3</div>
-                    <h4 className="text-base font-semibold text-gray-900">Payment Details</h4>
+                    <h4 className="text-base font-semibold text-gray-900">{t.paymentDetailsSection}</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pl-11">
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Amount *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.amount} *</Label>
                       <Input
                         type="number"
                         step="0.01"
@@ -1308,7 +1308,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Currency *</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.currencyRequired}</Label>
                       <Select
                         value={bankPaymentForm.currency}
                         onValueChange={(value) => setBankPaymentForm({ ...bankPaymentForm, currency: value })}
@@ -1326,20 +1326,20 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-700">Payment Reference</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.paymentReferenceLabel}</Label>
                       <Input
                         value={bankPaymentForm.reference}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, reference: e.target.value })}
-                        placeholder="Invoice or reference number"
+                        placeholder={t.invoiceOrReference}
                         className="mt-1.5 border-gray-300"
                       />
                     </div>
                     <div className="md:col-span-3">
-                      <Label className="text-sm font-medium text-gray-700">Payment Description</Label>
+                      <Label className="text-sm font-medium text-gray-700">{t.paymentDescriptionLabel}</Label>
                       <Textarea
                         value={bankPaymentForm.description}
                         onChange={(e) => setBankPaymentForm({ ...bankPaymentForm, description: e.target.value })}
-                        placeholder="Purpose of payment (e.g., Invoice #12345, Monthly rent payment, etc.)"
+                        placeholder={t.purposeOfPaymentPlaceholder}
                         rows={3}
                         className="mt-1.5 border-gray-300"
                       />
@@ -1357,29 +1357,30 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         className="mt-0.5"
                       />
                       <label htmlFor="bankTerms" className="text-sm text-gray-600 cursor-pointer">
-                        I confirm that all the information provided is accurate and complete. I understand that incorrect details may result in payment delays or rejection. I agree to the{" "}
-                        <Link href="/terms-and-conditions" target="_blank" className="text-[#b91c1c] underline hover:text-[#991b1b]">Terms and Conditions</Link> and{" "}
-                        <Link href="/privacy-policy" target="_blank" className="text-[#b91c1c] underline hover:text-[#991b1b]">Privacy Policy</Link>.
+                        {t.confirmAccuracyCheckbox}{" "}
+                        <Link href="/terms-and-conditions" target="_blank" className="text-[#b91c1c] underline hover:text-[#991b1b]">{t.termsAndConditions}</Link> {t.and || "and"}{" "}
+                        <Link href="/privacy-policy" target="_blank" className="text-[#b91c1c] underline hover:text-[#991b1b]">{t.privacyPolicy || "Privacy Policy"}</Link>.
                       </label>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">
-                      <p>Estimated processing time: 1-3 business days</p>
-                      <p className="mt-1">Transfer fee: Determined by your bank</p>
+                      <p>{t.estimatedProcessingTime}</p>
+                      <p className="mt-1">{t.transferFeeInfo}</p>
                     </div>
                     <Button
                       onClick={() => {
                         if (!bankPaymentForm.fullName || !bankPaymentForm.email || !bankPaymentForm.beneficiaryName ||
                             !bankPaymentForm.beneficiaryIban || !bankPaymentForm.beneficiaryBank || !bankPaymentForm.amount ||
                             !bankPaymentForm.beneficiaryCountry || !bankPaymentForm.country) {
-                          toast({ title: "Missing Information", description: "Please fill in all required fields marked with *", variant: "destructive" });
+                          toast({ title: t.missingInformation, description: t.fillRequiredFields, variant: "destructive" });
                           return;
                         }
+                        const categoryName = t[PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.nameKey as keyof typeof t] || "";
                         setFormData({
                           ...formData,
-                          payment_type: PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.name || "",
+                          payment_type: String(categoryName),
                           beneficiary_name: bankPaymentForm.beneficiaryName,
                           beneficiary_account: bankPaymentForm.beneficiaryIban,
                           beneficiary_bank_name: bankPaymentForm.beneficiaryBank,
@@ -1393,7 +1394,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       disabled={!bankPaymentForm.termsAccepted}
                       className="px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
-                      Review Payment
+                      {t.reviewPaymentButton}
                     </Button>
                   </div>
                 </div>
@@ -1408,7 +1409,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               <CardHeader>
                 <CardTitle>{t.reviewPayment}</CardTitle>
                 <p className="text-sm text-gray-600">
-                  Please review the payment details before confirming
+                  {t.pleaseReviewDetails}
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
