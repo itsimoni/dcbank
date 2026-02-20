@@ -10,6 +10,9 @@ interface RealtimeData {
     euro: number;
     cad: number;
     crypto: number;
+    btc: number;
+    eth: number;
+    usdt: number;
   };
   exchangeRates: {
     usd_to_eur: number;
@@ -30,7 +33,7 @@ interface RealtimeData {
 
 export function useRealtimeData(): RealtimeData {
   const [data, setData] = useState<RealtimeData>({
-    balances: { usd: 0, euro: 0, cad: 0, crypto: 0 },
+    balances: { usd: 0, euro: 0, cad: 0, crypto: 0, btc: 0, eth: 0, usdt: 0 },
     exchangeRates: {
       usd_to_eur: 0.85,
       usd_to_cad: 1.35,
@@ -47,7 +50,7 @@ export function useRealtimeData(): RealtimeData {
 
   const fetchBalances = async (userId: string) => {
     try {
-      const [usdResult, euroResult, cadResult, cryptoResult] =
+      const [usdResult, euroResult, cadResult, cryptoResult, newCryptoResult] =
         await Promise.all([
           supabase
             .from("usd_balances")
@@ -69,6 +72,11 @@ export function useRealtimeData(): RealtimeData {
             .select("balance")
             .eq("user_id", userId)
             .maybeSingle(),
+          supabase
+            .from("newcrypto_balances")
+            .select("btc_balance, eth_balance, usdt_balance")
+            .eq("user_id", userId)
+            .maybeSingle(),
         ]);
 
       return {
@@ -76,10 +84,13 @@ export function useRealtimeData(): RealtimeData {
         euro: euroResult.data?.balance || 0,
         cad: cadResult.data?.balance || 0,
         crypto: cryptoResult.data?.balance || 0,
+        btc: newCryptoResult.data?.btc_balance || 0,
+        eth: newCryptoResult.data?.eth_balance || 0,
+        usdt: newCryptoResult.data?.usdt_balance || 0,
       };
     } catch (error) {
       console.error("Error fetching balances:", error);
-      return { usd: 0, euro: 0, cad: 0, crypto: 0 };
+      return { usd: 0, euro: 0, cad: 0, crypto: 0, btc: 0, eth: 0, usdt: 0 };
     }
   };
 
@@ -317,6 +328,20 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "crypto_balances",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchBalances(user.id).then((balances) => {
+            setData((prev) => ({ ...prev, balances }));
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "newcrypto_balances",
           filter: `user_id=eq.${user.id}`,
         },
         () => {

@@ -415,13 +415,30 @@ export default function TransfersSection({
   };
 
   const getCryptoCurrencies = () => {
-    return currencies.filter((c) => c.type === "crypto");
+    return [
+      { code: "BTC", name: "Bitcoin", symbol: "₿", type: "crypto" as const },
+      { code: "ETH", name: "Ethereum", symbol: "Ξ", type: "crypto" as const },
+      { code: "USDT", name: "Tether USD", symbol: "₮", type: "crypto" as const },
+    ];
   };
 
   const getFiatCurrencies = () => {
     return currencies.filter((c) =>
       c.type === "fiat" && ["USD", "EUR", "CAD"].includes(c.code)
     );
+  };
+
+  const getCryptoBalanceColumn = (currencyCode: string): string => {
+    const columnMap: { [key: string]: string } = {
+      BTC: "btc_balance",
+      ETH: "eth_balance",
+      USDT: "usdt_balance",
+    };
+    return columnMap[currencyCode.toUpperCase()] || "btc_balance";
+  };
+
+  const isCryptoFromNewTable = (currencyCode: string): boolean => {
+    return ["BTC", "ETH", "USDT"].includes(currencyCode.toUpperCase());
   };
 
   const fetchTransfers = async () => {
@@ -476,11 +493,9 @@ export default function TransfersSection({
       USD: "usd",
       EUR: "euro",
       CAD: "cad",
-      BTC: "crypto",
-      ETH: "crypto",
-      ADA: "crypto",
-      DOT: "crypto",
-      LINK: "crypto",
+      BTC: "btc",
+      ETH: "eth",
+      USDT: "usdt",
       GBP: "usd",
       JPY: "usd",
       AUD: "usd",
@@ -930,24 +945,20 @@ export default function TransfersSection({
 
       if (transferError) throw transferError;
 
-      const fromTable = getTableName(fromCurrency);
-      const toTable = getTableName(toCurrency);
+      const newFromBalance = currentFromBalance - amount - transferFee;
+      const newToBalance = currentToBalance + toAmount;
 
-      if (fromTable && toTable) {
-        const newFromBalance = currentFromBalance - amount - transferFee;
-        const newToBalance = currentToBalance + toAmount;
+      const fromColumn = getCryptoBalanceColumn(fromCurrency);
+      const toColumn = getCryptoBalanceColumn(toCurrency);
 
-        await Promise.all([
-          supabase
-            .from(fromTable)
-            .update({ balance: newFromBalance })
-            .eq("user_id", userProfile.id),
-          supabase
-            .from(toTable)
-            .update({ balance: newToBalance })
-            .eq("user_id", userProfile.id),
-        ]);
-      }
+      const updateData: { [key: string]: number } = {};
+      updateData[fromColumn] = newFromBalance;
+      updateData[toColumn] = newToBalance;
+
+      await supabase
+        .from("newcrypto_balances")
+        .update(updateData)
+        .eq("user_id", userProfile.id);
 
       await supabase.from("transactions").insert([
         {
@@ -1046,14 +1057,16 @@ export default function TransfersSection({
         memo_tag: cryptoWalletDetails.memo_tag || null,
       });
 
-      const fromTable = getTableName(fromCurrency);
-      if (fromTable) {
-        const newFromBalance = currentFromBalance - amount - transferFee;
-        await supabase
-          .from(fromTable)
-          .update({ balance: newFromBalance })
-          .eq("user_id", userProfile.id);
-      }
+      const newFromBalance = currentFromBalance - amount - transferFee;
+      const fromColumn = getCryptoBalanceColumn(fromCurrency);
+
+      const updateData: { [key: string]: number } = {};
+      updateData[fromColumn] = newFromBalance;
+
+      await supabase
+        .from("newcrypto_balances")
+        .update(updateData)
+        .eq("user_id", userProfile.id);
 
       await supabase.from("transactions").insert({
         user_id: userProfile.id,
