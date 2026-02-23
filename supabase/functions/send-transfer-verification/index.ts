@@ -8,11 +8,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-interface TransferVerificationRequest {
+interface TransferRequest {
   userId: string;
   email: string;
   fullName: string;
-  baseUrl: string;
+  clientId?: string;
   transferType: "internal" | "bank_transfer" | "crypto_internal" | "crypto_external";
   transferData: {
     fromCurrency: string;
@@ -20,14 +20,28 @@ interface TransferVerificationRequest {
     fromAmount: number;
     toAmount: number;
     fee: number;
+    exchangeRate?: number;
     bankDetails?: {
       bankName: string;
       accountNumber: string;
       beneficiaryName: string;
+      routingNumber?: string;
+      swiftCode?: string;
+      iban?: string;
+      bankAddress?: string;
+      recipientAddress?: string;
+      purposeOfTransfer?: string;
+      beneficiaryCountry?: string;
+      beneficiaryBankCountry?: string;
+      accountType?: string;
+      intermediaryBankName?: string;
+      intermediarySwift?: string;
+      intermediaryIban?: string;
     };
     cryptoDetails?: {
       walletAddress: string;
       network: string;
+      memoTag?: string;
     };
   };
   ipAddress?: string;
@@ -45,11 +59,17 @@ const getTransferTypeLabel = (type: string): string => {
 };
 
 const formatCurrency = (amount: number, currency: string): string => {
-  const cryptoCurrencies = ["BTC", "ETH", "ADA", "DOT", "LINK", "XRP", "SOL", "AVAX", "MATIC", "ATOM"];
+  const cryptoCurrencies = ["BTC", "ETH", "ADA", "DOT", "LINK", "XRP", "SOL", "AVAX", "MATIC", "ATOM", "USDT"];
   if (cryptoCurrencies.includes(currency.toUpperCase())) {
     return `${amount.toFixed(8)} ${currency}`;
   }
   return `${amount.toFixed(2)} ${currency}`;
+};
+
+const generateReferenceNumber = (): string => {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `TRF-${timestamp}-${random}`;
 };
 
 Deno.serve(async (req: Request) => {
@@ -65,10 +85,10 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const requestData: TransferVerificationRequest = await req.json();
-    const { userId, email, fullName, baseUrl, transferType, transferData, ipAddress, userAgent } = requestData;
+    const requestData: TransferRequest = await req.json();
+    const { userId, email, fullName, clientId, transferType, transferData, ipAddress, userAgent } = requestData;
 
-    if (!userId || !email || !fullName || !baseUrl || !transferType || !transferData) {
+    if (!userId || !email || !fullName || !transferType || !transferData) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         {
@@ -78,29 +98,40 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const verificationToken = crypto.randomUUID() + "-" + crypto.randomUUID() + "-" + Date.now().toString(36);
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+    const referenceNumber = generateReferenceNumber();
+    const transferTypeLabel = getTransferTypeLabel(transferType);
+    const currentDate = new Date().toLocaleString("en-GB", {
+      dateStyle: "full",
+      timeStyle: "short",
+      timeZone: "Europe/Malta",
+    });
 
-    const { data: verificationData, error: insertError } = await supabase
-      .from("transfer_verifications")
+    const { data: transferRecord, error: transferError } = await supabase
+      .from("transfers")
       .insert({
         user_id: userId,
-        verification_token: verificationToken,
-        transfer_type: transferType,
-        transfer_data: transferData,
+        client_id: clientId || null,
+        from_currency: transferData.fromCurrency,
+        to_currency: transferData.toCurrency,
+        from_amount: transferData.fromAmount,
+        to_amount: transferData.toAmount,
+        exchange_rate: transferData.exchangeRate || 1,
         status: "pending",
-        expires_at: expiresAt,
-        ip_address: ipAddress || null,
-        user_agent: userAgent || null,
-        email_sent_at: new Date().toISOString(),
+        transfer_type: transferType,
+        description: `${transferTypeLabel}: ${formatCurrency(transferData.fromAmount, transferData.fromCurrency)} to ${formatCurrency(transferData.toAmount, transferData.toCurrency)}`,
+        reference_number: referenceNumber,
+        fee_amount: transferData.fee,
+        fee_currency: transferData.fromCurrency,
+        rate_source: "live_market",
+        rate_timestamp: new Date().toISOString(),
       })
       .select()
       .single();
 
-    if (insertError) {
-      console.error("Error inserting verification:", insertError);
+    if (transferError) {
+      console.error("Error creating transfer:", transferError);
       return new Response(
-        JSON.stringify({ error: "Failed to create verification record", details: insertError.message }),
+        JSON.stringify({ error: "Failed to create transfer record", details: transferError.message }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -108,13 +139,47 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const verificationLink = `${baseUrl}/verify-transfer?token=${verificationToken}`;
-    const transferTypeLabel = getTransferTypeLabel(transferType);
-    const currentDate = new Date().toLocaleString("en-GB", {
-      dateStyle: "full",
-      timeStyle: "short",
-      timeZone: "Europe/Malta",
-    });
+    if (transferType === "bank_transfer" && transferData.bankDetails) {
+      const { error: bankError } = await supabase
+        .from("bank_transfers")
+        .insert({
+          transfer_id: transferRecord.id,
+          bank_name: transferData.bankDetails.bankName,
+          account_holder_name: transferData.bankDetails.beneficiaryName,
+          account_number: transferData.bankDetails.accountNumber,
+          routing_number: transferData.bankDetails.routingNumber || null,
+          swift_code: transferData.bankDetails.swiftCode || null,
+          iban: transferData.bankDetails.iban || null,
+          bank_address: transferData.bankDetails.bankAddress || null,
+          recipient_address: transferData.bankDetails.recipientAddress || null,
+          purpose_of_transfer: transferData.bankDetails.purposeOfTransfer || null,
+          beneficiary_country: transferData.bankDetails.beneficiaryCountry || null,
+          beneficiary_bank_country: transferData.bankDetails.beneficiaryBankCountry || null,
+          account_type: transferData.bankDetails.accountType || null,
+          intermediary_bank_name: transferData.bankDetails.intermediaryBankName || null,
+          intermediary_swift: transferData.bankDetails.intermediarySwift || null,
+          intermediary_iban: transferData.bankDetails.intermediaryIban || null,
+        });
+
+      if (bankError) {
+        console.error("Error creating bank transfer details:", bankError);
+      }
+    }
+
+    if (transferType === "crypto_external" && transferData.cryptoDetails) {
+      const { error: cryptoError } = await supabase
+        .from("crypto_transfers")
+        .insert({
+          transfer_id: transferRecord.id,
+          wallet_address: transferData.cryptoDetails.walletAddress,
+          network: transferData.cryptoDetails.network,
+          memo_tag: transferData.cryptoDetails.memoTag || null,
+        });
+
+      if (cryptoError) {
+        console.error("Error creating crypto transfer details:", cryptoError);
+      }
+    }
 
     let additionalDetails = "";
     if (transferType === "bank_transfer" && transferData.bankDetails) {
@@ -162,7 +227,7 @@ Deno.serve(async (req: Request) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transfer Verification Required - Malta Global Crypto Bank</title>
+  <title>Transfer Notification - Malta Global Crypto Bank</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -175,26 +240,26 @@ Deno.serve(async (req: Request) => {
                 MALTA GLOBAL CRYPTO BANK
               </h1>
               <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 12px; letter-spacing: 2px;">
-                SECURITY VERIFICATION REQUIRED
+                TRANSFER NOTIFICATION
               </p>
             </td>
           </tr>
 
           <tr>
-            <td style="background-color: #fef3c7; padding: 20px 40px; border-bottom: 3px solid #f59e0b;">
+            <td style="background-color: #dbeafe; padding: 20px 40px; border-bottom: 3px solid #3b82f6;">
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td style="width: 50px; vertical-align: middle;">
-                    <div style="width: 40px; height: 40px; background-color: #f59e0b; border-radius: 50%; text-align: center; line-height: 40px; color: white; font-size: 20px;">
-                      &#9888;
+                    <div style="width: 40px; height: 40px; background-color: #3b82f6; border-radius: 50%; text-align: center; line-height: 40px; color: white; font-size: 20px;">
+                      &#9432;
                     </div>
                   </td>
                   <td style="padding-left: 15px;">
-                    <p style="color: #92400e; font-size: 16px; font-weight: 700; margin: 0;">
-                      ACTION REQUIRED: Transfer Verification
+                    <p style="color: #1e40af; font-size: 16px; font-weight: 700; margin: 0;">
+                      Transfer Initiated From Your Account
                     </p>
-                    <p style="color: #a16207; font-size: 13px; margin: 5px 0 0 0;">
-                      A transfer request has been initiated from your account. Please verify this transaction.
+                    <p style="color: #1d4ed8; font-size: 13px; margin: 5px 0 0 0;">
+                      A transfer has been submitted and is currently being processed.
                     </p>
                   </td>
                 </tr>
@@ -208,7 +273,7 @@ Deno.serve(async (req: Request) => {
                 Dear <strong>${fullName}</strong>,
               </p>
               <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; margin: 0 0 25px 0;">
-                We have received a request to process a <strong>${transferTypeLabel}</strong> from your Malta Global Crypto Bank account. For your security, we require you to verify this transaction before it can be processed.
+                This email confirms that a <strong>${transferTypeLabel}</strong> has been initiated from your Malta Global Crypto Bank account. The transfer is now being processed by our system.
               </p>
 
               <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; margin: 25px 0;">
@@ -219,7 +284,11 @@ Deno.serve(async (req: Request) => {
                 </div>
                 <table role="presentation" style="width: 100%; border-collapse: collapse;">
                   <tr>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666; width: 40%;">Transfer Type:</td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666; width: 40%;">Reference Number:</td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600; font-family: monospace;">${referenceNumber}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Transfer Type:</td>
                     <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600;">${transferTypeLabel}</td>
                   </tr>
                   <tr>
@@ -232,7 +301,7 @@ Deno.serve(async (req: Request) => {
                   </tr>
                   ${transferData.toCurrency !== transferData.fromCurrency ? `
                   <tr>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Amount Received:</td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Amount to Receive:</td>
                     <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600; font-size: 16px;">${formatCurrency(transferData.toAmount, transferData.toCurrency)}</td>
                   </tr>
                   ` : ""}
@@ -244,38 +313,33 @@ Deno.serve(async (req: Request) => {
                     <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Total Debit:</td>
                     <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #b91c1c; font-weight: 700; font-size: 16px;">${formatCurrency(transferData.fromAmount + transferData.fee, transferData.fromCurrency)}</td>
                   </tr>
+                  <tr>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Status:</td>
+                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5;">
+                      <span style="display: inline-block; background-color: #fef3c7; color: #92400e; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px;">PENDING</span>
+                    </td>
+                  </tr>
                   ${additionalDetails}
                 </table>
               </div>
 
-              <div style="margin: 30px 0; text-align: center;">
-                <p style="color: #1a1a1a; font-size: 15px; font-weight: 600; margin: 0 0 20px 0;">
-                  Did you request this transfer?
+              <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; margin: 25px 0;">
+                <p style="color: #166534; font-size: 14px; font-weight: 700; margin: 0 0 10px 0;">
+                  Was this you?
                 </p>
-                <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                  <tr>
-                    <td align="center" style="padding: 10px;">
-                      <a href="${verificationLink}"
-                         style="display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 16px 50px; font-size: 15px; font-weight: 600; border-radius: 0; letter-spacing: 0.5px;">
-                        YES, VERIFY THIS TRANSFER
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-                <p style="color: #666666; font-size: 13px; margin: 20px 0 0 0;">
-                  This verification link expires in <strong>30 minutes</strong>.
+                <p style="color: #15803d; font-size: 13px; line-height: 1.6; margin: 0;">
+                  If you initiated this transfer, no action is required. Your transfer is being processed and you will receive a confirmation once it is complete.
                 </p>
               </div>
 
               <div style="background-color: #fef2f2; border: 1px solid #fecaca; padding: 20px; margin: 25px 0;">
                 <p style="color: #991b1b; font-size: 14px; font-weight: 700; margin: 0 0 10px 0;">
-                  &#128680; DID NOT REQUEST THIS TRANSFER?
+                  Did not authorize this transfer?
                 </p>
                 <p style="color: #7f1d1d; font-size: 13px; line-height: 1.6; margin: 0 0 15px 0;">
-                  If you did not initiate this transfer request, your account security may be compromised. Please take the following steps immediately:
+                  If you did not initiate this transfer, your account security may be compromised. Please take the following steps immediately:
                 </p>
                 <ol style="color: #7f1d1d; font-size: 13px; line-height: 1.8; margin: 0; padding-left: 20px;">
-                  <li><strong>Do NOT click the verification link above</strong></li>
                   <li>Contact our Security Team immediately at <strong>security@maltaglobalcryptobank.com</strong></li>
                   <li>Call our 24/7 fraud hotline: <strong>+356 2131 8000</strong></li>
                   <li>Change your account password immediately</li>
@@ -285,10 +349,11 @@ Deno.serve(async (req: Request) => {
 
               <div style="border-top: 1px solid #e5e5e5; margin-top: 30px; padding-top: 25px;">
                 <p style="color: #666666; font-size: 12px; line-height: 1.6; margin: 0;">
-                  <strong>Security Information:</strong><br>
+                  <strong>Transaction Information:</strong><br>
+                  Reference: ${referenceNumber}<br>
                   ${ipAddress ? `IP Address: ${ipAddress}<br>` : ""}
                   ${userAgent ? `Device: ${userAgent.substring(0, 100)}...<br>` : ""}
-                  Request ID: ${verificationData.id}
+                  Transfer ID: ${transferRecord.id}
                 </p>
               </div>
             </td>
@@ -303,7 +368,7 @@ Deno.serve(async (req: Request) => {
                       Security Notice
                     </p>
                     <p style="color: #666666; font-size: 12px; line-height: 1.5; margin: 0;">
-                      Malta Global Crypto Bank will never ask for your password, PIN, or security codes via email or phone. All transfer verifications are done through secure links sent only to your registered email address.
+                      Malta Global Crypto Bank will never ask for your password, PIN, or security codes via email or phone. All communications regarding your account are sent only to your registered email address.
                     </p>
                   </td>
                 </tr>
@@ -326,7 +391,7 @@ Deno.serve(async (req: Request) => {
                 This email was sent to ${email}. If you have questions, contact support@maltaglobalcryptobank.com
               </p>
               <p style="color: #555555; font-size: 9px; margin: 15px 0 0 0; text-align: center;">
-                &copy; ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
+                ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
               </p>
             </td>
           </tr>
@@ -339,42 +404,45 @@ Deno.serve(async (req: Request) => {
     `;
 
     const textContent = `
-SECURITY VERIFICATION REQUIRED - Malta Global Crypto Bank
+TRANSFER NOTIFICATION - Malta Global Crypto Bank
 
 Dear ${fullName},
 
-A ${transferTypeLabel} has been initiated from your Malta Global Crypto Bank account.
+This email confirms that a ${transferTypeLabel} has been initiated from your Malta Global Crypto Bank account.
 
 TRANSFER DETAILS:
+- Reference Number: ${referenceNumber}
 - Transfer Type: ${transferTypeLabel}
 - Date & Time: ${currentDate} (CET)
 - Amount Sent: ${formatCurrency(transferData.fromAmount, transferData.fromCurrency)}
-${transferData.toCurrency !== transferData.fromCurrency ? `- Amount Received: ${formatCurrency(transferData.toAmount, transferData.toCurrency)}` : ""}
+${transferData.toCurrency !== transferData.fromCurrency ? `- Amount to Receive: ${formatCurrency(transferData.toAmount, transferData.toCurrency)}` : ""}
 - Transaction Fee: ${formatCurrency(transferData.fee, transferData.fromCurrency)}
 - Total Debit: ${formatCurrency(transferData.fromAmount + transferData.fee, transferData.fromCurrency)}
-
-To verify this transfer, please visit:
-${verificationLink}
-
-This verification link expires in 30 minutes.
+- Status: PENDING
 
 ---
 
-DID NOT REQUEST THIS TRANSFER?
+WAS THIS YOU?
 
-If you did not initiate this transfer request, your account security may be compromised. Please take the following steps immediately:
-
-1. Do NOT click the verification link above
-2. Contact our Security Team immediately at security@maltaglobalcryptobank.com
-3. Call our 24/7 fraud hotline: +356 2131 8000
-4. Change your account password immediately
-5. Review your recent account activity
+If you initiated this transfer, no action is required. Your transfer is being processed and you will receive a confirmation once it is complete.
 
 ---
 
-Security Information:
+DID NOT AUTHORIZE THIS TRANSFER?
+
+If you did not initiate this transfer, your account security may be compromised. Please take the following steps immediately:
+
+1. Contact our Security Team immediately at security@maltaglobalcryptobank.com
+2. Call our 24/7 fraud hotline: +356 2131 8000
+3. Change your account password immediately
+4. Review your recent account activity
+
+---
+
+Transaction Information:
+Reference: ${referenceNumber}
 ${ipAddress ? `IP Address: ${ipAddress}` : ""}
-Request ID: ${verificationData.id}
+Transfer ID: ${transferRecord.id}
 
 ---
 
@@ -384,13 +452,13 @@ Licence Reference: MFSA/CL/2024/0892
 Member of the Depositor Compensation Scheme
 
 171 Old Bakery Street, Valletta VLT 1455, Malta
-(c) ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
+${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
     `;
 
     await transporter.sendMail({
-      from: '"Malta Global Crypto Bank Security" <support@transactionfinder.pro>',
+      from: '"Malta Global Crypto Bank" <support@transactionfinder.pro>',
       to: email,
-      subject: `Security Alert: Transfer Verification Required - ${transferTypeLabel}`,
+      subject: `Transfer Notification: ${transferTypeLabel} - Ref: ${referenceNumber}`,
       text: textContent,
       html: emailHtml,
     });
@@ -398,9 +466,17 @@ Member of the Depositor Compensation Scheme
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Transfer verification email sent",
-        verificationId: verificationData.id,
-        expiresAt: expiresAt,
+        message: "Transfer created and notification email sent",
+        transfer: {
+          id: transferRecord.id,
+          referenceNumber: referenceNumber,
+          status: "pending",
+          fromCurrency: transferData.fromCurrency,
+          toCurrency: transferData.toCurrency,
+          fromAmount: transferData.fromAmount,
+          toAmount: transferData.toAmount,
+          fee: transferData.fee,
+        },
       }),
       {
         status: 200,
@@ -408,9 +484,9 @@ Member of the Depositor Compensation Scheme
       }
     );
   } catch (error) {
-    console.error("Error sending transfer verification email:", error);
+    console.error("Error processing transfer:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to send transfer verification email", details: String(error) }),
+      JSON.stringify({ error: "Failed to process transfer", details: String(error) }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

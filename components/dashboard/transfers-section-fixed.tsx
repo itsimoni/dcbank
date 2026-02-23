@@ -236,17 +236,17 @@ export default function TransfersSection({
 
   const [copiedField, setCopiedField] = useState<string>("");
 
-  const [showVerificationPendingModal, setShowVerificationPendingModal] = useState(false);
-  const [verificationPendingData, setVerificationPendingData] = useState<{
+  const [showTransferSuccessModal, setShowTransferSuccessModal] = useState(false);
+  const [transferSuccessData, setTransferSuccessData] = useState<{
     transferType: string;
     fromCurrency: string;
     toCurrency: string;
     fromAmount: number;
     toAmount: number;
     fee: number;
-    expiresAt: string;
+    referenceNumber: string;
   } | null>(null);
-  const [sendingVerification, setSendingVerification] = useState(false);
+  const [processingTransfer, setProcessingTransfer] = useState(false);
 
   useEffect(() => {
     if (userProfile?.id) {
@@ -600,7 +600,7 @@ export default function TransfersSection({
     return errors;
   };
 
-  const sendTransferVerification = async (
+  const createTransfer = async (
     transferType: "internal" | "bank_transfer" | "crypto_internal" | "crypto_external",
     transferData: {
       fromCurrency: string;
@@ -608,20 +608,33 @@ export default function TransfersSection({
       fromAmount: number;
       toAmount: number;
       fee: number;
+      exchangeRate?: number;
       bankDetails?: {
         bankName: string;
         accountNumber: string;
         beneficiaryName: string;
+        routingNumber?: string;
+        swiftCode?: string;
+        iban?: string;
+        bankAddress?: string;
+        recipientAddress?: string;
+        purposeOfTransfer?: string;
+        beneficiaryCountry?: string;
+        beneficiaryBankCountry?: string;
+        accountType?: string;
+        intermediaryBankName?: string;
+        intermediarySwift?: string;
+        intermediaryIban?: string;
       };
       cryptoDetails?: {
         walletAddress: string;
         network: string;
+        memoTag?: string;
       };
     }
   ): Promise<boolean> => {
-    setSendingVerification(true);
+    setProcessingTransfer(true);
     try {
-      const baseUrl = window.location.origin;
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-transfer-verification`,
         {
@@ -634,7 +647,7 @@ export default function TransfersSection({
             userId: userProfile.id,
             email: userProfile.email,
             fullName: userProfile.full_name,
-            baseUrl,
+            clientId: userProfile.client_id,
             transferType,
             transferData,
             ipAddress: null,
@@ -646,26 +659,27 @@ export default function TransfersSection({
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setVerificationPendingData({
+        setTransferSuccessData({
           transferType,
           fromCurrency: transferData.fromCurrency,
           toCurrency: transferData.toCurrency,
           fromAmount: transferData.fromAmount,
           toAmount: transferData.toAmount,
           fee: transferData.fee,
-          expiresAt: data.expiresAt,
+          referenceNumber: data.transfer.referenceNumber,
         });
-        setShowVerificationPendingModal(true);
+        setShowTransferSuccessModal(true);
+        fetchTransfers();
         return true;
       } else {
-        throw new Error(data.error || "Failed to send verification email");
+        throw new Error(data.error || "Failed to create transfer");
       }
     } catch (error: any) {
-      console.error("Error sending verification:", error);
-      setValidationErrors([`Failed to send verification email: ${error.message}`]);
+      console.error("Error creating transfer:", error);
+      setValidationErrors([`Failed to create transfer: ${error.message}`]);
       return false;
     } finally {
-      setSendingVerification(false);
+      setProcessingTransfer(false);
     }
   };
 
@@ -684,12 +698,13 @@ export default function TransfersSection({
     const toCurrency = internalFormData.to_currency.toUpperCase();
     const toAmount = estimatedAmount;
 
-    const success = await sendTransferVerification("internal", {
+    const success = await createTransfer("internal", {
       fromCurrency,
       toCurrency,
       fromAmount: amount,
       toAmount,
       fee: transferFee,
+      exchangeRate: exchangeRate,
     });
 
     if (success) {
@@ -715,16 +730,29 @@ export default function TransfersSection({
     const toCurrency = bankFormData.to_currency.toUpperCase();
     const toAmount = estimatedAmount;
 
-    const success = await sendTransferVerification("bank_transfer", {
+    const success = await createTransfer("bank_transfer", {
       fromCurrency,
       toCurrency,
       fromAmount: amount,
       toAmount,
       fee: transferFee,
+      exchangeRate: exchangeRate,
       bankDetails: {
         bankName: bankDetails.bank_name,
         accountNumber: bankDetails.account_number,
         beneficiaryName: bankDetails.account_holder_name,
+        routingNumber: bankDetails.routing_number,
+        swiftCode: bankDetails.swift_code,
+        iban: bankDetails.iban,
+        bankAddress: bankDetails.bank_address,
+        recipientAddress: bankDetails.recipient_address,
+        purposeOfTransfer: bankDetails.purpose_of_transfer,
+        beneficiaryCountry: bankDetails.beneficiary_country,
+        beneficiaryBankCountry: bankDetails.beneficiary_bank_country,
+        accountType: bankDetails.account_type,
+        intermediaryBankName: bankDetails.intermediary_bank_name,
+        intermediarySwift: bankDetails.intermediary_swift,
+        intermediaryIban: bankDetails.intermediary_iban,
       },
     });
 
@@ -837,12 +865,13 @@ export default function TransfersSection({
     const toCurrency = cryptoInternalFormData.to_currency.toUpperCase();
     const toAmount = estimatedAmount;
 
-    const success = await sendTransferVerification("crypto_internal", {
+    const success = await createTransfer("crypto_internal", {
       fromCurrency,
       toCurrency,
       fromAmount: amount,
       toAmount,
       fee: transferFee,
+      exchangeRate: exchangeRate,
     });
 
     if (success) {
@@ -866,15 +895,17 @@ export default function TransfersSection({
     const amount = Number.parseFloat(cryptoExternalFormData.amount);
     const fromCurrency = cryptoExternalFormData.from_currency.toUpperCase();
 
-    const success = await sendTransferVerification("crypto_external", {
+    const success = await createTransfer("crypto_external", {
       fromCurrency,
       toCurrency: fromCurrency,
       fromAmount: amount,
       toAmount: amount,
       fee: transferFee,
+      exchangeRate: 1,
       cryptoDetails: {
         walletAddress: cryptoWalletDetails.wallet_address,
         network: cryptoWalletDetails.network,
+        memoTag: cryptoWalletDetails.memo_tag,
       },
     });
 
@@ -1385,82 +1416,78 @@ export default function TransfersSection({
     return `${amount.toFixed(2)} ${currency}`;
   };
 
-  const VerificationPendingModal = () => {
-    if (!verificationPendingData) return null;
+  const TransferSuccessModal = () => {
+    if (!transferSuccessData) return null;
 
     return (
-      <Dialog open={showVerificationPendingModal} onOpenChange={setShowVerificationPendingModal}>
+      <Dialog open={showTransferSuccessModal} onOpenChange={setShowTransferSuccessModal}>
         <DialogContent className="max-w-lg p-5 sm:p-6">
           <DialogHeader className="pb-3">
-            <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2 text-amber-700">
-              <AlertCircle className="w-6 h-6" />
-              Email Verification Required
+            <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2 text-green-700">
+              <CheckCircle className="w-6 h-6" />
+              Transfer Submitted Successfully
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="bg-amber-50 border border-amber-300 p-4 rounded">
-              <p className="text-amber-800 font-medium mb-2">
-                A verification email has been sent to your registered email address.
+            <div className="bg-green-50 border border-green-300 p-4 rounded">
+              <p className="text-green-800 font-medium mb-2">
+                Your transfer has been submitted and is now being processed.
               </p>
-              <p className="text-amber-700 text-sm">
-                Please check your inbox and click the verification link to confirm this transfer.
-                The link will expire in <strong>30 minutes</strong>.
+              <p className="text-green-700 text-sm">
+                A confirmation email has been sent to your registered email address with the transfer details.
               </p>
             </div>
 
             <div className="bg-slate-50 border border-slate-200 p-4">
               <h4 className="font-semibold text-slate-800 mb-3">Transfer Details</h4>
               <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="col-span-2">
+                  <p className="text-slate-500">Reference Number</p>
+                  <p className="font-mono font-semibold text-slate-800">{transferSuccessData.referenceNumber}</p>
+                </div>
                 <div>
                   <p className="text-slate-500">Transfer Type</p>
-                  <p className="font-medium text-slate-800">{getTransferTypeLabel(verificationPendingData.transferType)}</p>
+                  <p className="font-medium text-slate-800">{getTransferTypeLabel(transferSuccessData.transferType)}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500">Status</p>
+                  <p className="font-medium text-amber-600">Pending</p>
                 </div>
                 <div>
                   <p className="text-slate-500">Amount</p>
                   <p className="font-medium text-slate-800">
-                    {formatVerificationAmount(verificationPendingData.fromAmount, verificationPendingData.fromCurrency)}
+                    {formatVerificationAmount(transferSuccessData.fromAmount, transferSuccessData.fromCurrency)}
                   </p>
                 </div>
-                {verificationPendingData.toCurrency !== verificationPendingData.fromCurrency && (
+                {transferSuccessData.toCurrency !== transferSuccessData.fromCurrency && (
                   <div>
                     <p className="text-slate-500">You Will Receive</p>
                     <p className="font-medium text-slate-800">
-                      {formatVerificationAmount(verificationPendingData.toAmount, verificationPendingData.toCurrency)}
+                      {formatVerificationAmount(transferSuccessData.toAmount, transferSuccessData.toCurrency)}
                     </p>
                   </div>
                 )}
                 <div>
                   <p className="text-slate-500">Fee</p>
                   <p className="font-medium text-slate-800">
-                    {formatVerificationAmount(verificationPendingData.fee, verificationPendingData.fromCurrency)}
+                    {formatVerificationAmount(transferSuccessData.fee, transferSuccessData.fromCurrency)}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-red-50 border border-red-200 p-4">
-              <p className="text-red-800 font-medium text-sm flex items-start gap-2">
-                <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span>
-                  If you did not request this transfer, do NOT click the verification link.
-                  Contact our security team immediately at <strong>security@maltaglobalcryptobank.com</strong>
-                </span>
-              </p>
-            </div>
-
             <div className="text-xs text-slate-500 text-center">
-              <p>Check your spam/junk folder if you don&apos;t see the email in your inbox.</p>
-              <p className="mt-1">Verification link expires: {new Date(verificationPendingData.expiresAt).toLocaleString()}</p>
+              <p>You can track your transfer status in the Transfer History section below.</p>
             </div>
           </div>
 
           <div className="flex justify-end pt-4 border-t mt-4">
             <Button
-              onClick={() => setShowVerificationPendingModal(false)}
+              onClick={() => setShowTransferSuccessModal(false)}
               className="bg-red-600 hover:bg-red-700"
             >
-              I Understand
+              Close
             </Button>
           </div>
         </DialogContent>
@@ -1790,11 +1817,11 @@ export default function TransfersSection({
                         !internalFormData.to_currency ||
                         !internalFormData.amount ||
                         loading ||
-                        sendingVerification
+                        processingTransfer
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      {sendingVerification ? "Sending Verification Email..." : t.executeTransfer}
+                      {processingTransfer ? "Processing..." : t.executeTransfer}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2160,11 +2187,11 @@ export default function TransfersSection({
                         !bankDetails.account_holder_name ||
                         !bankDetails.account_number ||
                         loading ||
-                        sendingVerification
+                        processingTransfer
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      {sendingVerification ? "Sending Verification Email..." : t.submitTransferRequest}
+                      {processingTransfer ? "Processing..." : t.submitTransferRequest}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2366,11 +2393,11 @@ export default function TransfersSection({
                         !cryptoInternalFormData.to_currency ||
                         !cryptoInternalFormData.amount ||
                         loading ||
-                        sendingVerification
+                        processingTransfer
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      {sendingVerification ? "Sending Verification Email..." : "Exchange Crypto"}
+                      {processingTransfer ? "Processing..." : "Exchange Crypto"}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2595,11 +2622,11 @@ export default function TransfersSection({
                         !cryptoWalletDetails.wallet_address ||
                         !cryptoWalletDetails.network ||
                         loading ||
-                        sendingVerification
+                        processingTransfer
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      {sendingVerification ? "Sending Verification Email..." : "Submit Withdrawal Request"}
+                      {processingTransfer ? "Processing..." : "Submit Withdrawal Request"}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2811,7 +2838,7 @@ export default function TransfersSection({
 
       <TransferDetailsModal />
       <ConfirmationModal />
-      <VerificationPendingModal />
+      <TransferSuccessModal />
     </div>
   );
 }
