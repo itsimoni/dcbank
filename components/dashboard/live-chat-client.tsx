@@ -278,11 +278,11 @@ export default function LiveChatClient({
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-2 right-4 w-72 z-50 bg-white border rounded-lg shadow-md">
+      <div className="fixed bottom-2 right-4 w-72 z-50 bg-white border shadow-md">
         <div className="p-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center text-xs font-medium">
-              <MessageCircle className="w-3.5 h-3.5 mr-1.5 text-[#F26623]" />
+              <MessageCircle className="w-3.5 h-3.5 mr-1.5 text-[#b91c1c]" />
               Live Chat
             </div>
             <div className="flex items-center space-x-0.5">
@@ -311,11 +311,11 @@ export default function LiveChatClient({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md h-[600px] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="max-w-md h-[600px] flex flex-col p-0 overflow-hidden rounded-none">
         <DialogHeader className="p-4 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center text-base">
-              <MessageCircle className="w-5 h-5 mr-2 text-[#F26623]" />
+              <MessageCircle className="w-5 h-5 mr-2 text-[#b91c1c]" />
               Live Chat Support
             </DialogTitle>
             <div className="flex items-center space-x-1">
@@ -371,7 +371,7 @@ export default function LiveChatClient({
 
               <Button
                 onClick={startChat}
-                className="w-full bg-[#F26623] hover:bg-[#E55A1F]"
+                className="w-full bg-[#b91c1c] hover:bg-[#991b1b]"
                 disabled={!clientName.trim() || !clientEmail.trim()}
               >
                 Start Chat
@@ -393,7 +393,7 @@ export default function LiveChatClient({
 
               <div
                 ref={messagesPaneRef}
-                className="flex-1 overflow-y-auto mb-3 border rounded-lg p-3 bg-gray-50 scroll-smooth"
+                className="flex-1 overflow-y-auto mb-3 border p-3 bg-gray-50 scroll-smooth"
               >
                 <div className="space-y-4">
                   {messages.map((m) => (
@@ -406,10 +406,10 @@ export default function LiveChatClient({
                       }`}
                     >
                       <div
-                        className={`max-w-[75%] p-3 rounded-lg text-sm shadow-sm ${
+                        className={`max-w-[75%] p-3 text-sm shadow-sm ${
                           m.sender_type === "client"
-                            ? "bg-[#F26623] text-white rounded-br-sm"
-                            : "bg-white text-gray-800 border rounded-bl-sm"
+                            ? "bg-[#b91c1c] text-white"
+                            : "bg-white text-gray-800 border"
                         }`}
                       >
                         <div className="flex items-center mb-1">
@@ -426,7 +426,7 @@ export default function LiveChatClient({
                         <div
                           className={`text-xs mt-2 ${
                             m.sender_type === "client"
-                              ? "text-orange-100"
+                              ? "text-red-200"
                               : "text-gray-500"
                           }`}
                         >
@@ -454,7 +454,7 @@ export default function LiveChatClient({
                 <Button
                   onClick={sendMessage}
                   disabled={!newMessage.trim()}
-                  className="bg-[#F26623] hover:bg-[#E55A1F] px-3"
+                  className="bg-[#b91c1c] hover:bg-[#991b1b] px-3"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
