@@ -165,9 +165,9 @@ function VerifyTransferContent() {
               </div>
             )}
 
-            <Link href="/">
+            <Link href="/?section=transfers">
               <Button className="bg-red-600 hover:bg-red-700">
-                Return to Dashboard
+                Return to Transfers
               </Button>
             </Link>
           </div>

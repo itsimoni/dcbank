@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import Sidebar from "./sidebar";
 import DashboardContent from "./dashboard-content";
@@ -30,7 +31,16 @@ const SECTION_COMPONENTS = {
 } as const;
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const searchParams = useSearchParams();
+  const sectionFromUrl = searchParams.get("section");
+  const initialSection = sectionFromUrl && sectionFromUrl in SECTION_COMPONENTS ? sectionFromUrl : "dashboard";
+  const [activeTab, setActiveTab] = useState(initialSection);
+
+  useEffect(() => {
+    if (sectionFromUrl && sectionFromUrl in SECTION_COMPONENTS) {
+      setActiveTab(sectionFromUrl);
+    }
+  }, [sectionFromUrl]);
   const { userProfile, balances, cryptoBalances, transactions, loading, error } = useDashboardData();
 
   const handleTabChange = useCallback((newTab: string) => {
