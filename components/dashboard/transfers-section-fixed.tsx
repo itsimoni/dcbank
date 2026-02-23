@@ -533,11 +533,10 @@ export default function TransfersSection({
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
     if (currentFromBalance < amount + transferFee) {
+      const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       errors.push(
-        t.insufficientBalance
-          .replace('{available}', currentFromBalance.toFixed(2))
-          .replace('{currency}', fromCurrency)
-          .replace('{required}', (amount + transferFee).toFixed(2))
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
       );
     }
 
@@ -566,11 +565,10 @@ export default function TransfersSection({
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
     if (currentFromBalance < amount + transferFee) {
+      const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       errors.push(
-        t.insufficientBalance
-          .replace('{available}', currentFromBalance.toFixed(2))
-          .replace('{currency}', fromCurrency)
-          .replace('{required}', (amount + transferFee).toFixed(2))
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
       );
     }
 
@@ -792,11 +790,12 @@ export default function TransfersSection({
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
     if (currentFromBalance < amount + transferFee) {
+      const isCrypto = ["BTC", "ETH", "USDT", "ADA", "DOT", "LINK", "XRP", "SOL"].includes(fromCurrency);
+      const decimals = isCrypto ? 8 : 2;
+      const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
       errors.push(
-        (t.insufficientBalance || "Insufficient balance. Available: {available} {currency}, Required: {required}")
-          .replace('{available}', currentFromBalance.toFixed(8))
-          .replace('{currency}', fromCurrency)
-          .replace('{required}', (amount + transferFee).toFixed(8))
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
       );
     }
 
@@ -820,11 +819,12 @@ export default function TransfersSection({
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
     if (currentFromBalance < amount + transferFee) {
+      const isCrypto = ["BTC", "ETH", "USDT", "ADA", "DOT", "LINK", "XRP", "SOL"].includes(fromCurrency);
+      const decimals = isCrypto ? 8 : 2;
+      const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
       errors.push(
-        (t.insufficientBalance || "Insufficient balance. Available: {available} {currency}, Required: {required}")
-          .replace('{available}', currentFromBalance.toFixed(8))
-          .replace('{currency}', fromCurrency)
-          .replace('{required}', (amount + transferFee).toFixed(8))
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
       );
     }
 
