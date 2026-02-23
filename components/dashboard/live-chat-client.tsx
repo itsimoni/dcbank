@@ -365,6 +365,9 @@ export default function LiveChatClient({
                     readOnly
                     className="bg-gray-100 cursor-not-allowed rounded-none"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Using email from your account
+                  </p>
                 </div>
               ) : (
                 <div>
