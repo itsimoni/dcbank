@@ -236,6 +236,18 @@ export default function TransfersSection({
 
   const [copiedField, setCopiedField] = useState<string>("");
 
+  const [showVerificationPendingModal, setShowVerificationPendingModal] = useState(false);
+  const [verificationPendingData, setVerificationPendingData] = useState<{
+    transferType: string;
+    fromCurrency: string;
+    toCurrency: string;
+    fromAmount: number;
+    toAmount: number;
+    fee: number;
+    expiresAt: string;
+  } | null>(null);
+  const [sendingVerification, setSendingVerification] = useState(false);
+
   useEffect(() => {
     if (userProfile?.id) {
       fetchTransfers();
@@ -588,6 +600,75 @@ export default function TransfersSection({
     return errors;
   };
 
+  const sendTransferVerification = async (
+    transferType: "internal" | "bank_transfer" | "crypto_internal" | "crypto_external",
+    transferData: {
+      fromCurrency: string;
+      toCurrency: string;
+      fromAmount: number;
+      toAmount: number;
+      fee: number;
+      bankDetails?: {
+        bankName: string;
+        accountNumber: string;
+        beneficiaryName: string;
+      };
+      cryptoDetails?: {
+        walletAddress: string;
+        network: string;
+      };
+    }
+  ): Promise<boolean> => {
+    setSendingVerification(true);
+    try {
+      const baseUrl = window.location.origin;
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-transfer-verification`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            userId: userProfile.id,
+            email: userProfile.email,
+            fullName: userProfile.full_name,
+            baseUrl,
+            transferType,
+            transferData,
+            ipAddress: null,
+            userAgent: navigator.userAgent,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setVerificationPendingData({
+          transferType,
+          fromCurrency: transferData.fromCurrency,
+          toCurrency: transferData.toCurrency,
+          fromAmount: transferData.fromAmount,
+          toAmount: transferData.toAmount,
+          fee: transferData.fee,
+          expiresAt: data.expiresAt,
+        });
+        setShowVerificationPendingModal(true);
+        return true;
+      } else {
+        throw new Error(data.error || "Failed to send verification email");
+      }
+    } catch (error: any) {
+      console.error("Error sending verification:", error);
+      setValidationErrors([`Failed to send verification email: ${error.message}`]);
+      return false;
+    } finally {
+      setSendingVerification(false);
+    }
+  };
+
   const executeInternalTransfer = async () => {
     if (!userProfile?.id) return;
 
@@ -598,115 +679,24 @@ export default function TransfersSection({
     }
     setValidationErrors([]);
 
-    try {
-      const amount = Number.parseFloat(internalFormData.amount);
-      const fromCurrency = internalFormData.from_currency.toUpperCase();
-      const toCurrency = internalFormData.to_currency.toUpperCase();
+    const amount = Number.parseFloat(internalFormData.amount);
+    const fromCurrency = internalFormData.from_currency.toUpperCase();
+    const toCurrency = internalFormData.to_currency.toUpperCase();
+    const toAmount = estimatedAmount;
 
-      const fromBalanceKey = getBalanceKey(fromCurrency);
-      const toBalanceKey = getBalanceKey(toCurrency);
+    const success = await sendTransferVerification("internal", {
+      fromCurrency,
+      toCurrency,
+      fromAmount: amount,
+      toAmount,
+      fee: transferFee,
+    });
 
-      const currentFromBalance = balances[fromBalanceKey] || 0;
-      const currentToBalance = balances[toBalanceKey] || 0;
-
-      const toAmount = estimatedAmount;
-      const referenceNumber = generateReferenceNumber();
-      const now = new Date().toISOString();
-
-      const { data: transferData, error: transferError } = await supabase
-        .from("transfers")
-        .insert({
-          user_id: userProfile.id,
-          client_id: userProfile.client_id,
-          from_currency: internalFormData.from_currency,
-          to_currency: internalFormData.to_currency,
-          from_amount: amount,
-          to_amount: toAmount,
-          exchange_rate: exchangeRate,
-          status: "completed",
-          transfer_type: "internal",
-          description: t.accountTransferDescription
-            .replace('{from}', fromCurrency)
-            .replace('{to}', toCurrency),
-          reference_number: referenceNumber,
-          fee_amount: transferFee,
-          fee_currency: fromCurrency,
-          processed_at: now,
-          rate_source: "live_market",
-          rate_timestamp: new Date(liveRates.lastUpdated).toISOString(),
-        })
-        .select()
-        .single();
-
-      if (transferError) throw transferError;
-
-      const fromTable = getTableName(fromCurrency);
-      const toTable = getTableName(toCurrency);
-
-      if (fromTable && toTable) {
-        const newFromBalance = currentFromBalance - amount - transferFee;
-        const newToBalance = currentToBalance + toAmount;
-
-        await Promise.all([
-          supabase
-            .from(fromTable)
-            .update({ balance: newFromBalance })
-            .eq("user_id", userProfile.id),
-          supabase
-            .from(toTable)
-            .update({ balance: newToBalance })
-            .eq("user_id", userProfile.id),
-        ]);
-      }
-
-      await supabase.from("transactions").insert([
-        {
-          user_id: userProfile.id,
-          type: t.transferOut,
-          amount: amount + transferFee,
-          currency: internalFormData.from_currency,
-          description: t.accountTransferToDescription
-            .replace('{currency}', internalFormData.to_currency)
-            .replace('{reference}', referenceNumber),
-          status: t.successful,
-        },
-        {
-          user_id: userProfile.id,
-          type: t.transferIn,
-          amount: toAmount,
-          currency: internalFormData.to_currency,
-          description: t.accountTransferFromDescription
-            .replace('{currency}', internalFormData.from_currency)
-            .replace('{reference}', referenceNumber),
-          status: t.successful,
-        },
-      ]);
-
-      const confirmData = {
-        reference_number: referenceNumber,
-        from_currency: fromCurrency,
-        to_currency: toCurrency,
-        from_amount: amount,
-        to_amount: toAmount,
-        fee_amount: transferFee,
-        total_debit: amount + transferFee,
-        exchange_rate: exchangeRate,
-        status: "completed" as const,
-        transfer_type: "internal" as const,
-        created_at: now,
-      };
-
+    if (success) {
       setInternalFormData({ from_currency: "", to_currency: "", amount: "" });
       setExchangeRate(1);
       setEstimatedAmount(0);
       setTransferFee(0);
-
-      setConfirmationData(confirmData);
-      setShowConfirmationModal(true);
-      fetchTransfers();
-    } catch (error: any) {
-      console.error("Transfer error:", error);
-      setValidationErrors([`${t.error}: ${error.message}`]);
     }
   };
 
@@ -720,83 +710,25 @@ export default function TransfersSection({
     }
     setValidationErrors([]);
 
-    try {
-      const amount = Number.parseFloat(bankFormData.amount);
-      const fromCurrency = bankFormData.from_currency.toUpperCase();
-      const toCurrency = bankFormData.to_currency.toUpperCase();
+    const amount = Number.parseFloat(bankFormData.amount);
+    const fromCurrency = bankFormData.from_currency.toUpperCase();
+    const toCurrency = bankFormData.to_currency.toUpperCase();
+    const toAmount = estimatedAmount;
 
-      const fromBalanceKey = getBalanceKey(fromCurrency);
-      const currentFromBalance = balances[fromBalanceKey] || 0;
+    const success = await sendTransferVerification("bank_transfer", {
+      fromCurrency,
+      toCurrency,
+      fromAmount: amount,
+      toAmount,
+      fee: transferFee,
+      bankDetails: {
+        bankName: bankDetails.bank_name,
+        accountNumber: bankDetails.account_number,
+        beneficiaryName: bankDetails.account_holder_name,
+      },
+    });
 
-      const toAmount = estimatedAmount;
-      const referenceNumber = generateReferenceNumber();
-      const now = new Date().toISOString();
-
-      const { data: transferData, error: transferError } = await supabase
-        .from("transfers")
-        .insert({
-          user_id: userProfile.id,
-          client_id: userProfile.client_id,
-          from_currency: bankFormData.from_currency,
-          to_currency: bankFormData.to_currency,
-          from_amount: amount,
-          to_amount: toAmount,
-          exchange_rate: exchangeRate,
-          status: "pending",
-          transfer_type: "bank_transfer",
-          description: t.bankTransferDescription.replace('{bank}', bankDetails.bank_name),
-          reference_number: referenceNumber,
-          fee_amount: transferFee,
-          fee_currency: fromCurrency,
-          rate_source: "estimated",
-          rate_timestamp: new Date(liveRates.lastUpdated).toISOString(),
-        })
-        .select()
-        .single();
-
-      if (transferError) throw transferError;
-
-      const { error: bankError } = await supabase.from("bank_transfers").insert({
-        transfer_id: transferData.id,
-        ...bankDetails,
-      });
-
-      if (bankError) throw bankError;
-
-      const fromTable = getTableName(fromCurrency);
-      if (fromTable) {
-        const newFromBalance = currentFromBalance - amount - transferFee;
-        await supabase
-          .from(fromTable)
-          .update({ balance: newFromBalance })
-          .eq("user_id", userProfile.id);
-      }
-
-      await supabase.from("transactions").insert({
-        user_id: userProfile.id,
-        type: t.bankTransfer,
-        amount: amount + transferFee,
-        currency: bankFormData.from_currency,
-        description: t.bankTransferPendingDescription
-          .replace('{bank}', bankDetails.bank_name)
-          .replace('{reference}', referenceNumber),
-        status: t.pending,
-      });
-
-      const confirmData = {
-        reference_number: referenceNumber,
-        from_currency: fromCurrency,
-        to_currency: toCurrency,
-        from_amount: amount,
-        to_amount: toAmount,
-        fee_amount: transferFee,
-        total_debit: amount + transferFee,
-        exchange_rate: exchangeRate,
-        status: "pending" as const,
-        transfer_type: "bank_transfer" as const,
-        created_at: now,
-      };
-
+    if (success) {
       setBankFormData({ from_currency: "", to_currency: "", amount: "" });
       setBankDetails({
         bank_name: "",
@@ -818,13 +750,6 @@ export default function TransfersSection({
       setExchangeRate(1);
       setEstimatedAmount(0);
       setTransferFee(0);
-
-      setConfirmationData(confirmData);
-      setShowConfirmationModal(true);
-      fetchTransfers();
-    } catch (error: any) {
-      console.error("Bank transfer error:", error);
-      setValidationErrors([`${t.error}: ${error.message}`]);
     }
   };
 
@@ -907,105 +832,24 @@ export default function TransfersSection({
     }
     setValidationErrors([]);
 
-    try {
-      const amount = Number.parseFloat(cryptoInternalFormData.amount);
-      const fromCurrency = cryptoInternalFormData.from_currency.toUpperCase();
-      const toCurrency = cryptoInternalFormData.to_currency.toUpperCase();
+    const amount = Number.parseFloat(cryptoInternalFormData.amount);
+    const fromCurrency = cryptoInternalFormData.from_currency.toUpperCase();
+    const toCurrency = cryptoInternalFormData.to_currency.toUpperCase();
+    const toAmount = estimatedAmount;
 
-      const fromBalanceKey = getBalanceKey(fromCurrency);
-      const toBalanceKey = getBalanceKey(toCurrency);
+    const success = await sendTransferVerification("crypto_internal", {
+      fromCurrency,
+      toCurrency,
+      fromAmount: amount,
+      toAmount,
+      fee: transferFee,
+    });
 
-      const currentFromBalance = balances[fromBalanceKey] || 0;
-      const currentToBalance = balances[toBalanceKey] || 0;
-
-      const toAmount = estimatedAmount;
-      const referenceNumber = generateReferenceNumber();
-      const now = new Date().toISOString();
-
-      const { data: transferData, error: transferError } = await supabase
-        .from("transfers")
-        .insert({
-          user_id: userProfile.id,
-          client_id: userProfile.client_id,
-          from_currency: cryptoInternalFormData.from_currency,
-          to_currency: cryptoInternalFormData.to_currency,
-          from_amount: amount,
-          to_amount: toAmount,
-          exchange_rate: exchangeRate,
-          status: "completed",
-          transfer_type: "crypto_internal",
-          description: `Crypto exchange from ${fromCurrency} to ${toCurrency}`,
-          reference_number: referenceNumber,
-          fee_amount: transferFee,
-          fee_currency: fromCurrency,
-          processed_at: now,
-          rate_source: "live_market",
-          rate_timestamp: new Date(liveRates.lastUpdated).toISOString(),
-        })
-        .select()
-        .single();
-
-      if (transferError) throw transferError;
-
-      const newFromBalance = currentFromBalance - amount - transferFee;
-      const newToBalance = currentToBalance + toAmount;
-
-      const fromColumn = getCryptoBalanceColumn(fromCurrency);
-      const toColumn = getCryptoBalanceColumn(toCurrency);
-
-      const updateData: { [key: string]: number } = {};
-      updateData[fromColumn] = newFromBalance;
-      updateData[toColumn] = newToBalance;
-
-      await supabase
-        .from("newcrypto_balances")
-        .update(updateData)
-        .eq("user_id", userProfile.id);
-
-      await supabase.from("transactions").insert([
-        {
-          user_id: userProfile.id,
-          type: "Crypto Transfer Out",
-          amount: amount + transferFee,
-          currency: cryptoInternalFormData.from_currency,
-          description: `Crypto exchange to ${cryptoInternalFormData.to_currency} - ${referenceNumber}`,
-          status: "Completed",
-        },
-        {
-          user_id: userProfile.id,
-          type: "Crypto Transfer In",
-          amount: toAmount,
-          currency: cryptoInternalFormData.to_currency,
-          description: `Crypto exchange from ${cryptoInternalFormData.from_currency} - ${referenceNumber}`,
-          status: "Completed",
-        },
-      ]);
-
-      const confirmData = {
-        reference_number: referenceNumber,
-        from_currency: fromCurrency,
-        to_currency: toCurrency,
-        from_amount: amount,
-        to_amount: toAmount,
-        fee_amount: transferFee,
-        total_debit: amount + transferFee,
-        exchange_rate: exchangeRate,
-        status: "completed" as const,
-        transfer_type: "crypto_internal" as const,
-        created_at: now,
-      };
-
+    if (success) {
       setCryptoInternalFormData({ from_currency: "", to_currency: "", amount: "" });
       setExchangeRate(1);
       setEstimatedAmount(0);
       setTransferFee(0);
-
-      setConfirmationData(confirmData);
-      setShowConfirmationModal(true);
-      fetchTransfers();
-    } catch (error: any) {
-      console.error("Crypto internal transfer error:", error);
-      setValidationErrors([`${t.error}: ${error.message}`]);
     }
   };
 
@@ -1019,93 +863,27 @@ export default function TransfersSection({
     }
     setValidationErrors([]);
 
-    try {
-      const amount = Number.parseFloat(cryptoExternalFormData.amount);
-      const fromCurrency = cryptoExternalFormData.from_currency.toUpperCase();
+    const amount = Number.parseFloat(cryptoExternalFormData.amount);
+    const fromCurrency = cryptoExternalFormData.from_currency.toUpperCase();
 
-      const fromBalanceKey = getBalanceKey(fromCurrency);
-      const currentFromBalance = balances[fromBalanceKey] || 0;
-
-      const referenceNumber = generateReferenceNumber();
-      const now = new Date().toISOString();
-
-      const { data: transferData, error: transferError } = await supabase
-        .from("transfers")
-        .insert({
-          user_id: userProfile.id,
-          client_id: userProfile.client_id,
-          from_currency: cryptoExternalFormData.from_currency,
-          to_currency: cryptoExternalFormData.from_currency,
-          from_amount: amount,
-          to_amount: amount,
-          exchange_rate: 1,
-          status: "pending",
-          transfer_type: "crypto_external",
-          description: `External crypto transfer to ${cryptoWalletDetails.wallet_address.slice(0, 10)}...`,
-          reference_number: referenceNumber,
-          fee_amount: transferFee,
-          fee_currency: fromCurrency,
-          rate_source: "fixed",
-          rate_timestamp: now,
-        })
-        .select()
-        .single();
-
-      if (transferError) throw transferError;
-
-      await supabase.from("crypto_transfers").insert({
-        transfer_id: transferData.id,
-        wallet_address: cryptoWalletDetails.wallet_address,
+    const success = await sendTransferVerification("crypto_external", {
+      fromCurrency,
+      toCurrency: fromCurrency,
+      fromAmount: amount,
+      toAmount: amount,
+      fee: transferFee,
+      cryptoDetails: {
+        walletAddress: cryptoWalletDetails.wallet_address,
         network: cryptoWalletDetails.network,
-        memo_tag: cryptoWalletDetails.memo_tag || null,
-      });
+      },
+    });
 
-      const newFromBalance = currentFromBalance - amount - transferFee;
-      const fromColumn = getCryptoBalanceColumn(fromCurrency);
-
-      const updateData: { [key: string]: number } = {};
-      updateData[fromColumn] = newFromBalance;
-
-      await supabase
-        .from("newcrypto_balances")
-        .update(updateData)
-        .eq("user_id", userProfile.id);
-
-      await supabase.from("transactions").insert({
-        user_id: userProfile.id,
-        type: "Crypto Withdrawal",
-        amount: amount + transferFee,
-        currency: cryptoExternalFormData.from_currency,
-        description: `External transfer to ${cryptoWalletDetails.wallet_address.slice(0, 10)}... - ${referenceNumber}`,
-        status: "Pending",
-      });
-
-      const confirmData = {
-        reference_number: referenceNumber,
-        from_currency: fromCurrency,
-        to_currency: fromCurrency,
-        from_amount: amount,
-        to_amount: amount,
-        fee_amount: transferFee,
-        total_debit: amount + transferFee,
-        exchange_rate: 1,
-        status: "pending" as const,
-        transfer_type: "crypto_external" as const,
-        created_at: now,
-      };
-
+    if (success) {
       setCryptoExternalFormData({ from_currency: "", amount: "" });
       setCryptoWalletDetails({ wallet_address: "", network: "", memo_tag: "" });
       setExchangeRate(1);
       setEstimatedAmount(0);
       setTransferFee(0);
-
-      setConfirmationData(confirmData);
-      setShowConfirmationModal(true);
-      fetchTransfers();
-    } catch (error: any) {
-      console.error("Crypto external transfer error:", error);
-      setValidationErrors([`${t.error}: ${error.message}`]);
     }
   };
 
@@ -1589,6 +1367,107 @@ export default function TransfersSection({
     );
   };
 
+  const getTransferTypeLabel = (type: string): string => {
+    const labels: Record<string, string> = {
+      internal: "Internal Currency Exchange",
+      bank_transfer: "International Bank Wire Transfer",
+      crypto_internal: "Cryptocurrency Exchange",
+      crypto_external: "External Cryptocurrency Withdrawal",
+    };
+    return labels[type] || "Transfer";
+  };
+
+  const formatVerificationAmount = (amount: number, currency: string): string => {
+    const cryptoCurrencies = ["BTC", "ETH", "ADA", "DOT", "LINK", "XRP", "SOL", "AVAX", "MATIC", "ATOM"];
+    if (cryptoCurrencies.includes(currency?.toUpperCase())) {
+      return `${amount.toFixed(8)} ${currency}`;
+    }
+    return `${amount.toFixed(2)} ${currency}`;
+  };
+
+  const VerificationPendingModal = () => {
+    if (!verificationPendingData) return null;
+
+    return (
+      <Dialog open={showVerificationPendingModal} onOpenChange={setShowVerificationPendingModal}>
+        <DialogContent className="max-w-lg p-5 sm:p-6">
+          <DialogHeader className="pb-3">
+            <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2 text-amber-700">
+              <AlertCircle className="w-6 h-6" />
+              Email Verification Required
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-300 p-4 rounded">
+              <p className="text-amber-800 font-medium mb-2">
+                A verification email has been sent to your registered email address.
+              </p>
+              <p className="text-amber-700 text-sm">
+                Please check your inbox and click the verification link to confirm this transfer.
+                The link will expire in <strong>30 minutes</strong>.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-200 p-4">
+              <h4 className="font-semibold text-slate-800 mb-3">Transfer Details</h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-slate-500">Transfer Type</p>
+                  <p className="font-medium text-slate-800">{getTransferTypeLabel(verificationPendingData.transferType)}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500">Amount</p>
+                  <p className="font-medium text-slate-800">
+                    {formatVerificationAmount(verificationPendingData.fromAmount, verificationPendingData.fromCurrency)}
+                  </p>
+                </div>
+                {verificationPendingData.toCurrency !== verificationPendingData.fromCurrency && (
+                  <div>
+                    <p className="text-slate-500">You Will Receive</p>
+                    <p className="font-medium text-slate-800">
+                      {formatVerificationAmount(verificationPendingData.toAmount, verificationPendingData.toCurrency)}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-slate-500">Fee</p>
+                  <p className="font-medium text-slate-800">
+                    {formatVerificationAmount(verificationPendingData.fee, verificationPendingData.fromCurrency)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-red-50 border border-red-200 p-4">
+              <p className="text-red-800 font-medium text-sm flex items-start gap-2">
+                <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>
+                  If you did not request this transfer, do NOT click the verification link.
+                  Contact our security team immediately at <strong>security@maltaglobalcryptobank.com</strong>
+                </span>
+              </p>
+            </div>
+
+            <div className="text-xs text-slate-500 text-center">
+              <p>Check your spam/junk folder if you don&apos;t see the email in your inbox.</p>
+              <p className="mt-1">Verification link expires: {new Date(verificationPendingData.expiresAt).toLocaleString()}</p>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-4 border-t mt-4">
+            <Button
+              onClick={() => setShowVerificationPendingModal(false)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              I Understand
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   if (error) {
     return (
       <div className="p-8 flex items-center justify-center">
@@ -1910,11 +1789,12 @@ export default function TransfersSection({
                         !internalFormData.from_currency ||
                         !internalFormData.to_currency ||
                         !internalFormData.amount ||
-                        loading
+                        loading ||
+                        sendingVerification
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      {t.executeTransfer}
+                      {sendingVerification ? "Sending Verification Email..." : t.executeTransfer}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2279,11 +2159,12 @@ export default function TransfersSection({
                         !bankDetails.bank_name ||
                         !bankDetails.account_holder_name ||
                         !bankDetails.account_number ||
-                        loading
+                        loading ||
+                        sendingVerification
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      {t.submitTransferRequest}
+                      {sendingVerification ? "Sending Verification Email..." : t.submitTransferRequest}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2484,11 +2365,12 @@ export default function TransfersSection({
                         !cryptoInternalFormData.from_currency ||
                         !cryptoInternalFormData.to_currency ||
                         !cryptoInternalFormData.amount ||
-                        loading
+                        loading ||
+                        sendingVerification
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      Exchange Crypto
+                      {sendingVerification ? "Sending Verification Email..." : "Exchange Crypto"}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2712,11 +2594,12 @@ export default function TransfersSection({
                         !cryptoExternalFormData.amount ||
                         !cryptoWalletDetails.wallet_address ||
                         !cryptoWalletDetails.network ||
-                        loading
+                        loading ||
+                        sendingVerification
                       }
                       className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
                     >
-                      Submit Withdrawal Request
+                      {sendingVerification ? "Sending Verification Email..." : "Submit Withdrawal Request"}
                     </Button>
 
                     <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
@@ -2928,6 +2811,7 @@ export default function TransfersSection({
 
       <TransferDetailsModal />
       <ConfirmationModal />
+      <VerificationPendingModal />
     </div>
   );
 }
