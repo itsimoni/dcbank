@@ -267,12 +267,25 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="flex: 1;">
               <div style="font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Authorized Signatory</div>
-              <svg width="180" height="50" viewBox="0 0 180 50" style="display: block;">
-                <path d="M10 35 Q15 20 25 25 T40 22 Q50 18 55 28 T70 25 Q80 22 85 30 L90 28 Q95 24 100 26 T115 24 Q125 20 130 28 T145 26 Q155 22 160 30 L165 28"
-                      stroke="#1a365d" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M25 32 Q30 38 40 36 T55 38" stroke="#1a365d" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                <path d="M85 32 L88 40 M100 30 Q105 36 110 34" stroke="#1a365d" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                <path d="M140 30 Q145 38 155 35 L158 42" stroke="#1a365d" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <svg width="200" height="60" viewBox="0 0 200 60" style="display: block;">
+                <g style="opacity: 0.95;">
+                  <path d="M12 42 C14 32, 16 22, 20 14 C22 10, 26 12, 28 18 C30 24, 32 32, 34 38 C36 44, 38 42, 40 36 C42 30, 44 24, 46 20 C48 16, 52 18, 54 24 C56 30, 54 36, 50 38 C46 40, 44 36, 48 34"
+                        stroke="#0f172a" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M52 38 C56 36, 58 34, 60 36 C62 38, 60 42, 56 42"
+                        stroke="#0f172a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                  <path d="M68 44 C66 40, 66 36, 68 32 C70 28, 74 28, 76 32 C78 36, 78 40, 76 44 C74 48, 70 48, 68 44 M76 36 L82 36"
+                        stroke="#0f172a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+                  <path d="M86 28 C86 32, 86 40, 86 46 M86 34 C90 30, 94 30, 96 34 C98 38, 96 42, 92 44"
+                        stroke="#0f172a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                  <path d="M102 34 C104 30, 108 28, 112 30 C116 32, 116 38, 112 42 C108 46, 104 44, 104 40 C104 36, 108 34, 114 36 L122 44"
+                        stroke="#0f172a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                  <path d="M124 34 C126 30, 130 28, 134 30 C138 32, 138 38, 134 42 C130 46, 126 44, 126 40 C126 36, 130 34, 136 36 L142 42"
+                        stroke="#0f172a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+                  <path d="M148 34 C148 30, 152 28, 156 30 C160 32, 160 38, 156 42 C152 46, 148 44, 148 40 C148 36, 150 34, 154 34"
+                        stroke="#0f172a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                  <path d="M164 28 C164 34, 164 40, 164 46 M164 36 C168 32, 172 32, 174 36 C176 40, 174 44, 170 44"
+                        stroke="#0f172a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                </g>
               </svg>
               <div style="border-top: 1px solid #333; width: 180px; margin-top: 5px;"></div>
               <div style="font-size: 11px; font-weight: 600; color: #1a1a1a; margin-top: 8px;">Dr. Marcus J. Brennan</div>
