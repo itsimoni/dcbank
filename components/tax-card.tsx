@@ -161,6 +161,14 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
     }).format(amount);
   };
 
+  const formatName = (name: string | null) => {
+    if (!name) return "N/A";
+    return name
+      .split(/\s+/)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   const exportTaxReport = async () => {
     const totalTaxes = taxStats.pending.amount + taxStats.on_hold.amount + taxStats.paid.amount;
     const reportDate = new Date().toLocaleDateString("en-US", {
@@ -172,102 +180,124 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
       hour: "2-digit",
       minute: "2-digit",
     });
+    const reportId = `TAX-${Date.now()}`;
+    const formattedName = formatName(userProfile.full_name);
 
     const container = document.createElement("div");
     container.innerHTML = `
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #fff; color: #1a1a1a;">
-        <div style="text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 3px solid #b91c1c;">
-          <div style="font-size: 28px; font-weight: bold; color: #b91c1c; margin-bottom: 8px;">Malta Crypto Central Bank</div>
-          <div style="font-size: 22px; color: #333; margin-bottom: 4px;">Tax Report</div>
-          <div style="font-size: 14px; color: #666;">Generated on ${reportDate} at ${reportTime}</div>
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; background: #fff; color: #1a1a1a; max-width: 100%; box-sizing: border-box;">
+        <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #b91c1c;">
+          <div style="font-size: 24px; font-weight: bold; color: #b91c1c; margin-bottom: 5px;">Malta Crypto Central Bank</div>
+          <div style="font-size: 18px; color: #333; margin-bottom: 3px;">Tax Report</div>
+          <div style="font-size: 12px; color: #666;">Generated on ${reportDate} at ${reportTime}</div>
         </div>
 
-        <div style="margin-bottom: 30px;">
-          <div style="font-size: 16px; font-weight: 600; color: #b91c1c; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #e5e5e5;">Account Information</div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
-              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Account Holder</div>
-              <div style="font-size: 14px; font-weight: 500; color: #333;">${userProfile.full_name || "N/A"}</div>
+        <div style="margin-bottom: 20px;">
+          <div style="font-size: 14px; font-weight: 600; color: #b91c1c; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e5e5e5;">Account Information</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Account Holder</div>
+              <div style="font-size: 12px; font-weight: 500; color: #333;">${formattedName}</div>
             </div>
-            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
-              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Email</div>
-              <div style="font-size: 14px; font-weight: 500; color: #333;">${userProfile.email || "N/A"}</div>
+            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Email</div>
+              <div style="font-size: 12px; font-weight: 500; color: #333;">${userProfile.email || "N/A"}</div>
             </div>
-            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
-              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Client ID</div>
-              <div style="font-size: 14px; font-weight: 500; color: #333;">${userProfile.client_id || "N/A"}</div>
+            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Client ID</div>
+              <div style="font-size: 12px; font-weight: 500; color: #333;">${userProfile.client_id || "N/A"}</div>
             </div>
-            <div style="padding: 10px; background: #f9f9f9; border-radius: 4px;">
-              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Report Period</div>
-              <div style="font-size: 14px; font-weight: 500; color: #333;">Current Tax Year</div>
+            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+              <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Report Period</div>
+              <div style="font-size: 12px; font-weight: 500; color: #333;">Current Tax Year</div>
             </div>
           </div>
         </div>
 
-        <div style="margin-bottom: 30px;">
-          <div style="font-size: 16px; font-weight: 600; color: #b91c1c; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #e5e5e5;">Tax Breakdown</div>
-          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <div style="margin-bottom: 20px;">
+          <div style="font-size: 14px; font-weight: 600; color: #b91c1c; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e5e5e5;">Tax Breakdown</div>
+          <table style="width: 100%; border-collapse: collapse;">
             <thead>
               <tr>
-                <th style="padding: 12px 15px; text-align: left; background: #b91c1c; color: white; font-weight: 600; font-size: 13px;">Category</th>
-                <th style="padding: 12px 15px; text-align: left; background: #b91c1c; color: white; font-weight: 600; font-size: 13px;">Status</th>
-                <th style="padding: 12px 15px; text-align: right; background: #b91c1c; color: white; font-weight: 600; font-size: 13px;">Amount (USD)</th>
+                <th style="padding: 8px 10px; text-align: left; background: #b91c1c; color: white; font-weight: 600; font-size: 11px;">Category</th>
+                <th style="padding: 8px 10px; text-align: left; background: #b91c1c; color: white; font-weight: 600; font-size: 11px;">Status</th>
+                <th style="padding: 8px 10px; text-align: right; background: #b91c1c; color: white; font-weight: 600; font-size: 11px;">Amount (USD)</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px;">Pending Taxes</td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; color: #d97706;">Awaiting Payment</td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.pending.amount)}</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px;">Pending Taxes</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; color: #d97706;">Awaiting Payment</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.pending.amount)}</td>
               </tr>
               <tr>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px;">On Hold</td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; color: #2563eb;">Under Review</td>
-                <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; font-size: 14px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.on_hold.amount)}</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px;">On Hold</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; color: #2563eb;">Under Review</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.on_hold.amount)}</td>
               </tr>
               <tr>
-                <td style="padding: 12px 15px; font-size: 14px;">Paid Taxes</td>
-                <td style="padding: 12px 15px; font-size: 14px; color: #16a34a;">Completed</td>
-                <td style="padding: 12px 15px; font-size: 14px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.paid.amount)}</td>
+                <td style="padding: 8px 10px; font-size: 12px;">Paid Taxes</td>
+                <td style="padding: 8px 10px; font-size: 12px; color: #16a34a;">Completed</td>
+                <td style="padding: 8px 10px; font-size: 12px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.paid.amount)}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div style="margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 6px;">
-          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+        <div style="padding: 15px; background: #f5f5f5; border-radius: 6px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px;">
             <span>Pending Amount:</span>
             <span>${formatCurrency(taxStats.pending.amount)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+          <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px;">
             <span>On Hold Amount:</span>
             <span>${formatCurrency(taxStats.on_hold.amount)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+          <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px;">
             <span>Paid Amount:</span>
             <span>${formatCurrency(taxStats.paid.amount)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 2px solid #b91c1c; margin-top: 10px; padding-top: 15px; font-size: 18px; font-weight: bold;">
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 2px solid #b91c1c; margin-top: 8px; font-size: 14px; font-weight: bold;">
             <span>Total Tax Liability:</span>
             <span>${formatCurrency(totalTaxes)}</span>
           </div>
         </div>
 
-        <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #999; padding-top: 20px; border-top: 1px solid #e5e5e5;">
-          <p>Malta Crypto Central Bank - Secure Banking Platform</p>
-          <p>This document was automatically generated and is valid without signature.</p>
-          <p>Report ID: TAX-${Date.now()}</p>
+        <div style="margin-top: 25px; padding: 20px; border: 1px solid #e5e5e5; border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+              <div style="font-size: 10px; color: #666; margin-bottom: 3px;">Authorized Signatory</div>
+              <div style="font-family: 'Brush Script MT', 'Segoe Script', cursive; font-size: 24px; color: #1a1a1a; border-bottom: 1px solid #333; padding-bottom: 2px; display: inline-block;">Dr. Marcus Brennan</div>
+              <div style="font-size: 10px; color: #666; margin-top: 5px;">Chief Financial Officer</div>
+              <div style="font-size: 10px; color: #666;">Malta Crypto Central Bank</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 10px; color: #666; margin-bottom: 3px;">Digital Seal</div>
+              <div style="width: 60px; height: 60px; border: 2px solid #b91c1c; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: auto;">
+                <div style="text-align: center;">
+                  <div style="font-size: 7px; font-weight: bold; color: #b91c1c;">MCCB</div>
+                  <div style="font-size: 5px; color: #b91c1c;">VERIFIED</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 15px; text-align: center; font-size: 9px; color: #999;">
+          <p style="margin: 2px 0;">Malta Crypto Central Bank - Secure Banking Platform</p>
+          <p style="margin: 2px 0;">Report ID: ${reportId} | Date: ${reportDate}</p>
         </div>
       </div>
     `;
 
     const html2pdf = (await import("html2pdf.js")).default;
     const opt = {
-      margin: 10,
+      margin: [10, 10, 10, 10],
       filename: `Tax_Report_${userProfile.client_id || "user"}_${new Date().toISOString().split("T")[0]}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
+      html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: "avoid-all" },
     };
 
     html2pdf().set(opt).from(container).save();
