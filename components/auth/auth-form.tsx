@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, AlertCircle, Mail, Globe, ChevronDown } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Mail, Globe, ChevronDown, CheckCircle2, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -49,6 +49,8 @@ export default function AuthForm() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -258,10 +260,31 @@ const handleSignUp = useCallback(
           } catch {}
         }
 
-        setupPresenceTracking(authData.user.id);
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const response = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            userId: authData.user.id,
+            email: formData.email,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            baseUrl: window.location.origin,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Failed to send verification email:", errorData);
+        }
+
+        await supabase.auth.signOut();
+
+        setPendingEmail(formData.email);
+        setPendingVerification(true);
       }
     } catch (err: any) {
       setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
@@ -275,7 +298,6 @@ const handleSignUp = useCallback(
     formData.firstName,
     formData.lastName,
     formData.age,
-    setupPresenceTracking,
     t.signupFailed,
     t.unknownError,
   ]
@@ -457,6 +479,61 @@ const handleSignUp = useCallback(
 
           <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
             <div className="w-full max-w-md">
+              {pendingVerification ? (
+                <div className="text-center space-y-6">
+                  <div className="w-20 h-20 mx-auto bg-[#b91c1c]/10 rounded-full flex items-center justify-center">
+                    <Mail className="w-10 h-10 text-[#b91c1c]" />
+                  </div>
+
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                      Verify Your Email
+                    </h1>
+                    <p className="text-gray-600 leading-relaxed">
+                      We have sent a verification email to:
+                    </p>
+                    <p className="text-[#b91c1c] font-semibold mt-2 text-lg">
+                      {pendingEmail}
+                    </p>
+                  </div>
+
+                  <div className="bg-gray-50 border border-gray-200 p-6 text-left space-y-4">
+                    <h3 className="font-semibold text-gray-900">Next Steps:</h3>
+                    <ol className="space-y-3 text-sm text-gray-700">
+                      <li className="flex items-start gap-3">
+                        <span className="flex-shrink-0 w-6 h-6 bg-[#b91c1c] text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                        <span>Check your email inbox (and spam folder) for the verification email from Malta Global Crypto Bank</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="flex-shrink-0 w-6 h-6 bg-[#b91c1c] text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                        <span>Click the verification link in the email to confirm your email address</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="flex-shrink-0 w-6 h-6 bg-[#b91c1c] text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                        <span>After verification, you will be redirected to complete your KYC (Know Your Customer) verification</span>
+                      </li>
+                    </ol>
+                  </div>
+
+                  <div className="pt-4 space-y-3">
+                    <p className="text-xs text-gray-500">
+                      The verification link will expire in 24 hours. If you don't receive the email, please check your spam folder or contact support.
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setPendingVerification(false);
+                        setIsSignUp(false);
+                        setFormData(prev => ({ ...prev, email: pendingEmail, password: "" }));
+                      }}
+                      className="border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white"
+                    >
+                      Back to Sign In
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+              <>
               <div className="mb-8">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                   {isSignUp ? t.createAccountTitle : t.signIn}
@@ -696,6 +773,8 @@ const handleSignUp = useCallback(
                     <span className="text-gray-400">{t.tagline}</span>
                   </div>
                 </form>
+              )}
+              </>
               )}
             </div>
           </div>
