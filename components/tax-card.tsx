@@ -189,7 +189,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
         <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #b91c1c;">
           <div style="font-size: 24px; font-weight: bold; color: #b91c1c; margin-bottom: 5px;">Malta Crypto Central Bank</div>
           <div style="font-size: 18px; color: #333; margin-bottom: 3px;">Tax Report</div>
-          <div style="font-size: 12px; color: #666;">Generated on ${reportDate} at ${reportTime}</div>
+          <div style="font-size: 12px; color: #666;">${reportDate} ${reportTime}</div>
         </div>
 
         <div style="margin-bottom: 20px;">
