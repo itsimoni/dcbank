@@ -278,7 +278,7 @@ export default function LiveChatClient({
 
   if (isMinimized) {
     return (
-      <div className="fixed bottom-2 right-4 w-72 z-50 bg-white border shadow-md">
+      <div className="fixed bottom-2 right-4 w-72 z-50 bg-white border shadow-md rounded-none">
         <div className="p-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center text-xs font-medium">
@@ -312,7 +312,7 @@ export default function LiveChatClient({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className={`w-[95vw] max-w-md flex flex-col p-0 overflow-hidden rounded-none [&>button]:hidden ${
+        className={`w-[95vw] max-w-md flex flex-col p-0 overflow-hidden rounded-none sm:rounded-none [&>button]:hidden ${
           isStarted ? "h-[80vh] max-h-[600px]" : "h-auto"
         }`}
       >
