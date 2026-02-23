@@ -1434,9 +1434,6 @@ export default function TransfersSection({
               <p className="text-green-800 font-medium mb-2">
                 Your transfer has been submitted and is now being processed.
               </p>
-              <p className="text-green-700 text-sm">
-                A confirmation email has been sent to your registered email address with the transfer details.
-              </p>
             </div>
 
             <div className="bg-slate-50 border border-slate-200 p-4">
