@@ -65,7 +65,7 @@ Deno.serve(async (req: Request) => {
     if (insertError) {
       console.error("Error inserting verification:", insertError);
       return new Response(
-        JSON.stringify({ error: "Failed to create verification token" }),
+        JSON.stringify({ error: "Failed to create verification token", details: insertError.message, code: insertError.code }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
