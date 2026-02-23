@@ -263,22 +263,44 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
           </div>
         </div>
 
-        <div style="margin-top: 25px; padding: 20px; border: 1px solid #e5e5e5; border-radius: 6px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <div>
-              <div style="font-size: 10px; color: #666; margin-bottom: 3px;">Authorized Signatory</div>
-              <div style="font-family: 'Brush Script MT', 'Segoe Script', cursive; font-size: 24px; color: #1a1a1a; border-bottom: 1px solid #333; padding-bottom: 2px; display: inline-block;">Dr. Marcus Brennan</div>
-              <div style="font-size: 10px; color: #666; margin-top: 5px;">Chief Financial Officer</div>
-              <div style="font-size: 10px; color: #666;">Malta Crypto Central Bank</div>
+        <div style="margin-top: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="flex: 1;">
+              <div style="font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Authorized Signatory</div>
+              <svg width="180" height="50" viewBox="0 0 180 50" style="display: block;">
+                <path d="M10 35 Q15 20 25 25 T40 22 Q50 18 55 28 T70 25 Q80 22 85 30 L90 28 Q95 24 100 26 T115 24 Q125 20 130 28 T145 26 Q155 22 160 30 L165 28"
+                      stroke="#1a365d" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M25 32 Q30 38 40 36 T55 38" stroke="#1a365d" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M85 32 L88 40 M100 30 Q105 36 110 34" stroke="#1a365d" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M140 30 Q145 38 155 35 L158 42" stroke="#1a365d" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              </svg>
+              <div style="border-top: 1px solid #333; width: 180px; margin-top: 5px;"></div>
+              <div style="font-size: 11px; font-weight: 600; color: #1a1a1a; margin-top: 8px;">Dr. Marcus J. Brennan</div>
+              <div style="font-size: 9px; color: #666; margin-top: 2px;">Chief Financial Officer</div>
+              <div style="font-size: 9px; color: #666;">Malta Crypto Central Bank</div>
+              <div style="font-size: 8px; color: #999; margin-top: 4px;">License No. MFSA/CFO/2019-0847</div>
             </div>
-            <div style="text-align: right;">
-              <div style="font-size: 10px; color: #666; margin-bottom: 3px;">Digital Seal</div>
-              <div style="width: 60px; height: 60px; border: 2px solid #b91c1c; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: auto;">
-                <div style="text-align: center;">
-                  <div style="font-size: 7px; font-weight: bold; color: #b91c1c;">MCCB</div>
-                  <div style="font-size: 5px; color: #b91c1c;">VERIFIED</div>
-                </div>
-              </div>
+            <div style="text-align: center;">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#8b0000" stroke-width="2"/>
+                <circle cx="50" cy="50" r="44" fill="none" stroke="#8b0000" stroke-width="1"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#8b0000" stroke-width="0.5"/>
+                <path id="textPathTop" d="M 50,50 m -35,0 a 35,35 0 1,1 70,0" fill="none"/>
+                <text font-size="6" fill="#8b0000" font-weight="bold" letter-spacing="2">
+                  <textPath href="#textPathTop" startOffset="15%">MALTA CRYPTO CENTRAL BANK</textPath>
+                </text>
+                <path id="textPathBottom" d="M 50,50 m 35,0 a 35,35 0 1,1 -70,0" fill="none"/>
+                <text font-size="5" fill="#8b0000" letter-spacing="1">
+                  <textPath href="#textPathBottom" startOffset="22%">OFFICIAL DOCUMENT</textPath>
+                </text>
+                <circle cx="50" cy="50" r="22" fill="none" stroke="#8b0000" stroke-width="1.5"/>
+                <text x="50" y="46" text-anchor="middle" font-size="10" fill="#8b0000" font-weight="bold">MCCB</text>
+                <text x="50" y="56" text-anchor="middle" font-size="6" fill="#8b0000">VERIFIED</text>
+                <line x1="30" y1="62" x2="70" y2="62" stroke="#8b0000" stroke-width="0.5"/>
+                <text x="50" y="68" text-anchor="middle" font-size="4" fill="#8b0000">${reportDate.split(',')[0].toUpperCase()}</text>
+              </svg>
+              <div style="font-size: 7px; color: #888; margin-top: 4px;">Digital Verification Seal</div>
+              <div style="font-size: 6px; color: #aaa;">Hash: ${reportId.substring(4, 12).toUpperCase()}</div>
             </div>
           </div>
         </div>
