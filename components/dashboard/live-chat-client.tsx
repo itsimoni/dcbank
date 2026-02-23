@@ -312,7 +312,7 @@ export default function LiveChatClient({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className={`w-[95vw] max-w-md flex flex-col p-0 overflow-hidden rounded-none ${
+        className={`w-[95vw] max-w-md flex flex-col p-0 overflow-hidden rounded-none [&>button]:hidden ${
           isStarted ? "h-[80vh] max-h-[600px]" : "h-auto"
         }`}
       >
@@ -322,11 +322,16 @@ export default function LiveChatClient({
               <MessageCircle className="w-5 h-5 mr-2 text-[#b91c1c]" />
               Live Chat Support
             </DialogTitle>
-            {isStarted && (
-              <Button variant="ghost" size="sm" onClick={handleMinimize} className="h-8 w-8 p-0">
-                <Minimize2 className="w-4 h-4" />
+            <div className="flex items-center gap-1">
+              {isStarted && (
+                <Button variant="ghost" size="sm" onClick={handleMinimize} className="h-8 w-8 p-0">
+                  <Minimize2 className="w-4 h-4" />
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+                <X className="w-4 h-4" />
               </Button>
-            )}
+            </div>
           </div>
           <DialogDescription className="text-sm">
             {isStarted ? (
