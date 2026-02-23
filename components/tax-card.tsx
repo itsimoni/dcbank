@@ -227,17 +227,17 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
             <tbody>
               <tr>
                 <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px;">Pending Taxes</td>
-                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; color: #d97706;">Awaiting Payment</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px;">Awaiting Payment</td>
                 <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.pending.amount)}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px;">On Hold</td>
-                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; color: #2563eb;">Under Review</td>
+                <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px;">Under Review</td>
                 <td style="padding: 8px 10px; border-bottom: 1px solid #e5e5e5; font-size: 12px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.on_hold.amount)}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 10px; font-size: 12px;">Paid Taxes</td>
-                <td style="padding: 8px 10px; font-size: 12px; color: #16a34a;">Completed</td>
+                <td style="padding: 8px 10px; font-size: 12px;">Completed</td>
                 <td style="padding: 8px 10px; font-size: 12px; text-align: right; font-weight: 500;">${formatCurrency(taxStats.paid.amount)}</td>
               </tr>
             </tbody>
@@ -260,42 +260,6 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
           <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 2px solid #b91c1c; margin-top: 8px; font-size: 14px; font-weight: bold;">
             <span>Total Tax Liability:</span>
             <span>${formatCurrency(totalTaxes)}</span>
-          </div>
-        </div>
-
-        <div style="margin-top: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="flex: 1;">
-              <div style="font-size: 9px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Authorized Signatory</div>
-              <img src="${window.location.origin}/signature.png" width="180" height="60" style="display: block; object-fit: contain;" alt="Signature"/>
-              <div style="border-top: 1px solid #333; width: 180px; margin-top: 5px;"></div>
-              <div style="font-size: 11px; font-weight: 600; color: #1a1a1a; margin-top: 8px;">Dr. Marcus J. Brennan</div>
-              <div style="font-size: 9px; color: #666; margin-top: 2px;">Chief Financial Officer</div>
-              <div style="font-size: 9px; color: #666;">Malta Crypto Central Bank</div>
-              <div style="font-size: 8px; color: #999; margin-top: 4px;">License No. MFSA/CFO/2019-0847</div>
-            </div>
-            <div style="text-align: center;">
-              <svg width="100" height="100" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="48" fill="none" stroke="#8b0000" stroke-width="2"/>
-                <circle cx="50" cy="50" r="44" fill="none" stroke="#8b0000" stroke-width="1"/>
-                <circle cx="50" cy="50" r="38" fill="none" stroke="#8b0000" stroke-width="0.5"/>
-                <path id="textPathTop" d="M 50,50 m -35,0 a 35,35 0 1,1 70,0" fill="none"/>
-                <text font-size="6" fill="#8b0000" font-weight="bold" letter-spacing="2">
-                  <textPath href="#textPathTop" startOffset="15%">MALTA CRYPTO CENTRAL BANK</textPath>
-                </text>
-                <path id="textPathBottom" d="M 50,50 m 35,0 a 35,35 0 1,1 -70,0" fill="none"/>
-                <text font-size="5" fill="#8b0000" letter-spacing="1">
-                  <textPath href="#textPathBottom" startOffset="22%">OFFICIAL DOCUMENT</textPath>
-                </text>
-                <circle cx="50" cy="50" r="22" fill="none" stroke="#8b0000" stroke-width="1.5"/>
-                <text x="50" y="46" text-anchor="middle" font-size="10" fill="#8b0000" font-weight="bold">MCCB</text>
-                <text x="50" y="56" text-anchor="middle" font-size="6" fill="#8b0000">VERIFIED</text>
-                <line x1="30" y1="62" x2="70" y2="62" stroke="#8b0000" stroke-width="0.5"/>
-                <text x="50" y="68" text-anchor="middle" font-size="4" fill="#8b0000">${reportDate.split(',')[0].toUpperCase()}</text>
-              </svg>
-              <div style="font-size: 7px; color: #888; margin-top: 4px;">Digital Verification Seal</div>
-              <div style="font-size: 6px; color: #aaa;">Hash: ${reportId.substring(4, 12).toUpperCase()}</div>
-            </div>
           </div>
         </div>
 
