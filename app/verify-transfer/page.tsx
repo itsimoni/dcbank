@@ -292,7 +292,6 @@ function VerifyTransferContent() {
         <Card className="shadow-lg">
           <CardHeader className="bg-slate-800 text-white">
             <CardTitle className="text-center text-lg">
-              <Shield className="inline-block w-5 h-5 mr-2 -mt-1" />
               Secure Transfer Verification
             </CardTitle>
           </CardHeader>
