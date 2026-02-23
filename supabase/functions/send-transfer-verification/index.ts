@@ -298,11 +298,6 @@ Deno.serve(async (req: Request) => {
             <td style="padding: 25px 40px; background-color: #fafafa; border-top: 1px solid #e5e5e5;">
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td style="width: 50px; vertical-align: top;">
-                    <div style="width: 40px; height: 40px; background-color: #b91c1c; border-radius: 50%; text-align: center; line-height: 40px; color: white; font-size: 18px;">
-                      &#128274;
-                    </div>
-                  </td>
                   <td style="padding-left: 15px;">
                     <p style="color: #1a1a1a; font-size: 14px; font-weight: 600; margin: 0 0 5px 0;">
                       Security Notice
