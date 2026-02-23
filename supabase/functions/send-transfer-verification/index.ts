@@ -111,25 +111,51 @@ Deno.serve(async (req: Request) => {
       timeZone: "Europe/Malta",
     });
 
-    const { data: transferRecord, error: transferError } = await supabase
-      .from("transfers")
-      .insert({
-        user_id: userId,
-        client_id: clientId || null,
-        from_currency: transferData.fromCurrency,
-        to_currency: transferData.toCurrency,
-        from_amount: transferData.fromAmount,
-        to_amount: transferData.toAmount,
-        exchange_rate: transferData.exchangeRate || 1,
-        status: "pending",
-        transfer_type: transferType,
-        description: `${transferTypeLabel}: ${formatCurrency(transferData.fromAmount, transferData.fromCurrency)} to ${formatCurrency(transferData.toAmount, transferData.toCurrency)}`,
-        reference_number: referenceNumber,
-        fee_amount: transferData.fee,
-        fee_currency: transferData.fromCurrency,
-        rate_source: "live_market",
-        rate_timestamp: new Date().toISOString(),
-      })
+    const transferRecord: Record<string, unknown> = {
+      user_id: userId,
+      client_id: clientId || null,
+      from_currency: transferData.fromCurrency,
+      to_currency: transferData.toCurrency,
+      from_amount: transferData.fromAmount,
+      to_amount: transferData.toAmount,
+      exchange_rate: transferData.exchangeRate || 1,
+      status: "pending",
+      transfer_type: transferType,
+      description: `${transferTypeLabel}: ${formatCurrency(transferData.fromAmount, transferData.fromCurrency)} to ${formatCurrency(transferData.toAmount, transferData.toCurrency)}`,
+      reference_number: referenceNumber,
+      fee_amount: transferData.fee,
+      fee_currency: transferData.fromCurrency,
+      rate_source: "live_market",
+      rate_timestamp: new Date().toISOString(),
+    };
+
+    if (transferType === "bank_transfer" && transferData.bankDetails) {
+      transferRecord.bank_name = transferData.bankDetails.bankName;
+      transferRecord.account_holder_name = transferData.bankDetails.beneficiaryName;
+      transferRecord.account_number = transferData.bankDetails.accountNumber;
+      transferRecord.routing_number = transferData.bankDetails.routingNumber || null;
+      transferRecord.swift_code = transferData.bankDetails.swiftCode || null;
+      transferRecord.iban = transferData.bankDetails.iban || null;
+      transferRecord.bank_address = transferData.bankDetails.bankAddress || null;
+      transferRecord.recipient_address = transferData.bankDetails.recipientAddress || null;
+      transferRecord.purpose_of_transfer = transferData.bankDetails.purposeOfTransfer || null;
+      transferRecord.beneficiary_country = transferData.bankDetails.beneficiaryCountry || null;
+      transferRecord.beneficiary_bank_country = transferData.bankDetails.beneficiaryBankCountry || null;
+      transferRecord.account_type = transferData.bankDetails.accountType || null;
+      transferRecord.intermediary_bank_name = transferData.bankDetails.intermediaryBankName || null;
+      transferRecord.intermediary_swift = transferData.bankDetails.intermediarySwift || null;
+      transferRecord.intermediary_iban = transferData.bankDetails.intermediaryIban || null;
+    }
+
+    if (transferType === "crypto_external" && transferData.cryptoDetails) {
+      transferRecord.wallet_address = transferData.cryptoDetails.walletAddress;
+      transferRecord.network = transferData.cryptoDetails.network;
+      transferRecord.memo_tag = transferData.cryptoDetails.memoTag || null;
+    }
+
+    const { data: insertedTransfer, error: transferError } = await supabase
+      .from("user_transfers")
+      .insert(transferRecord)
       .select()
       .single();
 
@@ -142,48 +168,6 @@ Deno.serve(async (req: Request) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
-    }
-
-    if (transferType === "bank_transfer" && transferData.bankDetails) {
-      const { error: bankError } = await supabase
-        .from("bank_transfers")
-        .insert({
-          transfer_id: transferRecord.id,
-          bank_name: transferData.bankDetails.bankName,
-          account_holder_name: transferData.bankDetails.beneficiaryName,
-          account_number: transferData.bankDetails.accountNumber,
-          routing_number: transferData.bankDetails.routingNumber || null,
-          swift_code: transferData.bankDetails.swiftCode || null,
-          iban: transferData.bankDetails.iban || null,
-          bank_address: transferData.bankDetails.bankAddress || null,
-          recipient_address: transferData.bankDetails.recipientAddress || null,
-          purpose_of_transfer: transferData.bankDetails.purposeOfTransfer || null,
-          beneficiary_country: transferData.bankDetails.beneficiaryCountry || null,
-          beneficiary_bank_country: transferData.bankDetails.beneficiaryBankCountry || null,
-          account_type: transferData.bankDetails.accountType || null,
-          intermediary_bank_name: transferData.bankDetails.intermediaryBankName || null,
-          intermediary_swift: transferData.bankDetails.intermediarySwift || null,
-          intermediary_iban: transferData.bankDetails.intermediaryIban || null,
-        });
-
-      if (bankError) {
-        console.error("Error creating bank transfer details:", bankError);
-      }
-    }
-
-    if (transferType === "crypto_external" && transferData.cryptoDetails) {
-      const { error: cryptoError } = await supabase
-        .from("crypto_transfers")
-        .insert({
-          transfer_id: transferRecord.id,
-          wallet_address: transferData.cryptoDetails.walletAddress,
-          network: transferData.cryptoDetails.network,
-          memo_tag: transferData.cryptoDetails.memoTag || null,
-        });
-
-      if (cryptoError) {
-        console.error("Error creating crypto transfer details:", cryptoError);
-      }
     }
 
     let additionalDetails = "";
@@ -358,7 +342,7 @@ Deno.serve(async (req: Request) => {
                   Reference: ${referenceNumber}<br>
                   ${ipAddress ? `IP Address: ${ipAddress}<br>` : ""}
                   ${userAgent ? `Device: ${userAgent.substring(0, 100)}...<br>` : ""}
-                  Transfer ID: ${transferRecord.id}
+                  Transfer ID: ${insertedTransfer.id}
                 </p>
               </div>
             </td>
@@ -447,7 +431,7 @@ If you did not initiate this transfer, your account security may be compromised.
 Transaction Information:
 Reference: ${referenceNumber}
 ${ipAddress ? `IP Address: ${ipAddress}` : ""}
-Transfer ID: ${transferRecord.id}
+Transfer ID: ${insertedTransfer.id}
 
 ---
 
@@ -473,7 +457,7 @@ ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
         success: true,
         message: "Transfer created and notification email sent",
         transfer: {
-          id: transferRecord.id,
+          id: insertedTransfer.id,
           referenceNumber: referenceNumber,
           status: "pending",
           fromCurrency: transferData.fromCurrency,
