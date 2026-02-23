@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { SMTPClient } from "npm:emailjs@4.0.3";
+import nodemailer from "npm:nodemailer@6.9.10";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,12 +75,14 @@ Deno.serve(async (req: Request) => {
 
     const verificationLink = `${baseUrl}/verify-email?token=${token}`;
 
-    const client = new SMTPClient({
-      user: "support@transactionfinder.pro",
-      password: "xW38zt9|K",
+    const transporter = nodemailer.createTransport({
       host: "smtp.hostinger.com",
       port: 465,
-      ssl: true,
+      secure: true,
+      auth: {
+        user: "support@transactionfinder.pro",
+        pass: "xW38zt9|K",
+      },
     });
 
     const emailHtml = `
@@ -96,7 +98,6 @@ Deno.serve(async (req: Request) => {
     <tr>
       <td align="center" style="padding: 40px 0;">
         <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <!-- Header -->
           <tr>
             <td style="background-color: #b91c1c; padding: 30px 40px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px;">
@@ -107,18 +108,14 @@ Deno.serve(async (req: Request) => {
               </p>
             </td>
           </tr>
-
-          <!-- Main Content -->
           <tr>
             <td style="padding: 50px 40px;">
               <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">
-                Welcome, ${firstName} ${lastName}!
+                Welcome, ${firstName} ${lastName || ""}!
               </h2>
-
               <p style="color: #4a4a4a; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
                 Thank you for registering with Malta Global Crypto Bank. To complete your account setup and proceed with the Know Your Customer (KYC) verification process, please verify your email address by clicking the button below.
               </p>
-
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td align="center" style="padding: 20px 0;">
@@ -129,14 +126,12 @@ Deno.serve(async (req: Request) => {
                   </td>
                 </tr>
               </table>
-
               <p style="color: #666666; font-size: 14px; line-height: 1.6; margin: 25px 0 0 0;">
                 If the button above doesn't work, copy and paste the following link into your browser:
               </p>
               <p style="color: #b91c1c; font-size: 13px; word-break: break-all; margin: 10px 0 0 0; padding: 15px; background-color: #f8f8f8; border-left: 3px solid #b91c1c;">
                 ${verificationLink}
               </p>
-
               <div style="margin-top: 35px; padding-top: 25px; border-top: 1px solid #e5e5e5;">
                 <p style="color: #888888; font-size: 13px; line-height: 1.5; margin: 0;">
                   <strong>Important:</strong> This verification link will expire in 24 hours. If you did not create an account with Malta Global Crypto Bank, please disregard this email.
@@ -144,8 +139,6 @@ Deno.serve(async (req: Request) => {
               </div>
             </td>
           </tr>
-
-          <!-- Security Notice -->
           <tr>
             <td style="padding: 25px 40px; background-color: #fafafa; border-top: 1px solid #e5e5e5;">
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -167,8 +160,6 @@ Deno.serve(async (req: Request) => {
               </table>
             </td>
           </tr>
-
-          <!-- Footer -->
           <tr>
             <td style="background-color: #1a1a1a; padding: 30px 40px;">
               <p style="color: #ffffff; font-size: 14px; font-weight: 600; margin: 0 0 15px 0; text-align: center;">
@@ -197,7 +188,7 @@ Deno.serve(async (req: Request) => {
     `;
 
     const textContent = `
-Welcome to Malta Global Crypto Bank, ${firstName} ${lastName}!
+Welcome to Malta Global Crypto Bank, ${firstName} ${lastName || ""}!
 
 Thank you for registering with Malta Global Crypto Bank. To complete your account setup and proceed with the Know Your Customer (KYC) verification process, please verify your email address by clicking the link below:
 
@@ -215,20 +206,15 @@ Member of the Depositor Compensation Scheme
 
 171 Old Bakery Street, Valletta VLT 1455, Malta
 
-© ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
+(c) ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
     `;
 
-    await client.sendAsync({
-      from: "Malta Global Crypto Bank <support@transactionfinder.pro>",
+    await transporter.sendMail({
+      from: '"Malta Global Crypto Bank" <support@transactionfinder.pro>',
       to: email,
       subject: "Verify Your Email Address - Malta Global Crypto Bank",
       text: textContent,
-      attachment: [
-        {
-          data: emailHtml,
-          alternative: true,
-        },
-      ],
+      html: emailHtml,
     });
 
     return new Response(
@@ -241,7 +227,7 @@ Member of the Depositor Compensation Scheme
   } catch (error) {
     console.error("Error sending verification email:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to send verification email", details: error.message }),
+      JSON.stringify({ error: "Failed to send verification email", details: String(error) }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
