@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Clock, AlertTriangle, Shield, Loader2 } from "lucide-react";
-import Link from "next/link";
 
 type VerificationStatus = "loading" | "success" | "expired" | "invalid" | "already_verified" | "cancelled" | "error";
 
@@ -26,11 +25,17 @@ interface VerificationResult {
 
 function VerifyTransferContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
 
   const [status, setStatus] = useState<VerificationStatus>("loading");
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    router.prefetch("/?section=transfers");
+    router.prefetch("/");
+  }, [router]);
 
   useEffect(() => {
     if (!token) {
@@ -41,6 +46,14 @@ function VerifyTransferContent() {
 
     verifyToken(token);
   }, [token]);
+
+  const navigateToTransfers = () => {
+    router.push("/?section=transfers");
+  };
+
+  const navigateToDashboard = () => {
+    router.push("/");
+  };
 
   const verifyToken = async (verificationToken: string) => {
     try {
@@ -165,11 +178,9 @@ function VerifyTransferContent() {
               </div>
             )}
 
-            <Link href="/?section=transfers">
-              <Button className="bg-red-600 hover:bg-red-700">
-                Return to Transfers
-              </Button>
-            </Link>
+            <Button className="bg-red-600 hover:bg-red-700" onClick={navigateToTransfers}>
+              Return to Transfers
+            </Button>
           </div>
         );
 
@@ -185,11 +196,9 @@ function VerifyTransferContent() {
               For your security, verification links are only valid for 30 minutes.
               Please log in to your account and initiate a new transfer request.
             </p>
-            <Link href="/">
-              <Button className="bg-red-600 hover:bg-red-700">
-                Go to Dashboard
-              </Button>
-            </Link>
+            <Button className="bg-red-600 hover:bg-red-700" onClick={navigateToDashboard}>
+              Go to Dashboard
+            </Button>
           </div>
         );
 
@@ -205,11 +214,9 @@ function VerifyTransferContent() {
               The verification link you used is invalid or has already been used.
               Please check your email for the correct link or initiate a new transfer.
             </p>
-            <Link href="/">
-              <Button className="bg-red-600 hover:bg-red-700">
-                Go to Dashboard
-              </Button>
-            </Link>
+            <Button className="bg-red-600 hover:bg-red-700" onClick={navigateToDashboard}>
+              Go to Dashboard
+            </Button>
           </div>
         );
 
@@ -224,11 +231,9 @@ function VerifyTransferContent() {
             <p className="text-slate-500 text-sm mb-8">
               This transfer has already been verified. No further action is required.
             </p>
-            <Link href="/">
-              <Button className="bg-red-600 hover:bg-red-700">
-                Go to Dashboard
-              </Button>
-            </Link>
+            <Button className="bg-red-600 hover:bg-red-700" onClick={navigateToDashboard}>
+              Go to Dashboard
+            </Button>
           </div>
         );
 
@@ -243,11 +248,9 @@ function VerifyTransferContent() {
             <p className="text-slate-500 text-sm mb-8">
               This transfer request was cancelled and cannot be verified.
             </p>
-            <Link href="/">
-              <Button className="bg-red-600 hover:bg-red-700">
-                Go to Dashboard
-              </Button>
-            </Link>
+            <Button className="bg-red-600 hover:bg-red-700" onClick={navigateToDashboard}>
+              Go to Dashboard
+            </Button>
           </div>
         );
 
@@ -270,11 +273,9 @@ function VerifyTransferContent() {
               >
                 Try Again
               </Button>
-              <Link href="/">
-                <Button className="bg-red-600 hover:bg-red-700">
-                  Go to Dashboard
-                </Button>
-              </Link>
+              <Button className="bg-red-600 hover:bg-red-700" onClick={navigateToDashboard}>
+                Go to Dashboard
+              </Button>
             </div>
           </div>
         );
