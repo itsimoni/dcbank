@@ -311,18 +311,22 @@ export default function LiveChatClient({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md h-[600px] flex flex-col p-0 overflow-hidden rounded-none">
+      <DialogContent
+        className={`w-[95vw] max-w-md flex flex-col p-0 overflow-hidden rounded-none ${
+          isStarted ? "h-[80vh] max-h-[600px]" : "h-auto"
+        }`}
+      >
         <DialogHeader className="p-4 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center text-base">
               <MessageCircle className="w-5 h-5 mr-2 text-[#b91c1c]" />
               Live Chat Support
             </DialogTitle>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={handleMinimize}>
-                <Minimize2 className="w-4 h-4 mr-10 mb-4" />
+            {isStarted && (
+              <Button variant="ghost" size="sm" onClick={handleMinimize} className="h-8 w-8 p-0">
+                <Minimize2 className="w-4 h-4" />
               </Button>
-            </div>
+            )}
           </div>
           <DialogDescription className="text-sm">
             {isStarted ? (
@@ -335,7 +339,6 @@ export default function LiveChatClient({
           </DialogDescription>
         </DialogHeader>
 
-        {/* <CHANGE> Fixed the layout structure to prevent input blocking */}
         <div className="flex flex-col flex-1 min-h-0 px-4 pb-4">
           {!isStarted ? (
             <div className="space-y-4">
@@ -345,6 +348,7 @@ export default function LiveChatClient({
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
                   placeholder="Enter your name"
+                  className="rounded-none"
                 />
               </div>
               {isAuthUser ? (
@@ -354,7 +358,7 @@ export default function LiveChatClient({
                     type="email"
                     value={clientEmail}
                     readOnly
-                    className="bg-gray-100 cursor-not-allowed"
+                    className="bg-gray-100 cursor-not-allowed rounded-none"
                   />
                 </div>
               ) : (
@@ -365,13 +369,14 @@ export default function LiveChatClient({
                     value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
                     placeholder="Enter your email"
+                    className="rounded-none"
                   />
                 </div>
               )}
 
               <Button
                 onClick={startChat}
-                className="w-full bg-[#b91c1c] hover:bg-[#991b1b]"
+                className="w-full bg-[#b91c1c] hover:bg-[#991b1b] rounded-none"
                 disabled={!clientName.trim() || !clientEmail.trim()}
               >
                 Start Chat
@@ -385,7 +390,7 @@ export default function LiveChatClient({
                   variant="ghost"
                   size="sm"
                   onClick={endChatSession}
-                  className="text-xs h-6 px-2 text-red-600 hover:text-red-700"
+                  className="text-xs h-6 px-2 text-red-600 hover:text-red-700 rounded-none"
                 >
                   End Chat
                 </Button>
@@ -443,7 +448,7 @@ export default function LiveChatClient({
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type your message..."
-                  className="flex-1"
+                  className="flex-1 rounded-none"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -454,7 +459,7 @@ export default function LiveChatClient({
                 <Button
                   onClick={sendMessage}
                   disabled={!newMessage.trim()}
-                  className="bg-[#b91c1c] hover:bg-[#991b1b] px-3"
+                  className="bg-[#b91c1c] hover:bg-[#991b1b] px-3 rounded-none"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
