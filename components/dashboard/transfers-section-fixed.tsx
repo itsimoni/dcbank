@@ -458,25 +458,14 @@ export default function TransfersSection({
 
     try {
       const { data, error } = await supabase
-        .from("transfers")
-        .select(`
-          *,
-          bank_transfer:bank_transfers(*)
-        `)
+        .from("user_transfers")
+        .select("*")
         .eq("user_id", userProfile.id)
-        .in("transfer_type", ["internal", "bank_transfer", "crypto_internal", "crypto_external"])
         .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      const transformedData = data?.map((transfer: any) => ({
-        ...transfer,
-        bank_transfer: Array.isArray(transfer.bank_transfer)
-          ? transfer.bank_transfer[0]
-          : transfer.bank_transfer,
-      })) || [];
-
-      setTransfers(transformedData);
+      setTransfers(data || []);
     } catch (error) {
       console.error("Error fetching transfers:", error);
     }
@@ -1177,7 +1166,7 @@ export default function TransfersSection({
             </div>
 
             {/* Bank Details - Only for bank transfers */}
-            {!isInternal && selectedTransfer.bank_transfer && (
+            {selectedTransfer.transfer_type === "bank_transfer" && selectedTransfer.bank_name && (
               <div className="border-2 border-gray-300 p-4 bg-white">
                 <h3 className="text-sm font-semibold text-slate-700 mb-3">
                   {t.bankDetails}
@@ -1186,7 +1175,7 @@ export default function TransfersSection({
                   <div>
                     <p className="text-xs text-slate-600 mb-1">{t.bankName}</p>
                     <p className="text-sm font-medium">
-                      {selectedTransfer.bank_transfer.bank_name}
+                      {selectedTransfer.bank_name}
                     </p>
                   </div>
                   <div>
@@ -1194,7 +1183,7 @@ export default function TransfersSection({
                       {t.accountHolder}
                     </p>
                     <p className="text-sm font-medium">
-                      {selectedTransfer.bank_transfer.account_holder_name}
+                      {selectedTransfer.account_holder_name}
                     </p>
                   </div>
                   <div>
@@ -1203,61 +1192,92 @@ export default function TransfersSection({
                     </p>
                     <p className="text-sm font-medium font-mono">
                       {maskAccountNumber(
-                        selectedTransfer.bank_transfer.account_number
+                        selectedTransfer.account_number
                       )}
                     </p>
                   </div>
-                  {selectedTransfer.bank_transfer.swift_code && (
+                  {selectedTransfer.swift_code && (
                     <div>
                       <p className="text-xs text-slate-600 mb-1">{t.swiftCode}</p>
                       <p className="text-sm font-medium">
-                        {selectedTransfer.bank_transfer.swift_code}
+                        {selectedTransfer.swift_code}
                       </p>
                     </div>
                   )}
-                  {selectedTransfer.bank_transfer.iban && (
+                  {selectedTransfer.iban && (
                     <div className="col-span-2">
                       <p className="text-xs text-slate-600 mb-1">{t.iban}</p>
                       <p className="text-sm font-medium font-mono">
-                        {maskIban(selectedTransfer.bank_transfer.iban)}
+                        {maskIban(selectedTransfer.iban)}
                       </p>
                     </div>
                   )}
-                  {selectedTransfer.bank_transfer.routing_number && (
+                  {selectedTransfer.routing_number && (
                     <div>
                       <p className="text-xs text-slate-600 mb-1">
                         {t.routingNumber}
                       </p>
                       <p className="text-sm font-medium">
-                        {selectedTransfer.bank_transfer.routing_number}
+                        {selectedTransfer.routing_number}
                       </p>
                     </div>
                   )}
-                  {selectedTransfer.bank_transfer.purpose_of_transfer && (
+                  {selectedTransfer.purpose_of_transfer && (
                     <div className="col-span-2">
                       <p className="text-xs text-slate-600 mb-1">{t.purpose}</p>
                       <p className="text-sm font-medium">
-                        {selectedTransfer.bank_transfer.purpose_of_transfer}
+                        {selectedTransfer.purpose_of_transfer}
                       </p>
                     </div>
                   )}
-                  {selectedTransfer.bank_transfer.bank_address && (
+                  {selectedTransfer.bank_address && (
                     <div className="col-span-2">
                       <p className="text-xs text-slate-600 mb-1">
                         {t.bankAddress}
                       </p>
                       <p className="text-sm font-medium">
-                        {selectedTransfer.bank_transfer.bank_address}
+                        {selectedTransfer.bank_address}
                       </p>
                     </div>
                   )}
-                  {selectedTransfer.bank_transfer.recipient_address && (
+                  {selectedTransfer.recipient_address && (
                     <div className="col-span-2">
                       <p className="text-xs text-slate-600 mb-1">
                         {t.recipientAddress}
                       </p>
                       <p className="text-sm font-medium">
-                        {selectedTransfer.bank_transfer.recipient_address}
+                        {selectedTransfer.recipient_address}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Crypto Details - Only for crypto external transfers */}
+            {selectedTransfer.transfer_type === "crypto_external" && selectedTransfer.wallet_address && (
+              <div className="border-2 border-gray-300 p-4 bg-white">
+                <h3 className="text-sm font-semibold text-slate-700 mb-3">
+                  Destination Wallet Details
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <p className="text-xs text-slate-600 mb-1">Wallet Address</p>
+                    <p className="text-sm font-medium font-mono break-all">
+                      {selectedTransfer.wallet_address}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-600 mb-1">Network</p>
+                    <p className="text-sm font-medium">
+                      {selectedTransfer.network}
+                    </p>
+                  </div>
+                  {selectedTransfer.memo_tag && (
+                    <div>
+                      <p className="text-xs text-slate-600 mb-1">Memo / Tag</p>
+                      <p className="text-sm font-medium font-mono">
+                        {selectedTransfer.memo_tag}
                       </p>
                     </div>
                   )}
