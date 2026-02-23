@@ -195,19 +195,19 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
         <div style="margin-bottom: 20px;">
           <div style="font-size: 14px; font-weight: 600; color: #b91c1c; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e5e5e5;">Account Information</div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+            <div style="padding: 8px; background: #f9f9f9;">
               <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Account Holder</div>
               <div style="font-size: 12px; font-weight: 500; color: #333;">${formattedName}</div>
             </div>
-            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+            <div style="padding: 8px; background: #f9f9f9;">
               <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Email</div>
               <div style="font-size: 12px; font-weight: 500; color: #333;">${userProfile.email || "N/A"}</div>
             </div>
-            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+            <div style="padding: 8px; background: #f9f9f9;">
               <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Client ID</div>
               <div style="font-size: 12px; font-weight: 500; color: #333;">${userProfile.client_id || "N/A"}</div>
             </div>
-            <div style="padding: 8px; background: #f9f9f9; border-radius: 4px;">
+            <div style="padding: 8px; background: #f9f9f9;">
               <div style="font-size: 10px; color: #666; margin-bottom: 2px;">Report Period</div>
               <div style="font-size: 12px; font-weight: 500; color: #333;">Current Tax Year</div>
             </div>
@@ -244,7 +244,7 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
           </table>
         </div>
 
-        <div style="padding: 15px; background: #f5f5f5; border-radius: 6px; margin-bottom: 20px;">
+        <div style="padding: 15px; background: #f5f5f5; margin-bottom: 20px;">
           <div style="display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px;">
             <span>Pending Amount:</span>
             <span>${formatCurrency(taxStats.pending.amount)}</span>
@@ -261,6 +261,29 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
             <span>Total Tax Liability:</span>
             <span>${formatCurrency(totalTaxes)}</span>
           </div>
+        </div>
+
+        <div style="margin-top: 25px; text-align: center;">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="48" fill="none" stroke="#8b0000" stroke-width="2"/>
+            <circle cx="50" cy="50" r="44" fill="none" stroke="#8b0000" stroke-width="1"/>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#8b0000" stroke-width="0.5"/>
+            <path id="textPathTop" d="M 50,50 m -35,0 a 35,35 0 1,1 70,0" fill="none"/>
+            <text font-size="6" fill="#8b0000" font-weight="bold" letter-spacing="2">
+              <textPath href="#textPathTop" startOffset="15%">MALTA CRYPTO CENTRAL BANK</textPath>
+            </text>
+            <path id="textPathBottom" d="M 50,50 m 35,0 a 35,35 0 1,1 -70,0" fill="none"/>
+            <text font-size="5" fill="#8b0000" letter-spacing="1">
+              <textPath href="#textPathBottom" startOffset="22%">OFFICIAL DOCUMENT</textPath>
+            </text>
+            <circle cx="50" cy="50" r="22" fill="none" stroke="#8b0000" stroke-width="1.5"/>
+            <text x="50" y="46" text-anchor="middle" font-size="10" fill="#8b0000" font-weight="bold">MCCB</text>
+            <text x="50" y="56" text-anchor="middle" font-size="6" fill="#8b0000">VERIFIED</text>
+            <line x1="30" y1="62" x2="70" y2="62" stroke="#8b0000" stroke-width="0.5"/>
+            <text x="50" y="68" text-anchor="middle" font-size="4" fill="#8b0000">${reportDate.split(',')[0].toUpperCase()}</text>
+          </svg>
+          <div style="font-size: 7px; color: #888; margin-top: 4px;">Digital Verification Seal</div>
+          <div style="font-size: 6px; color: #aaa;">Hash: ${reportId.substring(4, 12).toUpperCase()}</div>
         </div>
 
         <div style="margin-top: 15px; text-align: center; font-size: 9px; color: #999;">
