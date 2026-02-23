@@ -483,7 +483,7 @@ export default function TransactionHistory() {
         )}
 
         <Dialog open={!!selectedTransaction} onOpenChange={(open) => !open && setSelectedTransaction(null)}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-none sm:rounded-none">
             <DialogHeader>
               <DialogTitle>{t.transactionDetails}</DialogTitle>
             </DialogHeader>
@@ -681,6 +681,81 @@ export default function TransactionHistory() {
             )}
           </DialogContent>
         </Dialog>
+
+        <div className="mt-8 border-t border-gray-200 pt-8">
+          <div className="bg-gray-50 border border-gray-200 p-6 space-y-6">
+            <h2 className="text-lg font-semibold text-gray-900">Important Information About Your Transactions</h2>
+
+            <div className="space-y-4 text-sm text-gray-700">
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">1. General Transaction Processing</h3>
+                <p className="leading-relaxed">
+                  All transactions displayed in this history are processed in accordance with applicable banking regulations, including the Payment Services Directive (PSD2) within the European Economic Area, and relevant local financial regulations. Transaction records are maintained for a minimum period of seven (7) years as required by anti-money laundering (AML) regulations and may be subject to regulatory review. The posted date represents when the transaction was recorded in our systems, while the value date indicates when funds were actually credited or debited from your account for interest calculation purposes.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">2. Internal Transfers</h3>
+                <p className="leading-relaxed">
+                  Internal transfers between accounts held within our institution are typically processed immediately and reflect in both the sending and receiving accounts within seconds during standard operating hours. These transfers are subject to available balance verification at the time of initiation. Internal transfers do not incur external banking fees; however, currency conversion fees may apply for transfers between accounts denominated in different currencies. Exchange rates for internal currency conversions are determined at the time of transaction execution based on our prevailing mid-market rates plus applicable margin.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">3. External Bank Transfers (SEPA and International)</h3>
+                <p className="leading-relaxed">
+                  Single Euro Payments Area (SEPA) transfers are processed within one (1) business day for standard transfers and may be executed same-day for instant SEPA payments where supported. International wire transfers outside the SEPA zone are processed through the SWIFT network and typically require two to five (2-5) business days, depending on the destination country, intermediary banks involved, and correspondent banking arrangements. External transfers are subject to beneficiary bank processing times and may incur fees from intermediary or receiving institutions that are outside our control. All international transfers are screened against sanctions lists and may be subject to additional compliance checks.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">4. Fiat Currency Transactions</h3>
+                <p className="leading-relaxed">
+                  Fiat currency transactions, including deposits, withdrawals, and transfers in EUR, USD, GBP, CHF, and other supported currencies, are executed in accordance with our published fee schedule and processing times. Deposits received via bank transfer are credited upon receipt of cleared funds, typically within one to three (1-3) business days. Cash deposits at partner ATMs or branches are subject to verification procedures and may have daily or monthly limits. Withdrawal requests are processed within one (1) business day, subject to available balance and any applicable security holds. Large value transactions may require enhanced verification under Know Your Customer (KYC) procedures.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">5. Cryptocurrency Transactions</h3>
+                <p className="leading-relaxed">
+                  Digital asset transactions, including Bitcoin (BTC), Ethereum (ETH), and other supported cryptocurrencies, are processed on their respective blockchain networks and are subject to network confirmation times and fees. Cryptocurrency deposits require a minimum number of network confirmations before being credited to your account: typically three (3) confirmations for Bitcoin and twelve (12) confirmations for Ethereum. Withdrawal processing times depend on network congestion and may vary significantly. Cryptocurrency transactions are irreversible once confirmed on the blockchain. Exchange rates for cryptocurrency conversions are based on real-time market prices at the time of execution, inclusive of applicable spread and fees. Digital asset holdings are segregated from operational funds and stored using industry-standard security measures including multi-signature cold storage.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">6. Transaction Disputes and Chargebacks</h3>
+                <p className="leading-relaxed">
+                  If you identify an unauthorized or erroneous transaction, you must notify us immediately and no later than thirteen (13) months from the transaction date for payment transactions covered under PSD2. Upon receipt of a dispute claim, we will investigate and provide a provisional credit if warranted while the investigation is ongoing. For card-related disputes, chargeback rights are governed by the applicable card network rules (Visa, Mastercard). Cryptocurrency transactions cannot be reversed or charged back due to the immutable nature of blockchain technology. You are responsible for verifying recipient details before initiating any transfer, as we cannot recover funds sent to incorrect addresses or accounts.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">7. Regulatory Compliance and Reporting</h3>
+                <p className="leading-relaxed">
+                  We are required to report certain transactions to regulatory authorities in accordance with anti-money laundering (AML), counter-terrorist financing (CTF), and tax reporting obligations. Transactions exceeding EUR 10,000 or equivalent may trigger automatic reporting requirements. Cross-border transactions may be reported under the Common Reporting Standard (CRS) and Foreign Account Tax Compliance Act (FATCA) where applicable. Your transaction history may be disclosed to law enforcement or regulatory authorities upon valid legal request. We reserve the right to delay, block, or reverse transactions that we reasonably believe may be associated with fraudulent, illegal, or prohibited activities.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">8. Data Retention and Privacy</h3>
+                <p className="leading-relaxed">
+                  Transaction records are retained in accordance with applicable legal requirements and our data retention policy. Historical transaction data may be archived after the mandatory retention period and access to archived records may be subject to additional processing time. Your transaction data is protected under the General Data Protection Regulation (GDPR) and applicable data protection laws. You have the right to request a copy of your transaction history in a portable format and to request rectification of inaccurate records. For complete information about how we process your personal data, please refer to our Privacy Policy.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">9. Limitation of Liability</h3>
+                <p className="leading-relaxed">
+                  While we strive to ensure the accuracy and completeness of your transaction history, we shall not be liable for any losses arising from delays, errors, or omissions in transaction processing caused by circumstances beyond our reasonable control, including but not limited to system outages, network failures, actions of third-party service providers, or force majeure events. Our maximum liability for any transaction-related claim shall not exceed the amount of the transaction in question or the fees charged for that transaction, whichever is greater, except where prohibited by applicable law.
+                </p>
+              </section>
+            </div>
+
+            <p className="text-xs text-gray-500 pt-4 border-t border-gray-200">
+              Last updated: February 2026. This information is provided for general guidance only and does not constitute legal or financial advice. Please consult the full Terms and Conditions governing your account for complete details. For questions regarding specific transactions, please contact our customer support team.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
