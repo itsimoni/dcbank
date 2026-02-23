@@ -1916,6 +1916,31 @@ export default function TransfersSection({
                     >
                       {t.executeTransfer}
                     </Button>
+
+                    <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
+                      <h4 className="font-semibold text-slate-700 text-sm">Internal Account Transfer Terms and Conditions</h4>
+                      <p>
+                        By initiating this internal currency exchange transaction, you acknowledge and agree to the following terms pursuant to applicable financial regulations and our Terms of Service:
+                      </p>
+                      <p>
+                        <strong>1. Exchange Rate Disclosure:</strong> The exchange rate displayed is indicative and subject to market fluctuations. The final rate applied to your transaction will be determined at the time of execution and may differ from the quoted rate. All exchange rates include a markup that constitutes part of our service fee structure.
+                      </p>
+                      <p>
+                        <strong>2. Transaction Finality:</strong> Once executed, internal currency exchange transactions are final and irrevocable. No cancellations, reversals, or modifications shall be permitted after confirmation. You bear sole responsibility for verifying all transaction details prior to submission.
+                      </p>
+                      <p>
+                        <strong>3. Regulatory Compliance:</strong> This transaction is subject to Anti-Money Laundering (AML) regulations, Know Your Customer (KYC) requirements, and applicable sanctions screening under the Bank Secrecy Act, EU Anti-Money Laundering Directives, and other relevant jurisdictional requirements. We reserve the right to delay, block, or report any transaction that triggers compliance concerns.
+                      </p>
+                      <p>
+                        <strong>4. Tax Obligations:</strong> Currency exchange transactions may have tax implications in your jurisdiction. You are solely responsible for determining and fulfilling any tax reporting or payment obligations arising from this transaction. We recommend consulting a qualified tax professional.
+                      </p>
+                      <p>
+                        <strong>5. Service Availability:</strong> We reserve the right to suspend, modify, or discontinue currency exchange services without prior notice for maintenance, compliance, or operational reasons. We shall not be liable for any losses resulting from service interruptions.
+                      </p>
+                      <p className="text-slate-500 italic">
+                        This service is provided in accordance with our Terms of Service and Privacy Policy. By proceeding, you confirm that you have read, understood, and agree to be bound by these terms.
+                      </p>
+                    </div>
                   </TabsContent>
 
                   <TabsContent value="bank" className="space-y-6 mt-6">
@@ -2260,6 +2285,40 @@ export default function TransfersSection({
                     >
                       {t.submitTransferRequest}
                     </Button>
+
+                    <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
+                      <h4 className="font-semibold text-slate-700 text-sm">Bank Wire Transfer Terms and Conditions</h4>
+                      <p>
+                        By submitting this bank wire transfer request, you acknowledge and agree to the following legally binding terms in accordance with international banking regulations and applicable law:
+                      </p>
+                      <p>
+                        <strong>1. Transfer Authorization:</strong> You hereby authorize the initiation of an international wire transfer to the designated beneficiary account. You represent and warrant that you are the lawful owner of the funds being transferred and that this transaction does not violate any applicable laws, regulations, or sanctions.
+                      </p>
+                      <p>
+                        <strong>2. SWIFT/BIC and IBAN Accuracy:</strong> You bear sole responsibility for the accuracy of all banking details provided, including but not limited to SWIFT/BIC codes, IBAN numbers, account numbers, and beneficiary information. Errors in banking details may result in delayed, returned, or lost funds, and we shall bear no liability for losses arising from incorrect information provided by you.
+                      </p>
+                      <p>
+                        <strong>3. Processing Time and Intermediary Banks:</strong> International wire transfers typically require 1-5 business days for processing. Transfers may be routed through correspondent or intermediary banks, each of which may deduct fees from the transferred amount. Settlement times may vary based on destination country banking infrastructure, time zones, and local holidays.
+                      </p>
+                      <p>
+                        <strong>4. Fees and Charges:</strong> Wire transfer fees include our service fee and may include additional charges imposed by correspondent banks, intermediary banks, and the beneficiary bank. Total fees deducted from the transfer amount may exceed the quoted estimate. You agree to bear all such fees and charges.
+                      </p>
+                      <p>
+                        <strong>5. AML/CFT Compliance:</strong> This transaction is subject to Anti-Money Laundering (AML), Combating the Financing of Terrorism (CFT), and sanctions compliance requirements under the Financial Action Task Force (FATF) recommendations, EU Anti-Money Laundering Directives, the USA PATRIOT Act, and applicable local regulations. We may be required to report certain transactions to relevant authorities.
+                      </p>
+                      <p>
+                        <strong>6. Transaction Limits and Review:</strong> Wire transfers exceeding certain thresholds may be subject to enhanced due diligence and manual review. We reserve the right to request additional documentation, delay processing, or decline transactions that fail to meet our compliance requirements.
+                      </p>
+                      <p>
+                        <strong>7. Cancellation and Recall:</strong> Once a wire transfer has been initiated, cancellation or recall may not be possible. If a recall is requested and successful, recall fees will apply. We do not guarantee the success of any recall attempt.
+                      </p>
+                      <p>
+                        <strong>8. Cross-Border Regulations:</strong> International transfers are subject to the laws and regulations of both the originating and destination jurisdictions. Some countries impose restrictions on foreign currency transfers. You are responsible for ensuring compliance with all applicable cross-border transfer regulations.
+                      </p>
+                      <p className="text-slate-500 italic">
+                        By proceeding with this wire transfer, you confirm that all information provided is accurate, the funds are from legitimate sources, and you have read and agreed to our Terms of Service, Privacy Policy, and these Wire Transfer Terms and Conditions.
+                      </p>
+                    </div>
                   </TabsContent>
 
                   <TabsContent value="crypto_internal" className="space-y-6 mt-6">
@@ -2431,6 +2490,40 @@ export default function TransfersSection({
                     >
                       Exchange Crypto
                     </Button>
+
+                    <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
+                      <h4 className="font-semibold text-slate-700 text-sm">Cryptocurrency Exchange Terms and Risk Disclosure</h4>
+                      <p>
+                        By executing this cryptocurrency exchange transaction, you acknowledge that you have read, understood, and agree to the following terms, conditions, and risk disclosures:
+                      </p>
+                      <p>
+                        <strong>1. Market Volatility Risk:</strong> Cryptocurrency markets are highly volatile. The value of digital assets can fluctuate significantly within short periods. The exchange rate at which your transaction is executed may differ materially from rates observed at other times. Past performance is not indicative of future results.
+                      </p>
+                      <p>
+                        <strong>2. Exchange Rate Execution:</strong> Exchange rates are determined by real-time market conditions at the moment of execution. While we strive to provide competitive rates, we do not guarantee the best available market rate. A spread or markup is applied to all exchange transactions as part of our fee structure.
+                      </p>
+                      <p>
+                        <strong>3. Transaction Finality:</strong> Cryptocurrency exchange transactions executed through this platform are final and irreversible. Once confirmed, no cancellations, reversals, or modifications are possible. You are solely responsible for reviewing all transaction details before confirmation.
+                      </p>
+                      <p>
+                        <strong>4. Regulatory Status:</strong> Cryptocurrency assets are not legal tender in most jurisdictions and are not backed by any government or central bank. The regulatory status of cryptocurrencies varies by jurisdiction and is subject to change. You are responsible for understanding and complying with all applicable laws and regulations in your jurisdiction.
+                      </p>
+                      <p>
+                        <strong>5. No Investment Advice:</strong> Nothing in this platform constitutes investment, financial, legal, or tax advice. Cryptocurrency trading involves substantial risk of loss and is not suitable for all investors. You should carefully consider whether trading is appropriate for you in light of your financial condition.
+                      </p>
+                      <p>
+                        <strong>6. Tax Obligations:</strong> Cryptocurrency transactions may be subject to capital gains tax, income tax, or other tax obligations in your jurisdiction. You are solely responsible for determining and fulfilling any tax reporting and payment obligations arising from your transactions.
+                      </p>
+                      <p>
+                        <strong>7. Technology Risks:</strong> Blockchain networks and cryptocurrency protocols are subject to technical risks including but not limited to network congestion, protocol changes, forks, and vulnerabilities. We are not responsible for losses arising from such technical events.
+                      </p>
+                      <p>
+                        <strong>8. AML/KYC Compliance:</strong> All cryptocurrency transactions are subject to our Anti-Money Laundering (AML) and Know Your Customer (KYC) policies. We reserve the right to freeze, suspend, or terminate accounts and transactions that fail to comply with applicable regulations or our internal policies.
+                      </p>
+                      <p className="text-slate-500 italic">
+                        By proceeding, you confirm that you understand the risks associated with cryptocurrency trading and accept full responsibility for your trading decisions. This service is provided subject to our Terms of Service and Privacy Policy.
+                      </p>
+                    </div>
                   </TabsContent>
 
                   <TabsContent value="crypto_external" className="space-y-6 mt-6">
@@ -2625,6 +2718,46 @@ export default function TransfersSection({
                     >
                       Submit Withdrawal Request
                     </Button>
+
+                    <div className="mt-6 p-4 bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
+                      <h4 className="font-semibold text-slate-700 text-sm">External Cryptocurrency Withdrawal Terms and Conditions</h4>
+                      <p>
+                        By submitting this external cryptocurrency withdrawal request, you acknowledge and agree to the following legally binding terms and conditions:
+                      </p>
+                      <p>
+                        <strong>1. Blockchain Transaction Irreversibility:</strong> Cryptocurrency transactions on blockchain networks are irreversible by design. Once a withdrawal is broadcast to the network and confirmed, it cannot be cancelled, reversed, or modified under any circumstances. We strongly advise triple-checking all wallet addresses and network selections before submission.
+                      </p>
+                      <p>
+                        <strong>2. Wallet Address and Network Verification:</strong> You bear sole and absolute responsibility for ensuring the accuracy of the destination wallet address and the selected blockchain network. Sending cryptocurrency to an incorrect address or incompatible network will result in permanent and irrecoverable loss of funds. We shall have no liability whatsoever for losses resulting from user error.
+                      </p>
+                      <p>
+                        <strong>3. Network Fees and Confirmation Times:</strong> Blockchain network fees (gas fees, miner fees) are determined by network conditions and are separate from our service fees. Confirmation times vary based on network congestion and may range from minutes to hours. We do not control blockchain network performance.
+                      </p>
+                      <p>
+                        <strong>4. Security Review and Processing:</strong> All external withdrawal requests are subject to security review and manual approval. This process may take up to 24-72 hours depending on the amount, destination, and risk assessment. We reserve the right to request additional verification or documentation before processing any withdrawal.
+                      </p>
+                      <p>
+                        <strong>5. Withdrawal Limits:</strong> Withdrawals are subject to daily, weekly, and monthly limits based on your account verification level. Attempts to circumvent withdrawal limits may result in account suspension and investigation.
+                      </p>
+                      <p>
+                        <strong>6. Sanctions and Compliance Screening:</strong> All withdrawal requests are screened against international sanctions lists, including but not limited to OFAC (Office of Foreign Assets Control), EU sanctions, and UN sanctions. Withdrawals to addresses associated with sanctioned entities or illicit activities will be blocked and reported to relevant authorities.
+                      </p>
+                      <p>
+                        <strong>7. Travel Rule Compliance:</strong> In accordance with FATF Travel Rule requirements, we may be required to collect and transmit beneficiary information for withdrawals above certain thresholds. Failure to provide required information may result in delayed or cancelled withdrawals.
+                      </p>
+                      <p>
+                        <strong>8. Smart Contract Risks:</strong> Withdrawals to smart contract addresses carry additional risks. Some smart contracts may not be compatible with certain token standards or may have vulnerabilities. We recommend withdrawing only to standard wallet addresses unless you fully understand smart contract risks.
+                      </p>
+                      <p>
+                        <strong>9. Third-Party Wallets:</strong> We have no control over or responsibility for third-party wallet services, exchanges, or DeFi protocols. Any issues arising after funds leave our platform are solely between you and the receiving party.
+                      </p>
+                      <p>
+                        <strong>10. Tax Reporting:</strong> Cryptocurrency withdrawals may constitute taxable events in your jurisdiction. You are solely responsible for maintaining records of all transactions and fulfilling applicable tax obligations.
+                      </p>
+                      <p className="text-slate-500 italic">
+                        By submitting this withdrawal request, you confirm that you are the lawful owner of the destination wallet, that the withdrawal does not violate any applicable laws or regulations, and that you accept full responsibility for the accuracy of all provided information. This service is governed by our Terms of Service and Privacy Policy.
+                      </p>
+                    </div>
                   </TabsContent>
                 </Tabs>
               </CardContent>
