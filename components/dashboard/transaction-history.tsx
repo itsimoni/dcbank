@@ -27,75 +27,52 @@ import {
   X,
   ChevronRight,
   ArrowRightLeft,
-  Building2,
-  Wallet,
+  ArrowDownLeft,
+  ArrowUpRight,
 } from "lucide-react";
 import { Alert, AlertDescription } from "../ui/alert";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { getTranslations } from "../../lib/translations";
 
-interface Transfer {
-  id: string;
-  user_id: string;
-  client_id: string | null;
-  reference_number: string | null;
-  transfer_type: string;
-  status: string;
-  from_currency: string;
-  to_currency: string;
-  from_amount: number;
-  to_amount: number;
-  exchange_rate: number;
-  fee_amount: number | null;
-  fee_currency: string | null;
-  rate_source: string | null;
-  rate_timestamp: string | null;
-  bank_name: string | null;
-  account_holder_name: string | null;
-  account_number: string | null;
-  routing_number: string | null;
-  swift_code: string | null;
-  iban: string | null;
-  bank_address: string | null;
-  recipient_address: string | null;
-  purpose_of_transfer: string | null;
-  beneficiary_country: string | null;
-  beneficiary_bank_country: string | null;
-  account_type: string | null;
-  intermediary_bank_name: string | null;
-  intermediary_swift: string | null;
-  intermediary_iban: string | null;
-  wallet_address: string | null;
-  network: string | null;
-  memo_tag: string | null;
-  description: string | null;
-  admin_notes: string | null;
+interface Transaction {
+  id: number;
+  created_at: string | null;
+  thType: string | null;
+  thDetails: string | null;
+  thPoi: string | null;
+  thStatus: string | null;
+  uuid: string | null;
+  thEmail: string | null;
+  posted_at: string;
+  value_date: string | null;
+  amount: number;
+  currency: string;
+  fee_amount: number;
+  counterparty_name: string | null;
+  counterparty_account: string | null;
+  reference: string | null;
+  end_to_end_id: string | null;
+  external_id: string | null;
+  channel: string | null;
   status_reason: string | null;
-  processed_at: string | null;
-  created_at: string;
-  updated_at: string;
+  category: string | null;
+  metadata: Record<string, unknown>;
+  balance_after: number | null;
+  type: string | null;
+  status: string | null;
 }
 
-type FilterType = "all" | "internal" | "bank_transfer" | "crypto_internal" | "crypto_external";
-type FilterStatus = "all" | "completed" | "pending" | "processing" | "approved" | "rejected";
+type FilterStatus = "all" | "Successful" | "Pending" | "Processing" | "Failed" | "Cancelled";
 type DateRange = "7" | "30" | "90" | "all";
 
-const transferTypeLabels: Record<string, string> = {
-  internal: "Internal Exchange",
-  bank_transfer: "Bank Transfer",
-  crypto_internal: "Crypto Exchange",
-  crypto_external: "Crypto Withdrawal",
-};
-
 export default function TransactionHistory() {
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [selectedTransfer, setSelectedTransfer] = useState<Transfer | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<FilterType>("all");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [dateRange, setDateRange] = useState<DateRange>("30");
 
@@ -120,20 +97,20 @@ export default function TransactionHistory() {
 
   useEffect(() => {
     if (userId) {
-      fetchTransfers();
+      fetchTransactions();
 
       const subscription = supabase
-        .channel("user_transfers_changes")
+        .channel("transaction_history_changes")
         .on(
           "postgres_changes",
           {
             event: "*",
             schema: "public",
-            table: "user_transfers",
-            filter: `user_id=eq.${userId}`,
+            table: "TransactionHistory",
+            filter: `uuid=eq.${userId}`,
           },
           () => {
-            fetchTransfers();
+            fetchTransactions();
           }
         )
         .subscribe();
@@ -144,63 +121,59 @@ export default function TransactionHistory() {
     }
   }, [userId]);
 
-  const fetchTransfers = async () => {
+  const fetchTransactions = async () => {
     try {
       const { data, error } = await supabase
-        .from("user_transfers")
+        .from("TransactionHistory")
         .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+        .eq("uuid", userId)
+        .order("posted_at", { ascending: false });
 
       if (error) throw error;
 
-      setTransfers(data || []);
+      setTransactions(data || []);
     } catch (error) {
-      console.error("Error fetching transfers:", error);
+      console.error("Error fetching transactions:", error);
       setMessage({ type: "error", text: t.failedToLoadTransactions });
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredTransfers = useMemo(() => {
-    let filtered = [...transfers];
+  const filteredTransactions = useMemo(() => {
+    let filtered = [...transactions];
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (tx) =>
-          tx.reference_number?.toLowerCase().includes(query) ||
-          tx.description?.toLowerCase().includes(query) ||
-          tx.account_holder_name?.toLowerCase().includes(query) ||
-          tx.bank_name?.toLowerCase().includes(query) ||
-          tx.wallet_address?.toLowerCase().includes(query)
+          tx.reference?.toLowerCase().includes(query) ||
+          tx.thDetails?.toLowerCase().includes(query) ||
+          tx.counterparty_name?.toLowerCase().includes(query) ||
+          tx.thType?.toLowerCase().includes(query) ||
+          tx.thPoi?.toLowerCase().includes(query)
       );
     }
 
-    if (filterType !== "all") {
-      filtered = filtered.filter((tx) => tx.transfer_type === filterType);
-    }
-
     if (filterStatus !== "all") {
-      filtered = filtered.filter((tx) => tx.status === filterStatus);
+      filtered = filtered.filter((tx) => tx.thStatus === filterStatus);
     }
 
     if (dateRange !== "all") {
       const days = parseInt(dateRange);
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
-      filtered = filtered.filter((tx) => new Date(tx.created_at) >= cutoff);
+      filtered = filtered.filter((tx) => new Date(tx.posted_at) >= cutoff);
     }
 
     return filtered;
-  }, [transfers, searchQuery, filterType, filterStatus, dateRange]);
+  }, [transactions, searchQuery, filterStatus, dateRange]);
 
-  const groupedTransfers = useMemo(() => {
-    const groups: { [key: string]: Transfer[] } = {};
+  const groupedTransactions = useMemo(() => {
+    const groups: { [key: string]: Transaction[] } = {};
 
-    filteredTransfers.forEach((tx) => {
-      const date = new Date(tx.created_at);
+    filteredTransactions.forEach((tx) => {
+      const date = new Date(tx.posted_at);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       if (!groups[key]) {
@@ -210,16 +183,17 @@ export default function TransactionHistory() {
     });
 
     return groups;
-  }, [filteredTransfers]);
+  }, [filteredTransactions]);
 
   const formatAmount = (amount: number, currency: string) => {
     const cryptoCurrencies = ["BTC", "ETH", "ADA", "DOT", "LINK", "XRP", "SOL", "AVAX", "MATIC", "ATOM", "USDT"];
-    if (cryptoCurrencies.includes(currency?.toUpperCase())) {
-      return `${amount.toFixed(8)} ${currency}`;
+    const trimmedCurrency = currency?.trim() || "EUR";
+    if (cryptoCurrencies.includes(trimmedCurrency.toUpperCase())) {
+      return `${amount.toFixed(8)} ${trimmedCurrency}`;
     }
     return new Intl.NumberFormat(language, {
       style: "currency",
-      currency: currency || "EUR",
+      currency: trimmedCurrency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
@@ -254,12 +228,12 @@ export default function TransactionHistory() {
     }).format(date);
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusLower = status.toLowerCase();
+  const getStatusBadge = (status: string | null) => {
+    const statusLower = (status || "").toLowerCase();
     let icon = <AlertCircle className="w-3 h-3" />;
     let colorClass = "bg-gray-50 text-gray-700 border border-gray-200";
 
-    if (statusLower === "completed" || statusLower === "approved") {
+    if (statusLower === "successful" || statusLower === "completed" || statusLower === "approved") {
       icon = <CheckCircle className="w-3 h-3" />;
       colorClass = "bg-green-50 text-green-700 border border-green-200";
     } else if (statusLower === "pending") {
@@ -268,7 +242,7 @@ export default function TransactionHistory() {
     } else if (statusLower === "processing") {
       icon = <Clock className="w-3 h-3" />;
       colorClass = "bg-blue-50 text-blue-700 border border-blue-200";
-    } else if (statusLower === "rejected") {
+    } else if (statusLower === "failed" || statusLower === "rejected" || statusLower === "cancelled") {
       icon = <XCircle className="w-3 h-3" />;
       colorClass = "bg-red-50 text-red-700 border border-red-200";
     }
@@ -276,36 +250,30 @@ export default function TransactionHistory() {
     return (
       <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium capitalize ${colorClass}`}>
         {icon}
-        {status}
+        {status || "Unknown"}
       </span>
     );
   };
 
-  const getTransferIcon = (type: string) => {
-    switch (type) {
-      case "bank_transfer":
-        return <Building2 className="w-5 h-5 text-blue-600" />;
-      case "crypto_external":
-      case "crypto_internal":
-        return <Wallet className="w-5 h-5 text-orange-600" />;
-      default:
-        return <ArrowRightLeft className="w-5 h-5 text-green-600" />;
+  const getTransactionIcon = (tx: Transaction) => {
+    const isDeposit = tx.amount > 0 || tx.thType?.toLowerCase().includes("deposit");
+    if (isDeposit) {
+      return <ArrowDownLeft className="w-5 h-5 text-green-600" />;
     }
+    return <ArrowUpRight className="w-5 h-5 text-red-600" />;
   };
 
-  const getTransferTitle = (tx: Transfer) => {
-    if (tx.transfer_type === "bank_transfer" && tx.account_holder_name) {
-      return tx.account_holder_name;
+  const getTransactionTitle = (tx: Transaction) => {
+    if (tx.counterparty_name) {
+      return tx.counterparty_name;
     }
-    if ((tx.transfer_type === "crypto_external" || tx.transfer_type === "crypto_internal") && tx.wallet_address) {
-      return `${tx.wallet_address.slice(0, 8)}...${tx.wallet_address.slice(-6)}`;
-    }
-    return transferTypeLabels[tx.transfer_type] || tx.transfer_type;
+    return tx.thType || "Transaction";
   };
 
-  const getTransferSubtitle = (tx: Transfer) => {
-    if (tx.description) return tx.description;
-    return `${tx.from_currency} to ${tx.to_currency}`;
+  const getTransactionSubtitle = (tx: Transaction) => {
+    if (tx.thDetails) return tx.thDetails;
+    if (tx.thPoi) return tx.thPoi;
+    return tx.category || "";
   };
 
   const exportToCSV = () => {
@@ -313,28 +281,26 @@ export default function TransactionHistory() {
       "Date",
       "Reference",
       "Type",
-      "From Currency",
-      "From Amount",
-      "To Currency",
-      "To Amount",
+      "Details",
+      "Amount",
+      "Currency",
       "Fee",
-      "Exchange Rate",
       "Status",
-      "Beneficiary",
+      "Counterparty",
+      "Balance After",
     ];
 
-    const rows = filteredTransfers.map((tx) => [
-      formatDate(tx.created_at),
-      tx.reference_number || "",
-      transferTypeLabels[tx.transfer_type] || tx.transfer_type,
-      tx.from_currency,
-      tx.from_amount.toString(),
-      tx.to_currency,
-      tx.to_amount.toString(),
+    const rows = filteredTransactions.map((tx) => [
+      formatDate(tx.posted_at),
+      tx.reference || "",
+      tx.thType || "",
+      tx.thDetails || "",
+      tx.amount.toString(),
+      tx.currency?.trim() || "",
       tx.fee_amount?.toString() || "0",
-      tx.exchange_rate.toString(),
-      tx.status,
-      tx.account_holder_name || tx.wallet_address || "",
+      tx.thStatus || "",
+      tx.counterparty_name || "",
+      tx.balance_after?.toString() || "",
     ]);
 
     const csvContent = [
@@ -346,7 +312,7 @@ export default function TransactionHistory() {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `transfers_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `transactions_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
@@ -358,7 +324,7 @@ export default function TransactionHistory() {
       <div className="p-4 space-y-4 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Transfer History
+            Transaction History
           </h1>
           <Button
             onClick={exportToCSV}
@@ -379,11 +345,11 @@ export default function TransactionHistory() {
         )}
 
         <div className="bg-white border-2 p-4 space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
-                placeholder="Search transfers..."
+                placeholder="Search transactions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 border-gray-300 focus:border-[#b91c1c] focus:ring-[#b91c1c]"
@@ -398,30 +364,17 @@ export default function TransactionHistory() {
               )}
             </div>
 
-            <Select value={filterType} onValueChange={(value) => setFilterType(value as FilterType)}>
-              <SelectTrigger className="border-gray-300 focus:border-[#b91c1c] focus:ring-[#b91c1c]">
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="internal">Internal Exchange</SelectItem>
-                <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                <SelectItem value="crypto_internal">Crypto Exchange</SelectItem>
-                <SelectItem value="crypto_external">Crypto Withdrawal</SelectItem>
-              </SelectContent>
-            </Select>
-
             <Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as FilterStatus)}>
               <SelectTrigger className="border-gray-300 focus:border-[#b91c1c] focus:ring-[#b91c1c]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="Successful">Successful</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Processing">Processing</SelectItem>
+                <SelectItem value="Failed">Failed</SelectItem>
+                <SelectItem value="Cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
 
@@ -442,25 +395,25 @@ export default function TransactionHistory() {
         {loading ? (
           <div className="bg-white border border-gray-200 p-12 text-center">
             <div className="animate-spin w-8 h-8 border-2 border-[#b91c1c] border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading transfers...</p>
+            <p className="text-gray-600">Loading transactions...</p>
           </div>
-        ) : filteredTransfers.length === 0 ? (
+        ) : filteredTransactions.length === 0 ? (
           <div className="bg-white border border-gray-200 p-12 text-center">
             <div className="max-w-md mx-auto">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <ArrowRightLeft className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No Transfer History
+                No Transaction History
               </h3>
               <p className="text-sm text-gray-600">
-                Your transfer records will appear here once you make a transfer.
+                Your transaction records will appear here once you make a transaction.
               </p>
             </div>
           </div>
         ) : (
           <div className="space-y-6">
-            {Object.entries(groupedTransfers).map(([monthKey, txs]) => (
+            {Object.entries(groupedTransactions).map(([monthKey, txs]) => (
               <div key={monthKey} className="space-y-2">
                 <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider px-2">
                   {formatMonthYear(monthKey)}
@@ -469,56 +422,49 @@ export default function TransactionHistory() {
                 <div className="bg-white border border-gray-200 divide-y divide-gray-200">
                   <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-4 py-3 bg-gray-50 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     <div className="col-span-2">Date</div>
-                    <div className="col-span-4">Details</div>
-                    <div className="col-span-2 text-right">From</div>
-                    <div className="col-span-2 text-right">To</div>
+                    <div className="col-span-5">Details</div>
+                    <div className="col-span-3 text-right">Amount</div>
                     <div className="col-span-2 text-right">Status</div>
                   </div>
 
                   {txs.map((tx) => (
                     <div
                       key={tx.id}
-                      onClick={() => setSelectedTransfer(tx)}
+                      onClick={() => setSelectedTransaction(tx)}
                       className="grid grid-cols-1 lg:grid-cols-12 gap-2 lg:gap-4 px-4 py-4 hover:bg-gray-50 cursor-pointer transition-colors group"
                     >
                       <div className="lg:col-span-2 flex items-start lg:items-center">
                         <span className="text-sm text-gray-900 font-medium lg:font-normal">
-                          {formatDate(tx.created_at)}
+                          {formatDate(tx.posted_at)}
                         </span>
                       </div>
 
-                      <div className="lg:col-span-4 space-y-1">
+                      <div className="lg:col-span-5 space-y-1">
                         <div className="flex items-center gap-2">
-                          {getTransferIcon(tx.transfer_type)}
+                          {getTransactionIcon(tx)}
                           <span className="text-sm font-medium text-gray-900">
-                            {getTransferTitle(tx)}
+                            {getTransactionTitle(tx)}
                           </span>
                           <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                         <p className="text-xs text-gray-600 line-clamp-1">
-                          {getTransferSubtitle(tx)}
+                          {getTransactionSubtitle(tx)}
                         </p>
-                        {tx.reference_number && (
+                        {tx.reference && (
                           <p className="text-xs text-gray-500 font-mono">
-                            {tx.reference_number}
+                            {tx.reference}
                           </p>
                         )}
                       </div>
 
-                      <div className="lg:col-span-2 flex items-center lg:justify-end">
-                        <span className="text-sm font-semibold text-red-600">
-                          - {formatAmount(tx.from_amount, tx.from_currency)}
+                      <div className="lg:col-span-3 flex items-center lg:justify-end">
+                        <span className={`text-sm font-semibold ${tx.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
+                          {tx.amount >= 0 ? "+" : ""}{formatAmount(tx.amount, tx.currency)}
                         </span>
                       </div>
 
                       <div className="lg:col-span-2 flex items-center lg:justify-end">
-                        <span className="text-sm font-semibold text-green-600">
-                          + {formatAmount(tx.to_amount, tx.to_currency)}
-                        </span>
-                      </div>
-
-                      <div className="lg:col-span-2 flex items-center lg:justify-end">
-                        {getStatusBadge(tx.status)}
+                        {getStatusBadge(tx.thStatus)}
                       </div>
                     </div>
                   ))}
@@ -528,181 +474,174 @@ export default function TransactionHistory() {
           </div>
         )}
 
-        <Dialog open={!!selectedTransfer} onOpenChange={(open) => !open && setSelectedTransfer(null)}>
+        <Dialog open={!!selectedTransaction} onOpenChange={(open) => !open && setSelectedTransaction(null)}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-none sm:rounded-none">
             <DialogHeader>
-              <DialogTitle>Transfer Details</DialogTitle>
+              <DialogTitle>Transaction Details</DialogTitle>
             </DialogHeader>
 
-            {selectedTransfer && (
+            {selectedTransaction && (
               <div className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start pb-4 border-b-2 border-[#b91c1c]">
                     <div className="flex items-center gap-3">
-                      {getTransferIcon(selectedTransfer.transfer_type)}
+                      {getTransactionIcon(selectedTransaction)}
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {transferTypeLabels[selectedTransfer.transfer_type] || selectedTransfer.transfer_type}
+                          {selectedTransaction.thType || "Transaction"}
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
-                          {selectedTransfer.description || getTransferSubtitle(selectedTransfer)}
+                          {selectedTransaction.thDetails || getTransactionSubtitle(selectedTransaction)}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      {getStatusBadge(selectedTransfer.status)}
+                      {getStatusBadge(selectedTransaction.thStatus)}
                     </div>
                   </div>
 
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center">
-                        <label className="text-xs font-semibold text-gray-500 uppercase">From</label>
-                        <p className="text-xl font-bold text-red-600 mt-1">
-                          {formatAmount(selectedTransfer.from_amount, selectedTransfer.from_currency)}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <label className="text-xs font-semibold text-gray-500 uppercase">To</label>
-                        <p className="text-xl font-bold text-green-600 mt-1">
-                          {formatAmount(selectedTransfer.to_amount, selectedTransfer.to_currency)}
-                        </p>
-                      </div>
+                    <div className="text-center">
+                      <label className="text-xs font-semibold text-gray-500 uppercase">Amount</label>
+                      <p className={`text-2xl font-bold mt-1 ${selectedTransaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        {selectedTransaction.amount >= 0 ? "+" : ""}{formatAmount(selectedTransaction.amount, selectedTransaction.currency)}
+                      </p>
                     </div>
-                    {selectedTransfer.exchange_rate !== 1 && (
+                    {selectedTransaction.balance_after !== null && (
                       <p className="text-center text-sm text-gray-600 mt-3">
-                        Exchange Rate: 1 {selectedTransfer.from_currency} = {selectedTransfer.exchange_rate.toFixed(6)} {selectedTransfer.to_currency}
+                        Balance After: {formatAmount(selectedTransaction.balance_after, selectedTransaction.currency)}
                       </p>
                     )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Reference Number
-                      </label>
-                      <p className="text-sm text-gray-900 mt-1 font-mono">
-                        {selectedTransfer.reference_number || "N/A"}
-                      </p>
-                    </div>
+                    {selectedTransaction.reference && (
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Reference
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1 font-mono">
+                          {selectedTransaction.reference}
+                        </p>
+                      </div>
+                    )}
 
                     <div>
                       <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Created At
+                        Posted At
                       </label>
                       <p className="text-sm text-gray-900 mt-1">
-                        {formatDateTime(selectedTransfer.created_at)}
+                        {formatDateTime(selectedTransaction.posted_at)}
                       </p>
                     </div>
 
-                    {selectedTransfer.fee_amount !== null && selectedTransfer.fee_amount > 0 && (
+                    {selectedTransaction.value_date && (
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Value Date
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1">
+                          {formatDate(selectedTransaction.value_date)}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTransaction.fee_amount > 0 && (
                       <div>
                         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                           Fee
                         </label>
                         <p className="text-sm text-gray-900 mt-1">
-                          {formatAmount(selectedTransfer.fee_amount, selectedTransfer.fee_currency || selectedTransfer.from_currency)}
+                          {formatAmount(selectedTransaction.fee_amount, selectedTransaction.currency)}
                         </p>
                       </div>
                     )}
 
-                    {selectedTransfer.processed_at && (
-                      <div>
+                    {selectedTransaction.thPoi && (
+                      <div className="sm:col-span-2">
                         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Processed At
+                          Point of Interest
                         </label>
                         <p className="text-sm text-gray-900 mt-1">
-                          {formatDateTime(selectedTransfer.processed_at)}
+                          {selectedTransaction.thPoi}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTransaction.counterparty_name && (
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Counterparty
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1">
+                          {selectedTransaction.counterparty_name}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTransaction.counterparty_account && (
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Account
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1 font-mono">
+                          {selectedTransaction.counterparty_account}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTransaction.channel && (
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Channel
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1">
+                          {selectedTransaction.channel}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTransaction.category && (
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Category
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1">
+                          {selectedTransaction.category}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTransaction.end_to_end_id && (
+                      <div className="sm:col-span-2">
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          End-to-End ID
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1 font-mono">
+                          {selectedTransaction.end_to_end_id}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedTransaction.external_id && (
+                      <div className="sm:col-span-2">
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          External ID
+                        </label>
+                        <p className="text-sm text-gray-900 mt-1 font-mono">
+                          {selectedTransaction.external_id}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  {selectedTransfer.transfer_type === "bank_transfer" && (
-                    <div className="pt-4 border-t border-gray-200">
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                        Bank Transfer Details
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {selectedTransfer.bank_name && (
-                          <div>
-                            <label className="text-xs text-gray-500">Bank Name</label>
-                            <p className="text-sm text-gray-900">{selectedTransfer.bank_name}</p>
-                          </div>
-                        )}
-                        {selectedTransfer.account_holder_name && (
-                          <div>
-                            <label className="text-xs text-gray-500">Beneficiary Name</label>
-                            <p className="text-sm text-gray-900">{selectedTransfer.account_holder_name}</p>
-                          </div>
-                        )}
-                        {selectedTransfer.account_number && (
-                          <div>
-                            <label className="text-xs text-gray-500">Account Number</label>
-                            <p className="text-sm text-gray-900 font-mono">****{selectedTransfer.account_number.slice(-4)}</p>
-                          </div>
-                        )}
-                        {selectedTransfer.iban && (
-                          <div>
-                            <label className="text-xs text-gray-500">IBAN</label>
-                            <p className="text-sm text-gray-900 font-mono">****{selectedTransfer.iban.slice(-4)}</p>
-                          </div>
-                        )}
-                        {selectedTransfer.swift_code && (
-                          <div>
-                            <label className="text-xs text-gray-500">SWIFT/BIC</label>
-                            <p className="text-sm text-gray-900 font-mono">{selectedTransfer.swift_code}</p>
-                          </div>
-                        )}
-                        {selectedTransfer.beneficiary_country && (
-                          <div>
-                            <label className="text-xs text-gray-500">Beneficiary Country</label>
-                            <p className="text-sm text-gray-900">{selectedTransfer.beneficiary_country}</p>
-                          </div>
-                        )}
-                        {selectedTransfer.purpose_of_transfer && (
-                          <div className="sm:col-span-2">
-                            <label className="text-xs text-gray-500">Purpose</label>
-                            <p className="text-sm text-gray-900">{selectedTransfer.purpose_of_transfer}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {(selectedTransfer.transfer_type === "crypto_external" || selectedTransfer.transfer_type === "crypto_internal") && selectedTransfer.wallet_address && (
-                    <div className="pt-4 border-t border-gray-200">
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                        Cryptocurrency Details
-                      </h4>
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-xs text-gray-500">Wallet Address</label>
-                          <p className="text-sm text-gray-900 font-mono break-all">{selectedTransfer.wallet_address}</p>
-                        </div>
-                        {selectedTransfer.network && (
-                          <div>
-                            <label className="text-xs text-gray-500">Network</label>
-                            <p className="text-sm text-gray-900">{selectedTransfer.network}</p>
-                          </div>
-                        )}
-                        {selectedTransfer.memo_tag && (
-                          <div>
-                            <label className="text-xs text-gray-500">Memo/Tag</label>
-                            <p className="text-sm text-gray-900 font-mono">{selectedTransfer.memo_tag}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedTransfer.status_reason && (
+                  {selectedTransaction.status_reason && (
                     <div className="pt-4 border-t border-gray-200">
                       <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                         Status Note
                       </h4>
                       <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
-                        {selectedTransfer.status_reason}
+                        {selectedTransaction.status_reason}
                       </p>
                     </div>
                   )}
@@ -710,7 +649,7 @@ export default function TransactionHistory() {
 
                 <div className="flex justify-end pt-4 border-t border-gray-200">
                   <Button
-                    onClick={() => setSelectedTransfer(null)}
+                    onClick={() => setSelectedTransaction(null)}
                     variant="outline"
                     className="border-[#b91c1c] text-[#b91c1c] hover:bg-[#b91c1c] hover:text-white"
                   >
@@ -724,13 +663,13 @@ export default function TransactionHistory() {
 
         <div className="mt-8 border-t border-gray-200 pt-8">
           <div className="bg-gray-50 border border-gray-200 p-6 space-y-6">
-            <h2 className="text-lg font-semibold text-gray-900">Important Information About Your Transfers</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Important Information About Your Transactions</h2>
 
             <div className="space-y-4 text-sm text-gray-700">
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">1. General Transfer Processing</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">1. General Transaction Processing</h3>
                 <p className="leading-relaxed">
-                  All transfers displayed in this history are processed in accordance with applicable banking regulations, including the Payment Services Directive (PSD2) within the European Economic Area, and relevant local financial regulations. Transfer records are maintained for a minimum period of seven (7) years as required by anti-money laundering (AML) regulations and may be subject to regulatory review.
+                  All transactions displayed in this history are processed in accordance with applicable banking regulations, including the Payment Services Directive (PSD2) within the European Economic Area, and relevant local financial regulations. Transaction records are maintained for a minimum period of seven (7) years as required by anti-money laundering (AML) regulations and may be subject to regulatory review.
                 </p>
               </section>
 
