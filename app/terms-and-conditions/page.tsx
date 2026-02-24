@@ -27,7 +27,7 @@ export default function TermsAndConditionsPage() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="bg-white shadow-sm border border-gray-200 p-8 space-y-8">
 
-          <section className="bg-red-50 border border-red-200 p-6 rounded-lg">
+          <section className="bg-red-50 border border-red-200 p-6">
             <h2 className="text-lg font-bold text-[#b91c1c] mb-3">IMPORTANT NOTICE - PLEASE READ CAREFULLY</h2>
             <p className="text-gray-700 leading-relaxed">
               These Terms and Conditions constitute a legally binding agreement between you and Malta Global Crypto Bank. By clicking "Create Account," checking the acceptance box, or otherwise registering for our services, you acknowledge that you have read, understood, and agree to be bound by all terms contained herein. If you do not agree to these terms in their entirety, you must not proceed with account registration.
