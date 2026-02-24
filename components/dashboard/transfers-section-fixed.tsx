@@ -1836,7 +1836,7 @@ export default function TransfersSection({
                         loading ||
                         processingTransfer
                       }
-                      className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                      className="w-full h-14 text-lg font-semibold bg-red-600 hover:bg-red-700 shadow-lg hover:shadow-xl"
                     >
                       {processingTransfer ? "Processing..." : t.executeTransfer}
                     </Button>
