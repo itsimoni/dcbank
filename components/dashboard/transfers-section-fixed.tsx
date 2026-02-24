@@ -1450,7 +1450,7 @@ export default function TransfersSection({
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="bg-green-50 border border-green-300 p-4 rounded">
+            <div className="bg-green-50 border border-green-300 p-4">
               <p className="text-green-800 font-medium mb-2">
                 Your transfer has been submitted and is now being processed.
               </p>
