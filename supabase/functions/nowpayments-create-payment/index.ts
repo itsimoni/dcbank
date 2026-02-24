@@ -46,58 +46,35 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      console.log("Auth failed:", authError?.message);
       return new Response(
         JSON.stringify({ error: "Invalid token", details: authError?.message }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Auth user found:", user.id, user.email);
+    const { data: allUsers, error: listError } = await supabase
+      .from("users")
+      .select("id, email, auth_user_id")
+      .limit(5);
 
-    const { data: userByAuthId, error: e1 } = await supabase
+    const { data: userData, error: userError } = await supabase
       .from("users")
       .select("id, client_id, email, full_name")
-      .eq("auth_user_id", user.id)
+      .or(`auth_user_id.eq.${user.id},id.eq.${user.id},email.eq.${user.email}`)
       .maybeSingle();
-
-    console.log("Query by auth_user_id:", userByAuthId, e1?.message);
-
-    const { data: userById, error: e2 } = await supabase
-      .from("users")
-      .select("id, client_id, email, full_name")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    console.log("Query by id:", userById, e2?.message);
-
-    const { data: userByEmail, error: e3 } = await supabase
-      .from("users")
-      .select("id, client_id, email, full_name")
-      .eq("email", user.email)
-      .maybeSingle();
-
-    console.log("Query by email:", userByEmail, e3?.message);
-
-    const userData = userByAuthId || userById || userByEmail;
 
     if (!userData) {
       return new Response(
         JSON.stringify({
-          error: "User not found in public.users",
-          debug: {
-            auth_user_id: user.id,
-            auth_email: user.email,
-            query_by_auth_id: { found: !!userByAuthId, error: e1?.message },
-            query_by_id: { found: !!userById, error: e2?.message },
-            query_by_email: { found: !!userByEmail, error: e3?.message }
-          }
+          error: "User not found",
+          auth_user: { id: user.id, email: user.email },
+          sample_users: allUsers,
+          list_error: listError?.message,
+          user_query_error: userError?.message
         }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    console.log("User found:", userData.id, userData.email);
 
     const body: CreatePaymentRequest = await req.json();
     const { price_amount, price_currency, pay_currency, payment_category, payer_name, payer_email, order_description } = body;
