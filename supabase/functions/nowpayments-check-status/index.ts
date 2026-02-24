@@ -1,21 +1,18 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+const NOWPAYMENTS_API_KEY = "XKRHKB1-28S4WH7-MWN2B4S-FNCG26G";
+const NOWPAYMENTS_API_URL = "https://api.nowpayments.io/v1";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const NOWPAYMENTS_API_KEY = "XKRHKB1-28S4WH7-MWN2B4S-FNCG26G";
-const NOWPAYMENTS_API_URL = "https://api.nowpayments.io/v1";
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   try {
@@ -42,32 +39,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    let userData = null;
-
-    const { data: userByAuthId } = await supabase
-      .from("users")
-      .select("id")
-      .eq("auth_user_id", user.id)
-      .maybeSingle();
-
-    if (userByAuthId) {
-      userData = userByAuthId;
-    } else {
-      const { data: userById } = await supabase
-        .from("users")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle();
-      userData = userById;
-    }
-
-    if (!userData) {
-      return new Response(
-        JSON.stringify({ error: "User not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const url = new URL(req.url);
     const paymentId = url.searchParams.get("payment_id");
     const depositId = url.searchParams.get("deposit_id");
@@ -86,7 +57,7 @@ Deno.serve(async (req: Request) => {
         .from("nowpayments_deposits")
         .select("payment_id")
         .eq("id", depositId)
-        .eq("user_id", userData.id)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (depositError || !deposit) {
@@ -107,16 +78,15 @@ Deno.serve(async (req: Request) => {
 
     if (!nowPaymentsResponse.ok) {
       const errorText = await nowPaymentsResponse.text();
-      console.error("NOWPayments API error:", errorText);
       return new Response(
-        JSON.stringify({ error: "Failed to get payment status from NOWPayments", details: errorText }),
+        JSON.stringify({ error: "NOWPayments API error", details: errorText }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const paymentStatus = await nowPaymentsResponse.json();
 
-    const { error: updateError } = await supabase
+    await supabase
       .from("nowpayments_deposits")
       .update({
         payment_status: paymentStatus.payment_status,
@@ -126,10 +96,6 @@ Deno.serve(async (req: Request) => {
         updated_at: new Date().toISOString(),
       })
       .eq("payment_id", nowPaymentsId);
-
-    if (updateError) {
-      console.error("Database update error:", updateError);
-    }
 
     const isDeposited = ["confirming", "confirmed", "sending", "partially_paid", "finished"].includes(paymentStatus.payment_status);
     const isFullyPaid = paymentStatus.payment_status === "finished";
@@ -153,15 +119,12 @@ Deno.serve(async (req: Request) => {
         is_fully_paid: isFullyPaid,
         is_expired: isExpired,
         is_failed: isFailed,
-        created_at: paymentStatus.created_at,
-        updated_at: paymentStatus.updated_at,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error checking payment status:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error", details: String(error) }),
+      JSON.stringify({ error: "Server error", details: String(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
