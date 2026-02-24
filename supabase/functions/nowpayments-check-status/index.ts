@@ -42,13 +42,26 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { data: userData, error: userError } = await supabase
+    let userData = null;
+
+    const { data: userByAuthId } = await supabase
       .from("users")
       .select("id")
       .eq("auth_user_id", user.id)
       .maybeSingle();
 
-    if (userError || !userData) {
+    if (userByAuthId) {
+      userData = userByAuthId;
+    } else {
+      const { data: userById } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+      userData = userById;
+    }
+
+    if (!userData) {
       return new Response(
         JSON.stringify({ error: "User not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
