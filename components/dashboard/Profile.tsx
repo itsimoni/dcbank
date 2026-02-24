@@ -10,6 +10,8 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle,
+  Copy,
+  Check,
 } from "lucide-react";
 
 interface ProfileProps {
@@ -42,7 +44,18 @@ export default function Profile({ userProfile }: ProfileProps) {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const { language } = useLanguage();
+
+  const copyToClipboard = async (text: string, fieldName: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
 
   const t = useMemo(() => getTranslations(language), [language]);
 
@@ -225,61 +238,88 @@ export default function Profile({ userProfile }: ProfileProps) {
               <Mail className="w-4 h-4 text-gray-400 mr-3" />
               <span className="text-xs text-gray-500 uppercase tracking-wide">{t.emailLabel}</span>
             </div>
-            <span className="text-sm text-gray-900 font-medium">{userData?.email || t.notAvailable}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-900 font-medium">{userData?.email || t.notAvailable}</span>
+              {userData?.email && (
+                <button
+                  onClick={() => copyToClipboard(userData.email, 'email')}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  title="Copy to clipboard"
+                >
+                  {copiedField === 'email' ? (
+                    <Check className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="py-3 flex items-center justify-between">
             <div className="flex items-center">
-              <Calendar className="w-4 h-4 text-gray-400 mr-3" />
-              <span className="text-xs text-gray-500 uppercase tracking-wide">{t.ageLabel}</span>
+              <User className="w-4 h-4 text-gray-400 mr-3" />
+              <span className="text-xs text-gray-500 uppercase tracking-wide">{t.firstNameLabel}</span>
             </div>
-            <span className="text-sm text-gray-900 font-medium tabular-nums">{userData?.age || t.notAvailable}</span>
-          </div>
-
-          {userData?.first_name && (
-            <div className="py-3 flex items-center justify-between">
-              <div className="flex items-center">
-                <User className="w-4 h-4 text-gray-400 mr-3" />
-                <span className="text-xs text-gray-500 uppercase tracking-wide">{t.firstNameLabel}</span>
-              </div>
+            <div className="flex items-center gap-2">
               <span className="text-sm text-gray-900 font-medium">
-                {userData.first_name
+                {userData?.first_name
                   ? userData.first_name.charAt(0).toUpperCase() +
                     userData.first_name.slice(1).toLowerCase()
-                  : ""}
+                  : t.notAvailable}
               </span>
+              {userData?.first_name && (
+                <button
+                  onClick={() => copyToClipboard(userData.first_name, 'firstName')}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  title="Copy to clipboard"
+                >
+                  {copiedField === 'firstName' ? (
+                    <Check className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+              )}
             </div>
-          )}
+          </div>
 
-          {userData?.last_name && (
-            <div className="py-3 flex items-center justify-between">
-              <div className="flex items-center">
-                <User className="w-4 h-4 text-gray-400 mr-3" />
-                <span className="text-xs text-gray-500 uppercase tracking-wide">{t.lastNameLabel}</span>
-              </div>
+          <div className="py-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <User className="w-4 h-4 text-gray-400 mr-3" />
+              <span className="text-xs text-gray-500 uppercase tracking-wide">{t.lastNameLabel}</span>
+            </div>
+            <div className="flex items-center gap-2">
               <span className="text-sm text-gray-900 font-medium">
-                {userData.last_name
+                {userData?.last_name
                   ? userData.last_name.charAt(0).toUpperCase() +
                     userData.last_name.slice(1).toLowerCase()
-                  : ""}
+                  : t.notAvailable}
               </span>
+              {userData?.last_name && (
+                <button
+                  onClick={() => copyToClipboard(userData.last_name, 'lastName')}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  title="Copy to clipboard"
+                >
+                  {copiedField === 'lastName' ? (
+                    <Check className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4 mt-4 flex justify-between text-xs text-gray-500">
+        <div className="border-t border-gray-100 pt-4 mt-4 text-xs text-gray-500">
           <span className="flex items-center">
             <span className="font-medium text-gray-600">Member since:</span>
             <span className="ml-2 tabular-nums">
               {userData?.created_at ? new Date(userData.created_at).toLocaleDateString() : t.notAvailable}
             </span>
           </span>
-          {userData?.client_id && (
-            <span className="flex items-center">
-              <span className="font-medium text-gray-600">Client ID:</span>
-              <span className="ml-2 font-mono">{userData.client_id}</span>
-            </span>
-          )}
         </div>
       </div>
 
