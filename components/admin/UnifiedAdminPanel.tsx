@@ -235,6 +235,10 @@ export default function UnifiedAdminPanel() {
     rejected: 0,
   });
 
+  const [userCards, setUserCards] = useState<any[]>([]);
+  const [loadingCards, setLoadingCards] = useState(false);
+  const [approvingCard, setApprovingCard] = useState<string | null>(null);
+
   const fetchUserHistory = useCallback(async (userId: string) => {
     setLoadingHistory(true);
     try {
@@ -259,6 +263,73 @@ export default function UnifiedAdminPanel() {
       setLoadingHistory(false);
     }
   }, []);
+
+  const fetchUserCards = useCallback(async (userId: string) => {
+    setLoadingCards(true);
+    try {
+      const { data, error } = await supabase
+        .from("cards")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setUserCards(data || []);
+    } catch (err) {
+      console.error("Error loading user cards:", err);
+      setUserCards([]);
+    } finally {
+      setLoadingCards(false);
+    }
+  }, []);
+
+  const approveCard = async (card: any) => {
+    if (!selectedUser) return;
+
+    setApprovingCard(card.id);
+    try {
+      const { error } = await supabase
+        .from("cards")
+        .update({
+          status: "Approved",
+          approved_at: new Date().toISOString(),
+        })
+        .eq("id", card.id);
+
+      if (error) throw error;
+
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseAnonKey) {
+        await fetch(`${supabaseUrl}/functions/v1/send-card-approval-notification`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({
+            userEmail: selectedUser.email,
+            userName: selectedUser.full_name || "Valued Customer",
+            clientId: selectedUser.client_id,
+            cardType: card.card_type || "Virtual",
+            cardLastFour: card.card_number?.slice(-4) || "****",
+            spendingLimit: String(card.spending_limit || 5000),
+            dailyLimit: String(card.daily_limit || 1000),
+            approvalDate: new Date().toISOString(),
+          }),
+        });
+      }
+
+      await fetchUserCards(selectedUser.id);
+      alert("Card approved successfully! Notification email sent to user.");
+    } catch (err: any) {
+      console.error("Error approving card:", err);
+      alert(`Error approving card: ${err.message}`);
+    } finally {
+      setApprovingCard(null);
+    }
+  };
 
   const createNewTransaction = async () => {
     if (
@@ -1662,8 +1733,10 @@ export default function UnifiedAdminPanel() {
       fetchUserBalances(selectedUser.id);
       fetchKYCDataForUser(selectedUser.id);
       fetchUserHistory(selectedUser.id);
+      fetchUserCards(selectedUser.id);
     } else {
       setUserTaxData(null);
+      setUserCards([]);
       setEditValues({
         taxes: "0",
         on_hold: "0",
@@ -2942,6 +3015,141 @@ export default function UnifiedAdminPanel() {
                             at{" "}
                             {new Date(record.reviewed_at).toLocaleTimeString()}
                           </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Card Management Section */}
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="px-4 pt-4 pb-3">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium text-gray-700">
+                  Card Management - {selectedUser.full_name || selectedUser.email}
+                </CardTitle>
+                <Button
+                  onClick={() => selectedUser && fetchUserCards(selectedUser.id)}
+                  variant="outline"
+                  size="sm"
+                  disabled={loadingCards}
+                >
+                  {loadingCards ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  Refresh
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4 px-4 pb-4">
+              {loadingCards ? (
+                <div className="space-y-3">
+                  {[1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse border border-gray-200 rounded-lg p-4"
+                    >
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : userCards.length === 0 ? (
+                <div className="text-center py-8 border border-gray-200 rounded-lg bg-gray-50">
+                  <FileText className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600 text-sm font-medium">
+                    No card requests found
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Card requests will appear when user submits them
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {userCards.map((card) => (
+                    <div
+                      key={card.id}
+                      className="border border-gray-200 rounded-lg overflow-hidden"
+                    >
+                      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {card.card_type || "Virtual"} Card
+                            </div>
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              Requested: {new Date(card.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <Badge
+                            className={
+                              card.status === "Active"
+                                ? "bg-green-100 text-green-800"
+                                : card.status === "Approved"
+                                ? "bg-blue-100 text-blue-800"
+                                : card.status === "Pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : card.status === "Frozen"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
+                            }
+                          >
+                            {card.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-4">
+                          <div>
+                            <span className="font-medium text-gray-600">Card Number:</span>
+                            <p>**** **** **** {card.card_number?.slice(-4) || "****"}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-600">Spending Limit:</span>
+                            <p>${Number(card.spending_limit || 0).toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-600">Daily Limit:</span>
+                            <p>${Number(card.daily_limit || 0).toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-600">International:</span>
+                            <p>{card.international_enabled ? "Enabled" : "Disabled"}</p>
+                          </div>
+                        </div>
+                        {card.status === "Pending" && (
+                          <Button
+                            onClick={() => approveCard(card)}
+                            disabled={approvingCard === card.id}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            {approvingCard === card.id ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Approving...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Approve Card
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        {card.approved_at && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            Approved: {new Date(card.approved_at).toLocaleDateString()}
+                          </p>
+                        )}
+                        {card.activated_at && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Activated: {new Date(card.activated_at).toLocaleDateString()}
+                          </p>
                         )}
                       </div>
                     </div>
