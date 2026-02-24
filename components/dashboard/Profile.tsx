@@ -166,15 +166,19 @@ export default function Profile({ userProfile }: ProfileProps) {
         console.error("Error updating profiles table:", profilesError);
       }
 
-      setPasswordSuccess(t.passwordUpdateSuccess);
+      setPasswordSuccess(t.passwordUpdateSuccess + " Redirecting to login...");
       setPasswordData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+
+      setTimeout(async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/";
+      }, 2000);
     } catch (error: any) {
       setPasswordError(error.message || t.passwordUpdateError);
-    } finally {
       setIsChangingPassword(false);
     }
   };
