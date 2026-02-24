@@ -149,6 +149,39 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     );
   };
 
+  const sendCardRequestNotification = async (cardData: {
+    spendingLimit: string;
+    dailyLimit: string;
+    internationalEnabled: boolean;
+  }) => {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !supabaseAnonKey) return;
+
+      await fetch(`${supabaseUrl}/functions/v1/send-card-request-notification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({
+          userEmail: userProfile.email,
+          userName: userProfile.full_name || "Valued Customer",
+          clientId: userProfile.client_id,
+          cardType: "Virtual",
+          spendingLimit: cardData.spendingLimit,
+          dailyLimit: cardData.dailyLimit,
+          internationalEnabled: cardData.internationalEnabled,
+          requestDate: new Date().toISOString(),
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to send notification email:", err);
+    }
+  };
+
   const createCard = async () => {
     if (!userProfile?.id) return;
 
@@ -175,6 +208,12 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
       const { error } = await supabase.from("cards").insert(cardData);
       if (error) throw error;
+
+      sendCardRequestNotification({
+        spendingLimit: formData.spending_limit,
+        dailyLimit: formData.daily_limit,
+        internationalEnabled: formData.international_enabled,
+      });
 
       setFormData({
         spending_limit: "5000",
