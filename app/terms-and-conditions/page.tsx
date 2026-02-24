@@ -437,12 +437,6 @@ export default function TermsAndConditionsPage() {
                   <p>Telephone: +356 2122 0000</p>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="font-semibold mb-2">Customer Service Hours:</p>
-                <p>Monday to Friday: 09:00 - 18:00 CET</p>
-                <p>Saturday: 09:00 - 13:00 CET</p>
-                <p>Sunday and Public Holidays: Closed</p>
-              </div>
             </div>
           </section>
 
