@@ -283,17 +283,28 @@ export default function UnifiedAdminPanel() {
     }
   }, []);
 
-  const approveCard = async (card: any) => {
+  const updateCardStatus = async (card: any, newStatus: "Approved" | "Active") => {
     if (!selectedUser) return;
 
     setApprovingCard(card.id);
     try {
+      const updateData: any = {
+        status: newStatus,
+      };
+
+      if (newStatus === "Approved") {
+        updateData.approved_at = new Date().toISOString();
+      } else if (newStatus === "Active") {
+        updateData.is_activated = true;
+        updateData.activated_at = new Date().toISOString();
+        if (!card.approved_at) {
+          updateData.approved_at = new Date().toISOString();
+        }
+      }
+
       const { error } = await supabase
         .from("cards")
-        .update({
-          status: "Approved",
-          approved_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", card.id);
 
       if (error) throw error;
@@ -317,15 +328,16 @@ export default function UnifiedAdminPanel() {
             spendingLimit: String(card.spending_limit || 5000),
             dailyLimit: String(card.daily_limit || 1000),
             approvalDate: new Date().toISOString(),
+            newStatus: newStatus,
           }),
         });
       }
 
       await fetchUserCards(selectedUser.id);
-      alert("Card approved successfully! Notification email sent to user.");
+      alert(`Card ${newStatus === "Approved" ? "approved" : "activated"} successfully! Notification email sent to user.`);
     } catch (err: any) {
-      console.error("Error approving card:", err);
-      alert(`Error approving card: ${err.message}`);
+      console.error(`Error updating card status to ${newStatus}:`, err);
+      alert(`Error: ${err.message}`);
     } finally {
       setApprovingCard(null);
     }
@@ -3123,20 +3135,58 @@ export default function UnifiedAdminPanel() {
                           </div>
                         </div>
                         {card.status === "Pending" && (
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => updateCardStatus(card, "Approved")}
+                              disabled={approvingCard === card.id}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              {approvingCard === card.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Approve
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              onClick={() => updateCardStatus(card, "Active")}
+                              disabled={approvingCard === card.id}
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              {approvingCard === card.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Activate
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                        {card.status === "Approved" && (
                           <Button
-                            onClick={() => approveCard(card)}
+                            onClick={() => updateCardStatus(card, "Active")}
                             disabled={approvingCard === card.id}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                            className="w-full bg-green-600 hover:bg-green-700 text-white"
                           >
                             {approvingCard === card.id ? (
                               <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Approving...
+                                Activating...
                               </>
                             ) : (
                               <>
                                 <CheckCircle className="w-4 h-4 mr-2" />
-                                Approve Card
+                                Activate Card
                               </>
                             )}
                           </Button>

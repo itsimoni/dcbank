@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-interface CardApprovalPayload {
+interface CardNotificationPayload {
   userEmail: string;
   userName: string;
   clientId: string;
@@ -16,6 +16,7 @@ interface CardApprovalPayload {
   spendingLimit: string;
   dailyLimit: string;
   approvalDate: string;
+  newStatus?: "Approved" | "Active";
 }
 
 Deno.serve(async (req: Request) => {
@@ -37,7 +38,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const payload: CardApprovalPayload = await req.json();
+    const payload: CardNotificationPayload = await req.json();
     const {
       userEmail,
       userName,
@@ -47,6 +48,7 @@ Deno.serve(async (req: Request) => {
       spendingLimit,
       dailyLimit,
       approvalDate,
+      newStatus = "Approved",
     } = payload;
 
     if (!userEmail || !userName) {
@@ -75,13 +77,54 @@ Deno.serve(async (req: Request) => {
       minute: "2-digit",
     });
 
+    const isActivation = newStatus === "Active";
+    const headerTitle = isActivation ? "Card Activated Successfully" : "Card Application Approved";
+    const statusWord = isActivation ? "activated" : "approved";
+    const dateLabel = isActivation ? "Activated On:" : "Approved On:";
+
+    const activationContent = isActivation ? `
+              <h3 style="margin: 32px 0 16px 0; font-size: 15px; font-weight: 600; color: #1a1a1a;">
+                Your Card is Now Active
+              </h3>
+
+              <p style="margin: 0 0 16px 0; font-size: 14px; color: #444444;">
+                Your card has been activated and is ready for immediate use. You can now:
+              </p>
+
+              <ul style="margin: 0 0 24px 0; padding-left: 20px; font-size: 14px; color: #444444;">
+                <li style="margin-bottom: 12px;">Make online purchases at millions of merchants worldwide.</li>
+                <li style="margin-bottom: 12px;">Use contactless payments at supported terminals.</li>
+                <li style="margin-bottom: 12px;">Withdraw cash from ATMs (subject to daily limits).</li>
+                <li style="margin-bottom: 12px;">View your full card details in your secure dashboard.</li>
+              </ul>
+    ` : `
+              <h3 style="margin: 32px 0 16px 0; font-size: 15px; font-weight: 600; color: #1a1a1a;">
+                Activate Your Card
+              </h3>
+
+              <p style="margin: 0 0 16px 0; font-size: 14px; color: #444444;">
+                Your card is now ready for activation. To start using your card for transactions, please follow these steps:
+              </p>
+
+              <ol style="margin: 0 0 24px 0; padding-left: 20px; font-size: 14px; color: #444444;">
+                <li style="margin-bottom: 12px;">Log in to your account dashboard.</li>
+                <li style="margin-bottom: 12px;">Navigate to the <strong>Cards</strong> section.</li>
+                <li style="margin-bottom: 12px;">Locate your approved card and click the <strong>"Activate Card"</strong> button.</li>
+                <li style="margin-bottom: 12px;">Once activated, your card will be ready for immediate use.</li>
+              </ol>
+    `;
+
+    const securityNotice = isActivation
+      ? `<strong style="color: #1a1a1a;">Security Reminder:</strong> Your card details are now visible in your secure dashboard. Never share your card number, CVV, or PIN with anyone. If you notice any suspicious activity, contact our support team immediately.`
+      : `<strong style="color: #1a1a1a;">Security Notice:</strong> Your card details, including the full card number, CVV, and PIN, will only be visible after activation and through our secure dashboard. Never share these details with anyone.`;
+
     const emailHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Card Approved</title>
+  <title>${headerTitle}</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; line-height: 1.6;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -91,9 +134,9 @@ Deno.serve(async (req: Request) => {
 
           <!-- Header -->
           <tr>
-            <td style="padding: 32px 40px; border-bottom: 3px solid #1a1a1a;">
+            <td style="padding: 32px 40px; border-bottom: 3px solid ${isActivation ? '#16a34a' : '#1a1a1a'};">
               <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #1a1a1a; letter-spacing: -0.5px;">
-                Card Application Approved
+                ${headerTitle}
               </h1>
             </td>
           </tr>
@@ -106,11 +149,14 @@ Deno.serve(async (req: Request) => {
               </p>
 
               <p style="margin: 0 0 24px 0; font-size: 15px; color: #444444;">
-                We are pleased to inform you that your ${cardType} Card application has been reviewed and <strong style="color: #1a1a1a;">approved</strong> by our compliance team.
+                ${isActivation
+                  ? `Great news! Your ${cardType} Card has been <strong style="color: #16a34a;">activated</strong> and is now ready for use.`
+                  : `We are pleased to inform you that your ${cardType} Card application has been reviewed and <strong style="color: #1a1a1a;">approved</strong> by our compliance team.`
+                }
               </p>
 
-              <!-- Approval Details Box -->
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 24px 0; background-color: #fafafa; border-left: 4px solid #1a1a1a;">
+              <!-- Card Details Box -->
+              <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 24px 0; background-color: #fafafa; border-left: 4px solid ${isActivation ? '#16a34a' : '#1a1a1a'};">
                 <tr>
                   <td style="padding: 24px;">
                     <h3 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -138,35 +184,26 @@ Deno.serve(async (req: Request) => {
                         <td style="padding: 8px 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">$${Number(dailyLimit).toLocaleString()}</td>
                       </tr>
                       <tr>
-                        <td style="padding: 8px 0; font-size: 14px; color: #666666;">Approved On:</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #666666;">${dateLabel}</td>
                         <td style="padding: 8px 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${formattedDate}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-size: 14px; color: #666666;">Status:</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: ${isActivation ? '#16a34a' : '#2563eb'}; font-weight: 600;">${newStatus}</td>
                       </tr>
                     </table>
                   </td>
                 </tr>
               </table>
 
-              <h3 style="margin: 32px 0 16px 0; font-size: 15px; font-weight: 600; color: #1a1a1a;">
-                Activate Your Card
-              </h3>
-
-              <p style="margin: 0 0 16px 0; font-size: 14px; color: #444444;">
-                Your card is now ready for activation. To start using your card for transactions, please follow these steps:
-              </p>
-
-              <ol style="margin: 0 0 24px 0; padding-left: 20px; font-size: 14px; color: #444444;">
-                <li style="margin-bottom: 12px;">Log in to your account dashboard.</li>
-                <li style="margin-bottom: 12px;">Navigate to the <strong>Cards</strong> section.</li>
-                <li style="margin-bottom: 12px;">Locate your approved card and click the <strong>"Activate Card"</strong> button.</li>
-                <li style="margin-bottom: 12px;">Once activated, your card will be ready for immediate use.</li>
-              </ol>
+              ${activationContent}
 
               <!-- Notice Box -->
               <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 24px 0; background-color: #f8f8f8; border: 1px solid #e0e0e0;">
                 <tr>
                   <td style="padding: 20px;">
                     <p style="margin: 0; font-size: 13px; color: #666666;">
-                      <strong style="color: #1a1a1a;">Security Notice:</strong> Your card details, including the full card number, CVV, and PIN, will only be visible after activation and through our secure dashboard. Never share these details with anyone.
+                      ${securityNotice}
                     </p>
                   </td>
                 </tr>
@@ -204,22 +241,18 @@ Deno.serve(async (req: Request) => {
 </html>
     `;
 
-    const textContent = `
-Card Application Approved
+    const activationTextContent = isActivation ? `
+YOUR CARD IS NOW ACTIVE
+-----------------------
+Your card has been activated and is ready for immediate use. You can now:
 
-Dear ${userName},
+- Make online purchases at millions of merchants worldwide.
+- Use contactless payments at supported terminals.
+- Withdraw cash from ATMs (subject to daily limits).
+- View your full card details in your secure dashboard.
 
-We are pleased to inform you that your ${cardType} Card application has been reviewed and APPROVED by our compliance team.
-
-CARD DETAILS
-------------
-Reference ID: ${clientId}
-Card Type: ${cardType}
-Card Number: **** **** **** ${cardLastFour}
-Spending Limit: $${Number(spendingLimit).toLocaleString()}
-Daily Limit: $${Number(dailyLimit).toLocaleString()}
-Approved On: ${formattedDate}
-
+SECURITY REMINDER: Your card details are now visible in your secure dashboard. Never share your card number, CVV, or PIN with anyone. If you notice any suspicious activity, contact our support team immediately.
+    ` : `
 ACTIVATE YOUR CARD
 ------------------
 Your card is now ready for activation. To start using your card for transactions, please follow these steps:
@@ -230,6 +263,29 @@ Your card is now ready for activation. To start using your card for transactions
 4. Once activated, your card will be ready for immediate use.
 
 SECURITY NOTICE: Your card details, including the full card number, CVV, and PIN, will only be visible after activation and through our secure dashboard. Never share these details with anyone.
+    `;
+
+    const textContent = `
+${headerTitle}
+
+Dear ${userName},
+
+${isActivation
+  ? `Great news! Your ${cardType} Card has been ACTIVATED and is now ready for use.`
+  : `We are pleased to inform you that your ${cardType} Card application has been reviewed and APPROVED by our compliance team.`
+}
+
+CARD DETAILS
+------------
+Reference ID: ${clientId}
+Card Type: ${cardType}
+Card Number: **** **** **** ${cardLastFour}
+Spending Limit: $${Number(spendingLimit).toLocaleString()}
+Daily Limit: $${Number(dailyLimit).toLocaleString()}
+${dateLabel} ${formattedDate}
+Status: ${newStatus}
+
+${activationTextContent}
 
 Thank you for choosing our services. We appreciate your trust in us.
 
@@ -242,10 +298,14 @@ This is an automated message. Please do not reply directly to this email.
 Malta Global Crypto Bank is authorized and regulated by the Malta Financial Services Authority.
     `;
 
+    const emailSubject = isActivation
+      ? `Your Card is Now Active - Reference: ${clientId}`
+      : `Your Card Has Been Approved - Reference: ${clientId}`;
+
     await client.sendAsync({
       from: "Malta Global Crypto Bank <support@transactionfinder.pro>",
       to: userEmail,
-      subject: "Your Card Has Been Approved - Reference: " + clientId,
+      subject: emailSubject,
       text: textContent,
       attachment: [
         { data: emailHtml, alternative: true },
@@ -253,14 +313,14 @@ Malta Global Crypto Bank is authorized and regulated by the Malta Financial Serv
     });
 
     return new Response(
-      JSON.stringify({ success: true, message: "Approval notification email sent successfully" }),
+      JSON.stringify({ success: true, message: `Card ${statusWord} notification email sent successfully` }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   } catch (error) {
-    console.error("Error sending card approval notification:", error);
+    console.error("Error sending card notification:", error);
     return new Response(
       JSON.stringify({ error: "Failed to send notification email", details: String(error) }),
       {
