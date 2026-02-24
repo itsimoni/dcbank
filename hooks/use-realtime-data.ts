@@ -95,20 +95,23 @@ export function useRealtimeData(): RealtimeData {
   };
 
   const fetchExchangeRates = async () => {
-    const baseRates = {
-      usd_to_eur: 0.85,
-      usd_to_cad: 1.35,
-      eur_to_usd: 1.18,
-      cad_to_usd: 0.74,
-    };
-
-    const variation = () => (Math.random() - 0.5) * 0.02;
-    return {
-      usd_to_eur: Math.max(0.01, baseRates.usd_to_eur + variation()),
-      usd_to_cad: Math.max(0.01, baseRates.usd_to_cad + variation()),
-      eur_to_usd: Math.max(0.01, baseRates.eur_to_usd + variation()),
-      cad_to_usd: Math.max(0.01, baseRates.cad_to_usd + variation()),
-    };
+    try {
+      const rates = await priceService.getExchangeRates();
+      return {
+        usd_to_eur: rates?.USD ? 1 / rates.USD : 0.92,
+        usd_to_cad: rates?.USD && rates?.CAD ? rates.CAD / rates.USD : 1.35,
+        eur_to_usd: rates?.USD || 1.087,
+        cad_to_usd: rates?.CAD ? 1 / rates.CAD : 0.74,
+      };
+    } catch (error) {
+      console.error("Error fetching exchange rates:", error);
+      return {
+        usd_to_eur: 0.92,
+        usd_to_cad: 1.35,
+        eur_to_usd: 1.087,
+        cad_to_usd: 0.74,
+      };
+    }
   };
 
   const fetchCryptoPrices = async () => {

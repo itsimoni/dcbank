@@ -373,20 +373,7 @@ export default function TransfersSection({
       return;
     }
 
-    let rate = exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
-
-    if (rate && rate < 1 && fromCurrency !== toCurrency) {
-      const inverseRate = exchangeRateService.getExchangeRate(
-        toCurrency,
-        fromCurrency
-      );
-      if (inverseRate && inverseRate > rate) {
-        rate = 1 / inverseRate;
-      } else {
-        rate = 1 / rate;
-      }
-    }
-
+    const rate = exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
     const convertedAmount = amount * rate;
     const fee = calculateTransferFee(amount, fromCurrency, toCurrency);
 

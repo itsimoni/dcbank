@@ -212,14 +212,18 @@ class PriceService {
     );
   }
 
-  private async fetchFromExchangeRateHost() {
+  private async fetchFromFloatRates() {
     const response = await fetch(
-      "https://api.exchangerate.host/latest?base=EUR",
+      "https://www.floatrates.com/daily/eur.json",
       { signal: AbortSignal.timeout(5000) }
     );
-    if (!response.ok) throw new Error(`ExchangeRate.host failed: ${response.status}`);
+    if (!response.ok) throw new Error(`FloatRates failed: ${response.status}`);
     const data = await response.json();
-    return data.rates;
+    const rates: any = {};
+    Object.keys(data).forEach((key) => {
+      rates[key.toUpperCase()] = data[key].rate;
+    });
+    return rates;
   }
 
   private async fetchFromExchangeRateAPI() {
@@ -262,9 +266,9 @@ class PriceService {
 
     console.log("Valore WebSocket not available, falling back to REST APIs");
     const sources = [
-      { name: "ExchangeRate.host", fetch: () => this.fetchFromExchangeRateHost() },
       { name: "ExchangeRate-API", fetch: () => this.fetchFromExchangeRateAPI() },
       { name: "Frankfurter", fetch: () => this.fetchFromFrankfurter() },
+      { name: "FloatRates", fetch: () => this.fetchFromFloatRates() },
     ];
 
     for (const source of sources) {

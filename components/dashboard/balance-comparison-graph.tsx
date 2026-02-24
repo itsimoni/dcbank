@@ -107,11 +107,8 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
       const euroBalance = Number(euroData?.balance || 0);
       const cadBalance = Number(cadData?.balance || 0);
 
-      const usdToEur = rates?.EUR || 0.92;
-      const cadToEur = rates?.EUR && rates?.CAD ? rates.EUR / rates.CAD : 0.68;
-
-      const usdInEur = usdBalance * usdToEur;
-      const cadInEur = cadBalance * cadToEur;
+      const usdInEur = rates?.USD ? usdBalance / rates.USD : usdBalance * 0.92;
+      const cadInEur = rates?.CAD ? cadBalance / rates.CAD : cadBalance * 0.68;
 
       const totalFiatInEur = usdInEur + euroBalance + cadInEur;
 
