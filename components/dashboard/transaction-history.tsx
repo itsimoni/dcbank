@@ -693,10 +693,80 @@ export default function TransactionHistory() {
                   Digital asset transfers are processed on their respective blockchain networks and are subject to network confirmation times and fees. Cryptocurrency transactions are irreversible once confirmed on the blockchain. You are responsible for verifying recipient wallet addresses before initiating any transfer.
                 </p>
               </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">5. Transaction Disputes and Chargebacks</h3>
+                <p className="leading-relaxed">
+                  If you believe a transaction was made in error or without your authorization, you must notify us within sixty (60) days of the transaction date. Disputes must be submitted in writing through our secure messaging system or by contacting customer support. We will investigate all claims in accordance with Regulation E (Electronic Fund Transfers) and applicable consumer protection laws. Resolution timeframes vary based on transaction type and complexity, typically ranging from ten (10) to ninety (90) business days.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">6. Transaction Limits and Restrictions</h3>
+                <p className="leading-relaxed">
+                  Daily and monthly transaction limits apply to all accounts and may vary based on account type, verification level, and regulatory requirements. These limits are designed to protect against fraud and ensure compliance with anti-money laundering regulations. Requests to increase limits require additional verification and may be subject to enhanced due diligence procedures. We reserve the right to decline, delay, or reverse any transaction that we reasonably believe violates our terms of service or applicable laws.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">7. Fees and Charges</h3>
+                <p className="leading-relaxed">
+                  Transaction fees are disclosed at the time of transaction initiation and are deducted from the transferred amount or charged separately as indicated. Fee schedules are subject to change with thirty (30) days prior notice. Foreign exchange transactions may include a spread between the buy and sell rates in addition to any disclosed fees. Correspondent and intermediary banks may impose additional charges for international transfers that are beyond our control and will be deducted from the transferred amount.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">8. Regulatory Compliance</h3>
+                <p className="leading-relaxed">
+                  All transactions are subject to applicable laws and regulations, including but not limited to the Bank Secrecy Act (BSA), USA PATRIOT Act, EU Anti-Money Laundering Directives, and sanctions programs administered by OFAC, the European Union, and the United Nations. We are required to report certain transactions to regulatory authorities and may be prohibited from disclosing such reports to you. We may delay, block, or refuse to process any transaction that we reasonably believe may violate any law, regulation, or our internal compliance policies.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">9. Data Protection and Privacy</h3>
+                <p className="leading-relaxed">
+                  Transaction data is processed and stored in accordance with the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and other applicable data protection laws. Your transaction history may be shared with regulatory authorities, law enforcement agencies pursuant to valid legal process, and third-party service providers necessary to process your transactions. For complete details on how we collect, use, and protect your personal data, please refer to our Privacy Policy.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">10. Liability Limitations</h3>
+                <p className="leading-relaxed">
+                  We shall not be liable for any losses arising from: (a) your failure to maintain adequate account security; (b) errors in recipient information provided by you; (c) delays or failures caused by third-party payment networks, correspondent banks, or blockchain networks; (d) force majeure events including natural disasters, wars, government actions, or system failures beyond our reasonable control; (e) compliance with legal or regulatory requirements. Our maximum liability for any transaction error attributable to us shall not exceed the amount of the transaction plus any fees charged.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">11. Electronic Communications</h3>
+                <p className="leading-relaxed">
+                  By using our services, you consent to receive all transaction-related communications electronically, including transaction confirmations, statements, and regulatory disclosures. Electronic records shall have the same legal validity as paper documents. You are responsible for maintaining a valid email address and checking your account regularly for important communications. We recommend enabling transaction notifications to monitor account activity in real-time.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">12. Record Retention</h3>
+                <p className="leading-relaxed">
+                  We maintain transaction records for a minimum of seven (7) years from the date of the transaction, or longer if required by applicable law. You may request copies of historical transaction records through our customer support channels. Records older than the standard retention period may no longer be available. We recommend downloading and maintaining your own records of important transactions for personal reference.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">13. Governing Law and Jurisdiction</h3>
+                <p className="leading-relaxed">
+                  These terms and all transactions conducted through our platform are governed by the laws of the Republic of Estonia, without regard to conflict of law principles. Any disputes arising from or relating to your transactions shall be subject to the exclusive jurisdiction of the courts of Estonia, except where prohibited by applicable consumer protection laws that mandate dispute resolution in your country of residence.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-semibold text-gray-900 mb-2">14. Amendments and Updates</h3>
+                <p className="leading-relaxed">
+                  We reserve the right to amend these terms and conditions at any time. Material changes will be communicated to you at least thirty (30) days before they take effect through email notification or prominent notice on our platform. Your continued use of our services after such changes constitutes acceptance of the amended terms. If you do not agree with any changes, you must discontinue use of our services before the effective date.
+                </p>
+              </section>
             </div>
 
             <p className="text-xs text-gray-500 pt-4 border-t border-gray-200">
-              Last updated: February 2026. This information is provided for general guidance only. Please consult the full Terms and Conditions governing your account for complete details.
+              Last updated: February 2026. This information is provided for general guidance only and does not constitute legal or financial advice. Please consult the full Terms and Conditions governing your account for complete details. For questions regarding specific transactions or compliance matters, please contact our customer support team or your legal advisor.
             </p>
           </div>
         </div>
