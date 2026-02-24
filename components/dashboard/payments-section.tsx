@@ -541,6 +541,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${session.access_token}`,
+            "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -586,6 +587,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${session.access_token}`,
+            "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
           },
         }
       );
