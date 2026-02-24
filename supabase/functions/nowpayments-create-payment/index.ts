@@ -47,12 +47,10 @@ Deno.serve(async (req: Request) => {
 
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ error: "Invalid token" }),
+        JSON.stringify({ error: "Invalid token", details: authError?.message }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    let userData = null;
 
     const { data: userByAuthId } = await supabase
       .from("users")
@@ -60,20 +58,32 @@ Deno.serve(async (req: Request) => {
       .eq("auth_user_id", user.id)
       .maybeSingle();
 
-    if (userByAuthId) {
-      userData = userByAuthId;
-    } else {
-      const { data: userById } = await supabase
-        .from("users")
-        .select("id, client_id, email, full_name")
-        .eq("id", user.id)
-        .maybeSingle();
-      userData = userById;
-    }
+    const { data: userById } = await supabase
+      .from("users")
+      .select("id, client_id, email, full_name")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const { data: userByEmail } = await supabase
+      .from("users")
+      .select("id, client_id, email, full_name")
+      .eq("email", user.email)
+      .maybeSingle();
+
+    const userData = userByAuthId || userById || userByEmail;
 
     if (!userData) {
       return new Response(
-        JSON.stringify({ error: "User not found", debug: { auth_user_id: user.id } }),
+        JSON.stringify({
+          error: "User not found",
+          debug: {
+            auth_user_id: user.id,
+            auth_email: user.email,
+            checked_auth_id: !!userByAuthId,
+            checked_id: !!userById,
+            checked_email: !!userByEmail
+          }
+        }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
