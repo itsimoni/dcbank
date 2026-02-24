@@ -160,27 +160,37 @@ interface Payment {
 
 type ViewMode = "new" | "pending" | "history";
 
-type CryptoPaymentType = "bitcoin" | "ethereum" | "usdt_erc20" | "usdt_trc20";
+type CryptoPaymentType = "btc" | "eth" | "usdttrc20" | "usdterc20";
 
-const STATIC_WALLETS: Record<CryptoPaymentType, { name: string; address: string; network: string }> = {
-  bitcoin: {
+interface NOWPaymentData {
+  id: string;
+  payment_id: string;
+  pay_address: string;
+  pay_amount: number;
+  pay_currency: string;
+  price_amount: number;
+  price_currency: string;
+  payment_status: string;
+  network?: string;
+  payin_extra_id?: string;
+  expiration_estimate_date?: string;
+}
+
+const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string }> = {
+  btc: {
     name: "Bitcoin (BTC)",
-    address: "bc1q0wzmnuw8tuds9gyf92dw0sevqa98rsdzg4x3en",
     network: "Bitcoin Network",
   },
-  ethereum: {
-    name: "Ethereum",
-    address: "0xf9f1d73bcf0d449782c305d6d797cc712c7d7a17",
+  eth: {
+    name: "Ethereum (ETH)",
     network: "Ethereum Mainnet",
   },
-  usdt_erc20: {
+  usdterc20: {
     name: "USDT ERC-20",
-    address: "0xf9f1d73bcf0d449782c305d6d797cc712c7d7a17",
     network: "Ethereum (ERC-20)",
   },
-  usdt_trc20: {
+  usdttrc20: {
     name: "USDT TRC-20",
-    address: "TBkD7uWiEimA9GhVh91oXqiNdPi25DVswn",
     network: "Tron (TRC-20)",
   },
 };
@@ -214,7 +224,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const [sendingCrypto, setSendingCrypto] = useState(false);
 
   const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>(null);
-  const [selectedCryptoPayment, setSelectedCryptoPayment] = useState<CryptoPaymentType>("bitcoin");
+  const [selectedCryptoPayment, setSelectedCryptoPayment] = useState<CryptoPaymentType>("btc");
   const [cryptoPaymentForm, setCryptoPaymentForm] = useState({
     name: "",
     email: "",
@@ -222,6 +232,10 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     termsAccepted: false,
     blockchainAware: false,
   });
+  const [nowPaymentData, setNowPaymentData] = useState<NOWPaymentData | null>(null);
+  const [creatingPayment, setCreatingPayment] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<"form" | "payment">("form");
 
   const [selectedBankCategory, setSelectedBankCategory] = useState<string | null>(null);
   const [bankPaymentForm, setBankPaymentForm] = useState({
@@ -500,6 +514,106 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
       title: "Wallet address copied",
       description: "The wallet address has been copied to your clipboard",
     });
+  };
+
+  const createNOWPayment = async () => {
+    if (!cryptoPaymentForm.name || !cryptoPaymentForm.email || !cryptoPaymentForm.amount) {
+      toast({ title: t.error, description: t.fillAllRequiredFields, variant: "destructive" });
+      return;
+    }
+
+    if (!cryptoPaymentForm.termsAccepted || !cryptoPaymentForm.blockchainAware) {
+      toast({ title: t.error, description: "Please accept all terms", variant: "destructive" });
+      return;
+    }
+
+    setCreatingPayment(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast({ title: t.error, description: "Please log in again", variant: "destructive" });
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/functions/v1/nowpayments-create-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            price_amount: parseFloat(cryptoPaymentForm.amount),
+            price_currency: "EUR",
+            pay_currency: selectedCryptoPayment,
+            payment_category: selectedPaymentCategory,
+            payer_name: cryptoPaymentForm.name,
+            payer_email: cryptoPaymentForm.email,
+            order_description: `Payment for ${selectedPaymentCategory}`,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to create payment");
+      }
+
+      setNowPaymentData(result.payment);
+      setPaymentStep("payment");
+      toast({ title: t.paymentInitiated, description: t.pleaseSendCrypto });
+    } catch (error: any) {
+      console.error("Error creating payment:", error);
+      toast({ title: t.error, description: error.message || "Failed to create payment", variant: "destructive" });
+    } finally {
+      setCreatingPayment(false);
+    }
+  };
+
+  const checkPaymentStatus = async () => {
+    if (!nowPaymentData?.payment_id) return;
+
+    setCheckingStatus(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}/functions/v1/nowpayments-check-status?payment_id=${nowPaymentData.payment_id}`,
+        {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setNowPaymentData(prev => prev ? { ...prev, payment_status: result.payment_status } : null);
+
+        if (result.is_fully_paid) {
+          toast({ title: "Payment Completed", description: "Your payment has been received and confirmed!" });
+        } else if (result.is_deposited) {
+          toast({ title: "Payment Detected", description: `Status: ${result.payment_status}` });
+        } else if (result.is_expired) {
+          toast({ title: "Payment Expired", description: "This payment has expired. Please create a new one.", variant: "destructive" });
+        }
+      }
+    } catch (error) {
+      console.error("Error checking status:", error);
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
+  const resetCryptoPayment = () => {
+    setPaymentStep("form");
+    setNowPaymentData(null);
+    setCryptoPaymentForm({ name: "", email: "", amount: "", termsAccepted: false, blockchainAware: false });
   };
 
   const handleCryptoSendReview = () => {
@@ -915,7 +1029,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             <button
               onClick={() => {
                 setSelectedPaymentCategory(null);
-                setCryptoPaymentForm({ name: "", email: "", amount: "", termsAccepted: false, blockchainAware: false });
+                resetCryptoPayment();
               }}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
@@ -923,165 +1037,234 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               <span>{t.backToCategories}</span>
             </button>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-[#f8f9fa] p-8">
-                <h3 className="text-xl font-semibold text-gray-900 mb-6">{t.fillFieldsBelow}</h3>
-                <div className="space-y-5">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700">{t.yourNameLabel}</Label>
-                    <Input
-                      value={cryptoPaymentForm.name}
-                      onChange={(e) => setCryptoPaymentForm({ ...cryptoPaymentForm, name: e.target.value })}
-                      placeholder="John Doe"
-                      className="mt-1.5 bg-white border-gray-300"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700">{t.emailAddressLabel}</Label>
-                    <Input
-                      type="email"
-                      value={cryptoPaymentForm.email}
-                      onChange={(e) => setCryptoPaymentForm({ ...cryptoPaymentForm, email: e.target.value })}
-                      placeholder="john@mail.com"
-                      className="mt-1.5 bg-white border-gray-300"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700">{t.amount}</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={cryptoPaymentForm.amount}
-                      onChange={(e) => setCryptoPaymentForm({ ...cryptoPaymentForm, amount: e.target.value })}
-                      placeholder="EUR"
-                      className="mt-1.5 bg-white border-gray-300"
-                    />
-                  </div>
-                  <div className="space-y-4 pt-2">
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id="terms"
-                        checked={cryptoPaymentForm.termsAccepted}
-                        onCheckedChange={(checked) => setCryptoPaymentForm({ ...cryptoPaymentForm, termsAccepted: checked === true })}
-                        className="mt-0.5"
+            {paymentStep === "form" && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-[#f8f9fa] p-8">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6">{t.fillFieldsBelow}</h3>
+                  <div className="space-y-5">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">{t.yourNameLabel}</Label>
+                      <Input
+                        value={cryptoPaymentForm.name}
+                        onChange={(e) => setCryptoPaymentForm({ ...cryptoPaymentForm, name: e.target.value })}
+                        placeholder="John Doe"
+                        className="mt-1.5 bg-white border-gray-300"
                       />
-                      <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
-                        {t.termsCheckbox}{" "}
-                        <Link
-                          href="/crypto-terms"
-                          target="_blank"
-                          className="text-[#b91c1c] underline cursor-pointer hover:text-[#991b1b]"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {t.termsAndConditions}
-                        </Link>.
-                      </label>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <Checkbox
-                        id="blockchain"
-                        checked={cryptoPaymentForm.blockchainAware}
-                        onCheckedChange={(checked) => setCryptoPaymentForm({ ...cryptoPaymentForm, blockchainAware: checked === true })}
-                        className="mt-0.5"
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">{t.emailAddressLabel}</Label>
+                      <Input
+                        type="email"
+                        value={cryptoPaymentForm.email}
+                        onChange={(e) => setCryptoPaymentForm({ ...cryptoPaymentForm, email: e.target.value })}
+                        placeholder="john@mail.com"
+                        className="mt-1.5 bg-white border-gray-300"
                       />
-                      <label htmlFor="blockchain" className="text-sm text-gray-600 cursor-pointer">
-                        {t.blockchainAwareCheckbox}
-                      </label>
                     </div>
-                  </div>
-                  <Button
-                    onClick={() => {
-                      if (!cryptoPaymentForm.name || !cryptoPaymentForm.email || !cryptoPaymentForm.amount) {
-                        toast({ title: t.error, description: t.fillAllRequiredFields, variant: "destructive" });
-                        return;
-                      }
-                      toast({ title: t.paymentInitiated, description: t.pleaseSendCrypto });
-                    }}
-                    disabled={!cryptoPaymentForm.termsAccepted || !cryptoPaymentForm.blockchainAware}
-                    className="w-auto px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {t.continueButton}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="bg-white border border-gray-200 p-8">
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  <button
-                    onClick={() => setSelectedCryptoPayment("bitcoin")}
-                    className={`py-3 px-4 font-medium ${
-                      selectedCryptoPayment === "bitcoin"
-                        ? "bg-[#b91c1c] text-white"
-                        : "bg-white border border-gray-300 text-gray-700"
-                    }`}
-                  >
-                    Bitcoin
-                  </button>
-                  <button
-                    onClick={() => setSelectedCryptoPayment("ethereum")}
-                    className={`py-3 px-4 font-medium ${
-                      selectedCryptoPayment === "ethereum"
-                        ? "bg-[#b91c1c] text-white"
-                        : "bg-white border border-gray-300 text-gray-700"
-                    }`}
-                  >
-                    Ethereum
-                  </button>
-                  <button
-                    onClick={() => setSelectedCryptoPayment("usdt_erc20")}
-                    className={`py-3 px-4 font-medium ${
-                      selectedCryptoPayment === "usdt_erc20"
-                        ? "bg-[#b91c1c] text-white"
-                        : "bg-white border border-gray-300 text-gray-700"
-                    }`}
-                  >
-                    USDT ERC-20
-                  </button>
-                  <button
-                    onClick={() => setSelectedCryptoPayment("usdt_trc20")}
-                    className={`py-3 px-4 font-medium ${
-                      selectedCryptoPayment === "usdt_trc20"
-                        ? "bg-[#b91c1c] text-white"
-                        : "bg-white border border-gray-300 text-gray-700"
-                    }`}
-                  >
-                    USDT TRC-20
-                  </button>
-                </div>
-
-                <div className="flex flex-col items-center">
-                  <div className="bg-white p-4 border border-gray-200 mb-4">
-                    <QRCodeSVG
-                      value={STATIC_WALLETS[selectedCryptoPayment].address}
-                      size={180}
-                      level="H"
-                      includeMargin={true}
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600 mb-4">{STATIC_WALLETS[selectedCryptoPayment].name}</p>
-                  <div className="w-full bg-gray-50 border border-gray-200 p-3 flex items-center justify-between gap-2">
-                    <span className="font-mono text-sm text-gray-700 truncate flex-1">
-                      {STATIC_WALLETS[selectedCryptoPayment].address}
-                    </span>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(STATIC_WALLETS[selectedCryptoPayment].address);
-                        toast({ title: t.copied, description: t.walletAddressCopied });
-                      }}
-                      className="text-gray-500 hover:text-gray-700 p-1"
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">{t.amount}</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={cryptoPaymentForm.amount}
+                        onChange={(e) => setCryptoPaymentForm({ ...cryptoPaymentForm, amount: e.target.value })}
+                        placeholder="EUR"
+                        className="mt-1.5 bg-white border-gray-300"
+                      />
+                    </div>
+                    <div className="space-y-4 pt-2">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="terms"
+                          checked={cryptoPaymentForm.termsAccepted}
+                          onCheckedChange={(checked) => setCryptoPaymentForm({ ...cryptoPaymentForm, termsAccepted: checked === true })}
+                          className="mt-0.5"
+                        />
+                        <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
+                          {t.termsCheckbox}{" "}
+                          <Link
+                            href="/crypto-terms"
+                            target="_blank"
+                            className="text-[#b91c1c] underline cursor-pointer hover:text-[#991b1b]"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {t.termsAndConditions}
+                          </Link>.
+                        </label>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="blockchain"
+                          checked={cryptoPaymentForm.blockchainAware}
+                          onCheckedChange={(checked) => setCryptoPaymentForm({ ...cryptoPaymentForm, blockchainAware: checked === true })}
+                          className="mt-0.5"
+                        />
+                        <label htmlFor="blockchain" className="text-sm text-gray-600 cursor-pointer">
+                          {t.blockchainAwareCheckbox}
+                        </label>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={createNOWPayment}
+                      disabled={!cryptoPaymentForm.termsAccepted || !cryptoPaymentForm.blockchainAware || creatingPayment}
+                      className="w-auto px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Copy className="w-5 h-5" />
+                      {creatingPayment ? "Creating Payment..." : t.continueButton}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 p-8">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Select Cryptocurrency</h4>
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <button
+                      onClick={() => setSelectedCryptoPayment("btc")}
+                      className={`py-3 px-4 font-medium ${
+                        selectedCryptoPayment === "btc"
+                          ? "bg-[#b91c1c] text-white"
+                          : "bg-white border border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      Bitcoin
+                    </button>
+                    <button
+                      onClick={() => setSelectedCryptoPayment("eth")}
+                      className={`py-3 px-4 font-medium ${
+                        selectedCryptoPayment === "eth"
+                          ? "bg-[#b91c1c] text-white"
+                          : "bg-white border border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      Ethereum
+                    </button>
+                    <button
+                      onClick={() => setSelectedCryptoPayment("usdterc20")}
+                      className={`py-3 px-4 font-medium ${
+                        selectedCryptoPayment === "usdterc20"
+                          ? "bg-[#b91c1c] text-white"
+                          : "bg-white border border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      USDT ERC-20
+                    </button>
+                    <button
+                      onClick={() => setSelectedCryptoPayment("usdttrc20")}
+                      className={`py-3 px-4 font-medium ${
+                        selectedCryptoPayment === "usdttrc20"
+                          ? "bg-[#b91c1c] text-white"
+                          : "bg-white border border-gray-300 text-gray-700"
+                      }`}
+                    >
+                      USDT TRC-20
                     </button>
                   </div>
-                  <div className="flex items-center gap-2 mt-6">
-                    <span className="bg-[#b91c1c] text-white text-sm font-medium px-4 py-1.5">{t.amount}</span>
-                    <span className="text-lg font-semibold text-gray-900">
-                      {cryptoPaymentForm.amount ? `${cryptoPaymentForm.amount} EUR` : "0 EUR"}
-                    </span>
+
+                  <div className="flex flex-col items-center text-center">
+                    <div className="bg-gray-100 p-8 mb-4 w-full">
+                      <Bitcoin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">Fill in the form and click Continue to generate your payment address</p>
+                    </div>
+                    <p className="text-sm text-gray-600">{CRYPTO_OPTIONS[selectedCryptoPayment].name}</p>
+                    <p className="text-xs text-gray-500 mt-1">{CRYPTO_OPTIONS[selectedCryptoPayment].network}</p>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {paymentStep === "payment" && nowPaymentData && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-200 p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-semibold text-gray-900">Payment Details</h3>
+                    <span className={`px-3 py-1 text-sm font-medium rounded ${
+                      nowPaymentData.payment_status === "finished" ? "bg-green-100 text-green-800" :
+                      nowPaymentData.payment_status === "waiting" ? "bg-yellow-100 text-yellow-800" :
+                      nowPaymentData.payment_status === "confirming" ? "bg-blue-100 text-blue-800" :
+                      nowPaymentData.payment_status === "confirmed" ? "bg-green-100 text-green-800" :
+                      nowPaymentData.payment_status === "expired" ? "bg-red-100 text-red-800" :
+                      "bg-gray-100 text-gray-800"
+                    }`}>
+                      {nowPaymentData.payment_status.charAt(0).toUpperCase() + nowPaymentData.payment_status.slice(1)}
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-gray-600">Amount to Pay</span>
+                      <span className="font-semibold">{nowPaymentData.pay_amount} {nowPaymentData.pay_currency.toUpperCase()}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-gray-600">Price</span>
+                      <span className="font-semibold">{nowPaymentData.price_amount} {nowPaymentData.price_currency}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-gray-600">Network</span>
+                      <span className="font-medium">{CRYPTO_OPTIONS[selectedCryptoPayment].network}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b">
+                      <span className="text-gray-600">Payment ID</span>
+                      <span className="font-mono text-sm">{nowPaymentData.payment_id}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex gap-3">
+                    <Button
+                      onClick={checkPaymentStatus}
+                      disabled={checkingStatus}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      {checkingStatus ? "Checking..." : "Check Status"}
+                    </Button>
+                    <Button
+                      onClick={resetCryptoPayment}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      New Payment
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 p-8">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">Send Payment Here</h4>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-white p-4 border border-gray-200 mb-4">
+                      <QRCodeSVG
+                        value={nowPaymentData.pay_address}
+                        size={180}
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">{CRYPTO_OPTIONS[selectedCryptoPayment].name}</p>
+                    <div className="w-full bg-gray-50 border border-gray-200 p-3 flex items-center justify-between gap-2">
+                      <span className="font-mono text-sm text-gray-700 truncate flex-1">
+                        {nowPaymentData.pay_address}
+                      </span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(nowPaymentData.pay_address);
+                          toast({ title: t.copied, description: t.walletAddressCopied });
+                        }}
+                        className="text-gray-500 hover:text-gray-700 p-1"
+                      >
+                        <Copy className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 mt-6">
+                      <span className="bg-[#b91c1c] text-white text-sm font-medium px-4 py-1.5">Send exactly</span>
+                      <span className="text-lg font-semibold text-gray-900">
+                        {nowPaymentData.pay_amount} {nowPaymentData.pay_currency.toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-4 text-center">
+                      Send exactly the amount shown above to ensure your payment is processed correctly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
