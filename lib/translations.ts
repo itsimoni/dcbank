@@ -731,7 +731,7 @@ export const translations = {
     passwordMismatchError: "New passwords do not match",
     passwordLengthError: "Password must be at least 6 characters long",
     userNotAuthenticatedError: "User not authenticated",
-    passwordUpdateSuccess: "Password updated successfully in all systems",
+    passwordUpdateSuccess: "Password updated successfully",
     passwordUpdateError: "Failed to update password",
     superiorManagerRole: "Superior Manager",
     managerRole: "Manager",
