@@ -11,7 +11,6 @@ import PaymentsSection from "./payments-section";
 import CardSection from "./card-section";
 import SupportSection from "./support-section";
 import TransfersSection from "./transfers-section-fixed";
-import CryptoSection from "./crypto-section-fixed";
 import MessageSection from "./message-section-database";
 import LoansSection from "./loans-section";
 import Profile from "./Profile";
@@ -23,7 +22,6 @@ const SECTION_COMPONENTS = {
   deposit: DepositsSection,
   payments: PaymentsSection,
   card: CardSection,
-  crypto: CryptoSection,
   message: MessageSection,
   support: SupportSection,
   profile: Profile,

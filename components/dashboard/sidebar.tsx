@@ -11,7 +11,6 @@ import {
   CreditCard,
   MessageSquare,
   HelpCircle,
-  Bitcoin,
   LogOut,
   Menu,
   X,
@@ -97,12 +96,6 @@ const MENU_ITEMS: MenuItem[] = [
     id: "card",
     labelKey: "card",
     icon: CreditCard,
-    isEnabled: true,
-  },
-  {
-    id: "crypto",
-    labelKey: "crypto",
-    icon: Bitcoin,
     isEnabled: true,
   },
   {
