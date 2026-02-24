@@ -441,7 +441,7 @@ export default function TermsAndConditionsPage() {
           </section>
 
           <div className="border-t-2 border-[#b91c1c] pt-8 mt-8">
-            <div className="bg-red-50 border border-red-200 p-6 rounded-lg text-center">
+            <div className="bg-red-50 border border-red-200 p-6 text-center">
               <p className="text-gray-700 font-medium mb-3">
                 By clicking "Create Account" or checking the acceptance box, you acknowledge that you have read, understood, and agree to be legally bound by these Terms and Conditions in their entirety.
               </p>
