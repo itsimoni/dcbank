@@ -62,6 +62,7 @@ export default function AuthForm() {
   });
 
   const [rememberMe, setRememberMe] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const t = useMemo(() => getTranslations(language), [language]);
 
@@ -752,11 +753,32 @@ const handleSignUp = useCallback(
                     </div>
                   </div>
 
+                  <div className="flex items-start gap-3 pt-4">
+                    <Checkbox
+                      id="terms-accept"
+                      checked={termsAccepted}
+                      onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                      className="mt-0.5 h-4 w-4 border-gray-300 data-[state=checked]:bg-[#b91c1c] data-[state=checked]:border-[#b91c1c]"
+                    />
+                    <label htmlFor="terms-accept" className="text-sm text-gray-600 cursor-pointer leading-relaxed">
+                      By creating an account, I agree to Malta Global Crypto Bank's{" "}
+                      <a
+                        href="/terms-and-conditions"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-bold text-[#b91c1c] hover:text-[#991b1b] hover:underline"
+                      >
+                        Terms & Conditions
+                      </a>
+                    </label>
+                  </div>
+
                   <div className="pt-4">
                     <Button
                       type="submit"
-                      disabled={loading}
-                      className="w-full h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium transition-colors"
+                      disabled={loading || !termsAccepted}
+                      className="w-full h-12 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
                       {loading ? t.creatingAccount : t.createAccount}
                     </Button>
