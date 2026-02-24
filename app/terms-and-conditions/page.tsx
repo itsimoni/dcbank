@@ -451,9 +451,6 @@ export default function TermsAndConditionsPage() {
               <p className="text-gray-700 font-medium mb-3">
                 By clicking "Create Account" or checking the acceptance box, you acknowledge that you have read, understood, and agree to be legally bound by these Terms and Conditions in their entirety.
               </p>
-              <p className="text-sm text-gray-500">
-                Document Version: 3.0.0 | Effective Date: February 24, 2026
-              </p>
               <p className="text-xs text-gray-400 mt-2">
                 Copyright 2026 Malta Global Crypto Bank. All rights reserved.
               </p>
