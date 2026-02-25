@@ -145,7 +145,7 @@ interface Payment {
 
 type ViewMode = "new" | "pending" | "history";
 
-type CryptoPaymentType = "btc" | "eth" | "usdttrc20" | "usdterc20" | "ltc" | "xrp" | "sol" | "ada" | "dot" | "doge" | "matic" | "link" | "avax" | "xlm" | "bnb" | "trx";
+type CryptoPaymentType = "btc" | "eth" | "usdterc20" | "sol";
 
 interface NOWPaymentData {
   id: string;
@@ -161,86 +161,30 @@ interface NOWPaymentData {
   expiration_estimate_date?: string;
 }
 
-const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string; symbol: string }> = {
+const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string; symbol: string; logo: string }> = {
   btc: {
     name: "Bitcoin (BTC)",
     network: "Bitcoin Network",
     symbol: "BTC",
+    logo: "https://cryptologos.cc/logos/bitcoin-btc-logo.svg",
   },
   eth: {
     name: "Ethereum (ETH)",
     network: "Ethereum Mainnet",
     symbol: "ETH",
+    logo: "https://cryptologos.cc/logos/ethereum-eth-logo.svg",
   },
   usdterc20: {
     name: "USDT ERC-20",
     network: "Ethereum (ERC-20)",
     symbol: "USDT",
-  },
-  usdttrc20: {
-    name: "USDT TRC-20",
-    network: "Tron (TRC-20)",
-    symbol: "USDT",
-  },
-  ltc: {
-    name: "Litecoin (LTC)",
-    network: "Litecoin Network",
-    symbol: "LTC",
-  },
-  xrp: {
-    name: "XRP (Ripple)",
-    network: "XRP Ledger",
-    symbol: "XRP",
+    logo: "https://cryptologos.cc/logos/tether-usdt-logo.svg",
   },
   sol: {
     name: "Solana (SOL)",
     network: "Solana Network",
     symbol: "SOL",
-  },
-  ada: {
-    name: "Cardano (ADA)",
-    network: "Cardano Network",
-    symbol: "ADA",
-  },
-  dot: {
-    name: "Polkadot (DOT)",
-    network: "Polkadot Network",
-    symbol: "DOT",
-  },
-  doge: {
-    name: "Dogecoin (DOGE)",
-    network: "Dogecoin Network",
-    symbol: "DOGE",
-  },
-  matic: {
-    name: "Polygon (MATIC)",
-    network: "Polygon Network",
-    symbol: "MATIC",
-  },
-  link: {
-    name: "Chainlink (LINK)",
-    network: "Ethereum (ERC-20)",
-    symbol: "LINK",
-  },
-  avax: {
-    name: "Avalanche (AVAX)",
-    network: "Avalanche C-Chain",
-    symbol: "AVAX",
-  },
-  xlm: {
-    name: "Stellar (XLM)",
-    network: "Stellar Network",
-    symbol: "XLM",
-  },
-  bnb: {
-    name: "BNB",
-    network: "BNB Smart Chain",
-    symbol: "BNB",
-  },
-  trx: {
-    name: "TRON (TRX)",
-    network: "Tron Network",
-    symbol: "TRX",
+    logo: "https://cryptologos.cc/logos/solana-sol-logo.svg",
   },
 };
 
@@ -1121,26 +1065,39 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
                 <div className="bg-white border border-gray-200 p-8">
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">Select Cryptocurrency</h4>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-6 max-h-[280px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                     {(Object.keys(CRYPTO_OPTIONS) as CryptoPaymentType[]).map((cryptoKey) => (
                       <button
                         key={cryptoKey}
                         onClick={() => setSelectedCryptoPayment(cryptoKey)}
-                        className={`py-2.5 px-3 text-sm font-medium transition-all ${
+                        className={`flex flex-col items-center gap-2 py-4 px-3 transition-all ${
                           selectedCryptoPayment === cryptoKey
                             ? "bg-[#b91c1c] text-white"
                             : "bg-white border border-gray-300 text-gray-700 hover:border-gray-400"
                         }`}
                       >
-                        {CRYPTO_OPTIONS[cryptoKey].symbol}
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          selectedCryptoPayment === cryptoKey ? "bg-white/20" : "bg-gray-50"
+                        }`}>
+                          <img
+                            src={CRYPTO_OPTIONS[cryptoKey].logo}
+                            alt={CRYPTO_OPTIONS[cryptoKey].symbol}
+                            className="w-7 h-7 object-contain"
+                          />
+                        </div>
+                        <span className="text-sm font-medium">{CRYPTO_OPTIONS[cryptoKey].symbol}</span>
                       </button>
                     ))}
                   </div>
 
                   <div className="flex flex-col items-center text-center">
                     <div className="bg-gray-100 p-6 mb-4 w-full">
-                      <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center mx-auto mb-3">
-                        <span className="text-xl font-bold text-gray-500">{CRYPTO_OPTIONS[selectedCryptoPayment].symbol}</span>
+                      <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center mx-auto mb-3 shadow-sm">
+                        <img
+                          src={CRYPTO_OPTIONS[selectedCryptoPayment].logo}
+                          alt={CRYPTO_OPTIONS[selectedCryptoPayment].symbol}
+                          className="w-10 h-10 object-contain"
+                        />
                       </div>
                       <p className="text-gray-600 text-sm">Fill in the form and click Continue to generate your payment address</p>
                     </div>
