@@ -343,11 +343,6 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     };
   };
 
-  const calculateLimitProgress = (used: number, limit: number) => {
-    const percentage = (used / limit) * 100;
-    return Math.min(percentage, 100);
-  };
-
   const cardCounts = getCardCounts();
 
   return (
@@ -605,54 +600,6 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                             : card.card_type}{" "}
                           {t.cardWord}
                         </p>
-                        <div className="space-y-2 mt-2">
-                          <div>
-                            <div className="flex justify-between text-xs text-gray-600 mb-1">
-                              <span>Daily Limit</span>
-                              <span>
-                                $
-                                {(
-                                  card.daily_used || 0
-                                ).toLocaleString()} / $
-                                {Number(card.daily_limit).toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 h-2">
-                              <div
-                                className="bg-[#b91c1c] h-2 transition-all"
-                                style={{
-                                  width: `${calculateLimitProgress(
-                                    card.daily_used || 0,
-                                    card.daily_limit
-                                  )}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="flex justify-between text-xs text-gray-600 mb-1">
-                              <span>Spending Limit</span>
-                              <span>
-                                $
-                                {(
-                                  card.total_spent || 0
-                                ).toLocaleString()} / $
-                                {Number(card.spending_limit).toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 h-2">
-                              <div
-                                className="bg-[#b91c1c] h-2 transition-all"
-                                style={{
-                                  width: `${calculateLimitProgress(
-                                    card.total_spent || 0,
-                                    card.spending_limit
-                                  )}%`,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </div>
                         {card.status === "Active" && (
                           <p className="text-sm font-medium text-green-600 mt-2 flex items-center gap-1">
                             <CheckCircle className="w-4 h-4" />
