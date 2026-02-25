@@ -883,15 +883,19 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { color: string; icon: any }> = {
-      Pending: { color: "text-yellow-600 bg-yellow-50", icon: Clock },
-      Processing: { color: "text-blue-600 bg-blue-50", icon: AlertCircle },
-      Completed: { color: "text-green-600 bg-green-50", icon: CheckCircle2 },
-      Rejected: { color: "text-red-600 bg-red-50", icon: XCircle },
-      Cancelled: { color: "text-gray-600 bg-gray-50", icon: X },
-      Returned: { color: "text-orange-600 bg-orange-50", icon: AlertCircle },
+      pending: { color: "text-yellow-600 bg-yellow-50", icon: Clock },
+      processing: { color: "text-blue-600 bg-blue-50", icon: AlertCircle },
+      completed: { color: "text-green-600 bg-green-50", icon: CheckCircle2 },
+      successful: { color: "text-green-600 bg-green-50", icon: CheckCircle2 },
+      success: { color: "text-green-600 bg-green-50", icon: CheckCircle2 },
+      rejected: { color: "text-red-600 bg-red-50", icon: XCircle },
+      failed: { color: "text-red-600 bg-red-50", icon: XCircle },
+      cancelled: { color: "text-gray-600 bg-gray-50", icon: X },
+      canceled: { color: "text-gray-600 bg-gray-50", icon: X },
+      returned: { color: "text-orange-600 bg-orange-50", icon: AlertCircle },
     };
 
-    const config = statusConfig[status] || statusConfig.Pending;
+    const config = statusConfig[status.toLowerCase()] || statusConfig.pending;
     const Icon = config.icon;
 
     return (
