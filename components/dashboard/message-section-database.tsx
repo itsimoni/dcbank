@@ -448,16 +448,6 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
                 </SelectContent>
               </Select>
 
-              <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
-                <SelectTrigger className="w-24 sm:w-28 lg:w-32 border-gray-300 text-xs sm:text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="text-xs sm:text-sm">{t.allMessages}</SelectItem>
-                  <SelectItem value="unread" className="text-xs sm:text-sm">{t.unreadMessages}</SelectItem>
-                </SelectContent>
-              </Select>
-
               <Select value={sortOrder} onValueChange={(value: SortOrder) => setSortOrder(value)}>
                 <SelectTrigger className="w-24 sm:w-28 lg:w-32 border-gray-300 text-xs sm:text-sm">
                   <SelectValue />
