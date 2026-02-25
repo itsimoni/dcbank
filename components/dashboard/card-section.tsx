@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
@@ -14,15 +14,12 @@ import {
   Unlock,
   Plus,
   Settings,
-  Languages,
-  ChevronDown,
-  Check,
   Shield,
   CheckCircle,
   AlertCircle,
   Clock,
 } from "lucide-react";
-import { Language, getTranslations } from "../../lib/translations";
+import { getTranslations } from "../../lib/translations";
 import { useLanguage } from "../../contexts/LanguageContext";
 import {
   AlertDialog,
@@ -70,40 +67,15 @@ export default function CardSection({ userProfile }: CardSectionProps) {
     daily_limit: "1000",
     international_enabled: false,
   });
-  const { language, setLanguage } = useLanguage();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
 
   const t = getTranslations(language);
-
-  const languages: { code: Language; label: string }[] = [
-    { code: "en", label: "English" },
-    { code: "fr", label: "Français" },
-    { code: "de", label: "Deutsch" },
-    { code: "es", label: "Español" },
-    { code: "it", label: "Italiano" },
-    { code: "el", label: "Ελληνικά" },
-  ];
 
   useEffect(() => {
     if (userProfile?.id) {
       fetchCards();
     }
   }, [userProfile?.id]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const fetchCards = async () => {
     if (!userProfile?.id) return;
@@ -350,58 +322,13 @@ export default function CardSection({ userProfile }: CardSectionProps) {
       <div className="p-6 pt-4 pt-xs-16 space-y-6 max-w-4xl min-h-full">
         <div className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-2xl font-bold">{t.myCards}</h2>
-          <div className="flex items-center gap-2">
-            <div
-              ref={dropdownRef}
-              className="relative inline-block flex-shrink-0"
-            >
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 bg-white border-2 border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:border-[#b91c1c] focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md"
-              >
-                <Languages className="w-4 h-4 text-gray-600" />
-                <span className="hidden sm:inline">
-                  {languages.find((lang) => lang.code === language)?.label}
-                </span>
-                <ChevronDown
-                  className={`w-4 h-4 text-gray-600 transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => {
-                        setLanguage(lang.code);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-4 py-2.5 text-sm text-left transition-colors ${
-                        language === lang.code
-                          ? "bg-red-50 text-[#b91c1c] font-medium"
-                          : "text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      <span>{lang.label}</span>
-                      {language === lang.code && (
-                        <Check className="w-4 h-4 text-[#b91c1c]" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <Button
+          <Button
               onClick={() => setShowCardForm(true)}
               className="bg-[#b91c1c] hover:bg-[#991b1b]"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              {t.requestNewCard}
-            </Button>
-          </div>
+            <Plus className="w-4 h-4 mr-2" />
+            {t.requestNewCard}
+          </Button>
         </div>
 
         {cards.length > 0 && (
