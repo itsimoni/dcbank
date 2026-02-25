@@ -1902,12 +1902,6 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                     {getStatusBadge(selectedPayment.status)}
                   </div>
 
-                  {selectedPayment.status_reason && (
-                    <div className="bg-red-50 border-l-4 border-l-red-500 border border-red-200 p-3">
-                      <p className="text-xs text-gray-500 mb-1">{t.statusReason}</p>
-                      <p className="text-sm text-red-900">{selectedPayment.status_reason}</p>
-                    </div>
-                  )}
                 </div>
 
                 <div className="border-t pt-4 space-y-3">
