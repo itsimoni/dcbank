@@ -14,13 +14,16 @@ import TransfersSection from "./transfers-section-fixed";
 import MessageSection from "./message-section-database";
 import LoansSection from "./loans-section";
 import Profile from "./Profile";
+import TaxesSection from "./taxes-section";
+import UserPaymentsSection from "./user-payments-section";
 
 const SECTION_COMPONENTS = {
   dashboard: DashboardContent,
   accounts: AccountsSection,
   transfers: TransfersSection,
   deposit: DepositsSection,
-  payments: PaymentsSection,
+  taxes: TaxesSection,
+  payments: UserPaymentsSection,
   card: CardSection,
   message: MessageSection,
   support: SupportSection,
