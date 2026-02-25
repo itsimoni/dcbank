@@ -30,7 +30,18 @@ import {
   Clock,
   Pause,
   DollarSign,
+  Mail,
+  Bitcoin,
+  Building2,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface User {
   id: string;
@@ -84,6 +95,14 @@ export default function TaxManager() {
     on_hold: "",
     paid: "",
   });
+
+  // Email notification state
+  const [sendEmailNotification, setSendEmailNotification] = useState(false);
+  const [emailPaymentType, setEmailPaymentType] = useState<"crypto" | "bank">("crypto");
+  const [emailPaymentAmount, setEmailPaymentAmount] = useState("");
+  const [emailCurrency, setEmailCurrency] = useState("USD");
+  const [emailCryptoCurrency, setEmailCryptoCurrency] = useState("BTC");
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   // Get current admin info - STABLE FUNCTION
   const getCurrentAdmin =
@@ -435,6 +454,65 @@ export default function TaxManager() {
       console.error("Failed to fetch tax data:", error);
     }
   }, []);
+
+  const sendPaymentNotificationEmail = useCallback(
+    async (user: User, paymentType: "crypto" | "bank", amount: number, currency: string, cryptoCurrency?: string) => {
+      if (!user.email) {
+        setMessage({ type: "error", text: "User does not have an email address" });
+        return false;
+      }
+
+      setSendingEmail(true);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL || ""}/functions/v1/send-payment-notification`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              email: user.email,
+              fullName: user.full_name || user.email.split("@")[0],
+              clientId: user.client_id,
+              paymentType: paymentType,
+              paymentDetails: {
+                amount: amount,
+                currency: currency,
+                category: "Tax Payment",
+                cryptoCurrency: paymentType === "crypto" ? cryptoCurrency : undefined,
+                cryptoAmount: paymentType === "crypto" ? amount : undefined,
+              },
+            }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || "Failed to send email");
+        }
+
+        setMessage({
+          type: "success",
+          text: `Payment notification email sent to ${user.email}`,
+        });
+        return true;
+      } catch (error: any) {
+        console.error("Error sending payment notification:", error);
+        setMessage({
+          type: "error",
+          text: `Failed to send email: ${error.message}`,
+        });
+        return false;
+      } finally {
+        setSendingEmail(false);
+      }
+    },
+    []
+  );
 
   const saveTaxData = useCallback(async () => {
     if (!selectedUser || !currentAdmin) return;
@@ -1109,6 +1187,160 @@ export default function TaxManager() {
                         </p>
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Send Payment Notification Email */}
+              {!editMode && (
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center text-blue-700">
+                      <Mail className="w-5 h-5 mr-2" />
+                      Send Payment Notification Email
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-blue-600">
+                      Send a professional payment confirmation email to notify the user about a processed payment.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Payment Type</Label>
+                        <Select
+                          value={emailPaymentType}
+                          onValueChange={(value: "crypto" | "bank") =>
+                            setEmailPaymentType(value)
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select payment type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="crypto">
+                              <div className="flex items-center">
+                                <Bitcoin className="w-4 h-4 mr-2" />
+                                Cryptocurrency Payment
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="bank">
+                              <div className="flex items-center">
+                                <Building2 className="w-4 h-4 mr-2" />
+                                Bank Wire Transfer
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Payment Amount</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Enter amount"
+                          value={emailPaymentAmount}
+                          onChange={(e) => setEmailPaymentAmount(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Currency</Label>
+                        <Select
+                          value={emailCurrency}
+                          onValueChange={setEmailCurrency}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select currency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="USD">USD - US Dollar</SelectItem>
+                            <SelectItem value="EUR">EUR - Euro</SelectItem>
+                            <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                            <SelectItem value="CHF">CHF - Swiss Franc</SelectItem>
+                            <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {emailPaymentType === "crypto" && (
+                        <div className="space-y-2">
+                          <Label>Cryptocurrency</Label>
+                          <Select
+                            value={emailCryptoCurrency}
+                            onValueChange={setEmailCryptoCurrency}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select crypto" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
+                              <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
+                              <SelectItem value="USDT">Tether (USDT)</SelectItem>
+                              <SelectItem value="SOL">Solana (SOL)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-white p-3 rounded border border-blue-200">
+                      <p className="text-sm text-gray-600">
+                        <strong>Recipient:</strong>{" "}
+                        {selectedUser.full_name || selectedUser.email}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        <strong>Email:</strong> {selectedUser.email || "No email available"}
+                      </p>
+                    </div>
+
+                    <Button
+                      onClick={() => {
+                        const amount = parseFloat(emailPaymentAmount);
+                        if (!amount || amount <= 0) {
+                          setMessage({
+                            type: "error",
+                            text: "Please enter a valid payment amount",
+                          });
+                          return;
+                        }
+                        if (!selectedUser.email) {
+                          setMessage({
+                            type: "error",
+                            text: "User does not have an email address",
+                          });
+                          return;
+                        }
+                        sendPaymentNotificationEmail(
+                          selectedUser,
+                          emailPaymentType,
+                          amount,
+                          emailCurrency,
+                          emailPaymentType === "crypto" ? emailCryptoCurrency : undefined
+                        );
+                      }}
+                      disabled={sendingEmail || !selectedUser.email || !emailPaymentAmount}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    >
+                      {sendingEmail ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Sending Email...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-4 h-4 mr-2" />
+                          Send Payment Notification Email
+                        </>
+                      )}
+                    </Button>
+
+                    {!selectedUser.email && (
+                      <p className="text-sm text-red-600">
+                        This user does not have an email address. Cannot send notification.
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               )}
