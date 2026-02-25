@@ -131,66 +131,7 @@ Deno.serve(async (req: Request) => {
       },
     });
 
-    let paymentDetailsHtml = "";
-    let paymentTypeLabel = "";
-
-    if (paymentType === "crypto") {
-      paymentTypeLabel = "Cryptocurrency Payment";
-      paymentDetailsHtml = `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666; width: 40%;">Payment Method:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600;">Cryptocurrency</td>
-        </tr>
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Cryptocurrency:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600;">${paymentDetails.cryptoCurrency || "N/A"}</td>
-        </tr>
-        ${paymentDetails.cryptoAmount ? `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Crypto Amount:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600;">${formatCurrency(paymentDetails.cryptoAmount, paymentDetails.cryptoCurrency || "")}</td>
-        </tr>
-        ` : ""}
-        ${paymentDetails.network ? `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Network:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 500;">${paymentDetails.network}</td>
-        </tr>
-        ` : ""}
-      `;
-    } else {
-      paymentTypeLabel = "Bank Wire Transfer";
-      paymentDetailsHtml = `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666; width: 40%;">Payment Method:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600;">Bank Transfer</td>
-        </tr>
-        ${paymentDetails.bankName ? `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Bank Name:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 500;">${paymentDetails.bankName}</td>
-        </tr>
-        ` : ""}
-        ${paymentDetails.beneficiaryName ? `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Beneficiary:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 500;">${paymentDetails.beneficiaryName}</td>
-        </tr>
-        ` : ""}
-        ${paymentDetails.iban ? `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">IBAN:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 500; font-family: monospace;">****${paymentDetails.iban.slice(-4)}</td>
-        </tr>
-        ` : ""}
-        ${paymentDetails.beneficiaryCountry ? `
-        <tr>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Country:</td>
-          <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 500;">${paymentDetails.beneficiaryCountry}</td>
-        </tr>
-        ` : ""}
-      `;
-    }
+    let paymentTypeLabel = paymentType === "crypto" ? "Cryptocurrency Payment" : "Bank Wire Transfer";
 
     const emailHtml = `
 <!DOCTYPE html>
@@ -200,165 +141,170 @@ Deno.serve(async (req: Request) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payment Confirmation - Malta Global Crypto Bank</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+<body style="margin: 0; padding: 0; font-family: Georgia, 'Times New Roman', Times, serif; background-color: #ffffff;">
+  <table role="presentation" style="width: 100%; max-width: 650px; margin: 0 auto; border-collapse: collapse;">
     <tr>
-      <td align="center" style="padding: 40px 0;">
-        <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      <td style="padding: 40px 30px; border-bottom: 2px solid #000000;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
           <tr>
-            <td style="background-color: #b91c1c; padding: 30px 40px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: 1px;">
+            <td>
+              <h1 style="margin: 0; font-size: 20px; font-weight: bold; color: #000000; letter-spacing: 1px;">
                 MALTA GLOBAL CRYPTO BANK
               </h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 12px; letter-spacing: 2px;">
-                PAYMENT CONFIRMATION
+              <p style="margin: 5px 0 0 0; font-size: 11px; color: #333333; letter-spacing: 0.5px;">
+                Authorised and regulated by the Malta Financial Services Authority
               </p>
             </td>
-          </tr>
-
-          <tr>
-            <td style="background-color: #dcfce7; padding: 20px 40px; border-bottom: 3px solid #16a34a;">
-              <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="width: 50px; vertical-align: middle;">
-                    <div style="width: 40px; height: 40px; background-color: #16a34a; border-radius: 50%; text-align: center; line-height: 40px; color: white; font-size: 20px;">
-                      &#10003;
-                    </div>
-                  </td>
-                  <td style="padding-left: 15px;">
-                    <p style="color: #166534; font-size: 16px; font-weight: 700; margin: 0;">
-                      Payment Successfully Processed
-                    </p>
-                    <p style="color: #15803d; font-size: 13px; margin: 5px 0 0 0;">
-                      Your ${paymentTypeLabel.toLowerCase()} for ${paymentDetails.category} has been received and processed.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <tr>
-            <td style="padding: 40px;">
-              <p style="color: #1a1a1a; font-size: 16px; margin: 0 0 25px 0;">
-                Dear <strong>${fullName}</strong>,
-              </p>
-              <p style="color: #4a4a4a; font-size: 15px; line-height: 1.6; margin: 0 0 25px 0;">
-                This email confirms that a <strong>${paymentTypeLabel}</strong> has been successfully processed from your Malta Global Crypto Bank account. Please find the details of your transaction below.
-              </p>
-
-              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; margin: 25px 0;">
-                <div style="background-color: #1a1a1a; padding: 15px 20px;">
-                  <p style="color: #ffffff; font-size: 14px; font-weight: 600; margin: 0; letter-spacing: 0.5px;">
-                    PAYMENT DETAILS
-                  </p>
-                </div>
-                <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                  <tr>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666; width: 40%;">Reference Number:</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600; font-family: monospace;">${referenceNumber}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Date &amp; Time:</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 500;">${currentDate} (CET)</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Payment Category:</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #1a1a1a; font-weight: 600;">${paymentDetails.category}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Amount:</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #16a34a; font-weight: 700; font-size: 16px;">${formatCurrency(paymentDetails.amount, paymentDetails.currency)}</td>
-                  </tr>
-                  ${paymentDetailsHtml}
-                  <tr>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5; color: #666666;">Status:</td>
-                    <td style="padding: 12px 15px; border-bottom: 1px solid #e5e5e5;">
-                      <span style="display: inline-block; background-color: #dcfce7; color: #166534; padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: 4px;">COMPLETED</span>
-                    </td>
-                  </tr>
-                  ${clientId ? `
-                  <tr>
-                    <td style="padding: 12px 15px; color: #666666;">Client ID:</td>
-                    <td style="padding: 12px 15px; color: #1a1a1a; font-weight: 500; font-family: monospace;">${clientId}</td>
-                  </tr>
-                  ` : ""}
-                </table>
-              </div>
-
-              <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; margin: 25px 0;">
-                <p style="color: #166534; font-size: 14px; font-weight: 700; margin: 0 0 10px 0;">
-                  Payment Received
-                </p>
-                <p style="color: #15803d; font-size: 13px; line-height: 1.6; margin: 0;">
-                  This payment has been successfully processed and recorded in your account. A receipt has been generated for your records. You can view the full transaction history in your Malta Global Crypto Bank dashboard.
-                </p>
-              </div>
-
-              <div style="background-color: #fef2f2; border: 1px solid #fecaca; padding: 20px; margin: 25px 0;">
-                <p style="color: #991b1b; font-size: 14px; font-weight: 700; margin: 0 0 10px 0;">
-                  Did You Not Authorize This Payment?
-                </p>
-                <p style="color: #7f1d1d; font-size: 13px; line-height: 1.6; margin: 0 0 15px 0;">
-                  If you did not initiate this payment, your account security may be compromised. Please take the following steps immediately:
-                </p>
-                <ol style="color: #7f1d1d; font-size: 13px; line-height: 1.8; margin: 0; padding-left: 20px;">
-                  <li>Contact our Security Team immediately at <strong>security@maltaglobalcryptobank.com</strong></li>
-                  <li>Call our 24/7 fraud hotline: <strong>+356 2131 8000</strong></li>
-                  <li>Change your account password immediately</li>
-                  <li>Review your recent account activity</li>
-                </ol>
-              </div>
-
-              <div style="border-top: 1px solid #e5e5e5; margin-top: 30px; padding-top: 25px;">
-                <p style="color: #666666; font-size: 12px; line-height: 1.6; margin: 0;">
-                  <strong>Transaction Information:</strong><br>
-                  Reference: ${referenceNumber}<br>
-                  ${ipAddress ? `IP Address: ${ipAddress}<br>` : ""}
-                  ${userAgent ? `Device: ${userAgent.substring(0, 80)}...<br>` : ""}
-                  Transaction Date: ${currentDate}
-                </p>
-              </div>
-            </td>
-          </tr>
-
-          <tr>
-            <td style="padding: 25px 40px; background-color: #fafafa; border-top: 1px solid #e5e5e5;">
-              <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding-left: 15px;">
-                    <p style="color: #1a1a1a; font-size: 14px; font-weight: 600; margin: 0 0 5px 0;">
-                      Security Notice
-                    </p>
-                    <p style="color: #666666; font-size: 12px; line-height: 1.5; margin: 0;">
-                      Malta Global Crypto Bank will never ask for your password, PIN, or security codes via email or phone. All communications regarding your account are sent only to your registered email address. If you receive suspicious communications, please report them immediately.
-                    </p>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <tr>
-            <td style="background-color: #1a1a1a; padding: 30px 40px;">
-              <p style="color: #ffffff; font-size: 14px; font-weight: 600; margin: 0 0 15px 0; text-align: center;">
-                Malta Global Crypto Bank
-              </p>
-              <p style="color: #999999; font-size: 11px; line-height: 1.6; margin: 0; text-align: center;">
-                Authorised and regulated by the Malta Financial Services Authority (MFSA)<br>
-                Licence Reference: MFSA/CL/2024/0892<br>
-                Member of the Depositor Compensation Scheme
-              </p>
-              <p style="color: #666666; font-size: 10px; line-height: 1.5; margin: 20px 0 0 0; text-align: center;">
-                171 Old Bakery Street, Valletta VLT 1455, Malta<br>
-                This email was sent to ${email}. If you have questions, contact support@maltaglobalcryptobank.com
-              </p>
-              <p style="color: #555555; font-size: 9px; margin: 15px 0 0 0; text-align: center;">
-                ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
+            <td style="text-align: right; vertical-align: top;">
+              <p style="margin: 0; font-size: 11px; color: #333333;">
+                171 Old Bakery Street<br>
+                Valletta VLT 1455<br>
+                Malta
               </p>
             </td>
           </tr>
         </table>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding: 30px;">
+        <p style="margin: 0 0 20px 0; font-size: 12px; color: #333333;">
+          Date: ${currentDate}
+        </p>
+
+        <p style="margin: 0 0 5px 0; font-size: 12px; color: #333333;">
+          Reference: <strong>${referenceNumber}</strong>
+        </p>
+        ${clientId ? `<p style="margin: 0 0 20px 0; font-size: 12px; color: #333333;">Client ID: ${clientId}</p>` : '<p style="margin: 0 0 20px 0;"></p>'}
+
+        <p style="margin: 0 0 25px 0; font-size: 14px; color: #000000;">
+          Dear ${fullName},
+        </p>
+
+        <h2 style="margin: 0 0 20px 0; font-size: 16px; font-weight: bold; color: #000000; text-transform: uppercase; letter-spacing: 0.5px;">
+          Payment Confirmation
+        </h2>
+
+        <p style="margin: 0 0 20px 0; font-size: 13px; color: #333333; line-height: 1.7;">
+          We write to confirm that the following ${paymentTypeLabel.toLowerCase()} has been processed through your account with Malta Global Crypto Bank.
+        </p>
+
+        <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 25px 0; border: 1px solid #000000;">
+          <tr>
+            <td colspan="2" style="padding: 12px 15px; background-color: #f5f5f5; border-bottom: 1px solid #000000;">
+              <strong style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Transaction Details</strong>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333; width: 40%;">Transaction Type</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${paymentTypeLabel}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Amount</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 13px; color: #000000; font-weight: bold;">${formatCurrency(paymentDetails.amount, paymentDetails.currency)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Category</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${paymentDetails.category}</td>
+          </tr>
+          ${paymentType === "crypto" ? `
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Cryptocurrency</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${paymentDetails.cryptoCurrency || "N/A"}</td>
+          </tr>
+          ${paymentDetails.cryptoAmount ? `
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Crypto Amount</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${formatCurrency(paymentDetails.cryptoAmount, paymentDetails.cryptoCurrency || "")}</td>
+          </tr>
+          ` : ""}
+          ${paymentDetails.network ? `
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Network</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${paymentDetails.network}</td>
+          </tr>
+          ` : ""}
+          ` : `
+          ${paymentDetails.beneficiaryName ? `
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Beneficiary Name</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${paymentDetails.beneficiaryName}</td>
+          </tr>
+          ` : ""}
+          ${paymentDetails.bankName ? `
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Bank Name</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${paymentDetails.bankName}</td>
+          </tr>
+          ` : ""}
+          ${paymentDetails.iban ? `
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Account (Last 4)</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000; font-family: 'Courier New', monospace;">****${paymentDetails.iban.slice(-4)}</td>
+          </tr>
+          ` : ""}
+          ${paymentDetails.beneficiaryCountry ? `
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Country</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">${paymentDetails.beneficiaryCountry}</td>
+          </tr>
+          ` : ""}
+          `}
+          <tr>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #333333;">Status</td>
+            <td style="padding: 10px 15px; border-bottom: 1px solid #cccccc; font-size: 12px; color: #000000;">PROCESSED</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 15px; font-size: 12px; color: #333333;">Date &amp; Time</td>
+            <td style="padding: 10px 15px; font-size: 12px; color: #000000;">${currentDate} (CET)</td>
+          </tr>
+        </table>
+
+        <p style="margin: 25px 0 20px 0; font-size: 13px; color: #333333; line-height: 1.7;">
+          This transaction has been recorded in your account. A copy of this confirmation has been retained for your records.
+        </p>
+
+        <div style="margin: 30px 0; padding: 20px; border: 1px solid #000000; background-color: #f9f9f9;">
+          <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #000000; text-transform: uppercase;">
+            Important Security Notice
+          </p>
+          <p style="margin: 0; font-size: 12px; color: #333333; line-height: 1.6;">
+            If you did not authorise this transaction, please contact our Security Department immediately:
+          </p>
+          <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 12px; color: #333333; line-height: 1.8;">
+            <li>Telephone: +356 2131 8000 (24 hours)</li>
+            <li>Email: security@maltaglobalcryptobank.com</li>
+          </ul>
+        </div>
+
+        <p style="margin: 25px 0 0 0; font-size: 13px; color: #333333; line-height: 1.7;">
+          Should you have any questions regarding this transaction, please do not hesitate to contact our Client Services team.
+        </p>
+
+        <p style="margin: 30px 0 0 0; font-size: 13px; color: #333333;">
+          Yours faithfully,
+        </p>
+        <p style="margin: 5px 0 0 0; font-size: 13px; color: #000000; font-weight: bold;">
+          Transaction Services Department
+        </p>
+        <p style="margin: 2px 0 0 0; font-size: 12px; color: #333333;">
+          Malta Global Crypto Bank
+        </p>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding: 25px 30px; border-top: 1px solid #cccccc;">
+        <p style="margin: 0 0 10px 0; font-size: 10px; color: #666666; line-height: 1.5;">
+          Malta Global Crypto Bank is authorised and regulated by the Malta Financial Services Authority (MFSA). Licence Reference: MFSA/CL/2024/0892. Member of the Depositor Compensation Scheme.
+        </p>
+        <p style="margin: 0; font-size: 10px; color: #666666; line-height: 1.5;">
+          This email and any attachments are confidential and intended solely for the addressee. If you have received this email in error, please notify us immediately and delete it from your system. Malta Global Crypto Bank will never request sensitive information such as passwords or PINs via email.
+        </p>
+        <p style="margin: 15px 0 0 0; font-size: 10px; color: #666666;">
+          &copy; ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
+        </p>
       </td>
     </tr>
   </table>
