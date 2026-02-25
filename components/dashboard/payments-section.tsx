@@ -949,9 +949,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     return scheduledDate <= today;
   });
 
-  const historyPayments = payments.filter(
-    (p) => p.status === "Completed" || p.status === "Rejected" || p.status === "Cancelled" || p.status === "Returned"
-  );
+  const historyPayments = payments;
 
   return (
     <div className="h-full overflow-y-auto bg-gray-50">
@@ -1020,7 +1018,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
             }`}
           >
             <Building2 className="w-5 h-5" />
-            {t.bankTransfer}
+            {t.bankPayments || "Bank Payments"}
           </button>
         </div>
 
