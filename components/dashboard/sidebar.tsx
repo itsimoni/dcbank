@@ -17,6 +17,7 @@ import {
   Banknote,
   Globe,
   User,
+  ChevronRight,
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -127,8 +128,11 @@ export default function Sidebar({
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  const [arrowPosition, setArrowPosition] = useState<number>(0);
 
   const [menuItems] = useState<MenuItem[]>(MENU_ITEMS);
+  const menuItemRefs = useRef<{ [key: string]: HTMLLIElement | null }>({});
+  const navRef = useRef<HTMLElement>(null);
 
   const isComponentMountedRef = useRef<boolean>(true);
 
@@ -139,6 +143,27 @@ export default function Sidebar({
       isComponentMountedRef.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    const updateArrowPosition = () => {
+      const activeElement = menuItemRefs.current[activeTab];
+      const navElement = navRef.current;
+
+      if (activeElement && navElement) {
+        const navRect = navElement.getBoundingClientRect();
+        const itemRect = activeElement.getBoundingClientRect();
+        const relativeTop = itemRect.top - navRect.top + navElement.scrollTop;
+        const centerOffset = itemRect.height / 2 - 10;
+        setArrowPosition(relativeTop + centerOffset);
+      }
+    };
+
+    updateArrowPosition();
+
+    const timeoutId = setTimeout(updateArrowPosition, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [activeTab]);
 
   const handleMenuItemClick = useCallback(
     (itemId: string, isEnabled: boolean) => {
@@ -314,13 +339,23 @@ export default function Sidebar({
           </div>
         </div>
 
-        <nav className="flex-1 px-6 overflow-y-auto scrollbar-hide">
+        <nav ref={navRef} className="flex-1 px-6 overflow-y-auto scrollbar-hide relative">
+          <div
+            className="absolute right-0 transition-all duration-300 ease-in-out z-10"
+            style={{ top: arrowPosition }}
+          >
+            <ChevronRight className="w-5 h-5 text-[#b91c1c]" />
+          </div>
+
           <ul className="space-y-1 py-4 min-h-0">
             {menuItems.map((item) => {
               const IconComponent = item.icon;
 
               return (
-                <li key={item.id}>
+                <li
+                  key={item.id}
+                  ref={(el) => { menuItemRefs.current[item.id] = el; }}
+                >
                   <button
                     onClick={() => handleMenuItemClick(item.id, item.isEnabled)}
                     disabled={!item.isEnabled}
