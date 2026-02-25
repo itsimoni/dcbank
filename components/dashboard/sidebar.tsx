@@ -83,7 +83,7 @@ const MENU_ITEMS: MenuItem[] = [
   },
   {
     id: "payments",
-    labelKey: "payments",
+    labelKey: "taxes",
     icon: CreditCard,
     isEnabled: true,
   },
