@@ -319,7 +319,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="p-6 pt-4 pt-xs-16 space-y-6 max-w-4xl min-h-full">
+      <div className="p-6 pt-4 pt-xs-16 space-y-6 w-full min-h-full">
         <div className="flex flex-row items-center justify-between gap-4">
           <h2 className="text-2xl font-bold">{t.myCards}</h2>
           <Button
