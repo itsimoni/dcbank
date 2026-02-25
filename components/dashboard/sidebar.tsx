@@ -82,14 +82,8 @@ const MENU_ITEMS: MenuItem[] = [
     isEnabled: true,
   },
   {
-    id: "taxes",
-    labelKey: "taxes",
-    icon: CreditCard,
-    isEnabled: true,
-  },
-  {
     id: "payments",
-    labelKey: "payments",
+    labelKey: "taxes",
     icon: CreditCard,
     isEnabled: true,
   },
