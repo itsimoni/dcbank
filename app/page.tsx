@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import AuthForm from "@/components/auth/auth-form";
 import Dashboard from "@/components/dashboard/dashboard";
@@ -12,14 +12,32 @@ export default function Page() {
   const [kycStatus, setKycStatus] = useState<string | null>(null);
   const hasInitialized = useRef(false);
 
-  // Initialize authentication - SIMPLIFIED
+  const fetchKycStatus = useCallback(async (userId: string) => {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("kyc_status")
+      .eq("id", userId)
+      .maybeSingle();
+    return userData?.kyc_status || "not_started";
+  }, []);
+
+  const handleLoginSuccess = useCallback(async () => {
+    setLoading(true);
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (authUser) {
+      setUser(authUser);
+      const status = await fetchKycStatus(authUser.id);
+      setKycStatus(status);
+    }
+    setLoading(false);
+  }, [fetchKycStatus]);
+
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
     const initAuth = async () => {
       try {
-        // Single session check - no redundant validation
         const { data: { user: authUser } } = await supabase.auth.getUser();
 
         if (!authUser) {
@@ -28,15 +46,8 @@ export default function Page() {
         }
 
         setUser(authUser);
-
-        // Check KYC status in parallel with profile creation (handled by dashboard now)
-        const { data: userData } = await supabase
-          .from("users")
-          .select("kyc_status")
-          .eq("id", authUser.id)
-          .maybeSingle();
-
-        setKycStatus(userData?.kyc_status || "not_started");
+        const status = await fetchKycStatus(authUser.id);
+        setKycStatus(status);
         setLoading(false);
       } catch (error) {
         console.error("Auth initialization error:", error);
@@ -45,7 +56,7 @@ export default function Page() {
     };
 
     initAuth();
-  }, []);
+  }, [fetchKycStatus]);
 
   // Auth state listener - only handle actual sign in/out, ignore token refreshes
   useEffect(() => {
@@ -73,7 +84,7 @@ export default function Page() {
     );
   }
 
-  if (!user) return <AuthForm />;
+  if (!user) return <AuthForm onLoginSuccess={handleLoginSuccess} />;
 
   if (kycStatus === "not_started") {
     return (

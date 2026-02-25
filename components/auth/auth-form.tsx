@@ -38,7 +38,11 @@ const languageNames: Record<Language, string> = {
   el: "Ellinika",
 };
 
-export default function AuthForm() {
+interface AuthFormProps {
+  onLoginSuccess?: () => void;
+}
+
+export default function AuthForm({ onLoginSuccess }: AuthFormProps = {}) {
   const { language, setLanguage } = useLanguage();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -339,11 +343,12 @@ const handleSignUp = useCallback(
             } catch {}
           }
 
-          setupPresenceTracking(data.user.id);
           setSuccess(t.signedInSuccess);
-          setTimeout(() => {
+          if (onLoginSuccess) {
+            onLoginSuccess();
+          } else {
             window.location.reload();
-          }, 800);
+          }
         }
       } catch (err: any) {
         setError(`${t.signInFailed}: ${err.message || t.unknownError}`);
@@ -355,7 +360,7 @@ const handleSignUp = useCallback(
       formData.email,
       formData.password,
       rememberMe,
-      setupPresenceTracking,
+      onLoginSuccess,
       t.signedInSuccess,
       t.signInFailed,
       t.unknownError,
