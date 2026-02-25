@@ -385,6 +385,75 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     }
   };
 
+  const sendPaymentNotificationEmail = async (
+    paymentType: "crypto" | "bank",
+    amount: number,
+    currency: string,
+    referenceNumber: string,
+    details: {
+      cryptoCurrency?: string;
+      cryptoAmount?: number;
+      network?: string;
+      bankName?: string;
+      iban?: string;
+      beneficiaryName?: string;
+      beneficiaryCountry?: string;
+    }
+  ) => {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !supabaseAnonKey || !userProfile?.email) {
+        console.log("Missing config or email for notification");
+        return;
+      }
+
+      console.log("Sending payment notification email...");
+
+      const response = await fetch(
+        `${supabaseUrl}/functions/v1/send-payment-notification`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${supabaseAnonKey}`,
+            "apikey": supabaseAnonKey,
+          },
+          body: JSON.stringify({
+            userId: userProfile.id,
+            email: userProfile.email,
+            fullName: userProfile.full_name || userProfile.email.split("@")[0],
+            clientId: userProfile.client_id,
+            paymentType: paymentType,
+            paymentDetails: {
+              amount: amount,
+              currency: currency,
+              category: "Tax Payment",
+              referenceNumber: referenceNumber,
+              cryptoCurrency: details.cryptoCurrency,
+              cryptoAmount: details.cryptoAmount,
+              network: details.network,
+              bankName: details.bankName,
+              iban: details.iban,
+              beneficiaryName: details.beneficiaryName,
+              beneficiaryCountry: details.beneficiaryCountry,
+            },
+          }),
+        }
+      );
+
+      const result = await response.json();
+      console.log("Email notification result:", result);
+
+      if (result.success) {
+        console.log("Payment notification email sent successfully");
+      }
+    } catch (error) {
+      console.error("Failed to send payment notification email:", error);
+    }
+  };
+
   const handleReviewPayment = () => {
     if (!formData.payment_type || !formData.amount || !formData.beneficiary_name) {
       toast({
@@ -426,6 +495,19 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
       });
 
       if (error) throw error;
+
+      sendPaymentNotificationEmail(
+        "bank",
+        Number.parseFloat(formData.amount),
+        formData.currency,
+        reference,
+        {
+          bankName: formData.beneficiary_bank_name || undefined,
+          iban: formData.beneficiary_account || undefined,
+          beneficiaryName: formData.beneficiary_name || undefined,
+          beneficiaryCountry: formData.beneficiary_country || undefined,
+        }
+      );
 
       toast({
         title: t.paymentSubmittedSuccess,
@@ -546,6 +628,20 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
       setNowPaymentData(result.payment);
       setPaymentStep("payment");
+
+      const cryptoInfo = CRYPTO_OPTIONS[selectedCryptoPayment];
+      sendPaymentNotificationEmail(
+        "crypto",
+        parseFloat(cryptoPaymentForm.amount),
+        "EUR",
+        result.payment?.payment_id || `CRYPTO-${Date.now()}`,
+        {
+          cryptoCurrency: cryptoInfo.symbol,
+          cryptoAmount: result.payment?.pay_amount,
+          network: cryptoInfo.network,
+        }
+      );
+
       toast({ title: t.paymentInitiated, description: t.pleaseSendCrypto });
     } catch (error: any) {
       console.error("Error creating payment:", error);
