@@ -51,6 +51,8 @@ const generateReferenceNumber = (): string => {
 };
 
 Deno.serve(async (req: Request) => {
+  console.log("Payment notification function called, method:", req.method);
+
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 200,
@@ -59,8 +61,22 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+    console.log("Environment check - URL exists:", !!supabaseUrl, "Key exists:", !!supabaseServiceKey);
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Missing Supabase environment variables");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -68,8 +84,25 @@ Deno.serve(async (req: Request) => {
       },
     });
 
-    const requestData: PaymentNotificationRequest = await req.json();
+    const bodyText = await req.text();
+    console.log("Request body received, length:", bodyText.length);
+
+    let requestData: PaymentNotificationRequest;
+    try {
+      requestData = JSON.parse(bodyText);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const { userId, email, fullName, clientId, paymentType, paymentDetails, ipAddress, userAgent } = requestData;
+    console.log("Parsed request - userId:", userId, "email:", email, "paymentType:", paymentType);
 
     if (!userId || !email || !fullName || !paymentType || !paymentDetails) {
       return new Response(
@@ -393,13 +426,28 @@ Member of the Depositor Compensation Scheme
 ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
     `;
 
-    await transporter.sendMail({
-      from: '"Malta Global Crypto Bank" <support@transactionfinder.pro>',
-      to: email,
-      subject: `Payment Confirmation: ${paymentTypeLabel} - ${formatCurrency(paymentDetails.amount, paymentDetails.currency)} - Ref: ${referenceNumber}`,
-      text: textContent,
-      html: emailHtml,
-    });
+    console.log("Attempting to send email to:", email);
+
+    try {
+      const info = await transporter.sendMail({
+        from: '"Malta Global Crypto Bank" <support@transactionfinder.pro>',
+        to: email,
+        subject: `Payment Confirmation: ${paymentTypeLabel} - ${formatCurrency(paymentDetails.amount, paymentDetails.currency)} - Ref: ${referenceNumber}`,
+        text: textContent,
+        html: emailHtml,
+      });
+
+      console.log("Email sent successfully, messageId:", info.messageId);
+    } catch (emailError) {
+      console.error("SMTP Error:", emailError);
+      return new Response(
+        JSON.stringify({ error: "Failed to send email via SMTP", details: String(emailError) }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     return new Response(
       JSON.stringify({
@@ -413,7 +461,7 @@ ${new Date().getFullYear()} Malta Global Crypto Bank. All rights reserved.
       }
     );
   } catch (error) {
-    console.error("Error sending payment notification:", error);
+    console.error("Error in payment notification function:", error);
     return new Response(
       JSON.stringify({ error: "Failed to send payment notification", details: String(error) }),
       {

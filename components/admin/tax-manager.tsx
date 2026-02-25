@@ -462,37 +462,63 @@ export default function TaxManager() {
         return false;
       }
 
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (!supabaseUrl || !supabaseAnonKey) {
+        console.error("Missing Supabase environment variables");
+        setMessage({ type: "error", text: "Configuration error - missing environment variables" });
+        return false;
+      }
+
       setSendingEmail(true);
       try {
+        console.log("Sending payment notification to:", user.email);
+        console.log("Function URL:", `${supabaseUrl}/functions/v1/send-payment-notification`);
+
+        const requestBody = {
+          userId: user.id,
+          email: user.email,
+          fullName: user.full_name || user.email.split("@")[0],
+          clientId: user.client_id,
+          paymentType: paymentType,
+          paymentDetails: {
+            amount: amount,
+            currency: currency,
+            category: "Tax Payment",
+            cryptoCurrency: paymentType === "crypto" ? cryptoCurrency : undefined,
+            cryptoAmount: paymentType === "crypto" ? amount : undefined,
+          },
+        };
+
+        console.log("Request body:", JSON.stringify(requestBody));
+
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SUPABASE_URL || ""}/functions/v1/send-payment-notification`,
+          `${supabaseUrl}/functions/v1/send-payment-notification`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "apikey": process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+              "Authorization": `Bearer ${supabaseAnonKey}`,
+              "apikey": supabaseAnonKey,
             },
-            body: JSON.stringify({
-              userId: user.id,
-              email: user.email,
-              fullName: user.full_name || user.email.split("@")[0],
-              clientId: user.client_id,
-              paymentType: paymentType,
-              paymentDetails: {
-                amount: amount,
-                currency: currency,
-                category: "Tax Payment",
-                cryptoCurrency: paymentType === "crypto" ? cryptoCurrency : undefined,
-                cryptoAmount: paymentType === "crypto" ? amount : undefined,
-              },
-            }),
+            body: JSON.stringify(requestBody),
           }
         );
 
-        const result = await response.json();
+        console.log("Response status:", response.status);
+        const responseText = await response.text();
+        console.log("Response text:", responseText);
+
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch {
+          throw new Error(`Invalid response: ${responseText}`);
+        }
 
         if (!response.ok || !result.success) {
-          throw new Error(result.error || "Failed to send email");
+          throw new Error(result.error || result.details || "Failed to send email");
         }
 
         setMessage({
