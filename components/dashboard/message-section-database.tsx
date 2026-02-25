@@ -399,17 +399,6 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
               )
             )}
           </div>
-
-          <div className="p-3 lg:p-4 border-t border-gray-200 hidden lg:block">
-            <div className="space-y-1">
-              <button className="w-full flex items-center text-xs text-gray-600 hover:text-gray-900 py-1.5 truncate">
-                <span className="truncate">{t.allMessages}</span>
-              </button>
-              <button className="w-full flex items-center text-xs text-gray-600 hover:text-gray-900 py-1.5 truncate">
-                <span className="truncate">{t.unreadMessages}</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         <div className="flex-1 flex flex-col min-w-0">
