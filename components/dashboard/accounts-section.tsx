@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { getTranslations, Language } from "@/lib/translations";
+import { getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,8 +21,6 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Languages,
-  ChevronDown,
   Star,
   Building2,
   CreditCard,
@@ -151,19 +149,9 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
     currency: "USD",
   });
 
-  const { language, setLanguage } = useLanguage();
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const { language } = useLanguage();
 
   const t = useMemo(() => getTranslations(language), [language]);
-
-  const languageNames: Record<Language, string> = {
-    en: "English",
-    fr: "Français",
-    de: "Deutsch",
-    es: "Español",
-    it: "Italiano",
-    el: "Ελληνικά",
-  };
 
   useEffect(() => {
     if (userProfile?.id) {
@@ -327,56 +315,10 @@ export default function AccountsSection({ userProfile }: AccountsSectionProps) {
   return (
     <div className="flex-1 overflow-y-auto min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Header with Language Selector */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-x-4">
-            <Landmark className="h-8 w-8 text-[#b91c1c]" />
-            <h2 className="text-3xl font-bold text-gray-900">{t.externalBankAccounts}</h2>
-          </div>
-
-          {/* Language Selector */}
-          <div className="relative">
-            <button
-              onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-              className="flex items-center space-x-2 bg-white border border-gray-300  px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              <Languages className="h-4 w-4 text-[#b91c1c]" />
-              <span>{languageNames[language]}</span>
-              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isLanguageDropdownOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setIsLanguageDropdownOpen(false)}
-                />
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200  shadow-lg z-20 overflow-hidden">
-                  {Object.entries(languageNames).map(([code, name]) => (
-                    <button
-                      key={code}
-                      onClick={() => {
-                        setLanguage(code as Language);
-                        setIsLanguageDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
-                        language === code
-                          ? 'bg-[#b91c1c] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{name}</span>
-                        {language === code && (
-                          <CheckCircle className="h-4 w-4" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+        {/* Header */}
+        <div className="flex items-center gap-x-4">
+          <Landmark className="h-8 w-8 text-[#b91c1c]" />
+          <h2 className="text-3xl font-bold text-gray-900">{t.externalBankAccounts}</h2>
         </div>
 
         {/* Add/Edit Account Form */}
