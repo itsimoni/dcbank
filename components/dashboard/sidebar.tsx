@@ -17,7 +17,7 @@ import {
   Banknote,
   Globe,
   User,
-  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -344,7 +344,7 @@ export default function Sidebar({
             className="absolute right-0 transition-all duration-300 ease-in-out z-10"
             style={{ top: arrowPosition }}
           >
-            <ChevronRight className="w-5 h-5 text-[#b91c1c]" />
+            <ChevronLeft className="w-5 h-5 text-[#b91c1c]" />
           </div>
 
           <ul className="space-y-1 py-4 min-h-0">
