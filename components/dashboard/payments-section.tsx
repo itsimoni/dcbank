@@ -39,24 +39,9 @@ import {
   Copy,
   X,
   Bitcoin,
-  Wallet,
   Building2,
-  Send,
-  ArrowDownLeft,
-  History,
-  ExternalLink,
   Zap,
   Shield,
-  TrendingUp,
-  ArrowRight,
-  Car,
-  Home,
-  GraduationCap,
-  HeartPulse,
-  Receipt,
-  Lightbulb,
-  CreditCard,
-  ArrowLeft,
 } from "lucide-react";
 import { Language, getTranslations } from "../../lib/translations";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -259,17 +244,6 @@ const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string;
   },
 };
 
-const PAYMENT_CATEGORIES = [
-  { id: "utilities", nameKey: "utilitiesBills", descKey: "utilitiesBillsDesc", icon: Lightbulb },
-  { id: "taxes", nameKey: "taxesGovernment", descKey: "taxesGovernmentDesc", icon: Building },
-  { id: "car", nameKey: "carPayments", descKey: "carPaymentsDesc", icon: Car },
-  { id: "mortgage", nameKey: "mortgageRent", descKey: "mortgageRentDesc", icon: Home },
-  { id: "education", nameKey: "educationCategory", descKey: "educationCategoryDesc", icon: GraduationCap },
-  { id: "healthcare", nameKey: "healthcareCategory", descKey: "healthcareCategoryDesc", icon: HeartPulse },
-  { id: "invoices", nameKey: "invoicesCategory", descKey: "invoicesCategoryDesc", icon: Receipt },
-  { id: "credit_cards", nameKey: "creditCardsCategory", descKey: "creditCardsCategoryDesc", icon: CreditCard },
-];
-
 export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -287,7 +261,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const [showCryptoReview, setShowCryptoReview] = useState(false);
   const [sendingCrypto, setSendingCrypto] = useState(false);
 
-  const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>(null);
+  const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>("taxes");
   const [selectedCryptoPayment, setSelectedCryptoPayment] = useState<CryptoPaymentType>("btc");
   const [cryptoPaymentForm, setCryptoPaymentForm] = useState({
     name: "",
@@ -301,7 +275,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
   const [checkingStatus, setCheckingStatus] = useState(false);
   const [paymentStep, setPaymentStep] = useState<"form" | "payment">("form");
 
-  const [selectedBankCategory, setSelectedBankCategory] = useState<string | null>(null);
+  const [selectedBankCategory, setSelectedBankCategory] = useState<string | null>("taxes");
   const [bankPaymentForm, setBankPaymentForm] = useState({
     fullName: "",
     email: "",
@@ -959,7 +933,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     <div className="h-full overflow-y-auto bg-gray-50">
       <div className="p-6 pt-4 pt-xs-16 space-y-6">
         <div className="flex justify-between items-center gap-4">
-          <h2 className="text-2xl font-bold">{t.payments}</h2>
+          <h2 className="text-2xl font-bold">{t.taxes || "Taxes"}</h2>
 
           <div className="flex items-center gap-3">
             <div ref={dropdownRef} className="relative inline-block">
@@ -1066,45 +1040,8 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           </div>
         )}
 
-        {paymentMethod === "crypto" && !selectedPaymentCategory && (
+        {paymentMethod === "crypto" && (
           <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.selectPaymentCategory}</h3>
-              <p className="text-sm text-gray-600 mb-4">{t.chooseCategoryForCrypto}</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {PAYMENT_CATEGORIES.map((category) => (
-                <div
-                  key={category.id}
-                  onClick={() => setSelectedPaymentCategory(category.id)}
-                  className="cursor-pointer bg-white border-2 border-gray-200 hover:border-gray-400 p-6"
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                      <category.icon className="w-7 h-7 text-gray-600" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">{t[category.nameKey as keyof typeof t]}</h4>
-                    <p className="text-sm text-gray-500">{t[category.descKey as keyof typeof t]}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {paymentMethod === "crypto" && selectedPaymentCategory && (
-          <div className="space-y-6">
-            <button
-              onClick={() => {
-                setSelectedPaymentCategory(null);
-                resetCryptoPayment();
-              }}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>{t.backToCategories}</span>
-            </button>
-
             {paymentStep === "form" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-[#f8f9fa] p-8">
@@ -1312,69 +1249,13 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
         )}
 
 
-        {paymentMethod === "bank" && viewMode === "new" && !showReviewStep && !selectedBankCategory && (
+        {paymentMethod === "bank" && viewMode === "new" && !showReviewStep && (
           <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.selectPaymentCategory}</h3>
-              <p className="text-sm text-gray-600 mb-4">{t.chooseCategoryForBank}</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {PAYMENT_CATEGORIES.map((category) => (
-                <div
-                  key={category.id}
-                  onClick={() => setSelectedBankCategory(category.id)}
-                  className="cursor-pointer bg-white border-2 border-gray-200 hover:border-gray-400 p-6"
-                >
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                      <category.icon className="w-7 h-7 text-gray-600" />
-                    </div>
-                    <h4 className="font-semibold text-gray-900 mb-1">{t[category.nameKey as keyof typeof t]}</h4>
-                    <p className="text-sm text-gray-500">{t[category.descKey as keyof typeof t]}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {paymentMethod === "bank" && viewMode === "new" && !showReviewStep && selectedBankCategory && (
-          <div className="space-y-6">
-            <button
-              onClick={() => {
-                setSelectedBankCategory(null);
-                setBankPaymentForm({
-                  fullName: "",
-                  email: "",
-                  phone: "",
-                  address: "",
-                  city: "",
-                  postalCode: "",
-                  country: "",
-                  amount: "",
-                  currency: "EUR",
-                  reference: "",
-                  description: "",
-                  beneficiaryName: "",
-                  beneficiaryIban: "",
-                  beneficiaryBic: "",
-                  beneficiaryBank: "",
-                  beneficiaryAddress: "",
-                  beneficiaryCountry: "",
-                  termsAccepted: false,
-                });
-              }}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>{t.backToCategories}</span>
-            </button>
-
             <div className="bg-white border border-gray-200">
               <div className="bg-[#b91c1c] px-6 py-4">
                 <h3 className="text-lg font-semibold text-white">{t.bankTransferPayment}</h3>
                 <p className="text-sm text-red-100 mt-1">
-                  {t[PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.nameKey as keyof typeof t]} - {t.secureSEPASWIFTTransfer}
+                  {t.taxes || "Taxes"} - {t.secureSEPASWIFTTransfer}
                 </p>
               </div>
 
@@ -1603,10 +1484,9 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                           toast({ title: t.missingInformation, description: t.fillRequiredFields, variant: "destructive" });
                           return;
                         }
-                        const categoryName = t[PAYMENT_CATEGORIES.find(c => c.id === selectedBankCategory)?.nameKey as keyof typeof t] || "";
                         setFormData({
                           ...formData,
-                          payment_type: String(categoryName),
+                          payment_type: String(t.taxes || "Taxes"),
                           beneficiary_name: bankPaymentForm.beneficiaryName,
                           beneficiary_account: bankPaymentForm.beneficiaryIban,
                           beneficiary_bank_name: bankPaymentForm.beneficiaryBank,
