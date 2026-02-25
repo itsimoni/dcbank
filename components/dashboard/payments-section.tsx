@@ -1072,12 +1072,12 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                         onClick={() => setSelectedCryptoPayment(cryptoKey)}
                         className={`flex flex-col items-center gap-2 py-4 px-3 transition-all ${
                           selectedCryptoPayment === cryptoKey
-                            ? "bg-[#b91c1c] text-white"
+                            ? "bg-gray-200 border-2 border-gray-400 text-gray-900"
                             : "bg-white border border-gray-300 text-gray-700 hover:border-gray-400"
                         }`}
                       >
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          selectedCryptoPayment === cryptoKey ? "bg-white/20" : "bg-gray-50"
+                          selectedCryptoPayment === cryptoKey ? "bg-white" : "bg-gray-50"
                         }`}>
                           <img
                             src={CRYPTO_OPTIONS[cryptoKey].logo}
