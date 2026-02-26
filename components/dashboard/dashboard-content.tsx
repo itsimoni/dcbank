@@ -33,6 +33,7 @@ import {
   FileText,
   Banknote,
   Languages,
+  LogOut,
 } from "lucide-react";
 import Image from "next/image";
 import TaxCard from "../tax-card";
@@ -239,6 +240,11 @@ function DashboardContent({
   const { language, setLanguage } = useLanguage();
   // Add language dropdown state
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  // User menu state
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const isComponentMountedRef = useRef<boolean>(true);
 
   // Get translations
   const t = useMemo(() => getTranslations(language), [language]);
@@ -336,6 +342,104 @@ function DashboardContent({
     () => setActiveTab("support"),
     [setActiveTab]
   );
+
+  useEffect(() => {
+    return () => {
+      isComponentMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    try {
+      isComponentMountedRef.current = false;
+      let user;
+      try {
+        const userResult = await Promise.race([
+          supabase.auth.getUser(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("User fetch timeout")), 2000)
+          ),
+        ]);
+        user = userResult.data?.user;
+      } catch (error) {
+        console.warn("Could not fetch user for logout:", error);
+      }
+
+      if (user) {
+        const updatePresence = async () => {
+          try {
+            await Promise.race([
+              supabase.from("user_presence").upsert(
+                {
+                  user_id: user.id,
+                  is_online: false,
+                  last_seen: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "user_id" }
+              ),
+              new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("Presence timeout")), 1000)
+              ),
+            ]);
+          } catch {}
+        };
+        updatePresence();
+      }
+
+      const logoutStrategies = [
+        () =>
+          Promise.race([
+            supabase.auth.signOut(),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error("Normal logout timeout")), 3000)
+            ),
+          ]),
+        () => supabase.auth.signOut({ scope: "local" }),
+        () => Promise.resolve({ error: null }),
+      ];
+
+      let logoutSuccess = false;
+      for (const strategy of logoutStrategies) {
+        try {
+          const result = await strategy();
+          if (!result.error) {
+            logoutSuccess = true;
+            break;
+          }
+        } catch (error) {
+          console.warn("Logout strategy failed:", error);
+          continue;
+        }
+      }
+
+      if (logoutSuccess) {
+        console.log("Successfully signed out");
+      } else {
+        console.warn("All logout strategies failed, but continuing...");
+      }
+    } catch (error) {
+      console.error("Critical error during logout:", error);
+    } finally {
+      setIsLoggingOut(false);
+      try {
+        window.location.href = "/";
+      } catch {
+        window.location.reload();
+      }
+    }
+  };
 
   // Fetch user data from users table
   useEffect(() => {
@@ -880,50 +984,82 @@ function DashboardContent({
             {t.welcome}, {formatName(displayName)}
           </h1>
 
-          {/* Language Selector */}
-          <div className="relative">
-            <button
-              onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-              className="flex items-center space-x-2 bg-white border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              <Languages className="h-4 w-4 text-[#b91c1c]" />
-              <span>{languageNames[language]}</span>
-              <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
+          <div className="flex items-center gap-3">
+            {/* Language Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                className="flex items-center space-x-2 bg-white border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <Languages className="h-4 w-4 text-[#b91c1c]" />
+                <span>{languageNames[language]}</span>
+                <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-            {isLanguageDropdownOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setIsLanguageDropdownOpen(false)}
-                />
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg z-20 overflow-hidden">
-                  {Object.entries(languageNames).map(([code, name]) => (
-                    <button
-                      key={code}
-                      onClick={() => {
-                        setLanguage(code as Language);
-                        setIsLanguageDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
-                        language === code
-                          ? 'bg-[#b91c1c] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{name}</span>
-                        {language === code && (
-                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </button>
-                  ))}
+              {isLanguageDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsLanguageDropdownOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg z-20 overflow-hidden">
+                    {Object.entries(languageNames).map(([code, name]) => (
+                      <button
+                        key={code}
+                        onClick={() => {
+                          setLanguage(code as Language);
+                          setIsLanguageDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
+                          language === code
+                            ? 'bg-[#b91c1c] text-white font-medium'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span>{name}</span>
+                          {language === code && (
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* User Profile Button */}
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-md bg-[#b91c1c] text-white hover:bg-[#991b1b] transition-colors shadow-sm"
+              >
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-sm font-medium max-w-[120px] truncate">
+                  {formatName(displayName)}
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
+              </button>
+              {showUserMenu && (
+                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
+                  <button
+                    onClick={handleSignOut}
+                    disabled={isLoggingOut}
+                    className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2 text-red-600"
+                  >
+                    {isLoggingOut ? (
+                      <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <LogOut className="w-4 h-4" />
+                    )}
+                    {isLoggingOut ? t.loggingOut : t.signOut}
+                  </button>
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
 

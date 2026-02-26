@@ -1,12 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
-import { supabase } from "@/lib/supabase";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getTranslations } from "@/lib/translations";
-import { LogOut, ChevronDown } from "lucide-react";
 import Sidebar from "./sidebar";
 import DashboardContent from "./dashboard-content";
 import AccountsSection from "./accounts-section";
@@ -37,12 +33,6 @@ export default function Dashboard() {
   const sectionFromUrl = searchParams.get("section");
   const initialSection = sectionFromUrl && sectionFromUrl in SECTION_COMPONENTS ? sectionFromUrl : "dashboard";
   const [activeTab, setActiveTab] = useState(initialSection);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-  const isComponentMountedRef = useRef<boolean>(true);
-  const { language } = useLanguage();
-  const t = getTranslations(language);
 
   useEffect(() => {
     if (sectionFromUrl && sectionFromUrl in SECTION_COMPONENTS) {
@@ -50,113 +40,7 @@ export default function Dashboard() {
     }
   }, [sectionFromUrl]);
 
-  useEffect(() => {
-    return () => {
-      isComponentMountedRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const { userProfile, balances, cryptoBalances, transactions, loading, error } = useDashboardData();
-
-  const handleSignOut = async () => {
-    setIsLoggingOut(true);
-    try {
-      isComponentMountedRef.current = false;
-      let user;
-      try {
-        const userResult = await Promise.race([
-          supabase.auth.getUser(),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error("User fetch timeout")), 2000)
-          ),
-        ]);
-        user = userResult.data?.user;
-      } catch (error) {
-        console.warn("Could not fetch user for logout:", error);
-      }
-
-      if (user) {
-        const updatePresence = async () => {
-          try {
-            await Promise.race([
-              supabase.from("user_presence").upsert(
-                {
-                  user_id: user.id,
-                  is_online: false,
-                  last_seen: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                },
-                { onConflict: "user_id" }
-              ),
-              new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Presence timeout")), 1000)
-              ),
-            ]);
-          } catch {}
-        };
-        updatePresence();
-      }
-
-      const logoutStrategies = [
-        () =>
-          Promise.race([
-            supabase.auth.signOut(),
-            new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("Normal logout timeout")), 3000)
-            ),
-          ]),
-        () => supabase.auth.signOut({ scope: "local" }),
-        () => Promise.resolve({ error: null }),
-      ];
-
-      let logoutSuccess = false;
-      for (const strategy of logoutStrategies) {
-        try {
-          const result = await strategy();
-          if (!result.error) {
-            logoutSuccess = true;
-            break;
-          }
-        } catch (error) {
-          console.warn("Logout strategy failed:", error);
-          continue;
-        }
-      }
-
-      if (logoutSuccess) {
-        console.log("Successfully signed out");
-      } else {
-        console.warn("All logout strategies failed, but continuing...");
-      }
-    } catch (error) {
-      console.error("Critical error during logout:", error);
-    } finally {
-      setIsLoggingOut(false);
-      try {
-        window.location.href = "/";
-      } catch {
-        window.location.reload();
-      }
-    }
-  };
-
-  const displayName = userProfile?.full_name
-    ? userProfile.full_name
-        .toLowerCase()
-        .split(" ")
-        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
-    : t.clientName;
+  const { userProfile, loading, error } = useDashboardData();
 
   const handleTabChange = useCallback((newTab: string) => {
     setActiveTab(newTab);
@@ -221,36 +105,6 @@ export default function Dashboard() {
       </div>
 
       <div className="flex-1 overflow-auto">
-        <div className="flex justify-end px-4 py-3">
-          <div className="relative" ref={userMenuRef}>
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#b91c1c] text-white hover:bg-[#991b1b] transition-colors"
-            >
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              <span className="text-sm font-medium max-w-[120px] truncate">
-                {displayName}
-              </span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-            {showUserMenu && (
-              <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
-                <button
-                  onClick={handleSignOut}
-                  disabled={isLoggingOut}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2 text-red-600"
-                >
-                  {isLoggingOut ? (
-                    <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <LogOut className="w-4 h-4" />
-                  )}
-                  {isLoggingOut ? t.loggingOut : t.signOut}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
         {SectionComponent && (
           <SectionComponent
             userProfile={userProfile}
