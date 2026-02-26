@@ -1,14 +1,44 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 
-// Improved version with fixes for your issues
+const KYC_CACHE_KEY = "kyc_status_cache";
+
+function getCachedKycStatus(userId: string): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const cached = localStorage.getItem(KYC_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed.userId === userId && parsed.status) {
+        return parsed.status;
+      }
+    }
+  } catch {
+    // Ignore cache errors
+  }
+  return null;
+}
+
+function setCachedKycStatus(userId: string, status: string) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(KYC_CACHE_KEY, JSON.stringify({ userId, status }));
+  } catch {
+    // Ignore cache errors
+  }
+}
+
 export function useKYCStatus(userId: string | null) {
+  const cachedStatus = userId ? getCachedKycStatus(userId) : null;
+  const canSkipLoading = cachedStatus === "approved" || cachedStatus === "skipped";
+
   const [kycStatus, setKycStatus] = useState<
     "not_started" | "pending" | "approved" | "rejected" | "skipped" | null
-  >(null);
-  const [loading, setLoading] = useState(true);
+  >(canSkipLoading ? (cachedStatus as "approved" | "skipped") : null);
+  const [loading, setLoading] = useState(!canSkipLoading);
   const [error, setError] = useState<string | null>(null);
+  const verifiedRef = useRef(false);
 
   useEffect(() => {
     if (!userId) {
@@ -20,7 +50,6 @@ export function useKYCStatus(userId: string | null) {
       try {
         setError(null);
 
-        // Check user's KYC status
         const { data: userData, error: userError } = await supabase
           .from("users")
           .select("kyc_status")
@@ -44,18 +73,18 @@ export function useKYCStatus(userId: string | null) {
               setError("Failed to create user record");
             }
 
+            setCachedKycStatus(userId, "not_started");
             setKycStatus("not_started");
           } else {
-            // Other database errors
             console.error("Database error:", userError);
             setError(`Database error: ${userError.message}`);
             setKycStatus("not_started");
           }
         } else {
-          // Successfully got user data
           const status = userData?.kyc_status || "not_started";
-          console.log("KYC status retrieved:", status);
+          setCachedKycStatus(userId, status);
           setKycStatus(status);
+          verifiedRef.current = true;
         }
       } catch (error: any) {
         console.error("Error checking KYC status:", error);
@@ -80,8 +109,9 @@ export function useKYCStatus(userId: string | null) {
           filter: `id=eq.${userId}`,
         },
         (payload) => {
-          console.log("KYC status updated via subscription:", payload.new);
-          setKycStatus(payload.new.kyc_status);
+          const newStatus = payload.new.kyc_status;
+          setCachedKycStatus(userId, newStatus);
+          setKycStatus(newStatus);
         }
       )
       .subscribe();
@@ -104,6 +134,7 @@ export function useKYCStatus(userId: string | null) {
         .single();
 
       if (!userError && userData) {
+        setCachedKycStatus(userId, userData.kyc_status);
         setKycStatus(userData.kyc_status);
       }
     } catch (error) {
