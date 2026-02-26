@@ -1,7 +1,6 @@
 import type React from "react";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -11,13 +10,10 @@ import {
   CreditCard,
   MessageSquare,
   HelpCircle,
-  LogOut,
   Menu,
   X,
   Banknote,
   Globe,
-  User,
-  ChevronDown,
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -109,21 +105,12 @@ export default function Sidebar({
 }: SidebarProps) {
   const { language, setLanguage } = useLanguage();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const [menuItems] = useState<MenuItem[]>(MENU_ITEMS);
   const languageMenuRef = useRef<HTMLDivElement>(null);
 
-  const isComponentMountedRef = useRef<boolean>(true);
-
   const t = getTranslations(language);
-
-  useEffect(() => {
-    return () => {
-      isComponentMountedRef.current = false;
-    };
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -145,98 +132,6 @@ export default function Sidebar({
     [setActiveTab]
   );
 
-  const handleSignOut = async () => {
-    setIsLoggingOut(true);
-
-    try {
-      isComponentMountedRef.current = false;
-
-      let user;
-      try {
-        const userResult = await Promise.race([
-          supabase.auth.getUser(),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error("User fetch timeout")), 2000)
-          ),
-        ]);
-        user = userResult.data?.user;
-      } catch (error) {
-        console.warn("Could not fetch user for logout:", error);
-      }
-
-      if (user) {
-        const updatePresence = async () => {
-          try {
-            await Promise.race([
-              supabase.from("user_presence").upsert(
-                {
-                  user_id: user.id,
-                  is_online: false,
-                  last_seen: new Date().toISOString(),
-                  updated_at: new Date().toISOString(),
-                },
-                { onConflict: "user_id" }
-              ),
-              new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Presence timeout")), 1000)
-              ),
-            ]);
-          } catch {
-          }
-        };
-        updatePresence();
-      }
-
-      const logoutStrategies = [
-        () =>
-          Promise.race([
-            supabase.auth.signOut(),
-            new Promise<never>((_, reject) =>
-              setTimeout(() => reject(new Error("Normal logout timeout")), 3000)
-            ),
-          ]),
-        () => supabase.auth.signOut({ scope: "local" }),
-        () => Promise.resolve({ error: null }),
-      ];
-
-      let logoutSuccess = false;
-      for (const strategy of logoutStrategies) {
-        try {
-          const result = await strategy();
-          if (!result.error) {
-            logoutSuccess = true;
-            break;
-          }
-        } catch (error) {
-          console.warn("Logout strategy failed:", error);
-          continue;
-        }
-      }
-
-      if (logoutSuccess) {
-        console.log("Successfully signed out");
-      } else {
-        console.warn("All logout strategies failed, but continuing...");
-      }
-    } catch (error) {
-      console.error("Critical error during logout:", error);
-    } finally {
-      setIsLoggingOut(false);
-      try {
-        window.location.href = "/";
-      } catch {
-        window.location.reload();
-      }
-    }
-  };
-
-  const displayName = userProfile?.full_name
-    ? userProfile.full_name
-        .toLowerCase()
-        .split(" ")
-        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ")
-    : t.clientName;
 
   return (
     <>
@@ -302,17 +197,6 @@ export default function Sidebar({
             </nav>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`text-gray-600 hover:text-[#b91c1c] hover:bg-gray-100 ${
-                  activeTab === "profile" ? "text-[#b91c1c] bg-gray-100" : ""
-                }`}
-                onClick={() => handleMenuItemClick("profile", true)}
-              >
-                <User className="h-5 w-5" />
-              </Button>
-
               <div className="relative" ref={languageMenuRef}>
                 <Button
                   variant="ghost"
@@ -403,54 +287,6 @@ export default function Sidebar({
                 );
               })}
 
-              <div className="pt-3 mt-3 border-t border-gray-200">
-                <button
-                  onClick={() => handleMenuItemClick("profile", true)}
-                  className={`w-full flex items-center gap-3 px-3 py-3 text-sm transition-colors ${
-                    activeTab === "profile"
-                      ? "font-bold text-black"
-                      : "font-medium text-gray-700 hover:text-black"
-                  }`}
-                >
-                  {activeTab === "profile" && (
-                    <svg
-                      width="8"
-                      height="12"
-                      viewBox="0 0 8 12"
-                      fill="none"
-                      className="text-[#b91c1c] -ml-1"
-                    >
-                      <path
-                        d="M8 6L0 12V0L8 6Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  )}
-                  <User className="w-5 h-5" />
-                  <span>{t.profile}</span>
-                </button>
-                <div className="flex items-center justify-between px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-900">
-                      {displayName}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSignOut}
-                    disabled={isLoggingOut}
-                    className="text-red-600 hover:bg-red-50"
-                  >
-                    {isLoggingOut ? (
-                      <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <LogOut className="w-4 h-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
             </div>
           </div>
         )}
