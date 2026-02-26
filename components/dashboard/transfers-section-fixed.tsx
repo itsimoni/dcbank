@@ -1417,16 +1417,16 @@ export default function TransfersSection({
       <Dialog open={showTransferSuccessModal} onOpenChange={setShowTransferSuccessModal}>
         <DialogContent className="max-w-lg p-5 sm:p-6">
           <DialogHeader className="pb-3">
-            <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2 text-green-700">
-              <CheckCircle className="w-6 h-6" />
-              Transfer Submitted Successfully
+            <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2 text-amber-600">
+              <Clock className="w-6 h-6" />
+              Transfer Pending Verification
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="bg-green-50 border border-green-300 p-4">
-              <p className="text-green-800 font-medium mb-2">
-                Your transfer has been submitted and is now being processed.
+            <div className="bg-amber-50 border border-amber-300 p-4">
+              <p className="text-amber-800 font-medium mb-2">
+                Your transfer has been submitted and is being verified.
               </p>
             </div>
 
