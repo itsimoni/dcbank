@@ -94,24 +94,22 @@ export default function Dashboard() {
   const SectionComponent = SECTION_COMPONENTS[activeTab as keyof typeof SECTION_COMPONENTS];
 
   return (
-    <div className="relative h-screen bg-gray-100">
-      <div className="flex h-full">
-        <div className="md:w-64 md:h-full md:fixed md:left-0 md:top-0 md:z-20">
-          <Sidebar
-            activeTab={activeTab}
-            setActiveTab={handleTabChange}
-            userProfile={userProfile}
-          />
-        </div>
+    <div className="relative min-h-screen bg-gray-100 flex flex-col">
+      <div className="sticky top-0 z-50">
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
+          userProfile={userProfile}
+        />
+      </div>
 
-        <div className="flex-1 md:ml-64 overflow-auto">
-          {SectionComponent && (
-            <SectionComponent
-              userProfile={userProfile}
-              setActiveTab={handleTabChange}
-            />
-          )}
-        </div>
+      <div className="flex-1 overflow-auto">
+        {SectionComponent && (
+          <SectionComponent
+            userProfile={userProfile}
+            setActiveTab={handleTabChange}
+          />
+        )}
       </div>
     </div>
   );
