@@ -879,7 +879,7 @@ export const translations = {
     allCurrencyAmountFieldsRequired: "All currency and amount fields are required",
     accountHolderNameRequired: "Account holder name is required",
     accountNumberRequired: "Account number is required",
-    pleaseCorrectFollowingErrors: "Please correct the following errors:",
+    pleaseCorrectFollowingErrors: "Please correct the following:",
     pendingReview: "Pending review",
     approved: "Approved",
     completed: "Completed",
