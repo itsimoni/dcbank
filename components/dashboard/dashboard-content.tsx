@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRealtimeData } from "@/hooks/use-realtime-data";
 import { useLatestMessage } from "@/hooks/use-latest-message";
 import { supabase } from "@/lib/supabase";
-import { getTranslations, Language } from "@/lib/translations";
+import { getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Bitcoin,
@@ -32,7 +32,6 @@ import {
   User,
   FileText,
   Banknote,
-  Languages,
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
@@ -237,9 +236,7 @@ function DashboardContent({
   // Add state for transaction history
   const [transactionHistory, setTransactionHistory] = useState<TransactionHistory[]>([]);
   // Add language state
-  const { language, setLanguage } = useLanguage();
-  // Add language dropdown state
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const { language } = useLanguage();
   // User menu state
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -248,16 +245,6 @@ function DashboardContent({
 
   // Get translations
   const t = useMemo(() => getTranslations(language), [language]);
-
-  // Language names for the dropdown
-  const languageNames: Record<Language, string> = {
-    en: "English",
-    fr: "Français",
-    de: "Deutsch",
-    es: "Español",
-    it: "Italiano",
-    el: "Ελληνικά",
-  };
 
   // Memoized functions for better performance
   const formatCurrency = useCallback((amount: number, currency: string) => {
@@ -985,52 +972,6 @@ function DashboardContent({
           </h1>
 
           <div className="flex items-center gap-3">
-            {/* Language Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
-                className="flex items-center space-x-2 bg-white border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <Languages className="h-4 w-4 text-[#b91c1c]" />
-                <span>{languageNames[language]}</span>
-                <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isLanguageDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isLanguageDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsLanguageDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg z-20 overflow-hidden">
-                    {Object.entries(languageNames).map(([code, name]) => (
-                      <button
-                        key={code}
-                        onClick={() => {
-                          setLanguage(code as Language);
-                          setIsLanguageDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors duration-150 ${
-                          language === code
-                            ? 'bg-[#b91c1c] text-white font-medium'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{name}</span>
-                          {language === code && (
-                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
             {/* User Profile Button */}
             <div className="relative" ref={userMenuRef}>
               <button
