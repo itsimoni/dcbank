@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
-import Image from "next/image";
 
 interface SidebarProps {
   activeTab: string;
@@ -256,14 +255,11 @@ export default function Sidebar({
         <div className="px-4 lg:px-6">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-4">
-              <Image
+              <img
                 src="/logoblack2.svg"
                 alt="Digital Chain Bank Logo"
                 width={140}
                 height={84}
-                priority
-                unoptimized
-                loading="eager"
                 fetchPriority="high"
                 className="w-[140px] h-[84px] object-contain"
               />
