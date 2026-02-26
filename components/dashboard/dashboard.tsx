@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getTranslations } from "@/lib/translations";
 import Sidebar from "./sidebar";
 import DashboardContent from "./dashboard-content";
 import AccountsSection from "./accounts-section";
@@ -33,6 +35,8 @@ export default function Dashboard() {
   const sectionFromUrl = searchParams.get("section");
   const initialSection = sectionFromUrl && sectionFromUrl in SECTION_COMPONENTS ? sectionFromUrl : "dashboard";
   const [activeTab, setActiveTab] = useState(initialSection);
+  const { language } = useLanguage();
+  const t = useMemo(() => getTranslations(language), [language]);
 
   useEffect(() => {
     if (sectionFromUrl && sectionFromUrl in SECTION_COMPONENTS) {
@@ -52,7 +56,7 @@ export default function Dashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F26623] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+          <p className="mt-4 text-gray-600">{t.loadingDashboard}</p>
         </div>
       </div>
     );
@@ -64,17 +68,17 @@ export default function Dashboard() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <div className="w-8 h-8 text-red-500">⚠️</div>
+            <div className="w-8 h-8 text-red-500">!</div>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Connection Error
+            {t.connectionError}
           </h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="bg-[#F26623] text-white px-6 py-2 rounded-lg hover:bg-[#d55a1f] transition-colors"
           >
-            Retry
+            {t.retry}
           </button>
         </div>
       </div>
@@ -85,7 +89,7 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">No user profile found</p>
+          <p className="text-gray-600">{t.noUserProfileFound}</p>
         </div>
       </div>
     );

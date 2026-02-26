@@ -379,14 +379,14 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
                 onClick={() => setActiveTab("payments")}
                 className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
               >
-                {t.payYourTaxes || "Pay your Taxes"}
+                {t.payYourTaxes}
               </Button>
               <Button
                 onClick={exportTaxReport}
                 className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
               >
                 <FileText className="w-4 h-4 mr-2" />
-                {t.exportTaxReport || "Export Tax Report (PDF)"}
+                {t.exportTaxReport}
               </Button>
             </div>
           </div>
