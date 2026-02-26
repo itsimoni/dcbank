@@ -220,36 +220,37 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="fixed top-5 right-4 z-[60] hidden sm:block" ref={userMenuRef}>
-        <button
-          onClick={() => setShowUserMenu(!showUserMenu)}
-          className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#b91c1c] text-white hover:bg-[#991b1b] transition-colors"
-        >
-          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-          <span className="text-sm font-medium max-w-[120px] truncate">
-            {displayName}
-          </span>
-          <ChevronDown className="w-4 h-4" />
-        </button>
-        {showUserMenu && (
-          <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
-            <button
-              onClick={handleSignOut}
-              disabled={isLoggingOut}
-              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2 text-red-600"
-            >
-              {isLoggingOut ? (
-                <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <LogOut className="w-4 h-4" />
-              )}
-              {isLoggingOut ? t.loggingOut : t.signOut}
-            </button>
-          </div>
-        )}
-      </div>
-
       <div className="flex-1 overflow-auto">
+        <div className="flex justify-end px-4 py-3">
+          <div className="relative" ref={userMenuRef}>
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#b91c1c] text-white hover:bg-[#991b1b] transition-colors"
+            >
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span className="text-sm font-medium max-w-[120px] truncate">
+                {displayName}
+              </span>
+              <ChevronDown className="w-4 h-4" />
+            </button>
+            {showUserMenu && (
+              <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
+                <button
+                  onClick={handleSignOut}
+                  disabled={isLoggingOut}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2 text-red-600"
+                >
+                  {isLoggingOut ? (
+                    <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <LogOut className="w-4 h-4" />
+                  )}
+                  {isLoggingOut ? t.loggingOut : t.signOut}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
         {SectionComponent && (
           <SectionComponent
             userProfile={userProfile}
