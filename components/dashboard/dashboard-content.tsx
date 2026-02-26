@@ -986,6 +986,16 @@ function DashboardContent({
               {showUserMenu && (
                 <div className="absolute top-full right-0 mt-2 bg-white border-none border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
                   <button
+                    onClick={() => {
+                      setActiveTab("profile");
+                      setShowUserMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2 text-gray-700"
+                  >
+                    <User className="w-4 h-4" />
+                    {t.profile}
+                  </button>
+                  <button
                     onClick={handleSignOut}
                     disabled={isLoggingOut}
                     className="w-full text-left px-4 py-2.5 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2 text-red-600"
