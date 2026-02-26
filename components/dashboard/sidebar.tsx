@@ -95,12 +95,6 @@ const MENU_ITEMS: MenuItem[] = [
     isEnabled: true,
   },
   {
-    id: "profile",
-    labelKey: "profile",
-    icon: User,
-    isEnabled: true,
-  },
-  {
     id: "support",
     labelKey: "support",
     icon: HelpCircle,
@@ -313,6 +307,17 @@ export default function Sidebar({
             </nav>
 
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`text-gray-600 hover:text-[#b91c1c] hover:bg-gray-100 ${
+                  activeTab === "profile" ? "text-[#b91c1c] bg-gray-100" : ""
+                }`}
+                onClick={() => handleMenuItemClick("profile", true)}
+              >
+                <User className="h-5 w-5" />
+              </Button>
+
               <div className="relative" ref={languageMenuRef}>
                 <Button
                   variant="ghost"
@@ -356,17 +361,6 @@ export default function Sidebar({
                 </button>
                 {showUserMenu && (
                   <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
-                    <button
-                      onClick={() => {
-                        handleMenuItemClick("profile", true);
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2"
-                    >
-                      <User className="w-4 h-4" />
-                      {t.profile}
-                    </button>
-                    <div className="border-t border-gray-200"></div>
                     <button
                       onClick={handleSignOut}
                       disabled={isLoggingOut}
@@ -444,6 +438,31 @@ export default function Sidebar({
               })}
 
               <div className="pt-3 mt-3 border-t border-gray-200">
+                <button
+                  onClick={() => handleMenuItemClick("profile", true)}
+                  className={`w-full flex items-center gap-3 px-3 py-3 text-sm transition-colors ${
+                    activeTab === "profile"
+                      ? "font-bold text-black"
+                      : "font-medium text-gray-700 hover:text-black"
+                  }`}
+                >
+                  {activeTab === "profile" && (
+                    <svg
+                      width="8"
+                      height="12"
+                      viewBox="0 0 8 12"
+                      fill="none"
+                      className="text-[#b91c1c] -ml-1"
+                    >
+                      <path
+                        d="M8 6L0 12V0L8 6Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  )}
+                  <User className="w-5 h-5" />
+                  <span>{t.profile}</span>
+                </button>
                 <div className="flex items-center justify-between px-3 py-2">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
