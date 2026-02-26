@@ -254,18 +254,18 @@ export default function Sidebar({
     <>
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="px-4 lg:px-6">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-4">
               <Image
                 src="/logoblack2.svg"
                 alt="Digital Chain Bank Logo"
-                width={120}
-                height={72}
+                width={140}
+                height={84}
                 priority
                 unoptimized
                 loading="eager"
                 fetchPriority="high"
-                className="w-[120px] h-[72px] object-contain"
+                className="w-[140px] h-[84px] object-contain"
               />
             </div>
 
@@ -277,11 +277,11 @@ export default function Sidebar({
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id, item.isEnabled)}
                     disabled={!item.isEnabled}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
                       activeTab === item.id
-                        ? "font-bold text-[#b91c1c]"
+                        ? "font-bold text-black"
                         : item.isEnabled
-                        ? "font-medium text-gray-700 hover:bg-gray-100 hover:text-[#b91c1c]"
+                        ? "font-medium text-gray-700 hover:text-black"
                         : "font-medium text-gray-400 cursor-not-allowed"
                     }`}
                   >
@@ -394,11 +394,11 @@ export default function Sidebar({
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id, item.isEnabled)}
                     disabled={!item.isEnabled}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 py-3 text-sm transition-colors ${
                       activeTab === item.id
-                        ? "font-bold text-[#b91c1c]"
+                        ? "font-bold text-black"
                         : item.isEnabled
-                        ? "font-medium text-gray-700 hover:bg-gray-100"
+                        ? "font-medium text-gray-700 hover:text-black"
                         : "font-medium text-gray-400 cursor-not-allowed"
                     }`}
                   >
