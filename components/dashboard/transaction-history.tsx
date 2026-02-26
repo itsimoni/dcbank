@@ -663,110 +663,82 @@ export default function TransactionHistory() {
 
         <div className="mt-8 border-t border-gray-200 pt-8">
           <div className="bg-gray-50 border border-gray-200 p-6 space-y-6">
-            <h2 className="text-lg font-semibold text-gray-900">Important Information About Your Transactions</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t.txInfoTitle}</h2>
 
             <div className="space-y-4 text-sm text-gray-700">
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">1. General Transaction Processing</h3>
-                <p className="leading-relaxed">
-                  All transactions displayed in this history are processed in accordance with applicable banking regulations, including the Payment Services Directive (PSD2) within the European Economic Area, and relevant local financial regulations. Transaction records are maintained for a minimum period of seven (7) years as required by anti-money laundering (AML) regulations and may be subject to regulatory review.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo1Title}</h3>
+                <p className="leading-relaxed">{t.txInfo1Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">2. Internal Currency Exchange</h3>
-                <p className="leading-relaxed">
-                  Internal currency exchanges between your accounts are typically processed immediately and reflect in both accounts within seconds during standard operating hours. Exchange rates are determined at the time of transaction execution based on our prevailing mid-market rates plus applicable margin.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo2Title}</h3>
+                <p className="leading-relaxed">{t.txInfo2Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">3. Bank Wire Transfers</h3>
-                <p className="leading-relaxed">
-                  International wire transfers are processed through the SWIFT network and typically require two to five (2-5) business days, depending on the destination country, intermediary banks involved, and correspondent banking arrangements. All transfers are screened against sanctions lists and may be subject to additional compliance checks.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo3Title}</h3>
+                <p className="leading-relaxed">{t.txInfo3Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">4. Cryptocurrency Transfers</h3>
-                <p className="leading-relaxed">
-                  Digital asset transfers are processed on their respective blockchain networks and are subject to network confirmation times and fees. Cryptocurrency transactions are irreversible once confirmed on the blockchain. You are responsible for verifying recipient wallet addresses before initiating any transfer.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo4Title}</h3>
+                <p className="leading-relaxed">{t.txInfo4Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">5. Transaction Disputes and Chargebacks</h3>
-                <p className="leading-relaxed">
-                  If you believe a transaction was made in error or without your authorization, you must notify us within sixty (60) days of the transaction date. Disputes must be submitted in writing through our secure messaging system or by contacting customer support. We will investigate all claims in accordance with Regulation E (Electronic Fund Transfers) and applicable consumer protection laws. Resolution timeframes vary based on transaction type and complexity, typically ranging from ten (10) to ninety (90) business days.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo5Title}</h3>
+                <p className="leading-relaxed">{t.txInfo5Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">6. Transaction Limits and Restrictions</h3>
-                <p className="leading-relaxed">
-                  Daily and monthly transaction limits apply to all accounts and may vary based on account type, verification level, and regulatory requirements. These limits are designed to protect against fraud and ensure compliance with anti-money laundering regulations. Requests to increase limits require additional verification and may be subject to enhanced due diligence procedures. We reserve the right to decline, delay, or reverse any transaction that we reasonably believe violates our terms of service or applicable laws.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo6Title}</h3>
+                <p className="leading-relaxed">{t.txInfo6Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">7. Fees and Charges</h3>
-                <p className="leading-relaxed">
-                  Transaction fees are disclosed at the time of transaction initiation and are deducted from the transferred amount or charged separately as indicated. Fee schedules are subject to change with thirty (30) days prior notice. Foreign exchange transactions may include a spread between the buy and sell rates in addition to any disclosed fees. Correspondent and intermediary banks may impose additional charges for international transfers that are beyond our control and will be deducted from the transferred amount.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo7Title}</h3>
+                <p className="leading-relaxed">{t.txInfo7Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">8. Regulatory Compliance</h3>
-                <p className="leading-relaxed">
-                  All transactions are subject to applicable laws and regulations, including but not limited to the Bank Secrecy Act (BSA), USA PATRIOT Act, EU Anti-Money Laundering Directives, and sanctions programs administered by OFAC, the European Union, and the United Nations. We are required to report certain transactions to regulatory authorities and may be prohibited from disclosing such reports to you. We may delay, block, or refuse to process any transaction that we reasonably believe may violate any law, regulation, or our internal compliance policies.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo8Title}</h3>
+                <p className="leading-relaxed">{t.txInfo8Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">9. Data Protection and Privacy</h3>
-                <p className="leading-relaxed">
-                  Transaction data is processed and stored in accordance with the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and other applicable data protection laws. Your transaction history may be shared with regulatory authorities, law enforcement agencies pursuant to valid legal process, and third-party service providers necessary to process your transactions. For complete details on how we collect, use, and protect your personal data, please refer to our Privacy Policy.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo9Title}</h3>
+                <p className="leading-relaxed">{t.txInfo9Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">10. Liability Limitations</h3>
-                <p className="leading-relaxed">
-                  We shall not be liable for any losses arising from: (a) your failure to maintain adequate account security; (b) errors in recipient information provided by you; (c) delays or failures caused by third-party payment networks, correspondent banks, or blockchain networks; (d) force majeure events including natural disasters, wars, government actions, or system failures beyond our reasonable control; (e) compliance with legal or regulatory requirements. Our maximum liability for any transaction error attributable to us shall not exceed the amount of the transaction plus any fees charged.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo10Title}</h3>
+                <p className="leading-relaxed">{t.txInfo10Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">11. Electronic Communications</h3>
-                <p className="leading-relaxed">
-                  By using our services, you consent to receive all transaction-related communications electronically, including transaction confirmations, statements, and regulatory disclosures. Electronic records shall have the same legal validity as paper documents. You are responsible for maintaining a valid email address and checking your account regularly for important communications. We recommend enabling transaction notifications to monitor account activity in real-time.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo11Title}</h3>
+                <p className="leading-relaxed">{t.txInfo11Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">12. Record Retention</h3>
-                <p className="leading-relaxed">
-                  We maintain transaction records for a minimum of seven (7) years from the date of the transaction, or longer if required by applicable law. You may request copies of historical transaction records through our customer support channels. Records older than the standard retention period may no longer be available. We recommend downloading and maintaining your own records of important transactions for personal reference.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo12Title}</h3>
+                <p className="leading-relaxed">{t.txInfo12Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">13. Governing Law and Jurisdiction</h3>
-                <p className="leading-relaxed">
-                  These terms and all transactions conducted through our platform are governed by the laws of the Republic of Estonia, without regard to conflict of law principles. Any disputes arising from or relating to your transactions shall be subject to the exclusive jurisdiction of the courts of Estonia, except where prohibited by applicable consumer protection laws that mandate dispute resolution in your country of residence.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo13Title}</h3>
+                <p className="leading-relaxed">{t.txInfo13Content}</p>
               </section>
 
               <section>
-                <h3 className="font-semibold text-gray-900 mb-2">14. Amendments and Updates</h3>
-                <p className="leading-relaxed">
-                  We reserve the right to amend these terms and conditions at any time. Material changes will be communicated to you at least thirty (30) days before they take effect through email notification or prominent notice on our platform. Your continued use of our services after such changes constitutes acceptance of the amended terms. If you do not agree with any changes, you must discontinue use of our services before the effective date.
-                </p>
+                <h3 className="font-semibold text-gray-900 mb-2">{t.txInfo14Title}</h3>
+                <p className="leading-relaxed">{t.txInfo14Content}</p>
               </section>
             </div>
 
             <p className="text-xs text-gray-500 pt-4 border-t border-gray-200">
-              Last updated: February 2026. This information is provided for general guidance only and does not constitute legal or financial advice. Please consult the full Terms and Conditions governing your account for complete details. For questions regarding specific transactions or compliance matters, please contact our customer support team or your legal advisor.
+              {t.txInfoFooter}
             </p>
           </div>
         </div>
