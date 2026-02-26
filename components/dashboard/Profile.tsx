@@ -317,14 +317,6 @@ export default function Profile({ userProfile }: ProfileProps) {
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4 mt-4 text-xs text-gray-500">
-          <span className="flex items-center">
-            <span className="font-medium text-gray-600">Member since:</span>
-            <span className="ml-2 tabular-nums">
-              {userData?.created_at ? new Date(userData.created_at).toLocaleDateString() : t.notAvailable}
-            </span>
-          </span>
-        </div>
       </div>
 
       <div className="bg-white border border-gray-200 shadow-sm p-6">
