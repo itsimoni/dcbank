@@ -257,7 +257,7 @@ export default function Sidebar({
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <Image
-                src="/logoblack.svg"
+                src="/logoblack2.svg"
                 alt="Digital Chain Bank Logo"
                 width={120}
                 height={72}
