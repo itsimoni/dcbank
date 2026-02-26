@@ -277,12 +277,12 @@ export default function Sidebar({
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id, item.isEnabled)}
                     disabled={!item.isEnabled}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
                       activeTab === item.id
-                        ? "bg-[#b91c1c]/10 text-[#b91c1c]"
+                        ? "font-bold text-[#b91c1c]"
                         : item.isEnabled
-                        ? "text-gray-700 hover:bg-gray-100 hover:text-[#b91c1c]"
-                        : "text-gray-400 cursor-not-allowed"
+                        ? "font-medium text-gray-700 hover:bg-gray-100 hover:text-[#b91c1c]"
+                        : "font-medium text-gray-400 cursor-not-allowed"
                     }`}
                   >
                     <IconComponent className="w-4 h-4" />
@@ -394,12 +394,12 @@ export default function Sidebar({
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id, item.isEnabled)}
                     disabled={!item.isEnabled}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm transition-colors ${
                       activeTab === item.id
-                        ? "bg-[#b91c1c]/10 text-[#b91c1c]"
+                        ? "font-bold text-[#b91c1c]"
                         : item.isEnabled
-                        ? "text-gray-700 hover:bg-gray-100"
-                        : "text-gray-400 cursor-not-allowed"
+                        ? "font-medium text-gray-700 hover:bg-gray-100"
+                        : "font-medium text-gray-400 cursor-not-allowed"
                     }`}
                   >
                     <IconComponent className="w-5 h-5" />
