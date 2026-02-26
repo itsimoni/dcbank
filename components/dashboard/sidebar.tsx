@@ -268,25 +268,44 @@ export default function Sidebar({
             <nav className="hidden lg:flex items-center gap-1">
               {menuItems.map((item) => {
                 const IconComponent = item.icon;
+                const isActive = activeTab === item.id;
                 return (
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id, item.isEnabled)}
                     disabled={!item.isEnabled}
-                    className={`flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
-                      activeTab === item.id
+                    className={`relative flex flex-col items-center px-3 py-2 text-sm transition-colors ${
+                      isActive
                         ? "font-bold text-black"
                         : item.isEnabled
                         ? "font-medium text-gray-700 hover:text-black"
                         : "font-medium text-gray-400 cursor-not-allowed"
                     }`}
                   >
-                    <IconComponent className="w-4 h-4" />
-                    <span className="hidden xl:inline">{t[item.labelKey]}</span>
-                    {item.badge && (
-                      <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-4 flex items-center justify-center">
-                        {item.badge}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="w-4 h-4" />
+                      <span className="hidden xl:inline">{t[item.labelKey]}</span>
+                      {item.badge && (
+                        <span className="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] h-4 flex items-center justify-center">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                    {isActive && (
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                        <svg
+                          width="12"
+                          height="8"
+                          viewBox="0 0 12 8"
+                          fill="none"
+                          className="text-[#b91c1c]"
+                        >
+                          <path
+                            d="M6 8L0 0H12L6 8Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </div>
                     )}
                   </button>
                 );
@@ -385,19 +404,34 @@ export default function Sidebar({
             <div className="px-4 py-3 space-y-1">
               {menuItems.map((item) => {
                 const IconComponent = item.icon;
+                const isActive = activeTab === item.id;
                 return (
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id, item.isEnabled)}
                     disabled={!item.isEnabled}
                     className={`w-full flex items-center gap-3 px-3 py-3 text-sm transition-colors ${
-                      activeTab === item.id
+                      isActive
                         ? "font-bold text-black"
                         : item.isEnabled
                         ? "font-medium text-gray-700 hover:text-black"
                         : "font-medium text-gray-400 cursor-not-allowed"
                     }`}
                   >
+                    {isActive && (
+                      <svg
+                        width="8"
+                        height="12"
+                        viewBox="0 0 8 12"
+                        fill="none"
+                        className="text-[#b91c1c] -ml-1"
+                      >
+                        <path
+                          d="M8 6L0 12V0L8 6Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    )}
                     <IconComponent className="w-5 h-5" />
                     <span>{t[item.labelKey]}</span>
                     {item.badge && (
