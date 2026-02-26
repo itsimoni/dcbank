@@ -111,11 +111,9 @@ export default function Sidebar({
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const [menuItems] = useState<MenuItem[]>(MENU_ITEMS);
   const languageMenuRef = useRef<HTMLDivElement>(null);
-  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const isComponentMountedRef = useRef<boolean>(true);
 
@@ -131,9 +129,6 @@ export default function Sidebar({
     const handleClickOutside = (event: MouseEvent) => {
       if (languageMenuRef.current && !languageMenuRef.current.contains(event.target as Node)) {
         setShowLanguageMenu(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
       }
     };
 
@@ -344,35 +339,6 @@ export default function Sidebar({
                         {languageNames[lang]}
                       </button>
                     ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="relative hidden sm:block" ref={userMenuRef}>
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-md bg-[#b91c1c] text-white hover:bg-[#991b1b] transition-colors"
-                >
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span className="text-sm font-medium max-w-[120px] truncate">
-                    {displayName}
-                  </span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                {showUserMenu && (
-                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
-                    <button
-                      onClick={handleSignOut}
-                      disabled={isLoggingOut}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors flex items-center gap-2 text-red-600"
-                    >
-                      {isLoggingOut ? (
-                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <LogOut className="w-4 h-4" />
-                      )}
-                      {isLoggingOut ? t.loggingOut : t.signOut}
-                    </button>
                   </div>
                 )}
               </div>
