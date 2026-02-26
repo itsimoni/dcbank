@@ -14,6 +14,7 @@ import {
   X,
   Banknote,
   Globe,
+  ChevronDown,
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -198,32 +199,41 @@ export default function Sidebar({
 
             <div className="flex items-center gap-2">
               <div className="relative" ref={languageMenuRef}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-600 hover:text-[#b91c1c] hover:bg-gray-100"
+                <button
+                  type="button"
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 transition-all shadow-sm"
                   onClick={() => setShowLanguageMenu(!showLanguageMenu)}
                 >
-                  <Globe className="h-5 w-5" />
-                </Button>
+                  <Globe className="h-4 w-4 text-[#b91c1c]" />
+                  <span>{languageNames[language]}</span>
+                  <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${showLanguageMenu ? 'rotate-180' : ''}`} />
+                </button>
                 {showLanguageMenu && (
-                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[140px]">
-                    {(Object.keys(languageNames) as Language[]).map((lang) => (
-                      <button
-                        key={lang}
-                        type="button"
-                        className={`w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors ${
-                          language === lang ? "bg-gray-50 text-[#b91c1c]" : ""
-                        }`}
-                        onClick={() => {
-                          setLanguage(lang);
-                          setShowLanguageMenu(false);
-                        }}
-                      >
-                        {languageNames[lang]}
-                      </button>
-                    ))}
-                  </div>
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setShowLanguageMenu(false)}
+                    />
+                    <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px] overflow-hidden">
+                      {(Object.keys(languageNames) as Language[]).map((lang) => (
+                        <button
+                          key={lang}
+                          type="button"
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                            language === lang
+                              ? "bg-[#b91c1c] text-white font-medium"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                          onClick={() => {
+                            setLanguage(lang);
+                            setShowLanguageMenu(false);
+                          }}
+                        >
+                          {languageNames[lang]}
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
 
