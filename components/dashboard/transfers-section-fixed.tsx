@@ -1236,11 +1236,11 @@ export default function TransfersSection({
             {selectedTransfer.transfer_type === "crypto_external" && selectedTransfer.wallet_address && (
               <div className="border-2 border-gray-300 p-4 bg-white">
                 <h3 className="text-sm font-semibold text-slate-700 mb-3">
-                  Destination Wallet Details
+                  {t.destinationWalletDetails}
                 </h3>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <p className="text-xs text-slate-600 mb-1">Wallet Address</p>
+                    <p className="text-xs text-slate-600 mb-1">{t.walletAddressLabel}</p>
                     <p className="text-sm font-medium font-mono break-all">
                       {selectedTransfer.wallet_address}
                     </p>
@@ -1735,7 +1735,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          You Send
+                          {t.youSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(amount || 0).toFixed(2)}{" "}
@@ -1744,7 +1744,7 @@ export default function TransfersSection({
                       </div>
                       <div className="border-2 border-green-500 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          You Receive
+                          {t.youReceive}
                         </p>
                         <p className="text-2xl font-bold text-green-600">
                           {estimatedAmount === 0
@@ -1916,7 +1916,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          You Send
+                          {t.youSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(bankFormData.amount || 0).toFixed(2)}{" "}
@@ -1925,7 +1925,7 @@ export default function TransfersSection({
                       </div>
                       <div className="border-2 border-green-500 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          You Receive
+                          {t.youReceive}
                         </p>
                         <p className="text-2xl font-bold text-green-600">
                           {estimatedAmount === 0
@@ -2177,7 +2177,7 @@ export default function TransfersSection({
                     <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
                       <div className="flex-1 w-full">
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          From Crypto
+                          {t.fromCrypto}
                         </Label>
                         <Select
                           value={cryptoInternalFormData.from_currency}
@@ -2190,7 +2190,7 @@ export default function TransfersSection({
                           }}
                         >
                           <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
-                            <SelectValue placeholder="Select crypto" />
+                            <SelectValue placeholder={t.selectCrypto} />
                           </SelectTrigger>
                           <SelectContent>
                             {getCryptoCurrencies().map((currency) => (
@@ -2212,7 +2212,7 @@ export default function TransfersSection({
 
                       <div className="flex-1 w-full">
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          To Crypto
+                          {t.toCrypto}
                         </Label>
                         <Select
                           value={cryptoInternalFormData.to_currency}
@@ -2225,7 +2225,7 @@ export default function TransfersSection({
                           }}
                         >
                           <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
-                            <SelectValue placeholder="Select crypto" />
+                            <SelectValue placeholder={t.selectCrypto} />
                           </SelectTrigger>
                           <SelectContent>
                             {getCryptoCurrencies().map((currency) => (
@@ -2267,7 +2267,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          You Send
+                          {t.youSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(cryptoInternalFormData.amount || 0).toFixed(8)}{" "}
@@ -2276,7 +2276,7 @@ export default function TransfersSection({
                       </div>
                       <div className="border-2 border-green-500 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          You Receive
+                          {t.youReceive}
                         </p>
                         <p className="text-2xl font-bold text-green-600">
                           {estimatedAmount === 0 ? "0.00000000" : estimatedAmount.toFixed(8)}{" "}
@@ -2374,7 +2374,7 @@ export default function TransfersSection({
                           }}
                         >
                           <SelectTrigger className="h-12 w-full border-slate-300 hover:border-red-600 transition-colors">
-                            <SelectValue placeholder="Select crypto" />
+                            <SelectValue placeholder={t.selectCrypto} />
                           </SelectTrigger>
                           <SelectContent>
                             {getCryptoCurrencies().map((currency) => (
@@ -2418,12 +2418,12 @@ export default function TransfersSection({
                     <div className="space-y-4 p-6 bg-white border border-slate-300">
                       <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                         <Wallet className="w-5 h-5" />
-                        Destination Wallet Details
+                        {t.destinationWalletDetails}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                         <div className="col-span-2">
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            Wallet Address *
+                            {t.walletAddressLabel} *
                           </Label>
                           <Input
                             value={cryptoWalletDetails.wallet_address}
@@ -2434,13 +2434,13 @@ export default function TransfersSection({
                               });
                               setValidationErrors([]);
                             }}
-                            placeholder="Enter destination wallet address"
+                            placeholder={t.walletAddressLabel}
                             className="border-slate-300 hover:border-red-600 focus:border-red-600 font-mono"
                           />
                         </div>
                         <div>
                           <Label className="text-sm font-semibold mb-2 block text-slate-700">
-                            Network *
+                            {t.network} *
                           </Label>
                           <Select
                             value={cryptoWalletDetails.network}
@@ -2490,7 +2490,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-1 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          You Send
+                          {t.youSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(cryptoExternalFormData.amount || 0).toFixed(8)}{" "}
