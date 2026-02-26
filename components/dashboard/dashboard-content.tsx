@@ -1043,7 +1043,7 @@ function DashboardContent({
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
               {showUserMenu && (
-                <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
+                <div className="absolute top-full right-0 mt-2 bg-white border-none border-gray-200 rounded-md shadow-lg z-50 min-w-[160px]">
                   <button
                     onClick={handleSignOut}
                     disabled={isLoggingOut}
