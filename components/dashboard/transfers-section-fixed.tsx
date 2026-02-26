@@ -1732,21 +1732,21 @@ export default function TransfersSection({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="border-2 border-red-600 bg-white p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.totalDebit}
+                          You Send
                         </p>
-                        <p className="text-2xl font-bold text-red-600">
+                        <p className="text-2xl font-bold text-slate-800">
                           {Number(amount || 0).toFixed(2)}{" "}
                           <span className="text-sm">{fromCurrency || "—"}</span>
                         </p>
                       </div>
-                      <div className="border-2 border-gray-300 bg-white p-4">
+                      <div className="border-2 border-green-500 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.estimatedCredit}
+                          You Receive
                         </p>
-                        <p className="text-2xl font-bold text-slate-800">
+                        <p className="text-2xl font-bold text-green-600">
                           {estimatedAmount === 0
                             ? t.zeroDecimalPlaceholder
                             : estimatedAmount.toFixed(2)}{" "}
@@ -1913,21 +1913,21 @@ export default function TransfersSection({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="border-2 border-red-600 bg-white p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.totalDebit}
+                          You Send
                         </p>
-                        <p className="text-2xl font-bold text-red-600">
+                        <p className="text-2xl font-bold text-slate-800">
                           {Number(bankFormData.amount || 0).toFixed(2)}{" "}
                           <span className="text-sm">{fromCurrency || "—"}</span>
                         </p>
                       </div>
-                      <div className="border-2 border-gray-300 bg-white p-4">
+                      <div className="border-2 border-green-500 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.estimatedCredit}
+                          You Receive
                         </p>
-                        <p className="text-2xl font-bold text-slate-800">
+                        <p className="text-2xl font-bold text-green-600">
                           {estimatedAmount === 0
                             ? t.zeroDecimalPlaceholder
                             : estimatedAmount.toFixed(2)}{" "}
@@ -2264,21 +2264,21 @@ export default function TransfersSection({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="border-2 border-red-600 bg-white p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.totalDebit}
+                          You Send
                         </p>
-                        <p className="text-2xl font-bold text-red-600">
+                        <p className="text-2xl font-bold text-slate-800">
                           {Number(cryptoInternalFormData.amount || 0).toFixed(8)}{" "}
                           <span className="text-sm">{cryptoInternalFormData.from_currency || "—"}</span>
                         </p>
                       </div>
-                      <div className="border-2 border-gray-300 bg-white p-4">
+                      <div className="border-2 border-green-500 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.estimatedCredit}
+                          You Receive
                         </p>
-                        <p className="text-2xl font-bold text-slate-800">
+                        <p className="text-2xl font-bold text-green-600">
                           {estimatedAmount === 0 ? "0.00000000" : estimatedAmount.toFixed(8)}{" "}
                           <span className="text-sm">{cryptoInternalFormData.to_currency || "—"}</span>
                         </p>
@@ -2488,11 +2488,11 @@ export default function TransfersSection({
                     </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                      <div className="border-2 border-red-600 bg-white p-4">
+                      <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.totalDebit}
+                          You Send
                         </p>
-                        <p className="text-2xl font-bold text-red-600">
+                        <p className="text-2xl font-bold text-slate-800">
                           {Number(cryptoExternalFormData.amount || 0).toFixed(8)}{" "}
                           <span className="text-sm">{cryptoExternalFormData.from_currency || "—"}</span>
                         </p>
