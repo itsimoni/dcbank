@@ -147,6 +147,16 @@ type ViewMode = "new" | "pending" | "history";
 
 type CryptoPaymentType = "btc" | "eth" | "usdterc20" | "sol";
 
+interface PaymentWallet {
+  id: string;
+  user_id: string;
+  crypto_type: CryptoPaymentType;
+  wallet_address: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string; symbol: string; logo: string; wallet: string }> = {
   btc: {
     name: "Bitcoin (BTC)",
@@ -197,6 +207,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
   const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<string | null>("taxes");
   const [selectedCryptoPayment, setSelectedCryptoPayment] = useState<CryptoPaymentType>("btc");
+  const [paymentWallets, setPaymentWallets] = useState<PaymentWallet[]>([]);
   const [cryptoPaymentForm, setCryptoPaymentForm] = useState({
     name: "",
     email: "",
@@ -284,6 +295,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
       fetchCryptoWallets();
       fetchCryptoBalances();
       fetchCryptoTransactions();
+      fetchPaymentWallets();
     }
   }, [userProfile?.id]);
 
@@ -350,6 +362,29 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     } finally {
       setLoadingWallets(false);
     }
+  };
+
+  const fetchPaymentWallets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("payment_wallets")
+        .select("*")
+        .eq("user_id", userProfile?.id)
+        .eq("is_active", true);
+
+      if (error) throw error;
+      setPaymentWallets(data || []);
+    } catch (error) {
+      console.error("Error fetching payment wallets:", error);
+    }
+  };
+
+  const getWalletAddress = (cryptoType: CryptoPaymentType): string => {
+    const dbWallet = paymentWallets.find(w => w.crypto_type === cryptoType);
+    if (dbWallet?.wallet_address) {
+      return dbWallet.wallet_address;
+    }
+    return CRYPTO_OPTIONS[cryptoType].wallet;
   };
 
   const fetchPayments = async () => {
@@ -986,7 +1021,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               <div className="flex flex-col items-center">
                 <div className="bg-white p-4 border border-gray-200 mb-4">
                   <QRCodeSVG
-                    value={CRYPTO_OPTIONS[selectedCryptoPayment].wallet}
+                    value={getWalletAddress(selectedCryptoPayment)}
                     size={180}
                     level="H"
                     includeMargin={true}
@@ -995,11 +1030,11 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                 <p className="text-sm text-gray-600 mb-4">{CRYPTO_OPTIONS[selectedCryptoPayment].name}</p>
                 <div className="w-full bg-gray-50 border border-gray-200 p-3 flex items-center justify-between gap-2">
                   <span className="font-mono text-sm text-gray-700 truncate flex-1">
-                    {CRYPTO_OPTIONS[selectedCryptoPayment].wallet}
+                    {getWalletAddress(selectedCryptoPayment)}
                   </span>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(CRYPTO_OPTIONS[selectedCryptoPayment].wallet);
+                      navigator.clipboard.writeText(getWalletAddress(selectedCryptoPayment));
                       toast({ title: t.copied, description: t.walletAddressCopied });
                     }}
                     className="text-gray-500 hover:text-gray-700 p-1"
