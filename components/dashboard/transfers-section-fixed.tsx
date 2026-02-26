@@ -1694,18 +1694,7 @@ export default function TransfersSection({
                       </div>
 
                       <div className="flex flex-col items-center justify-center px-6 py-4">
-                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
-                          <ArrowLeftRight className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
-                          {exchangeRate === 1 ? "1:1" : exchangeRate.toFixed(6)}
-                        </div>
-                        {liveRates.lastUpdated > 0 && exchangeRate !== 1 && (
-                          <div className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" />
-                            {t.live}
-                          </div>
-                        )}
+                        <ArrowLeftRight className="w-8 h-8 text-red-600" />
                       </div>
 
                       <div className="flex-1 w-full">
@@ -1902,18 +1891,7 @@ export default function TransfersSection({
                       </div>
 
                       <div className="flex flex-col items-center justify-center px-6 py-4">
-                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
-                          <Building2 className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
-                          {exchangeRate === 1 ? "1:1" : exchangeRate.toFixed(6)}
-                        </div>
-                        {liveRates.lastUpdated > 0 && exchangeRate !== 1 && (
-                          <div className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            Estimated
-                          </div>
-                        )}
+                        <ArrowLeftRight className="w-8 h-8 text-red-600" />
                       </div>
 
                       <div className="flex-1 w-full">
@@ -2280,18 +2258,7 @@ export default function TransfersSection({
                       </div>
 
                       <div className="flex flex-col items-center justify-center px-6 py-4">
-                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
-                          <Coins className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
-                          {exchangeRate === 1 ? "1:1" : exchangeRate.toFixed(6)}
-                        </div>
-                        {liveRates.lastUpdated > 0 && exchangeRate !== 1 && (
-                          <div className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" />
-                            {t.live}
-                          </div>
-                        )}
+                        <ArrowLeftRight className="w-8 h-8 text-red-600" />
                       </div>
 
                       <div className="flex-1 w-full">
@@ -2486,12 +2453,7 @@ export default function TransfersSection({
                       </div>
 
                       <div className="flex flex-col items-center justify-center px-6 py-4">
-                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center mb-2">
-                          <Send className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="bg-red-600 text-white px-3 py-1 text-sm font-medium">
-                          External
-                        </div>
+                        <ArrowLeftRight className="w-8 h-8 text-red-600" />
                       </div>
 
                       <div className="flex-1 w-full">
