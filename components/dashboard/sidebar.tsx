@@ -259,8 +259,8 @@ export default function Sidebar({
               <Image
                 src="/logoblack2.svg"
                 alt="Digital Chain Bank Logo"
-                width={160}
-                height={94}
+                width={140}
+                height={84}
                 priority
                 unoptimized
                 loading="eager"
