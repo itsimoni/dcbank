@@ -1154,13 +1154,13 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       disabled={!cryptoPaymentForm.termsAccepted || !cryptoPaymentForm.blockchainAware || creatingPayment}
                       className="w-auto px-8 bg-[#b91c1c] hover:bg-[#991b1b] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {creatingPayment ? "Creating Payment..." : t.continueButton}
+                      {creatingPayment ? t.creatingPayment : t.continueButton}
                     </Button>
                   </div>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-8">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Select Cryptocurrency</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">{t.selectCryptoPayment}</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                     {(Object.keys(CRYPTO_OPTIONS) as CryptoPaymentType[]).map((cryptoKey) => (
                       <button
@@ -1195,7 +1195,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                           className="w-10 h-10 object-contain"
                         />
                       </div>
-                      <p className="text-gray-600 text-sm">Fill in the form and click Continue to generate your payment address</p>
+                      <p className="text-gray-600 text-sm">{t.fillFormGenerateAddress}</p>
                     </div>
                     <p className="text-sm font-medium text-gray-800">{CRYPTO_OPTIONS[selectedCryptoPayment].name}</p>
                     <p className="text-xs text-gray-500 mt-1">{CRYPTO_OPTIONS[selectedCryptoPayment].network}</p>
@@ -1208,7 +1208,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white border border-gray-200 p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900">Payment Details</h3>
+                    <h3 className="text-xl font-semibold text-gray-900">{t.paymentDetails}</h3>
                     <span className={`px-3 py-1 text-sm font-medium rounded ${
                       nowPaymentData.payment_status === "finished" ? "bg-green-100 text-green-800" :
                       nowPaymentData.payment_status === "waiting" ? "bg-yellow-100 text-yellow-800" :
@@ -1223,19 +1223,19 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
                   <div className="space-y-4">
                     <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Amount to Pay</span>
+                      <span className="text-gray-600">{t.amountToPay}</span>
                       <span className="font-semibold">{nowPaymentData.pay_amount} {nowPaymentData.pay_currency.toUpperCase()}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Price</span>
+                      <span className="text-gray-600">{t.price}</span>
                       <span className="font-semibold">{nowPaymentData.price_amount} {nowPaymentData.price_currency}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Network</span>
+                      <span className="text-gray-600">{t.network}</span>
                       <span className="font-medium">{CRYPTO_OPTIONS[selectedCryptoPayment].network}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b">
-                      <span className="text-gray-600">Payment ID</span>
+                      <span className="text-gray-600">{t.paymentId}</span>
                       <span className="font-mono text-sm">{nowPaymentData.payment_id}</span>
                     </div>
                   </div>
@@ -1247,20 +1247,20 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       variant="outline"
                       className="flex-1"
                     >
-                      {checkingStatus ? "Checking..." : "Check Status"}
+                      {checkingStatus ? t.checkingStatus : t.checkStatus}
                     </Button>
                     <Button
                       onClick={resetCryptoPayment}
                       variant="outline"
                       className="flex-1"
                     >
-                      New Payment
+                      {t.newPayment}
                     </Button>
                   </div>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-8">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">Send Payment Here</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">{t.sendPaymentHere}</h4>
                   <div className="flex flex-col items-center">
                     <div className="bg-white p-4 border border-gray-200 mb-4">
                       <QRCodeSVG
@@ -1286,13 +1286,13 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
                       </button>
                     </div>
                     <div className="flex items-center gap-2 mt-6">
-                      <span className="bg-[#b91c1c] text-white text-sm font-medium px-4 py-1.5">Send exactly</span>
+                      <span className="bg-[#b91c1c] text-white text-sm font-medium px-4 py-1.5">{t.sendExactly}</span>
                       <span className="text-lg font-semibold text-gray-900">
                         {nowPaymentData.pay_amount} {nowPaymentData.pay_currency.toUpperCase()}
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-4 text-center">
-                      Send exactly the amount shown above to ensure your payment is processed correctly.
+                      {t.sendExactlyNote}
                     </p>
                   </div>
                 </div>
