@@ -258,7 +258,7 @@ export default function Sidebar({
               <img
                 src="/logoblack2.png"
                 alt="Digital Chain Bank Logo"
-                width={140}
+                width={160}
                 height={84}
                 fetchPriority="high"
                 className="w-[160px] h-[84px] object-contain"
