@@ -173,7 +173,7 @@ const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string;
     wallet: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD73",
   },
   usdterc20: {
-    name: "USDT ERC-20",
+    name: "USDT",
     network: "Ethereum (ERC-20)",
     symbol: "USDT",
     logo: "https://cryptologos.cc/logos/tether-usdt-logo.svg",
