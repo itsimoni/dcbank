@@ -67,19 +67,16 @@ export function useSessionManager() {
       // Prevent excessive refresh attempts
       const now = Date.now();
       if (!force && now - lastRefreshAttemptRef.current < REFRESH_COOLDOWN) {
-        console.log("Refresh cooldown active, skipping...");
-        return currentSessionRef.current;
+                return currentSessionRef.current;
       }
 
       // Prevent multiple simultaneous refresh attempts
       if (isRefreshingRef.current && !force) {
-        console.log("Session refresh already in progress, skipping...");
-        return currentSessionRef.current;
+                return currentSessionRef.current;
       }
 
       if (!mountedRef.current) {
-        console.log("Component unmounted, skipping refresh...");
-        return null;
+                return null;
       }
 
       isRefreshingRef.current = true;
@@ -87,8 +84,7 @@ export function useSessionManager() {
       updateSessionState({ isRefreshing: true, error: null });
 
       try {
-        console.log("Refreshing Supabase session...");
-
+        
         // Get current session
         const {
           data: { session },
@@ -103,8 +99,7 @@ export function useSessionManager() {
         }
 
         if (!session) {
-          console.log("No active session found");
-          updateSessionState({
+                    updateSessionState({
             user: null,
             session: null,
             loading: false,
@@ -121,8 +116,7 @@ export function useSessionManager() {
         const shouldRefresh = timeUntilExpiry < SESSION_REFRESH_THRESHOLD;
 
         if (shouldRefresh || force) {
-          console.log("Session needs refresh, refreshing token...");
-
+          
           const { data: refreshData, error: refreshError } =
             await supabase.auth.refreshSession();
 
@@ -134,8 +128,7 @@ export function useSessionManager() {
           }
 
           if (refreshData.session) {
-            console.log("Session refreshed successfully");
-            updateSessionState({
+                        updateSessionState({
               user: refreshData.session.user,
               session: refreshData.session,
               loading: false,
@@ -148,8 +141,7 @@ export function useSessionManager() {
           }
         } else {
           // Session is still valid
-          console.log("Session still valid");
-          updateSessionState({
+                    updateSessionState({
             user: session.user,
             session: session,
             loading: false,
@@ -200,11 +192,6 @@ export function useSessionManager() {
       );
 
       if (refreshIn > 0 && timeUntilExpiry > SESSION_REFRESH_THRESHOLD) {
-        console.log(
-          `Scheduling next session refresh in ${Math.round(
-            refreshIn / 1000 / 60
-          )} minutes`
-        );
         refreshTimeoutRef.current = setTimeout(() => {
           if (mountedRef.current) {
             refreshSession(false);
@@ -228,8 +215,7 @@ export function useSessionManager() {
       if (!mountedRef.current) return;
 
       try {
-        console.log("Initializing session...");
-        await refreshSession(true);
+                await refreshSession(true);
       } catch (error) {
         console.error("Failed to initialize session:", error);
         if (mountedRef.current) {
@@ -244,8 +230,7 @@ export function useSessionManager() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
-
+      
       if (!mountedRef.current) return;
 
       if (event === "SIGNED_OUT" || !session) {
@@ -311,8 +296,7 @@ export function useSessionManager() {
 
         // Only refresh if close to expiry
         if (timeUntilExpiry < SESSION_REFRESH_THRESHOLD) {
-          console.log("Heartbeat refresh - session close to expiry");
-          refreshSession(false);
+                    refreshSession(false);
         }
       }
     }, HEARTBEAT_INTERVAL);

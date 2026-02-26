@@ -1,6 +1,44 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
+const DASHBOARD_CACHE_KEY = 'dashboard_data_cache';
+const CACHE_TTL = 5 * 60 * 1000;
+
+function getCachedDashboardData(userId: string): Partial<DashboardData> | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const cached = localStorage.getItem(DASHBOARD_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed.userId === userId && parsed.timestamp && Date.now() - parsed.timestamp < CACHE_TTL) {
+        return {
+          userProfile: parsed.userProfile || null,
+          balances: parsed.balances || { usd: 0, euro: 0, cad: 0 },
+          cryptoBalances: parsed.cryptoBalances || { BTC: 0, ETH: 0, USDT: 0 },
+          userData: parsed.userData || null,
+        };
+      }
+    }
+  } catch {
+  }
+  return null;
+}
+
+function setCachedDashboardData(userId: string, data: Partial<DashboardData>) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify({
+      userId,
+      timestamp: Date.now(),
+      userProfile: data.userProfile,
+      balances: data.balances,
+      cryptoBalances: data.cryptoBalances,
+      userData: data.userData,
+    }));
+  } catch {
+  }
+}
+
 interface UserProfile {
   id: string;
   client_id: string;
@@ -51,18 +89,21 @@ export interface DashboardData {
 }
 
 export function useDashboardData() {
-  const [data, setData] = useState<DashboardData>({
-    userProfile: null,
-    balances: { usd: 0, euro: 0, cad: 0 },
-    cryptoBalances: { BTC: 0, ETH: 0, USDT: 0 },
-    transactions: [],
-    userData: null,
-    loading: true,
-    error: null,
+  const [data, setData] = useState<DashboardData>(() => {
+    return {
+      userProfile: null,
+      balances: { usd: 0, euro: 0, cad: 0 },
+      cryptoBalances: { BTC: 0, ETH: 0, USDT: 0 },
+      transactions: [],
+      userData: null,
+      loading: true,
+      error: null,
+    };
   });
 
   const mountedRef = useRef(true);
   const fetchedRef = useRef(false);
+  const cacheAppliedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -85,6 +126,21 @@ export function useDashboardData() {
         }
 
         if (!mountedRef.current) return;
+
+        if (!cacheAppliedRef.current) {
+          const cached = getCachedDashboardData(user.id);
+          if (cached && cached.userProfile) {
+            cacheAppliedRef.current = true;
+            setData(prev => ({
+              ...prev,
+              userProfile: cached.userProfile || null,
+              balances: cached.balances || prev.balances,
+              cryptoBalances: cached.cryptoBalances || prev.cryptoBalances,
+              userData: cached.userData || null,
+              loading: false,
+            }));
+          }
+        }
 
         // Step 2: Fetch ALL data in parallel (not sequential!)
         const [
@@ -171,6 +227,13 @@ export function useDashboardData() {
 
         if (!mountedRef.current) return;
 
+        setCachedDashboardData(user.id, {
+          userProfile: profile,
+          balances,
+          cryptoBalances,
+          userData,
+        });
+
         setData({
           userProfile: profile,
           balances,
@@ -182,7 +245,6 @@ export function useDashboardData() {
         });
 
       } catch (error: any) {
-        console.error('Dashboard data fetch error:', error);
         if (mountedRef.current) {
           setData(prev => ({
             ...prev,

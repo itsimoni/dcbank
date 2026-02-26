@@ -60,8 +60,7 @@ export function useKYCStatus(userId: string | null) {
           // Handle specific error cases
           if (userError.code === "PGRST116") {
             // User not found - create user record
-            console.log("User not found in users table, creating record...");
-
+            
             const { error: insertError } = await supabase.from("users").insert({
               id: userId,
               kyc_status: "not_started",
@@ -97,27 +96,32 @@ export function useKYCStatus(userId: string | null) {
 
     checkKYCStatus();
 
-    // Set up real-time subscription for KYC status changes
-    const subscription = supabase
-      .channel(`kyc-status-${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "users",
-          filter: `id=eq.${userId}`,
-        },
-        (payload) => {
-          const newStatus = payload.new.kyc_status;
-          setCachedKycStatus(userId, newStatus);
-          setKycStatus(newStatus);
-        }
-      )
-      .subscribe();
+    let subscription: ReturnType<typeof supabase.channel> | null = null;
+    const subscriptionTimer = setTimeout(() => {
+      subscription = supabase
+        .channel(`kyc-status-${userId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "users",
+            filter: `id=eq.${userId}`,
+          },
+          (payload) => {
+            const newStatus = payload.new.kyc_status;
+            setCachedKycStatus(userId, newStatus);
+            setKycStatus(newStatus);
+          }
+        )
+        .subscribe();
+    }, 2000);
 
     return () => {
-      subscription.unsubscribe();
+      clearTimeout(subscriptionTimer);
+      if (subscription) {
+        subscription.unsubscribe();
+      }
     };
   }, [userId]);
 
