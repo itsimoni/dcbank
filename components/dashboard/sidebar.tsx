@@ -261,7 +261,7 @@ export default function Sidebar({
                 width={140}
                 height={84}
                 fetchPriority="high"
-                className="w-[140px] h-[84px] object-contain"
+                className="w-[160px] h-[84px] object-contain"
               />
             </div>
 
