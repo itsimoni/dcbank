@@ -387,6 +387,43 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
     return CRYPTO_OPTIONS[cryptoType].wallet;
   };
 
+  const generatePaymentURI = (cryptoType: CryptoPaymentType, amount?: string): string => {
+    const walletAddress = getWalletAddress(cryptoType);
+    const parsedAmount = amount ? parseFloat(amount) : 0;
+
+    switch (cryptoType) {
+      case 'btc':
+        if (parsedAmount > 0) {
+          return `bitcoin:${walletAddress}?amount=${parsedAmount}`;
+        }
+        return `bitcoin:${walletAddress}`;
+
+      case 'eth':
+        if (parsedAmount > 0) {
+          const weiAmount = BigInt(Math.floor(parsedAmount * 1e18)).toString();
+          return `ethereum:${walletAddress}@1?value=${weiAmount}`;
+        }
+        return `ethereum:${walletAddress}`;
+
+      case 'usdterc20':
+        const usdtContract = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
+        if (parsedAmount > 0) {
+          const usdtAmount = BigInt(Math.floor(parsedAmount * 1e6)).toString();
+          return `ethereum:${usdtContract}@1/transfer?address=${walletAddress}&uint256=${usdtAmount}`;
+        }
+        return `ethereum:${usdtContract}@1/transfer?address=${walletAddress}`;
+
+      case 'sol':
+        if (parsedAmount > 0) {
+          return `solana:${walletAddress}?amount=${parsedAmount}`;
+        }
+        return `solana:${walletAddress}`;
+
+      default:
+        return walletAddress;
+    }
+  };
+
   const fetchPayments = async () => {
     if (!userProfile?.id) return;
 
@@ -1021,13 +1058,18 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
               <div className="flex flex-col items-center">
                 <div className="bg-white p-4 border border-gray-200 mb-4">
                   <QRCodeSVG
-                    value={getWalletAddress(selectedCryptoPayment)}
+                    value={generatePaymentURI(selectedCryptoPayment, cryptoPaymentForm.amount)}
                     size={180}
                     level="H"
                     includeMargin={true}
                   />
                 </div>
                 <p className="text-sm text-gray-600 mb-4">{CRYPTO_OPTIONS[selectedCryptoPayment].name}</p>
+                {cryptoPaymentForm.amount && (
+                  <p className="text-sm font-medium text-gray-800 mb-2">
+                    {cryptoPaymentForm.amount} {CRYPTO_OPTIONS[selectedCryptoPayment].symbol}
+                  </p>
+                )}
                 <div className="w-full bg-gray-50 border border-gray-200 p-3 flex items-center justify-between gap-2">
                   <span className="font-mono text-sm text-gray-700 truncate flex-1">
                     {getWalletAddress(selectedCryptoPayment)}
