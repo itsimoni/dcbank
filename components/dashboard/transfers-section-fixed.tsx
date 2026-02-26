@@ -1636,12 +1636,12 @@ export default function TransfersSection({
                     </TabsTrigger>
                     <TabsTrigger value="crypto_internal" className="flex items-center gap-2 text-xs sm:text-sm py-2">
                       <Coins className="w-4 h-4" />
-                      <span className="hidden sm:inline">Crypto Exchange</span>
+                      <span className="hidden sm:inline">{t.internalCryptoTransfer || "Internal Crypto Transfer"}</span>
                       <span className="sm:hidden">Crypto</span>
                     </TabsTrigger>
                     <TabsTrigger value="crypto_external" className="flex items-center gap-2 text-xs sm:text-sm py-2">
                       <Send className="w-4 h-4" />
-                      <span className="hidden sm:inline">Crypto Withdraw</span>
+                      <span className="hidden sm:inline">{t.externalCryptoTransfer || "External Crypto Transfer"}</span>
                       <span className="sm:hidden">Withdraw</span>
                     </TabsTrigger>
                   </TabsList>
@@ -2735,8 +2735,8 @@ export default function TransfersSection({
                       <SelectItem value="all">{t.allTypes}</SelectItem>
                       <SelectItem value="internal">{t.accountTransfer}</SelectItem>
                       <SelectItem value="bank_transfer">{t.bankWire}</SelectItem>
-                      <SelectItem value="crypto_internal">Crypto Exchange</SelectItem>
-                      <SelectItem value="crypto_external">Crypto Withdraw</SelectItem>
+                      <SelectItem value="crypto_internal">{t.internalCryptoTransfer}</SelectItem>
+                      <SelectItem value="crypto_external">{t.externalCryptoTransfer}</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select
