@@ -519,11 +519,11 @@ export default function TransfersSection({
     const fromBalanceKey = getBalanceKey(fromCurrency);
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
-    if (currentFromBalance < amount + transferFee) {
+    if (currentFromBalance < amount) {
       const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const requiredFormatted = amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       errors.push(
-        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency}.`
       );
     }
 
@@ -551,11 +551,11 @@ export default function TransfersSection({
     const fromBalanceKey = getBalanceKey(fromCurrency);
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
-    if (currentFromBalance < amount + transferFee) {
+    if (currentFromBalance < amount) {
       const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const requiredFormatted = amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       errors.push(
-        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency}.`
       );
     }
 
@@ -677,7 +677,7 @@ export default function TransfersSection({
       toCurrency,
       fromAmount: amount,
       toAmount,
-      fee: transferFee,
+      fee: 0,
       exchangeRate: exchangeRate,
     });
 
@@ -709,7 +709,7 @@ export default function TransfersSection({
       toCurrency,
       fromAmount: amount,
       toAmount,
-      fee: transferFee,
+      fee: 0,
       exchangeRate: exchangeRate,
       bankDetails: {
         bankName: bankDetails.bank_name,
@@ -776,13 +776,13 @@ export default function TransfersSection({
     const fromBalanceKey = getBalanceKey(fromCurrency);
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
-    if (currentFromBalance < amount + transferFee) {
+    if (currentFromBalance < amount) {
       const isCrypto = ["BTC", "ETH", "USDT", "ADA", "DOT", "LINK", "XRP", "SOL"].includes(fromCurrency);
       const decimals = isCrypto ? 8 : 2;
       const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      const requiredFormatted = amount.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
       errors.push(
-        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency}.`
       );
     }
 
@@ -805,13 +805,13 @@ export default function TransfersSection({
     const fromBalanceKey = getBalanceKey(fromCurrency);
     const currentFromBalance = balances[fromBalanceKey] || 0;
 
-    if (currentFromBalance < amount + transferFee) {
+    if (currentFromBalance < amount) {
       const isCrypto = ["BTC", "ETH", "USDT", "ADA", "DOT", "LINK", "XRP", "SOL"].includes(fromCurrency);
       const decimals = isCrypto ? 8 : 2;
       const availableFormatted = currentFromBalance.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-      const requiredFormatted = (amount + transferFee).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+      const requiredFormatted = amount.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
       errors.push(
-        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency} (including fees).`
+        `Insufficient ${fromCurrency} balance. Your available balance is ${availableFormatted} ${fromCurrency}, but this transfer requires ${requiredFormatted} ${fromCurrency}.`
       );
     }
 
@@ -846,7 +846,7 @@ export default function TransfersSection({
       toCurrency,
       fromAmount: amount,
       toAmount,
-      fee: transferFee,
+      fee: 0,
       exchangeRate: exchangeRate,
     });
 
@@ -876,7 +876,7 @@ export default function TransfersSection({
       toCurrency: fromCurrency,
       fromAmount: amount,
       toAmount: amount,
-      fee: transferFee,
+      fee: 0,
       exchangeRate: 1,
       cryptoDetails: {
         walletAddress: cryptoWalletDetails.wallet_address,
@@ -1133,19 +1133,10 @@ export default function TransfersSection({
                     {selectedTransfer.exchange_rate.toFixed(6)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-slate-600 mb-1">{t.fees}</p>
-                  <p className="text-sm font-medium">
-                    {selectedTransfer.fee_amount.toFixed(2)}{" "}
-                    {selectedTransfer.fee_currency || selectedTransfer.from_currency}
-                  </p>
-                </div>
                 <div className="col-span-2">
                   <p className="text-xs text-slate-600 mb-1">{t.totalDebit}</p>
                   <p className="text-lg font-bold text-red-700">
-                    {(
-                      selectedTransfer.from_amount + selectedTransfer.fee_amount
-                    ).toFixed(2)}{" "}
+                    {selectedTransfer.from_amount.toFixed(2)}{" "}
                     {selectedTransfer.from_currency}
                   </p>
                 </div>
@@ -1367,16 +1358,12 @@ export default function TransfersSection({
                   <p className="text-slate-600">{t.amount}</p>
                   <p className="font-medium">{confirmationData.from_amount.toFixed(2)} {confirmationData.from_currency}</p>
                 </div>
-                <div>
-                  <p className="text-slate-600">{t.fees}</p>
-                  <p className="font-medium">{confirmationData.fee_amount.toFixed(2)} {confirmationData.from_currency}</p>
-                </div>
               </div>
               <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200">
                 <div className="bg-red-50 p-2 border border-red-200">
                   <p className="text-xs text-slate-600">{t.totalDebit}</p>
                   <p className="text-sm sm:text-base font-bold text-red-600">
-                    {confirmationData.total_debit.toFixed(2)} {confirmationData.from_currency}
+                    {confirmationData.from_amount.toFixed(2)} {confirmationData.from_currency}
                   </p>
                 </div>
                 <div className="bg-slate-50 p-2 border border-slate-200">
@@ -1472,12 +1459,6 @@ export default function TransfersSection({
                     </p>
                   </div>
                 )}
-                <div>
-                  <p className="text-slate-500">Fee</p>
-                  <p className="font-medium text-slate-800">
-                    {formatVerificationAmount(transferSuccessData.fee, transferSuccessData.fromCurrency)}
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -1749,31 +1730,15 @@ export default function TransfersSection({
                           className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
                         />
                       </div>
-
-                      <div>
-                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          {t.fees}
-                        </Label>
-                        <Input
-                          value={
-                            transferFee === 0
-                              ? "0.00"
-                              : transferFee.toFixed(2)
-                          }
-                          readOnly
-                          className="h-12 text-lg font-semibold bg-white border-2 border-red-600 text-red-800"
-                        />
-                      </div>
                     </div>
 
-                    {/* Total Debit and Estimated Credit */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="border-2 border-red-600 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
                           {t.totalDebit}
                         </p>
                         <p className="text-2xl font-bold text-red-600">
-                          {totalDebit.toFixed(2)}{" "}
+                          {Number(amount || 0).toFixed(2)}{" "}
                           <span className="text-sm">{fromCurrency || "—"}</span>
                         </p>
                       </div>
@@ -1946,31 +1911,15 @@ export default function TransfersSection({
                           className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
                         />
                       </div>
-
-                      <div>
-                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          {t.fees}
-                        </Label>
-                        <Input
-                          value={
-                            transferFee === 0
-                              ? "0.00"
-                              : transferFee.toFixed(2)
-                          }
-                          readOnly
-                          className="h-12 text-lg font-semibold bg-white border-2 border-red-600 text-red-800"
-                        />
-                      </div>
                     </div>
 
-                    {/* Total Debit and Estimated Credit */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="border-2 border-red-600 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
                           {t.totalDebit}
                         </p>
                         <p className="text-2xl font-bold text-red-600">
-                          {totalDebit.toFixed(2)}{" "}
+                          {Number(bankFormData.amount || 0).toFixed(2)}{" "}
                           <span className="text-sm">{fromCurrency || "—"}</span>
                         </p>
                       </div>
@@ -2313,17 +2262,6 @@ export default function TransfersSection({
                           className="h-12 text-lg border-slate-300 hover:border-red-600 focus:border-red-600 transition-colors"
                         />
                       </div>
-
-                      <div>
-                        <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          {t.fees}
-                        </Label>
-                        <Input
-                          value={transferFee === 0 ? "0.00000000" : transferFee.toFixed(8)}
-                          readOnly
-                          className="h-12 text-lg font-semibold bg-white border-2 border-red-600 text-red-800"
-                        />
-                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2332,7 +2270,7 @@ export default function TransfersSection({
                           {t.totalDebit}
                         </p>
                         <p className="text-2xl font-bold text-red-600">
-                          {(Number(cryptoInternalFormData.amount || 0) + transferFee).toFixed(8)}{" "}
+                          {Number(cryptoInternalFormData.amount || 0).toFixed(8)}{" "}
                           <span className="text-sm">{cryptoInternalFormData.from_currency || "—"}</span>
                         </p>
                       </div>
@@ -2549,22 +2487,13 @@ export default function TransfersSection({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <div className="border-2 border-red-600 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.totalDebit} (incl. fee)
+                          {t.totalDebit}
                         </p>
                         <p className="text-2xl font-bold text-red-600">
-                          {(Number(cryptoExternalFormData.amount || 0) + transferFee).toFixed(8)}{" "}
-                          <span className="text-sm">{cryptoExternalFormData.from_currency || "—"}</span>
-                        </p>
-                      </div>
-                      <div className="border-2 border-gray-300 bg-white p-4">
-                        <p className="text-xs text-slate-600 font-medium mb-1">
-                          Network Fee
-                        </p>
-                        <p className="text-2xl font-bold text-slate-800">
-                          {transferFee.toFixed(8)}{" "}
+                          {Number(cryptoExternalFormData.amount || 0).toFixed(8)}{" "}
                           <span className="text-sm">{cryptoExternalFormData.from_currency || "—"}</span>
                         </p>
                       </div>
