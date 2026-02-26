@@ -1035,7 +1035,7 @@ function DashboardContent({
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-md bg-[#b91c1c] text-white hover:bg-[#991b1b] transition-colors shadow-sm"
+                className="flex items-center gap-2 px-3 py-2.5 bg-[#b91c1c] text-white hover:bg-[#991b1b] transition-colors shadow-sm"
               >
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                 <span className="text-sm font-medium max-w-[120px] truncate">
