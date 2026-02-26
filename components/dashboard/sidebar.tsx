@@ -201,7 +201,7 @@ export default function Sidebar({
               <div className="relative" ref={languageMenuRef}>
                 <button
                   type="button"
-                  className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 transition-all shadow-sm"
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 text-sm font-medium text-gray-700 hover:border-[#b91c1c] hover:bg-gray-50 transition-all shadow-sm"
                   onClick={() => setShowLanguageMenu(!showLanguageMenu)}
                 >
                   <Globe className="h-4 w-4 text-[#b91c1c]" />
