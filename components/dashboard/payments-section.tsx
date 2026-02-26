@@ -977,16 +977,6 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
           <div className="flex items-center gap-3">
             <div ref={dropdownRef} className="relative inline-block">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
-              >
-                <Languages className="w-4 h-4 text-gray-600" />
-                <span className="flex-1 text-left">
-                  {languages.find(lang => lang.code === language)?.label}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
 
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
