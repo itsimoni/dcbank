@@ -273,8 +273,8 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
       alert: { text: t.securityAlertBadge, color: "bg-red-50 text-red-700 border-red-200" },
       info: { text: t.accountInfoBadge, color: "bg-blue-50 text-blue-700 border-blue-200" },
       success: { text: t.transactionUpdateBadge, color: "bg-green-50 text-green-700 border-green-200" },
-      warning: { text: t.systemMessageBadge, color: "bg-amber-50 text-amber-700 border-amber-200" },
-      default: { text: t.systemMessageBadge, color: "bg-gray-50 text-gray-700 border-gray-200" },
+      warning: { text: t.confidentialityInfoBadge, color: "bg-amber-50 text-amber-700 border-amber-200" },
+      default: { text: t.confidentialityInfoBadge, color: "bg-gray-50 text-gray-700 border-gray-200" },
     };
     return badges[type as keyof typeof badges] || badges.default;
   };
@@ -433,7 +433,7 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
                   <SelectItem value="alert" className="text-xs sm:text-sm">{t.securityAlertBadge}</SelectItem>
                   <SelectItem value="info" className="text-xs sm:text-sm">{t.accountInfoBadge}</SelectItem>
                   <SelectItem value="success" className="text-xs sm:text-sm">{t.transactionUpdateBadge}</SelectItem>
-                  <SelectItem value="warning" className="text-xs sm:text-sm">{t.systemMessageBadge}</SelectItem>
+                  <SelectItem value="warning" className="text-xs sm:text-sm">{t.confidentialityInfoBadge}</SelectItem>
                 </SelectContent>
               </Select>
 
