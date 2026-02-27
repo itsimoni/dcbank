@@ -1348,7 +1348,7 @@ export default function LoansSection({}: LoansSectionProps) {
               <Button
                 variant="outline"
                 className="flex-1 bg-white"
-                onClick={() => window.location.href = "mailto:support@digitalchainbank.com"}
+                onClick={() => window.location.href = "mailto:support@mcb.com"}
               >
                 <Mail className="w-4 h-4 mr-2" />
                 {t.contactSupport}
