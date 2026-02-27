@@ -248,7 +248,7 @@ export default function FundAccountSection({
                       className={`p-4 border-2 transition-all rounded-none ${
                         selectedCrypto === crypto
                           ? "border-[#b91c1c]"
-                          : "border-[#b91c1c]"
+                          : "border-gray-200"
                       }`}
                     >
                       <img
@@ -555,17 +555,11 @@ export default function FundAccountSection({
                         {new Date(request.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-3">
-                        <span className="flex items-center gap-2 text-sm">
+                        <span className="text-sm">
                           {request.funding_type === "crypto" ? (
-                            <>
-                              <Bitcoin className="w-4 h-4 text-orange-500" />
-                              {request.crypto_currency}
-                            </>
+                            request.crypto_currency
                           ) : (
-                            <>
-                              <Building2 className="w-4 h-4 text-blue-500" />
-                              Bank
-                            </>
+                            "Bank"
                           )}
                         </span>
                       </td>
