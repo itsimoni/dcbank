@@ -26,9 +26,6 @@ import {
   Search,
   X,
   ChevronRight,
-  ArrowRightLeft,
-  ArrowDownLeft,
-  ArrowUpRight,
 } from "lucide-react";
 import { Alert, AlertDescription } from "../ui/alert";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -218,15 +215,6 @@ export default function TransactionHistory() {
     );
   };
 
-  const getTransactionIcon = (tx: Transaction) => {
-    const typeLower = tx.thType.toLowerCase();
-    const isDeposit = typeLower.includes("deposit") || typeLower.includes("credit") || typeLower.includes("received");
-    if (isDeposit) {
-      return <ArrowDownLeft className="w-5 h-5 text-green-600" />;
-    }
-    return <ArrowUpRight className="w-5 h-5 text-red-600" />;
-  };
-
   const exportToCSV = () => {
     const headers = [
       "Date",
@@ -381,7 +369,6 @@ export default function TransactionHistory() {
 
                       <div className="lg:col-span-7 space-y-1">
                         <div className="flex items-center gap-2">
-                          {getTransactionIcon(tx)}
                           <span className="text-sm font-medium text-gray-900">
                             {tx.thType}
                           </span>
@@ -416,16 +403,13 @@ export default function TransactionHistory() {
               <div className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start pb-4 border-b-2 border-[#b91c1c]">
-                    <div className="flex items-center gap-3">
-                      {getTransactionIcon(selectedTransaction)}
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {selectedTransaction.thType}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {selectedTransaction.thDetails}
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {selectedTransaction.thType}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {selectedTransaction.thDetails}
+                      </p>
                     </div>
                     <div className="text-right">
                       {getStatusBadge(selectedTransaction.thStatus)}
