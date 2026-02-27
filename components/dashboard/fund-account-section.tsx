@@ -58,7 +58,7 @@ const CRYPTO_WALLETS = {
 };
 
 const BANK_DETAILS = {
-  bankName: "Digital Chain Bank",
+  bankName: "Malta Global Crypto Bank",
   accountName: "Digital Chain Holdings Ltd",
   accountNumber: "8847562910",
   routingNumber: "021000021",
