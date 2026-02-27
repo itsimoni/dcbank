@@ -335,7 +335,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
-                <p className="text-sm text-gray-600">Active Cards</p>
+                <p className="text-sm text-gray-600">{t.activeCards}</p>
                 <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.active}
                 </p>
@@ -343,7 +343,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
             </Card>
             <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
-                <p className="text-sm text-gray-600">Pending Requests</p>
+                <p className="text-sm text-gray-600">{t.pendingRequests}</p>
                 <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.pending}
                 </p>
@@ -351,7 +351,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
             </Card>
             <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
-                <p className="text-sm text-gray-600">Approved Cards</p>
+                <p className="text-sm text-gray-600">{t.approvedCards}</p>
                 <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.approved}
                 </p>
@@ -359,7 +359,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
             </Card>
             <Card className="bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none">
               <CardContent className="p-4">
-                <p className="text-sm text-gray-600">Frozen Cards</p>
+                <p className="text-sm text-gray-600">{t.frozenCards}</p>
                 <p className="text-2xl font-bold text-[#b91c1c]">
                   {cardCounts.frozen}
                 </p>
@@ -454,10 +454,10 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                         <div className="text-center">
                           <Clock className="w-8 h-8 mx-auto mb-2 text-gray-600" />
                           <p className="text-sm font-medium text-gray-800">
-                            Request Submitted
+                            {t.requestSubmitted}
                           </p>
                           <p className="text-xs text-gray-600 mt-1">
-                            Awaiting Bank Review
+                            {t.awaitingBankReview}
                           </p>
                         </div>
                       </div>
@@ -466,18 +466,18 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                     <div className="flex justify-between items-start mb-6">
                       <div>
                         <p className="text-sm font-semibold text-gray-900">
-                          Virtual Visa Debit
+                          {t.virtualVisaDebit}
                         </p>
                         <p className="text-xs text-gray-600">
-                          Malta Global Crypto Bank
+                          {t.digitalChainBank}
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 font-medium">
-                          SECURED
+                          {t.secured}
                         </span>
                         <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 font-medium">
-                          3D Secure
+                          {t.threeDSecure}
                         </span>
                       </div>
                     </div>
@@ -530,25 +530,25 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                             {card.status === "Active" && (
                               <p className="text-xs font-medium text-green-600 mt-1 flex items-center gap-1">
                                 <CheckCircle className="w-3 h-3" />
-                                Active
+                                {t.activeStatus}
                               </p>
                             )}
                             {card.status === "Approved" && (
                               <p className="text-xs font-medium text-blue-600 mt-1 flex items-center gap-1">
                                 <AlertCircle className="w-3 h-3" />
-                                Approved
+                                {t.approvedStatus}
                               </p>
                             )}
                             {card.status === "Pending" && (
                               <p className="text-xs font-medium text-yellow-600 mt-1 flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                Pending
+                                {t.pendingStatus}
                               </p>
                             )}
                             {card.status === "Frozen" && (
                               <p className="text-xs font-medium text-red-600 mt-1 flex items-center gap-1">
                                 <Lock className="w-3 h-3" />
-                                Frozen
+                                {t.frozenStatus}
                               </p>
                             )}
                           </div>
@@ -559,7 +559,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                                 size="sm"
                                 className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8"
                               >
-                                Activate
+                                {t.activateCard}
                               </Button>
                             )}
                             {card.status === "Active" && (
@@ -616,7 +616,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                             <Clock className="w-3 h-3 text-yellow-700 mr-2 mt-0.5" />
                             <div>
                               <p className="text-xs font-medium text-yellow-900">
-                                Waiting for approval
+                                {t.waitingForApproval}
                               </p>
                             </div>
                           </div>
@@ -629,7 +629,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                             <CheckCircle className="w-3 h-3 text-blue-700 mr-2 mt-0.5" />
                             <div>
                               <p className="text-xs font-medium text-blue-900">
-                                Ready to activate
+                                {t.readyToActivate}
                               </p>
                             </div>
                           </div>
@@ -642,7 +642,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                             <AlertCircle className="w-3 h-3 text-red-700 mr-2 mt-0.5" />
                             <div>
                               <p className="text-xs font-medium text-red-900">
-                                Temporarily blocked
+                                {t.temporarilyBlocked}
                               </p>
                             </div>
                           </div>
@@ -651,12 +651,12 @@ export default function CardSection({ userProfile }: CardSectionProps) {
 
                       <div className="border-t pt-3">
                         <p className="text-xs font-medium mb-2 text-gray-700">
-                          Timeline
+                          {t.timeline}
                         </p>
                         <div className="space-y-1 text-xs text-gray-600">
                           {card.created_at && (
                             <p>
-                              <span className="font-medium">Requested:</span>{" "}
+                              <span className="font-medium">{t.requested}:</span>{" "}
                               {new Date(card.created_at).toLocaleDateString(
                                 "en-GB",
                                 {
@@ -669,7 +669,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                           )}
                           {card.approved_at ? (
                             <p>
-                              <span className="font-medium">Approved:</span>{" "}
+                              <span className="font-medium">{t.approved}:</span>{" "}
                               {new Date(card.approved_at).toLocaleDateString(
                                 "en-GB",
                                 {
@@ -682,13 +682,13 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                           ) : (
                             card.status !== "Pending" && (
                               <p>
-                                <span className="font-medium">Approved:</span> —
+                                <span className="font-medium">{t.approved}:</span> —
                               </p>
                             )
                           )}
                           {card.activated_at ? (
                             <p>
-                              <span className="font-medium">Activated:</span>{" "}
+                              <span className="font-medium">{t.activated}:</span>{" "}
                               {new Date(card.activated_at).toLocaleDateString(
                                 "en-GB",
                                 {
@@ -703,7 +703,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                               card.status
                             ) && (
                               <p>
-                                <span className="font-medium">Activated:</span> —
+                                <span className="font-medium">{t.activated}:</span> —
                               </p>
                             )
                           )}
@@ -713,14 +713,14 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                       {showCardDetails[card.id] && card.status === "Active" && (
                         <div className="border-t pt-3 mt-3 space-y-2">
                           <p className="text-xs font-medium text-gray-700 mb-2">
-                            Card Details
+                            {t.cardDetailsTitle}
                           </p>
                           <p className="text-xs break-all">
                             <span className="font-medium">{t.fullNumber}:</span>{" "}
                             {card.card_number}
                           </p>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium">CVV:</span>
+                            <span className="text-xs font-medium">{t.cvv}:</span>
                             <div className="flex items-center gap-2">
                               <span className="text-xs">
                                 {revealedFields[card.id]?.cvv
@@ -735,12 +735,12 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                                 }
                                 className="h-5 px-2 text-xs"
                               >
-                                {revealedFields[card.id]?.cvv ? "Hide" : "Show"}
+                                {revealedFields[card.id]?.cvv ? t.hide : t.show}
                               </Button>
                             </div>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium">PIN:</span>
+                            <span className="text-xs font-medium">{t.pin}:</span>
                             <div className="flex items-center gap-2">
                               <span className="text-xs">
                                 {revealedFields[card.id]?.pin
@@ -755,7 +755,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                                 }
                                 className="h-5 px-2 text-xs"
                               >
-                                {revealedFields[card.id]?.pin ? "Hide" : "Show"}
+                                {revealedFields[card.id]?.pin ? t.hide : t.show}
                               </Button>
                             </div>
                           </div>
@@ -812,20 +812,19 @@ export default function CardSection({ userProfile }: CardSectionProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-[#b91c1c]" />
-              Security Confirmation
+              {t.securityConfirmation}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to reveal your card details? Make sure no one
-              is watching your screen.
+              {t.revealCardDetailsWarning}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.cancel}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmReveal}
               className="bg-[#b91c1c] hover:bg-[#991b1b]"
             >
-              Yes, Reveal Details
+              {t.yesRevealDetails}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
