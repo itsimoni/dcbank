@@ -36,11 +36,12 @@ import { getTranslations } from "../../lib/translations";
 
 interface Transaction {
   id: number;
-  created_at: string | null;
-  thType: string | null;
-  thDetails: string | null;
-  thPoi: string | null;
-  thStatus: string | null;
+  made_at: string;
+  thType: string;
+  thDetails: string;
+  thPoi: string;
+  thStatus: string;
+  user_id: string | null;
 }
 
 type FilterStatus = "all" | "Successful" | "Pending" | "Processing" | "Failed" | "Cancelled";
@@ -51,6 +52,7 @@ export default function TransactionHistory() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
@@ -59,35 +61,52 @@ export default function TransactionHistory() {
   const { language } = useLanguage();
   const t = getTranslations(language);
 
-  const fetchTransactions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("TransactionHistory")
-        .select("id, created_at, thType, thDetails, thPoi, thStatus")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setTransactions(data || []);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      setMessage({ type: "error", text: t.failedToLoadTransactions });
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        setMessage({ type: "error", text: t.mustBeLoggedIn });
+        setLoading(false);
+        return;
+      }
+      setUserId(user.id);
+    };
+    getUser();
+  }, [t]);
 
   useEffect(() => {
+    if (!userId) return;
+
+    const fetchTransactions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("TransactionHistory")
+          .select("id, made_at, thType, thDetails, thPoi, thStatus, user_id")
+          .eq("user_id", userId)
+          .order("made_at", { ascending: false });
+
+        if (error) throw error;
+
+        setTransactions(data || []);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        setMessage({ type: "error", text: t.failedToLoadTransactions });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchTransactions();
 
     const subscription = supabase
-      .channel("transaction_history_changes")
+      .channel(`transaction_history_changes_${userId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "TransactionHistory",
+          filter: `user_id=eq.${userId}`,
         },
         () => {
           fetchTransactions();
@@ -98,7 +117,7 @@ export default function TransactionHistory() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [userId, t]);
 
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];
@@ -107,9 +126,9 @@ export default function TransactionHistory() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (tx) =>
-          tx.thDetails?.toLowerCase().includes(query) ||
-          tx.thType?.toLowerCase().includes(query) ||
-          tx.thPoi?.toLowerCase().includes(query)
+          tx.thDetails.toLowerCase().includes(query) ||
+          tx.thType.toLowerCase().includes(query) ||
+          tx.thPoi.toLowerCase().includes(query)
       );
     }
 
@@ -121,7 +140,7 @@ export default function TransactionHistory() {
       const days = parseInt(dateRange);
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
-      filtered = filtered.filter((tx) => tx.created_at && new Date(tx.created_at) >= cutoff);
+      filtered = filtered.filter((tx) => new Date(tx.made_at) >= cutoff);
     }
 
     return filtered;
@@ -131,8 +150,7 @@ export default function TransactionHistory() {
     const groups: { [key: string]: Transaction[] } = {};
 
     filteredTransactions.forEach((tx) => {
-      if (!tx.created_at) return;
-      const date = new Date(tx.created_at);
+      const date = new Date(tx.made_at);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       if (!groups[key]) {
@@ -144,8 +162,7 @@ export default function TransactionHistory() {
     return groups;
   }, [filteredTransactions]);
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "";
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(language, {
       day: "2-digit",
@@ -154,8 +171,7 @@ export default function TransactionHistory() {
     }).format(date);
   };
 
-  const formatDateTime = (dateString: string | null) => {
-    if (!dateString) return "";
+  const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(language, {
       day: "2-digit",
@@ -175,8 +191,8 @@ export default function TransactionHistory() {
     }).format(date);
   };
 
-  const getStatusBadge = (status: string | null) => {
-    const statusLower = (status || "").toLowerCase();
+  const getStatusBadge = (status: string) => {
+    const statusLower = status.toLowerCase();
     let icon = <AlertCircle className="w-3 h-3" />;
     let colorClass = "bg-gray-50 text-gray-700 border border-gray-200";
 
@@ -197,13 +213,13 @@ export default function TransactionHistory() {
     return (
       <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium capitalize ${colorClass}`}>
         {icon}
-        {status || "Unknown"}
+        {status}
       </span>
     );
   };
 
   const getTransactionIcon = (tx: Transaction) => {
-    const typeLower = tx.thType?.toLowerCase() || "";
+    const typeLower = tx.thType.toLowerCase();
     const isDeposit = typeLower.includes("deposit") || typeLower.includes("credit") || typeLower.includes("received");
     if (isDeposit) {
       return <ArrowDownLeft className="w-5 h-5 text-green-600" />;
@@ -221,11 +237,11 @@ export default function TransactionHistory() {
     ];
 
     const rows = filteredTransactions.map((tx) => [
-      formatDate(tx.created_at),
-      tx.thType || "",
-      tx.thDetails || "",
-      tx.thPoi || "",
-      tx.thStatus || "",
+      formatDate(tx.made_at),
+      tx.thType,
+      tx.thDetails,
+      tx.thPoi,
+      tx.thStatus,
     ]);
 
     const csvContent = [
@@ -359,7 +375,7 @@ export default function TransactionHistory() {
                     >
                       <div className="lg:col-span-2 flex items-start lg:items-center">
                         <span className="text-sm text-gray-900 font-medium lg:font-normal">
-                          {formatDate(tx.created_at)}
+                          {formatDate(tx.made_at)}
                         </span>
                       </div>
 
@@ -367,20 +383,16 @@ export default function TransactionHistory() {
                         <div className="flex items-center gap-2">
                           {getTransactionIcon(tx)}
                           <span className="text-sm font-medium text-gray-900">
-                            {tx.thType || "Transaction"}
+                            {tx.thType}
                           </span>
                           <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                        {tx.thDetails && (
-                          <p className="text-xs text-gray-600 line-clamp-1">
-                            {tx.thDetails}
-                          </p>
-                        )}
-                        {tx.thPoi && (
-                          <p className="text-xs text-gray-500">
-                            {tx.thPoi}
-                          </p>
-                        )}
+                        <p className="text-xs text-gray-600 line-clamp-1">
+                          {tx.thDetails}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {tx.thPoi}
+                        </p>
                       </div>
 
                       <div className="lg:col-span-3 flex items-center lg:justify-end">
@@ -408,13 +420,11 @@ export default function TransactionHistory() {
                       {getTransactionIcon(selectedTransaction)}
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {selectedTransaction.thType || "Transaction"}
+                          {selectedTransaction.thType}
                         </h3>
-                        {selectedTransaction.thDetails && (
-                          <p className="text-sm text-gray-600 mt-1">
-                            {selectedTransaction.thDetails}
-                          </p>
-                        )}
+                        <p className="text-sm text-gray-600 mt-1">
+                          {selectedTransaction.thDetails}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -428,20 +438,18 @@ export default function TransactionHistory() {
                         Date
                       </label>
                       <p className="text-sm text-gray-900 mt-1">
-                        {formatDateTime(selectedTransaction.created_at)}
+                        {formatDateTime(selectedTransaction.made_at)}
                       </p>
                     </div>
 
-                    {selectedTransaction.thPoi && (
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Point of Interest
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          {selectedTransaction.thPoi}
-                        </p>
-                      </div>
-                    )}
+                    <div className="sm:col-span-2">
+                      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        Point of Interest
+                      </label>
+                      <p className="text-sm text-gray-900 mt-1">
+                        {selectedTransaction.thPoi}
+                      </p>
+                    </div>
                   </div>
                 </div>
 

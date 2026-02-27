@@ -78,11 +78,12 @@ interface WelcomeMessage {
 
 interface TransactionHistory {
   id: number;
-  created_at: string;
-  thType: string | null;
-  thDetails: string | null;
-  thPoi: string | null;
-  thStatus: string | null;
+  made_at: string;
+  thType: string;
+  thDetails: string;
+  thPoi: string;
+  thStatus: string;
+  user_id: string | null;
 }
 
 interface UserData {
@@ -621,15 +622,22 @@ function DashboardContent({
   }, [userProfile?.id]);
 
   useEffect(() => {
+    if (!userProfile?.id || userProfile.id === "unknown" || userProfile.id === "") {
+      setTransactionHistory([]);
+      return;
+    }
+
     let mounted = true;
     const abortController = new AbortController();
+    const userId = userProfile.id;
 
     const fetchTransactionHistory = async () => {
       try {
         const { data, error } = await supabase
           .from("TransactionHistory")
-          .select("id, created_at, thType, thDetails, thPoi, thStatus")
-          .order("created_at", { ascending: false })
+          .select("id, made_at, thType, thDetails, thPoi, thStatus, user_id")
+          .eq("user_id", userId)
+          .order("made_at", { ascending: false })
           .limit(2)
           .abortSignal(abortController.signal);
 
@@ -659,13 +667,14 @@ function DashboardContent({
     fetchTransactionHistory();
 
     const subscription = supabase
-      .channel("dashboard_transaction_history")
+      .channel(`dashboard_transaction_history_${userId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "TransactionHistory",
+          filter: `user_id=eq.${userId}`,
         },
         () => {
           fetchTransactionHistory();
@@ -678,7 +687,7 @@ function DashboardContent({
       abortController.abort();
       subscription.unsubscribe();
     };
-  }, []);
+  }, [userProfile?.id]);
 
 
   // Check if user is new and create welcome message
@@ -1012,8 +1021,7 @@ function DashboardContent({
               <CardContent className="space-y-3">
                 {transactionHistory.length > 0 ? (
                   transactionHistory.map((transaction) => {
-                    const getTranslatedStatus = (status: string | null) => {
-                      if (!status) return t.pending;
+                    const getTranslatedStatus = (status: string) => {
                       const statusLower = status.toLowerCase();
                       if (statusLower === "successful" || statusLower === "completed" || statusLower === "approved") return t.successful;
                       if (statusLower === "pending" || statusLower === "processing" || statusLower === "under review") return t.pending;
@@ -1030,18 +1038,14 @@ function DashboardContent({
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm truncate">
-                              {transaction.thType || "Transaction"}
+                              {transaction.thType}
                             </div>
-                            {transaction.thDetails && (
-                              <div className="text-xs text-gray-600 mt-1 line-clamp-2">
-                                {transaction.thDetails}
-                              </div>
-                            )}
-                            {transaction.thPoi && (
-                              <div className="text-xs text-gray-500 mt-1 truncate">
-                                {transaction.thPoi}
-                              </div>
-                            )}
+                            <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+                              {transaction.thDetails}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1 truncate">
+                              {transaction.thPoi}
+                            </div>
                           </div>
                           <Badge
                             variant={
@@ -1062,8 +1066,8 @@ function DashboardContent({
                         </div>
                         <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : ""}{" "}
-                          {transaction.created_at ? new Date(transaction.created_at).toLocaleTimeString() : ""}
+                          {new Date(transaction.made_at).toLocaleDateString()}{" "}
+                          {new Date(transaction.made_at).toLocaleTimeString()}
                         </div>
                       </div>
                     );
