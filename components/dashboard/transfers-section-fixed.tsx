@@ -1735,7 +1735,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.youSend}
+                          {t.youWillSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(amount || 0).toFixed(2)}{" "}
@@ -1912,7 +1912,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.youSend}
+                          {t.youWillSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(bankFormData.amount || 0).toFixed(2)}{" "}
@@ -2169,7 +2169,7 @@ export default function TransfersSection({
                     <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
                       <div className="flex-1 w-full">
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          {t.fromCrypto}
+                          {t.fromCurrency}
                         </Label>
                         <Select
                           value={cryptoInternalFormData.from_currency}
@@ -2204,7 +2204,7 @@ export default function TransfersSection({
 
                       <div className="flex-1 w-full">
                         <Label className="text-sm font-semibold mb-3 block text-slate-700">
-                          {t.toCrypto}
+                          {t.toCurrency}
                         </Label>
                         <Select
                           value={cryptoInternalFormData.to_currency}
@@ -2259,7 +2259,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.youSend}
+                          {t.youWillSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(cryptoInternalFormData.amount || 0).toFixed(8)}{" "}
@@ -2482,7 +2482,7 @@ export default function TransfersSection({
                     <div className="grid grid-cols-1 gap-4">
                       <div className="border-2 border-slate-300 bg-white p-4">
                         <p className="text-xs text-slate-600 font-medium mb-1">
-                          {t.youSend}
+                          {t.youWillSend}
                         </p>
                         <p className="text-2xl font-bold text-slate-800">
                           {Number(cryptoExternalFormData.amount || 0).toFixed(8)}{" "}
