@@ -79,12 +79,10 @@ interface WelcomeMessage {
 interface TransactionHistory {
   id: number;
   created_at: string;
-  thType: string;
-  thDetails: string;
-  thPoi: string;
-  thStatus: string;
-  uuid: string;
-  thEmail: string | null;
+  thType: string | null;
+  thDetails: string | null;
+  thPoi: string | null;
+  thStatus: string | null;
 }
 
 interface UserData {
@@ -622,22 +620,15 @@ function DashboardContent({
     };
   }, [userProfile?.id]);
 
-  // Fetch transaction history
   useEffect(() => {
     let mounted = true;
     const abortController = new AbortController();
 
     const fetchTransactionHistory = async () => {
-      if (!userProfile?.id || userProfile.id === "unknown" || userProfile.id === "") {
-        setTransactionHistory([]);
-        return;
-      }
-
       try {
         const { data, error } = await supabase
           .from("TransactionHistory")
-          .select("*")
-          .eq("uuid", userProfile.id)
+          .select("id, created_at, thType, thDetails, thPoi, thStatus")
           .order("created_at", { ascending: false })
           .limit(2)
           .abortSignal(abortController.signal);
@@ -647,12 +638,12 @@ function DashboardContent({
             return;
           }
           console.error("Error fetching transaction history:", error);
-          setTransactionHistory([]);
+          if (mounted) setTransactionHistory([]);
           return;
         }
 
-        if (data && mounted) {
-          setTransactionHistory(data);
+        if (mounted) {
+          setTransactionHistory(data || []);
         }
       } catch (error: any) {
         if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
@@ -667,40 +658,27 @@ function DashboardContent({
 
     fetchTransactionHistory();
 
-    const setupTransactionSubscription = () => {
-      const userId = userProfile?.id;
-      if (!userId || userId === "unknown" || userId === "") {
-        return () => {};
-      }
+    const subscription = supabase
+      .channel("dashboard_transaction_history")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "TransactionHistory",
+        },
+        () => {
+          fetchTransactionHistory();
+        }
+      )
+      .subscribe();
 
-      const subscription = supabase
-        .channel(`transaction_history_${userId}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "TransactionHistory",
-            filter: `uuid=eq.${userId}`,
-          },
-          (payload) => {
-            fetchTransactionHistory();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    };
-
-    const cleanup = setupTransactionSubscription();
     return () => {
       mounted = false;
       abortController.abort();
-      cleanup();
+      subscription.unsubscribe();
     };
-  }, [userProfile?.id]);
+  }, []);
 
 
   // Check if user is new and create welcome message
@@ -1034,7 +1012,8 @@ function DashboardContent({
               <CardContent className="space-y-3">
                 {transactionHistory.length > 0 ? (
                   transactionHistory.map((transaction) => {
-                    const getTranslatedStatus = (status: string) => {
+                    const getTranslatedStatus = (status: string | null) => {
+                      if (!status) return t.pending;
                       const statusLower = status.toLowerCase();
                       if (statusLower === "successful" || statusLower === "completed" || statusLower === "approved") return t.successful;
                       if (statusLower === "pending" || statusLower === "processing" || statusLower === "under review") return t.pending;
@@ -1051,37 +1030,40 @@ function DashboardContent({
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm truncate">
-                              {transaction.thType}
+                              {transaction.thType || "Transaction"}
                             </div>
-                            <div className="text-xs text-gray-600 mt-1 line-clamp-2">
-                              {transaction.thDetails}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1 truncate">
-                              {transaction.thPoi}
-                            </div>
+                            {transaction.thDetails && (
+                              <div className="text-xs text-gray-600 mt-1 line-clamp-2">
+                                {transaction.thDetails}
+                              </div>
+                            )}
+                            {transaction.thPoi && (
+                              <div className="text-xs text-gray-500 mt-1 truncate">
+                                {transaction.thPoi}
+                              </div>
+                            )}
                           </div>
                           <Badge
-  variant={
-    transaction.thStatus === "Successful"
-      ? "default"
-      : transaction.thStatus === "Pending"
-      ? "secondary"
-      : "destructive"
-  }
-  className={`text-xs shrink-0 rounded-none ${
-    transaction.thStatus === "Successful"
-      ? "bg-green-500 hover:bg-green-600 text-white"
-      : ""
-  }`}
->
-  {getTranslatedStatus(transaction.thStatus)}
-</Badge>
-
+                            variant={
+                              transaction.thStatus === "Successful"
+                                ? "default"
+                                : transaction.thStatus === "Pending"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                            className={`text-xs shrink-0 rounded-none ${
+                              transaction.thStatus === "Successful"
+                                ? "bg-green-500 hover:bg-green-600 text-white"
+                                : ""
+                            }`}
+                          >
+                            {getTranslatedStatus(transaction.thStatus)}
+                          </Badge>
                         </div>
                         <div className="text-xs text-gray-400 mt-2 flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {new Date(transaction.created_at).toLocaleDateString()}{" "}
-                          {new Date(transaction.created_at).toLocaleTimeString()}
+                          {transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : ""}{" "}
+                          {transaction.created_at ? new Date(transaction.created_at).toLocaleTimeString() : ""}
                         </div>
                       </div>
                     );

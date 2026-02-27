@@ -41,25 +41,6 @@ interface Transaction {
   thDetails: string | null;
   thPoi: string | null;
   thStatus: string | null;
-  uuid: string | null;
-  thEmail: string | null;
-  posted_at: string;
-  value_date: string | null;
-  amount: number;
-  currency: string;
-  fee_amount: number;
-  counterparty_name: string | null;
-  counterparty_account: string | null;
-  reference: string | null;
-  end_to_end_id: string | null;
-  external_id: string | null;
-  channel: string | null;
-  status_reason: string | null;
-  category: string | null;
-  metadata: Record<string, unknown>;
-  balance_after: number | null;
-  type: string | null;
-  status: string | null;
 }
 
 type FilterStatus = "all" | "Successful" | "Pending" | "Processing" | "Failed" | "Cancelled";
@@ -69,7 +50,6 @@ export default function TransactionHistory() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,55 +59,12 @@ export default function TransactionHistory() {
   const { language } = useLanguage();
   const t = getTranslations(language);
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-
-      if (error || !user) {
-        setMessage({ type: "error", text: t.mustBeLoggedIn });
-        setLoading(false);
-        return;
-      }
-
-      setUserId(user.id);
-    };
-
-    getUser();
-  }, [t]);
-
-  useEffect(() => {
-    if (userId) {
-      fetchTransactions();
-
-      const subscription = supabase
-        .channel("transaction_history_changes")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "TransactionHistory",
-            filter: `uuid=eq.${userId}`,
-          },
-          () => {
-            fetchTransactions();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-  }, [userId]);
-
   const fetchTransactions = async () => {
     try {
       const { data, error } = await supabase
         .from("TransactionHistory")
-        .select("*")
-        .eq("uuid", userId)
-        .order("posted_at", { ascending: false });
+        .select("id, created_at, thType, thDetails, thPoi, thStatus")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
@@ -140,6 +77,29 @@ export default function TransactionHistory() {
     }
   };
 
+  useEffect(() => {
+    fetchTransactions();
+
+    const subscription = supabase
+      .channel("transaction_history_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "TransactionHistory",
+        },
+        () => {
+          fetchTransactions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];
 
@@ -147,9 +107,7 @@ export default function TransactionHistory() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (tx) =>
-          tx.reference?.toLowerCase().includes(query) ||
           tx.thDetails?.toLowerCase().includes(query) ||
-          tx.counterparty_name?.toLowerCase().includes(query) ||
           tx.thType?.toLowerCase().includes(query) ||
           tx.thPoi?.toLowerCase().includes(query)
       );
@@ -163,7 +121,7 @@ export default function TransactionHistory() {
       const days = parseInt(dateRange);
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
-      filtered = filtered.filter((tx) => new Date(tx.posted_at) >= cutoff);
+      filtered = filtered.filter((tx) => tx.created_at && new Date(tx.created_at) >= cutoff);
     }
 
     return filtered;
@@ -173,7 +131,8 @@ export default function TransactionHistory() {
     const groups: { [key: string]: Transaction[] } = {};
 
     filteredTransactions.forEach((tx) => {
-      const date = new Date(tx.posted_at);
+      if (!tx.created_at) return;
+      const date = new Date(tx.created_at);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       if (!groups[key]) {
@@ -185,21 +144,8 @@ export default function TransactionHistory() {
     return groups;
   }, [filteredTransactions]);
 
-  const formatAmount = (amount: number, currency: string) => {
-    const cryptoCurrencies = ["BTC", "ETH", "ADA", "DOT", "LINK", "XRP", "SOL", "AVAX", "MATIC", "ATOM", "USDT"];
-    const trimmedCurrency = currency?.trim() || "EUR";
-    if (cryptoCurrencies.includes(trimmedCurrency.toUpperCase())) {
-      return `${amount.toFixed(8)} ${trimmedCurrency}`;
-    }
-    return new Intl.NumberFormat(language, {
-      style: "currency",
-      currency: trimmedCurrency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(language, {
       day: "2-digit",
@@ -208,7 +154,8 @@ export default function TransactionHistory() {
     }).format(date);
   };
 
-  const formatDateTime = (dateString: string) => {
+  const formatDateTime = (dateString: string | null) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
     return new Intl.DateTimeFormat(language, {
       day: "2-digit",
@@ -256,51 +203,29 @@ export default function TransactionHistory() {
   };
 
   const getTransactionIcon = (tx: Transaction) => {
-    const isDeposit = tx.amount > 0 || tx.thType?.toLowerCase().includes("deposit");
+    const typeLower = tx.thType?.toLowerCase() || "";
+    const isDeposit = typeLower.includes("deposit") || typeLower.includes("credit") || typeLower.includes("received");
     if (isDeposit) {
       return <ArrowDownLeft className="w-5 h-5 text-green-600" />;
     }
     return <ArrowUpRight className="w-5 h-5 text-red-600" />;
   };
 
-  const getTransactionTitle = (tx: Transaction) => {
-    if (tx.counterparty_name) {
-      return tx.counterparty_name;
-    }
-    return tx.thType || "Transaction";
-  };
-
-  const getTransactionSubtitle = (tx: Transaction) => {
-    if (tx.thDetails) return tx.thDetails;
-    if (tx.thPoi) return tx.thPoi;
-    return tx.category || "";
-  };
-
   const exportToCSV = () => {
     const headers = [
       "Date",
-      "Reference",
       "Type",
       "Details",
-      "Amount",
-      "Currency",
-      "Fee",
+      "Point of Interest",
       "Status",
-      "Counterparty",
-      "Balance After",
     ];
 
     const rows = filteredTransactions.map((tx) => [
-      formatDate(tx.posted_at),
-      tx.reference || "",
+      formatDate(tx.created_at),
       tx.thType || "",
       tx.thDetails || "",
-      tx.amount.toString(),
-      tx.currency?.trim() || "",
-      tx.fee_amount?.toString() || "0",
+      tx.thPoi || "",
       tx.thStatus || "",
-      tx.counterparty_name || "",
-      tx.balance_after?.toString() || "",
     ]);
 
     const csvContent = [
@@ -422,9 +347,8 @@ export default function TransactionHistory() {
                 <div className="bg-white border border-gray-200 divide-y divide-gray-200">
                   <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-4 py-3 bg-gray-50 text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     <div className="col-span-2">Date</div>
-                    <div className="col-span-5">Details</div>
-                    <div className="col-span-3 text-right">Amount</div>
-                    <div className="col-span-2 text-right">Status</div>
+                    <div className="col-span-7">Details</div>
+                    <div className="col-span-3 text-right">Status</div>
                   </div>
 
                   {txs.map((tx) => (
@@ -435,35 +359,31 @@ export default function TransactionHistory() {
                     >
                       <div className="lg:col-span-2 flex items-start lg:items-center">
                         <span className="text-sm text-gray-900 font-medium lg:font-normal">
-                          {formatDate(tx.posted_at)}
+                          {formatDate(tx.created_at)}
                         </span>
                       </div>
 
-                      <div className="lg:col-span-5 space-y-1">
+                      <div className="lg:col-span-7 space-y-1">
                         <div className="flex items-center gap-2">
                           {getTransactionIcon(tx)}
                           <span className="text-sm font-medium text-gray-900">
-                            {getTransactionTitle(tx)}
+                            {tx.thType || "Transaction"}
                           </span>
                           <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                        <p className="text-xs text-gray-600 line-clamp-1">
-                          {getTransactionSubtitle(tx)}
-                        </p>
-                        {tx.reference && (
-                          <p className="text-xs text-gray-500 font-mono">
-                            {tx.reference}
+                        {tx.thDetails && (
+                          <p className="text-xs text-gray-600 line-clamp-1">
+                            {tx.thDetails}
+                          </p>
+                        )}
+                        {tx.thPoi && (
+                          <p className="text-xs text-gray-500">
+                            {tx.thPoi}
                           </p>
                         )}
                       </div>
 
                       <div className="lg:col-span-3 flex items-center lg:justify-end">
-                        <span className={`text-sm font-semibold ${tx.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
-                          {tx.amount >= 0 ? "+" : ""}{formatAmount(tx.amount, tx.currency)}
-                        </span>
-                      </div>
-
-                      <div className="lg:col-span-2 flex items-center lg:justify-end">
                         {getStatusBadge(tx.thStatus)}
                       </div>
                     </div>
@@ -490,9 +410,11 @@ export default function TransactionHistory() {
                         <h3 className="text-lg font-semibold text-gray-900">
                           {selectedTransaction.thType || "Transaction"}
                         </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {selectedTransaction.thDetails || getTransactionSubtitle(selectedTransaction)}
-                        </p>
+                        {selectedTransaction.thDetails && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            {selectedTransaction.thDetails}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="text-right">
@@ -500,62 +422,15 @@ export default function TransactionHistory() {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-center">
-                      <label className="text-xs font-semibold text-gray-500 uppercase">Amount</label>
-                      <p className={`text-2xl font-bold mt-1 ${selectedTransaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
-                        {selectedTransaction.amount >= 0 ? "+" : ""}{formatAmount(selectedTransaction.amount, selectedTransaction.currency)}
-                      </p>
-                    </div>
-                    {selectedTransaction.balance_after !== null && (
-                      <p className="text-center text-sm text-gray-600 mt-3">
-                        Balance After: {formatAmount(selectedTransaction.balance_after, selectedTransaction.currency)}
-                      </p>
-                    )}
-                  </div>
-
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {selectedTransaction.reference && (
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Reference
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1 font-mono">
-                          {selectedTransaction.reference}
-                        </p>
-                      </div>
-                    )}
-
                     <div>
                       <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Posted At
+                        Date
                       </label>
                       <p className="text-sm text-gray-900 mt-1">
-                        {formatDateTime(selectedTransaction.posted_at)}
+                        {formatDateTime(selectedTransaction.created_at)}
                       </p>
                     </div>
-
-                    {selectedTransaction.value_date && (
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Value Date
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          {formatDate(selectedTransaction.value_date)}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedTransaction.fee_amount > 0 && (
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Fee
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          {formatAmount(selectedTransaction.fee_amount, selectedTransaction.currency)}
-                        </p>
-                      </div>
-                    )}
 
                     {selectedTransaction.thPoi && (
                       <div className="sm:col-span-2">
@@ -567,84 +442,7 @@ export default function TransactionHistory() {
                         </p>
                       </div>
                     )}
-
-                    {selectedTransaction.counterparty_name && (
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Counterparty
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          {selectedTransaction.counterparty_name}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedTransaction.counterparty_account && (
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Account
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1 font-mono">
-                          {selectedTransaction.counterparty_account}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedTransaction.channel && (
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Channel
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          {selectedTransaction.channel}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedTransaction.category && (
-                      <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Category
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1">
-                          {selectedTransaction.category}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedTransaction.end_to_end_id && (
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          End-to-End ID
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1 font-mono">
-                          {selectedTransaction.end_to_end_id}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedTransaction.external_id && (
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          External ID
-                        </label>
-                        <p className="text-sm text-gray-900 mt-1 font-mono">
-                          {selectedTransaction.external_id}
-                        </p>
-                      </div>
-                    )}
                   </div>
-
-                  {selectedTransaction.status_reason && (
-                    <div className="pt-4 border-t border-gray-200">
-                      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                        Status Note
-                      </h4>
-                      <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">
-                        {selectedTransaction.status_reason}
-                      </p>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex justify-end pt-4 border-t border-gray-200">
