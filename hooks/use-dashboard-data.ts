@@ -62,13 +62,12 @@ export interface Balances {
 
 export interface TransactionHistory {
   id: number;
-  created_at: string;
+  made_at: string;
   thType: string;
   thDetails: string;
   thPoi: string;
   thStatus: string;
-  uuid: string;
-  thEmail: string | null;
+  user_id: string | null;
 }
 
 export interface UserData {
@@ -164,7 +163,7 @@ export function useDashboardData() {
           supabase.from('newcrypto_balances').select('btc_balance, eth_balance, usdt_balance').eq('user_id', user.id).maybeSingle(),
 
           // Transaction history (limit to 2 most recent)
-          supabase.from('TransactionHistory').select('*').eq('uuid', user.id).order('created_at', { ascending: false }).limit(2),
+          supabase.from('TransactionHistory').select('id, made_at, "thType", "thDetails", "thPoi", "thStatus", user_id').eq('user_id', user.id).order('made_at', { ascending: false }).limit(2),
 
           // User data from users table
           supabase.from('users').select('first_name, last_name, full_name, email').eq('id', user.id).maybeSingle(),
