@@ -59,7 +59,7 @@ const CRYPTO_WALLETS = {
 
 const BANK_DETAILS = {
   bankName: "Malta Global Crypto Bank",
-  accountName: "Digital Chain Holdings Ltd",
+  accountName: "Malta Global Crypto Bank Holdings Ltd",
   accountNumber: "8847562910",
   routingNumber: "021000021",
   swiftCode: "DGCHUSNY",
