@@ -13,51 +13,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user_presence record exists
     const supabase = getSupabaseServer();
-    const { data: existingRecord, error: selectError } = await supabase
+    const now = new Date().toISOString();
+
+    const { error } = await supabase
       .from("user_presence")
-      .select("*")
-      .eq("user_id", user_id)
-      .single();
-
-    const presenceData = {
-      is_online,
-      last_seen,
-      updated_at: new Date().toISOString(),
-    };
-
-    if (existingRecord) {
-      // Update existing record
-      const { error: updateError } = await supabase
-        .from("user_presence")
-        .update(presenceData)
-        .eq("user_id", user_id);
-
-      if (updateError) {
-        console.error("Error updating user presence:", updateError);
-        return NextResponse.json(
-          { error: "Failed to update presence" },
-          { status: 500 }
-        );
-      }
-    } else {
-      // Insert new record
-      const { error: insertError } = await supabase
-        .from("user_presence")
-        .insert({
+      .upsert(
+        {
           user_id,
-          ...presenceData,
-          created_at: new Date().toISOString(),
-        });
+          is_online,
+          last_seen,
+          updated_at: now,
+          created_at: now,
+        },
+        { onConflict: "user_id" }
+      );
 
-      if (insertError) {
-        console.error("Error inserting user presence:", insertError);
-        return NextResponse.json(
-          { error: "Failed to create presence record" },
-          { status: 500 }
-        );
-      }
+    if (error) {
+      console.error("Error upserting user presence:", error);
+      return NextResponse.json(
+        { error: "Failed to update presence" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });

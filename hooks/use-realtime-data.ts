@@ -1,9 +1,30 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { priceService } from "@/lib/price-service";
 import { useAuth } from "@/contexts/AuthContext";
+
+function useDebouncedCallback<T extends (...args: any[]) => any>(
+  callback: T,
+  delay: number
+): T {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
+
+  return useCallback(
+    ((...args: Parameters<T>) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        callbackRef.current(...args);
+      }, delay);
+    }) as T,
+    [delay]
+  );
+}
 
 interface RealtimeData {
   balances: {
@@ -284,6 +305,18 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
   };
 
   const setupRealtimeSubscriptions = (userId: string) => {
+    const debouncedBalanceFetch = (() => {
+      let timeoutId: NodeJS.Timeout | null = null;
+      return () => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          fetchBalances(userId).then((balances) => {
+            setData((prev) => ({ ...prev, balances }));
+          });
+        }, 300);
+      };
+    })();
+
     const balanceSubscription = supabase
       .channel("balance_changes")
       .on(
@@ -294,11 +327,7 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
           table: "usd_balances",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          fetchBalances(userId).then((balances) => {
-            setData((prev) => ({ ...prev, balances }));
-          });
-        }
+        debouncedBalanceFetch
       )
       .on(
         "postgres_changes",
@@ -308,11 +337,7 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
           table: "euro_balances",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          fetchBalances(userId).then((balances) => {
-            setData((prev) => ({ ...prev, balances }));
-          });
-        }
+        debouncedBalanceFetch
       )
       .on(
         "postgres_changes",
@@ -322,11 +347,7 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
           table: "cad_balances",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          fetchBalances(userId).then((balances) => {
-            setData((prev) => ({ ...prev, balances }));
-          });
-        }
+        debouncedBalanceFetch
       )
       .on(
         "postgres_changes",
@@ -336,11 +357,7 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
           table: "crypto_balances",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          fetchBalances(userId).then((balances) => {
-            setData((prev) => ({ ...prev, balances }));
-          });
-        }
+        debouncedBalanceFetch
       )
       .on(
         "postgres_changes",
@@ -350,11 +367,7 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
           table: "newcrypto_balances",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          fetchBalances(userId).then((balances) => {
-            setData((prev) => ({ ...prev, balances }));
-          });
-        }
+        debouncedBalanceFetch
       )
       .subscribe();
 
@@ -411,10 +424,7 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
           fetchCryptoTransactions(userId).then((cryptoTransactions) => {
             setData((prev) => ({ ...prev, cryptoTransactions }));
           });
-          // Also refresh balances when crypto transaction status changes
-          fetchBalances(userId).then((balances) => {
-            setData((prev) => ({ ...prev, balances }));
-          });
+          debouncedBalanceFetch();
         }
       )
       .subscribe();
@@ -440,7 +450,7 @@ export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData 
         fetchCryptoPrices().then((cryptoPrices) => {
           setData((prev) => ({ ...prev, cryptoPrices }));
         });
-      }, 30000);
+      }, 60000);
     };
 
     const handleVisibilityChange = () => {

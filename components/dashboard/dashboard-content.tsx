@@ -11,27 +11,14 @@ import { supabase } from "@/lib/supabase";
 import { getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  Bitcoin,
   Shield,
   MessageSquare,
   Bell,
-  Activity,
-  CreditCard,
-  Send,
-  Wallet,
-  Info,
-  ArrowDownLeft,
-  ArrowUpRight,
-  Building2,
-  AlertTriangle,
   Sparkles,
   ChevronDown,
-  ChevronUp,
   Clock,
-  Calendar,
   User,
   FileText,
-  Banknote,
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
