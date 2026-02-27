@@ -53,6 +53,9 @@ interface DashboardContentProps {
     created_at?: string;
   };
   setActiveTab: (tab: string) => void;
+  cryptoBalances?: { BTC: number; ETH: number; USDT: number };
+  userData?: { first_name: string | null; last_name: string | null; full_name: string | null; email: string | null } | null;
+  transactions?: TransactionHistory[];
 }
 
 interface LatestMessage {
@@ -202,6 +205,9 @@ const CryptoCard = memo(
 function DashboardContent({
   userProfile,
   setActiveTab,
+  cryptoBalances: passedCryptoBalances,
+  userData: passedUserData,
+  transactions: passedTransactions,
 }: DashboardContentProps) {
   const {
     balances: realtimeBalances,
@@ -224,16 +230,9 @@ function DashboardContent({
   const [currentMessage, setCurrentMessage] = useState<
     LatestMessage | WelcomeMessage | null
   >(null);
-  // Add state for crypto balances
-  const [cryptoBalances, setCryptoBalances] = useState<Record<string, number>>({
-    BTC: 0,
-    ETH: 0,
-    USDT: 0,
-  });
-  // Add state for user data from users table
-  const [userData, setUserData] = useState<UserData | null>(null);
-  // Add state for transaction history
-  const [transactionHistory, setTransactionHistory] = useState<TransactionHistory[]>([]);
+  const cryptoBalances = passedCryptoBalances || { BTC: 0, ETH: 0, USDT: 0 };
+  const userData = passedUserData || null;
+  const transactionHistory = passedTransactions || [];
   // Add language state
   const { language } = useLanguage();
   // User menu state
@@ -426,269 +425,6 @@ function DashboardContent({
       }
     }
   };
-
-  // Fetch user data from users table
-  useEffect(() => {
-    let mounted = true;
-    const abortController = new AbortController();
-
-    const fetchUserData = async () => {
-      try {
-        if (!userProfile?.id) {
-          console.log("No userProfile.id available yet");
-          return;
-        }
-
-        console.log("Fetching user data for user:", userProfile.id);
-
-        const { data, error } = await supabase
-          .from("users")
-          .select("first_name, last_name, full_name, email")
-          .eq("id", userProfile.id)
-          .abortSignal(abortController.signal)
-          .maybeSingle();
-
-        if (!mounted) return;
-
-        if (error) {
-          if (error.message?.includes('aborted') || error.name === 'AbortError') {
-            console.log('[UserData] Request aborted');
-            return;
-          }
-          console.error("Error fetching user data:", error);
-          setUserData({
-            first_name: null,
-            last_name: null,
-            full_name: null,
-            email: userProfile.email || null,
-          });
-          return;
-        }
-
-        console.log("User data fetched:", data);
-        setUserData(data);
-      } catch (error: any) {
-        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
-          console.log('[UserData] Fetch aborted');
-          return;
-        }
-        if (mounted) {
-          console.error("Error in fetchUserData:", error);
-          setUserData({
-            first_name: null,
-            last_name: null,
-            full_name: null,
-            email: null,
-          });
-        }
-      }
-    };
-
-    fetchUserData();
-
-    return () => {
-      mounted = false;
-      abortController.abort();
-    };
-  }, [userProfile?.id]);
-
-  // Fetch crypto balances from the correct table (newcrypto_balances)
-  useEffect(() => {
-    let mounted = true;
-    const abortController = new AbortController();
-
-    const fetchCryptoBalances = async () => {
-      if (!userProfile?.id || userProfile.id === "unknown" || userProfile.id === "") {
-        console.log("Invalid or missing user ID:", userProfile?.id);
-        setCryptoBalances({
-          BTC: 0,
-          ETH: 0,
-          USDT: 0,
-        });
-        return;
-      }
-
-      try {
-        console.log("Fetching crypto balances for user:", userProfile.id);
-
-        const { data, error } = await supabase
-          .from("newcrypto_balances")
-          .select("btc_balance, eth_balance, usdt_balance")
-          .eq("user_id", userProfile.id)
-          .abortSignal(abortController.signal);
-
-        if (!mounted) return;
-
-        if (error) {
-          if (error.message?.includes('aborted') || error.name === 'AbortError') {
-            console.log('[CryptoBalances] Request aborted');
-            return;
-          }
-          console.error("Error fetching crypto balances:", {
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
-            code: error.code,
-          });
-          setCryptoBalances({
-            BTC: 0,
-            ETH: 0,
-            USDT: 0,
-          });
-          return;
-        }
-
-        console.log("Crypto balances data:", data);
-
-        if (data && data.length > 0) {
-          const userBalance = data[0];
-          const balances = {
-            BTC: Number(userBalance.btc_balance) || 0,
-            ETH: Number(userBalance.eth_balance) || 0,
-            USDT: Number(userBalance.usdt_balance) || 0,
-          };
-
-          console.log("Setting crypto balances:", balances);
-          setCryptoBalances(balances);
-        } else {
-          console.log("No crypto balance record found, setting all to 0");
-          setCryptoBalances({
-            BTC: 0,
-            ETH: 0,
-            USDT: 0,
-          });
-        }
-      } catch (error: any) {
-        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
-          console.log('[CryptoBalances] Fetch aborted');
-          return;
-        }
-        if (mounted) {
-          console.error("Error in fetchCryptoBalances:", {
-            error,
-            message: error instanceof Error ? error.message : "Unknown error",
-            stack: error instanceof Error ? error.stack : undefined,
-          });
-          setCryptoBalances({
-            BTC: 0,
-            ETH: 0,
-            USDT: 0,
-          });
-        }
-      }
-    };
-
-    fetchCryptoBalances();
-
-    // Set up real-time subscription for crypto balances
-    const setupCryptoSubscription = () => {
-      // Only set up subscription if we have a valid user ID
-      const userId =
-        userProfile?.id && userProfile.id !== "unknown" ? userProfile.id : null;
-
-      if (!userId) {
-        console.log("No valid user ID for subscription");
-        return () => {};
-      }
-
-      const subscription = supabase
-        .channel(`newcrypto_balances_${userId}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "newcrypto_balances",
-            filter: `user_id=eq.${userId}`,
-          },
-          (payload) => {
-            console.log("Crypto balance change detected:", payload);
-            fetchCryptoBalances();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    };
-
-    const cleanup = setupCryptoSubscription();
-    return () => {
-      mounted = false;
-      abortController.abort();
-      cleanup();
-    };
-  }, [userProfile?.id]);
-
-  useEffect(() => {
-    if (!userProfile?.id || userProfile.id === "unknown" || userProfile.id === "") {
-      setTransactionHistory([]);
-      return;
-    }
-
-    let mounted = true;
-    const abortController = new AbortController();
-    const userId = userProfile.id;
-
-    const fetchTransactionHistory = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("TransactionHistory")
-          .select("id, made_at, thType, thDetails, thPoi, thStatus, user_id")
-          .eq("user_id", userId)
-          .order("made_at", { ascending: false })
-          .limit(2)
-          .abortSignal(abortController.signal);
-
-        if (error) {
-          if (error.message?.includes('aborted') || error.name === 'AbortError') {
-            return;
-          }
-          console.error("Error fetching transaction history:", error);
-          if (mounted) setTransactionHistory([]);
-          return;
-        }
-
-        if (mounted) {
-          setTransactionHistory(data || []);
-        }
-      } catch (error: any) {
-        if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
-          return;
-        }
-        if (mounted) {
-          console.error("Error in fetchTransactionHistory:", error);
-          setTransactionHistory([]);
-        }
-      }
-    };
-
-    fetchTransactionHistory();
-
-    const subscription = supabase
-      .channel(`dashboard_transaction_history_${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "TransactionHistory",
-          filter: `user_id=eq.${userId}`,
-        },
-        () => {
-          fetchTransactionHistory();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      mounted = false;
-      abortController.abort();
-      subscription.unsubscribe();
-    };
-  }, [userProfile?.id]);
-
 
   // Check if user is new and create welcome message
   useEffect(() => {

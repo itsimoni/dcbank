@@ -14,7 +14,7 @@ class PriceService {
     const response = await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=${cryptoIds}&vs_currencies=eur&include_24hr_change=true`,
       {
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(5000),
         headers: {
           'Accept': 'application/json',
         }
@@ -169,33 +169,17 @@ class PriceService {
       return this.cryptoCache;
     }
 
-    const sources = [
-      { name: "Kraken", fetch: () => this.fetchFromKraken() },
-      { name: "Binance", fetch: () => this.fetchFromBinance() },
-      { name: "CoinCap", fetch: () => this.fetchFromCoinCap() },
-      { name: "CoinGecko", fetch: () => this.fetchFromCoinGecko() },
-    ];
-
-    for (const source of sources) {
-      try {
-        console.log(`Attempting to fetch crypto prices from ${source.name}...`);
-        const data = await source.fetch();
-
-        if (Object.keys(data).length > 0) {
-          this.cryptoCache = data;
-          this.lastCryptoFetch = now;
-          console.log(`Successfully fetched crypto prices from ${source.name} - ${Object.keys(data).length} coins`);
-          return data;
-        } else {
-          console.warn(`${source.name} returned empty data`);
-        }
-      } catch (error: any) {
-        console.warn(`${source.name} failed:`, error?.message || error);
-        continue;
+    try {
+      const data = await this.fetchFromCoinGecko();
+      if (Object.keys(data).length > 0) {
+        this.cryptoCache = data;
+        this.lastCryptoFetch = now;
+        return data;
       }
+    } catch (error: any) {
+      console.warn("CoinGecko failed:", error?.message || error);
     }
 
-    console.error("All crypto price sources failed, using fallback data");
     return (
       this.cryptoCache || {
         bitcoin: { eur: 85000, eur_24h_change: 0 },
