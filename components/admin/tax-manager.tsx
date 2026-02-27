@@ -789,7 +789,8 @@ export default function TaxManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-[calc(100vh-64px)] h-[calc(100vh-64px)] w-full bg-gray-50 p-4 overflow-auto">
+      <div className="space-y-6 max-w-6xl mx-auto">
       {/* Admin Level Display */}
       <Card>
         <CardHeader>
@@ -1374,6 +1375,7 @@ export default function TaxManager() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

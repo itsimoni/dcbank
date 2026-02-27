@@ -308,94 +308,90 @@ export default function TaxCard({ userProfile, setActiveTab }: TaxCardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-64px)] h-[calc(100vh-64px)] w-full bg-gray-50 p-4 overflow-auto">
-        <Card className="animate-pulse max-w-4xl mx-auto">
-          <CardHeader>
-            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="animate-pulse">
+        <CardHeader>
+          <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] h-[calc(100vh-64px)] w-full bg-gray-50 p-4 overflow-auto">
-      <Card className="bg-gradient-to-br from-slate-50 to-gray-100 border-0 shadow-lg max-w-4xl mx-auto">
-        <CardHeader className="bg-[#b91c1c] text-white">
-          <CardTitle className="flex items-center space-x-2">
-            <Calculator className="h-5 w-5" />
-            <span>{t.taxManagement}</span>
-          </CardTitle>
-        </CardHeader>
+    <Card className="bg-gradient-to-br from-slate-50 to-gray-100 border-0 shadow-lg">
+      <CardHeader className="bg-[#b91c1c] text-white">
+        <CardTitle className="flex items-center space-x-2">
+          <Calculator className="h-5 w-5" />
+          <span>{t.taxManagement}</span>
+        </CardTitle>
+      </CardHeader>
 
-        <CardContent className="p-2">
-          <div className="space-y-4 mt-6">
-            <div className="bg-white p-4 border border-gray-200 shadow-sm">
+      <CardContent className="p-2">
+        <div className="space-y-4 mt-6">
+          <div className="bg-white p-4 border border-gray-200 shadow-sm">
 
-              <div className="grid grid-cols-3 gap-3">
-                <div
-                  className="bg-white p-3 border border-[#b91c1c] cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={() => setActiveTab("payments")}
-                >
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-black">
-                      {t.pending}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-black">
-                    {formatCurrency(taxStats.pending.amount)}
-                  </p>
+            <div className="grid grid-cols-3 gap-3">
+              <div
+                className="bg-white p-3 border border-[#b91c1c] cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => setActiveTab("payments")}
+              >
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-sm font-medium text-black">
+                    {t.pending}
+                  </span>
                 </div>
-
-                <div className="bg-white p-3 border border-[#b91c1c]">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-black">
-                      {t.onHold}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-black">
-                    {formatCurrency(taxStats.on_hold.amount)}
-                  </p>
-                </div>
-
-                <div className="bg-white p-3 border border-[#b91c1c]">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="text-sm font-medium text-black">
-                      {t.paid}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-black">
-                    {formatCurrency(taxStats.paid.amount)}
-                  </p>
-                </div>
+                <p className="text-lg font-bold text-black">
+                  {formatCurrency(taxStats.pending.amount)}
+                </p>
               </div>
 
-              <div className="flex gap-2 mt-4">
-                <Button
-                  onClick={() => setActiveTab("payments")}
-                  className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
-                >
-                  {t.payYourTaxes}
-                </Button>
-                <Button
-                  onClick={exportTaxReport}
-                  className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {t.exportTaxReport}
-                </Button>
+              <div className="bg-white p-3 border border-[#b91c1c]">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-sm font-medium text-black">
+                    {t.onHold}
+                  </span>
+                </div>
+                <p className="text-lg font-bold text-black">
+                  {formatCurrency(taxStats.on_hold.amount)}
+                </p>
+              </div>
+
+              <div className="bg-white p-3 border border-[#b91c1c]">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-sm font-medium text-black">
+                    {t.paid}
+                  </span>
+                </div>
+                <p className="text-lg font-bold text-black">
+                  {formatCurrency(taxStats.paid.amount)}
+                </p>
               </div>
             </div>
+
+            <div className="flex gap-2 mt-4">
+              <Button
+                onClick={() => setActiveTab("payments")}
+                className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
+              >
+                {t.payYourTaxes}
+              </Button>
+              <Button
+                onClick={exportTaxReport}
+                className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                {t.exportTaxReport}
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
