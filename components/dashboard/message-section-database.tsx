@@ -350,7 +350,7 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
   const unreadCount = messages.filter((m) => !m.is_read && m.folder !== "archived").length;
 
   return (
-    <div className="h-full w-full flex flex-col lg:flex-row bg-gray-50 overflow-hidden">
+    <div className="min-h-[calc(100vh-64px)] h-[calc(100vh-64px)] w-full flex flex-col lg:flex-row bg-gray-50 overflow-hidden">
       <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
         <div className="w-full lg:w-48 xl:w-60 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col shrink-0">
           <div className="p-3 lg:p-4 border-b border-gray-200">
