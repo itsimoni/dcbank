@@ -445,7 +445,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
               {cards.map((card) => (
                 <div key={card.id} className="flex flex-col">
                   <div className="bg-white border-l-8 border-l-[#b91c1c] p-5 shadow-lg pointer-events-none relative">
@@ -516,7 +516,7 @@ export default function CardSection({ userProfile }: CardSectionProps) {
                     </div>
                   </div>
 
-                  <Card className="flex-1 bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none mt-0">
+                  <Card className="flex-1 bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none mt-4">
                     <CardContent className="p-4">
                       <div className="flex flex-col gap-3 mb-3">
                         <div className="flex justify-between items-start">
