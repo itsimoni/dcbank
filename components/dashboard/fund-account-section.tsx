@@ -245,10 +245,10 @@ export default function FundAccountSection({
                     <button
                       key={crypto}
                       onClick={() => setSelectedCrypto(crypto)}
-                      className={`p-4 rounded-lg border-2 transition-all ${
+                      className={`p-4 border-2 transition-all rounded-none ${
                         selectedCrypto === crypto
-                          ? "border-[#b91c1c] bg-red-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-[#b91c1c]"
+                          : "border-[#b91c1c]"
                       }`}
                     >
                       <img
