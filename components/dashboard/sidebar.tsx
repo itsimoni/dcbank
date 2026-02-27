@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
-  Wallet,
   ArrowLeftRight,
   Download,
   CreditCard,
@@ -47,12 +46,6 @@ const MENU_ITEMS: MenuItem[] = [
     id: "dashboard",
     labelKey: "dashboard",
     icon: LayoutDashboard,
-    isEnabled: true,
-  },
-  {
-    id: "accounts",
-    labelKey: "accounts",
-    icon: Wallet,
     isEnabled: true,
   },
   {

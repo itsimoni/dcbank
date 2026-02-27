@@ -7,7 +7,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getTranslations } from "@/lib/translations";
 import Sidebar from "./sidebar";
 import DashboardContent from "./dashboard-content";
-import AccountsSection from "./accounts-section";
 import DepositsSection from "./transaction-history";
 import PaymentsSection from "./payments-section";
 import CardSection from "./card-section";
@@ -19,7 +18,6 @@ import Profile from "./Profile";
 
 const SECTION_COMPONENTS = {
   dashboard: DashboardContent,
-  accounts: AccountsSection,
   transfers: TransfersSection,
   deposit: DepositsSection,
   payments: PaymentsSection,
