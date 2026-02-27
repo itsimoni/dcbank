@@ -15,6 +15,7 @@ import TransfersSection from "./transfers-section-fixed";
 import MessageSection from "./message-section-database";
 import LoansSection from "./loans-section";
 import Profile from "./Profile";
+import FundAccountSection from "./fund-account-section";
 
 const SECTION_COMPONENTS = {
   dashboard: DashboardContent,
@@ -26,6 +27,7 @@ const SECTION_COMPONENTS = {
   support: SupportSection,
   profile: Profile,
   loans: LoansSection,
+  fund: FundAccountSection,
 } as const;
 
 export default function Dashboard() {

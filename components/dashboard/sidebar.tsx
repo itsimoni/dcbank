@@ -14,6 +14,7 @@ import {
   Banknote,
   Globe,
   ChevronDown,
+  Wallet,
 } from "lucide-react";
 import { Language, getTranslations } from "@/lib/translations";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -46,6 +47,12 @@ const MENU_ITEMS: MenuItem[] = [
     id: "dashboard",
     labelKey: "dashboard",
     icon: LayoutDashboard,
+    isEnabled: true,
+  },
+  {
+    id: "fund",
+    labelKey: "fundAccount",
+    icon: Wallet,
     isEnabled: true,
   },
   {
