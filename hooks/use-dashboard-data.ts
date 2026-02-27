@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DASHBOARD_CACHE_KEY = 'dashboard_data_cache';
 const CACHE_TTL = 5 * 60 * 1000;
@@ -88,6 +89,8 @@ export interface DashboardData {
 }
 
 export function useDashboardData() {
+  const { user, loading: authLoading } = useAuth();
+
   const [data, setData] = useState<DashboardData>(() => {
     return {
       userProfile: null,
@@ -112,17 +115,20 @@ export function useDashboardData() {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
     if (fetchedRef.current) return;
+    if (!user) {
+      setData(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Not authenticated',
+      }));
+      return;
+    }
     fetchedRef.current = true;
 
     const fetchAllData = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const user = session?.user;
-
-        if (!user) {
-          throw new Error('Not authenticated');
-        }
 
         if (!mountedRef.current) return;
 
@@ -255,7 +261,7 @@ export function useDashboardData() {
     };
 
     fetchAllData();
-  }, []);
+  }, [user, authLoading]);
 
   return data;
 }

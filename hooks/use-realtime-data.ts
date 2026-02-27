@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { priceService } from "@/lib/price-service";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface RealtimeData {
   balances: {
@@ -32,6 +33,9 @@ interface RealtimeData {
 }
 
 export function useRealtimeData(): RealtimeData {
+  const { user, loading: authLoading } = useAuth();
+  const initRef = useRef(false);
+
   const [data, setData] = useState<RealtimeData>({
     balances: { usd: 0, euro: 0, cad: 0, crypto: 0, btc: 0, eth: 0, usdt: 0 },
     exchangeRates: {
@@ -199,34 +203,9 @@ export function useRealtimeData(): RealtimeData {
     }
   };
 
-  const initializeData = async () => {
+  const initializeData = async (userId: string) => {
     try {
       setData((prev) => ({ ...prev, loading: true, error: null }));
-
-      let user;
-      try {
-        const result = await supabase.auth.getUser();
-        user = result.data?.user;
-        if (result.error && result.error.name !== 'AbortError') {
-          throw result.error;
-        }
-      } catch (err: any) {
-        if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
-          console.log('[Realtime] Auth call aborted, skipping initialization');
-          setData((prev) => ({ ...prev, loading: false }));
-          return;
-        }
-        throw err;
-      }
-
-      if (!user) {
-        setData((prev) => ({
-          ...prev,
-          loading: false,
-          error: "User not authenticated",
-        }));
-        return;
-      }
 
       const [
         balances,
@@ -236,12 +215,12 @@ export function useRealtimeData(): RealtimeData {
         deposits,
         cryptoTransactions,
       ] = await Promise.all([
-        fetchBalances(user.id),
+        fetchBalances(userId),
         fetchExchangeRates(),
         fetchCryptoPrices(),
-        fetchMessages(user.id),
-        fetchDeposits(user.id),
-        fetchCryptoTransactions(user.id),
+        fetchMessages(userId),
+        fetchDeposits(userId),
+        fetchCryptoTransactions(userId),
       ]);
 
       setData({
@@ -264,23 +243,7 @@ export function useRealtimeData(): RealtimeData {
     }
   };
 
-  const setupRealtimeSubscriptions = async () => {
-    let user;
-    try {
-      const result = await supabase.auth.getUser();
-      user = result.data?.user;
-    } catch (err: any) {
-      if (err?.name === 'AbortError' || err?.message?.includes('aborted')) {
-        console.log('[Realtime] Auth call aborted during subscription setup');
-        return;
-      }
-      console.error('[Realtime] Error getting user:', err);
-      return;
-    }
-
-    if (!user) return;
-
-    // Subscribe to balance changes
+  const setupRealtimeSubscriptions = (userId: string) => {
     const balanceSubscription = supabase
       .channel("balance_changes")
       .on(
@@ -289,10 +252,10 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "usd_balances",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         () => {
-          fetchBalances(user.id).then((balances) => {
+          fetchBalances(userId).then((balances) => {
             setData((prev) => ({ ...prev, balances }));
           });
         }
@@ -303,10 +266,10 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "euro_balances",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         () => {
-          fetchBalances(user.id).then((balances) => {
+          fetchBalances(userId).then((balances) => {
             setData((prev) => ({ ...prev, balances }));
           });
         }
@@ -317,10 +280,10 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "cad_balances",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         () => {
-          fetchBalances(user.id).then((balances) => {
+          fetchBalances(userId).then((balances) => {
             setData((prev) => ({ ...prev, balances }));
           });
         }
@@ -331,10 +294,10 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "crypto_balances",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         () => {
-          fetchBalances(user.id).then((balances) => {
+          fetchBalances(userId).then((balances) => {
             setData((prev) => ({ ...prev, balances }));
           });
         }
@@ -345,10 +308,10 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "newcrypto_balances",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         () => {
-          fetchBalances(user.id).then((balances) => {
+          fetchBalances(userId).then((balances) => {
             setData((prev) => ({ ...prev, balances }));
           });
         }
@@ -364,10 +327,10 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "user_messages",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         () => {
-          fetchMessages(user.id).then((messages) => {
+          fetchMessages(userId).then((messages) => {
             setData((prev) => ({ ...prev, messages }));
           });
         }
@@ -383,10 +346,10 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "deposits",
-          filter: `uuid=eq.${user.id}`,
+          filter: `uuid=eq.${userId}`,
         },
         () => {
-          fetchDeposits(user.id).then((deposits) => {
+          fetchDeposits(userId).then((deposits) => {
             setData((prev) => ({ ...prev, deposits }));
           });
         }
@@ -402,14 +365,14 @@ export function useRealtimeData(): RealtimeData {
           event: "*",
           schema: "public",
           table: "crypto_transactions",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${userId}`,
         },
         () => {
-          fetchCryptoTransactions(user.id).then((cryptoTransactions) => {
+          fetchCryptoTransactions(userId).then((cryptoTransactions) => {
             setData((prev) => ({ ...prev, cryptoTransactions }));
           });
           // Also refresh balances when crypto transaction status changes
-          fetchBalances(user.id).then((balances) => {
+          fetchBalances(userId).then((balances) => {
             setData((prev) => ({ ...prev, balances }));
           });
         }
@@ -456,13 +419,25 @@ export function useRealtimeData(): RealtimeData {
   }, []);
 
   useEffect(() => {
-    initializeData();
-    const cleanup = setupRealtimeSubscriptions();
+    if (authLoading) return;
+    if (!user) {
+      setData((prev) => ({
+        ...prev,
+        loading: false,
+        error: "User not authenticated",
+      }));
+      return;
+    }
+    if (initRef.current) return;
+    initRef.current = true;
+
+    initializeData(user.id);
+    const cleanup = setupRealtimeSubscriptions(user.id);
 
     return () => {
-      cleanup?.then((fn) => fn?.());
+      cleanup?.();
     };
-  }, []);
+  }, [user, authLoading]);
 
   return data;
 }

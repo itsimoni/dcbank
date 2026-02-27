@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LatestMessage {
   id: string;
@@ -14,28 +15,22 @@ interface LatestMessage {
 }
 
 export function useLatestMessage() {
+  const { user, loading: authLoading } = useAuth();
+  const initRef = useRef(false);
+  const userIdRef = useRef<string | null>(null);
+
   const [latestMessage, setLatestMessage] = useState<LatestMessage | null>(
     null
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLatestMessage = async () => {
+  const fetchLatestMessage = async (userId: string) => {
     try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        setLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase
         .from("user_messages")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("is_read", false)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -81,56 +76,51 @@ export function useLatestMessage() {
   };
 
   useEffect(() => {
-    fetchLatestMessage();
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    if (initRef.current) return;
+    initRef.current = true;
+    userIdRef.current = user.id;
 
-    // Set up real-time subscription for new messages
-    const setupSubscription = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+    fetchLatestMessage(user.id);
 
-        if (!user) return;
-
-        const subscription = supabase
-          .channel("latest_message_changes")
-          .on(
-            "postgres_changes",
-            {
-              event: "INSERT",
-              schema: "public",
-              table: "user_messages",
-              filter: `user_id=eq.${user.id}`,
-            },
-            () => {
-              fetchLatestMessage();
-            }
-          )
-          .subscribe();
-
-        return () => {
-          subscription.unsubscribe();
-        };
-      } catch (error: any) {
-        if (error?.message?.includes("aborted") || error?.name === "AbortError") {
-          return;
+    const subscription = supabase
+      .channel("latest_message_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "user_messages",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          if (userIdRef.current) {
+            fetchLatestMessage(userIdRef.current);
+          }
         }
-        console.error("Error setting up latest message subscription:", error);
-      }
-    };
-
-    const cleanup = setupSubscription();
+      )
+      .subscribe();
 
     return () => {
-      cleanup?.then((fn) => fn?.());
+      subscription.unsubscribe();
     };
-  }, []);
+  }, [user, authLoading]);
+
+  const refetch = () => {
+    if (userIdRef.current) {
+      fetchLatestMessage(userIdRef.current);
+    }
+  };
 
   return {
     latestMessage,
     loading,
     error,
     markAsRead,
-    refetch: fetchLatestMessage,
+    refetch,
   };
 }

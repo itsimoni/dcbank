@@ -433,7 +433,12 @@ function DashboardContent({
 
       // Skip if userProfile.id is invalid
       if (!userProfile.id || userProfile.id === "unknown") {
-        console.log("Skipping welcome check - invalid user ID");
+        setHasCheckedWelcome(true);
+        return;
+      }
+
+      const welcomeCheckKey = `welcome_checked_${userProfile.id}`;
+      if (typeof window !== 'undefined' && sessionStorage.getItem(welcomeCheckKey)) {
         setHasCheckedWelcome(true);
         return;
       }
@@ -441,27 +446,27 @@ function DashboardContent({
       try {
         if (!userProfile?.id) return;
 
-        // Check if user was created in the last 24 hours
         const userCreatedAt = new Date(userProfile.created_at || Date.now());
         const now = new Date();
         const hoursDiff =
           (now.getTime() - userCreatedAt.getTime()) / (1000 * 60 * 60);
         const isRecentUser = hoursDiff <= 24;
 
-        // Check if user has any existing transactions (indicating they're not new)
-        const { data: existingTransfers } = await supabase
-          .from("transfers")
-          .select("id")
-          .eq("user_id", userProfile.id)
-          .limit(1);
+        if (!isRecentUser) {
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem(welcomeCheckKey, 'true');
+          }
+          setHasCheckedWelcome(true);
+          return;
+        }
 
-        // Check if welcome message already exists
-        const { data: existingWelcome } = await supabase
-          .from("messages")
-          .select("*")
-          .eq("client_id", userProfile.client_id)
-          .eq("message_type", "welcome")
-          .limit(1);
+        const [transfersResult, welcomeResult] = await Promise.all([
+          supabase.from("transfers").select("id").eq("user_id", userProfile.id).limit(1),
+          supabase.from("messages").select("*").eq("client_id", userProfile.client_id).eq("message_type", "welcome").limit(1),
+        ]);
+
+        const existingTransfers = transfersResult.data;
+        const existingWelcome = welcomeResult.data;
 
         const hasActivity =
           (existingTransfers && existingTransfers.length > 0);
@@ -524,6 +529,9 @@ function DashboardContent({
             setCurrentMessage(localWelcomeMessage);
             setShowMessage(true);
           }
+        }
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(welcomeCheckKey, 'true');
         }
         setHasCheckedWelcome(true);
       } catch (error) {
@@ -825,7 +833,11 @@ function DashboardContent({
 
         {/* Balance Comparison Graph */}
         <div className="mb-6 sm:mb-8">
-          <BalanceComparisonGraph userId={userProfile.id} />
+          <BalanceComparisonGraph
+            userId={userProfile.id}
+            initialBalances={realtimeBalances ? { usd: realtimeBalances.usd, euro: realtimeBalances.euro, cad: realtimeBalances.cad } : undefined}
+            initialCryptoBalances={cryptoBalances}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6 sm:mb-8">

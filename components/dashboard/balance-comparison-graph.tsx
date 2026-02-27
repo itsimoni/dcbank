@@ -21,6 +21,16 @@ import { TrendingUp, BarChart3 } from "lucide-react";
 
 interface BalanceComparisonGraphProps {
   userId: string;
+  initialBalances?: {
+    usd: number;
+    euro: number;
+    cad: number;
+  };
+  initialCryptoBalances?: {
+    BTC: number;
+    ETH: number;
+    USDT: number;
+  };
 }
 
 type ViewMode = 'all' | 'fiat' | 'crypto';
@@ -36,7 +46,7 @@ interface ChartDataPoint {
   value?: number;
 }
 
-export default function BalanceComparisonGraph({ userId }: BalanceComparisonGraphProps) {
+export default function BalanceComparisonGraph({ userId, initialBalances, initialCryptoBalances }: BalanceComparisonGraphProps) {
   const { language } = useLanguage();
   const t = getTranslations(language);
 
@@ -64,12 +74,12 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
   });
 
   useEffect(() => {
-    fetchBalances();
-    const interval = setInterval(fetchBalances, 30000);
+    calculateBalances();
+    const interval = setInterval(calculateBalances, 60000);
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [userId, initialBalances, initialCryptoBalances]);
 
-  const fetchBalances = async () => {
+  const calculateBalances = async () => {
     try {
       const [prices, rates] = await Promise.all([
         priceService.getCryptoPrices(),
@@ -79,42 +89,40 @@ export default function BalanceComparisonGraph({ userId }: BalanceComparisonGrap
       setCryptoPrices(prices);
       setExchangeRates(rates);
 
-      const { data: usdData } = await supabase
-        .from("usd_balances")
-        .select("balance")
-        .eq("user_id", userId)
-        .maybeSingle();
+      let usdBalance: number;
+      let euroBalance: number;
+      let cadBalance: number;
+      let btcBalance: number;
+      let ethBalance: number;
+      let usdtBalance: number;
 
-      const { data: euroData } = await supabase
-        .from("euro_balances")
-        .select("balance")
-        .eq("user_id", userId)
-        .maybeSingle();
+      if (initialBalances && initialCryptoBalances) {
+        usdBalance = initialBalances.usd;
+        euroBalance = initialBalances.euro;
+        cadBalance = initialBalances.cad;
+        btcBalance = initialCryptoBalances.BTC;
+        ethBalance = initialCryptoBalances.ETH;
+        usdtBalance = initialCryptoBalances.USDT;
+      } else {
+        const [usdData, euroData, cadData, cryptoData] = await Promise.all([
+          supabase.from("usd_balances").select("balance").eq("user_id", userId).maybeSingle(),
+          supabase.from("euro_balances").select("balance").eq("user_id", userId).maybeSingle(),
+          supabase.from("cad_balances").select("balance").eq("user_id", userId).maybeSingle(),
+          supabase.from("newcrypto_balances").select("btc_balance, eth_balance, usdt_balance").eq("user_id", userId).maybeSingle(),
+        ]);
 
-      const { data: cadData } = await supabase
-        .from("cad_balances")
-        .select("balance")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      const { data: cryptoBalances } = await supabase
-        .from("newcrypto_balances")
-        .select("btc_balance, eth_balance, usdt_balance")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      const usdBalance = Number(usdData?.balance || 0);
-      const euroBalance = Number(euroData?.balance || 0);
-      const cadBalance = Number(cadData?.balance || 0);
+        usdBalance = Number(usdData.data?.balance || 0);
+        euroBalance = Number(euroData.data?.balance || 0);
+        cadBalance = Number(cadData.data?.balance || 0);
+        btcBalance = Number(cryptoData.data?.btc_balance || 0);
+        ethBalance = Number(cryptoData.data?.eth_balance || 0);
+        usdtBalance = Number(cryptoData.data?.usdt_balance || 0);
+      }
 
       const usdInEur = rates?.USD ? usdBalance / rates.USD : usdBalance * 0.92;
       const cadInEur = rates?.CAD ? cadBalance / rates.CAD : cadBalance * 0.68;
 
       const totalFiatInEur = usdInEur + euroBalance + cadInEur;
-
-      const btcBalance = Number(cryptoBalances?.btc_balance || 0);
-      const ethBalance = Number(cryptoBalances?.eth_balance || 0);
-      const usdtBalance = Number(cryptoBalances?.usdt_balance || 0);
 
       const btcPrice = prices?.bitcoin?.eur || 39750;
       const ethPrice = prices?.ethereum?.eur || 2440;

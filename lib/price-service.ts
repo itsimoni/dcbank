@@ -2,12 +2,51 @@
 
 import { valoreForexService } from "./valore-forex-service";
 
+const CRYPTO_STORAGE_KEY = 'price_service_crypto_cache';
+const EXCHANGE_STORAGE_KEY = 'price_service_exchange_cache';
+
 class PriceService {
   private cryptoCache: any = null;
   private exchangeCache: any = null;
   private lastCryptoFetch = 0;
   private lastExchangeFetch = 0;
-  private readonly CACHE_DURATION = 30000; // 30 seconds
+  private readonly CACHE_DURATION = 60000;
+  private readonly STORAGE_CACHE_DURATION = 300000;
+
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage() {
+    if (typeof window === 'undefined') return;
+    try {
+      const cryptoStored = localStorage.getItem(CRYPTO_STORAGE_KEY);
+      if (cryptoStored) {
+        const parsed = JSON.parse(cryptoStored);
+        if (parsed.timestamp && Date.now() - parsed.timestamp < this.STORAGE_CACHE_DURATION) {
+          this.cryptoCache = parsed.data;
+          this.lastCryptoFetch = parsed.timestamp;
+        }
+      }
+      const exchangeStored = localStorage.getItem(EXCHANGE_STORAGE_KEY);
+      if (exchangeStored) {
+        const parsed = JSON.parse(exchangeStored);
+        if (parsed.timestamp && Date.now() - parsed.timestamp < this.STORAGE_CACHE_DURATION) {
+          this.exchangeCache = parsed.data;
+          this.lastExchangeFetch = parsed.timestamp;
+        }
+      }
+    } catch {
+    }
+  }
+
+  private saveToStorage(key: string, data: any) {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+    } catch {
+    }
+  }
 
   private async fetchFromCoinGecko() {
     const cryptoIds = "bitcoin,ethereum,tether,ripple,cardano,solana,polkadot,litecoin,bitcoin-cash,chainlink";
@@ -174,6 +213,7 @@ class PriceService {
       if (Object.keys(data).length > 0) {
         this.cryptoCache = data;
         this.lastCryptoFetch = now;
+        this.saveToStorage(CRYPTO_STORAGE_KEY, data);
         return data;
       }
     } catch (error: any) {
@@ -234,8 +274,8 @@ class PriceService {
     const valoreRates = valoreForexService.getRates();
 
     if (valoreForexService.isConnected() && Object.keys(valoreRates).length > 0) {
-      console.log("Using real-time forex rates from Valore Capital WebSocket");
       this.exchangeCache = valoreRates;
+      this.saveToStorage(EXCHANGE_STORAGE_KEY, valoreRates);
       return valoreRates;
     }
 
@@ -248,7 +288,6 @@ class PriceService {
       return this.exchangeCache;
     }
 
-    console.log("Valore WebSocket not available, falling back to REST APIs");
     const sources = [
       { name: "ExchangeRate-API", fetch: () => this.fetchFromExchangeRateAPI() },
       { name: "Frankfurter", fetch: () => this.fetchFromFrankfurter() },
@@ -257,11 +296,10 @@ class PriceService {
 
     for (const source of sources) {
       try {
-        console.log(`Attempting to fetch exchange rates from ${source.name}...`);
         const data = await source.fetch();
         this.exchangeCache = data;
         this.lastExchangeFetch = now;
-        console.log(`Successfully fetched exchange rates from ${source.name}`);
+        this.saveToStorage(EXCHANGE_STORAGE_KEY, data);
         return data;
       } catch (error) {
         console.warn(`${source.name} failed:`, error);
@@ -269,7 +307,6 @@ class PriceService {
       }
     }
 
-    console.error("All exchange rate sources failed, using fallback data");
     return (
       this.exchangeCache || {
         USD: 1.087,
