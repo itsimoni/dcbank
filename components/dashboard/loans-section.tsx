@@ -144,11 +144,11 @@ export default function LoansSection({}: LoansSectionProps) {
   ];
 
   const loanTerms = [
-    { value: "12", label: "12 months" },
-    { value: "24", label: "24 months" },
-    { value: "36", label: "36 months" },
-    { value: "48", label: "48 months" },
-    { value: "60", label: "60 months" },
+    { value: "12", label: `12 ${t.months}` },
+    { value: "24", label: `24 ${t.months}` },
+    { value: "36", label: `36 ${t.months}` },
+    { value: "48", label: `48 ${t.months}` },
+    { value: "60", label: `60 ${t.months}` },
   ];
 
   const employmentStatuses = [
@@ -167,22 +167,22 @@ export default function LoansSection({}: LoansSectionProps) {
     { value: "uk", label: t.unitedKingdom },
     { value: "de", label: t.germany },
     { value: "fr", label: t.france },
-    { value: "it", label: "Italy" },
-    { value: "es", label: "Spain" },
-    { value: "nl", label: "Netherlands" },
-    { value: "be", label: "Belgium" },
-    { value: "at", label: "Austria" },
-    { value: "pt", label: "Portugal" },
-    { value: "gr", label: "Greece" },
+    { value: "it", label: t.italy },
+    { value: "es", label: t.spain },
+    { value: "nl", label: t.netherlands },
+    { value: "be", label: t.belgium },
+    { value: "at", label: t.austria },
+    { value: "pt", label: t.portugal },
+    { value: "gr", label: t.greece },
     { value: "au", label: t.australia },
     { value: "jp", label: t.japan },
     { value: "other", label: t.other },
   ];
 
   const residencyStatuses = [
-    { value: "citizen", label: "Citizen of Malta" },
-    { value: "permanent", label: "Permanent Resident" },
-    { value: "other", label: "Other" },
+    { value: "citizen", label: t.citizenOfMalta },
+    { value: "permanent", label: t.permanentResident },
+    { value: "other", label: t.other },
   ];
 
   useEffect(() => {
@@ -239,9 +239,9 @@ export default function LoansSection({}: LoansSectionProps) {
       switch (step) {
         case 0:
           if (!formData.residencyStatus)
-            newErrors.residencyStatus = "Residency status is required";
+            newErrors.residencyStatus = `${t.residencyStatus} ${t.required}`;
           if (!formData.countryOfResidence)
-            newErrors.countryOfResidence = "Country of residence is required";
+            newErrors.countryOfResidence = `${t.countryOfResidence} ${t.required}`;
           break;
         case 1:
           if (!formData.loanType)
@@ -249,7 +249,7 @@ export default function LoansSection({}: LoansSectionProps) {
           if (!formData.loanAmount)
             newErrors.loanAmount = t.loanAmountRequired;
           if (!formData.loanTerm)
-            newErrors.loanTerm = "Loan term is required";
+            newErrors.loanTerm = t.loanTermRequired;
           if (!formData.loanPurpose)
             newErrors.loanPurpose = t.purposeOfLoanRequired;
           break;
@@ -283,11 +283,11 @@ export default function LoansSection({}: LoansSectionProps) {
         case 4:
           if (!formData.ssn) newErrors.ssn = t.ssnTaxIdRequired;
           if (!formData.consentAccuracy)
-            newErrors.consentAccuracy = "You must confirm accuracy of information";
+            newErrors.consentAccuracy = t.consentAccuracyError;
           if (!formData.consentPrivacy)
-            newErrors.consentPrivacy = "You must agree to the Privacy Notice";
+            newErrors.consentPrivacy = t.consentPrivacyError;
           if (!formData.consentCreditCheck)
-            newErrors.consentCreditCheck = "You must consent to eligibility checks";
+            newErrors.consentCreditCheck = t.consentCreditCheckError;
           break;
       }
 
@@ -343,21 +343,21 @@ export default function LoansSection({}: LoansSectionProps) {
     <div className="space-y-6">
       <div className="text-center mb-8">
         <MapPin className="h-12 w-12 text-[#b91c1c] mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900">Residency Eligibility</h3>
+        <h3 className="text-xl font-semibold text-gray-900">{t.residencyEligibility}</h3>
         <p className="text-gray-600 mt-2 text-sm">
-          Please confirm your residency status to check eligibility
+          {t.pleaseConfirmResidency}
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="residencyStatus">Residency Status *</Label>
+          <Label htmlFor="residencyStatus">{t.residencyStatus} *</Label>
           <Select
             value={formData.residencyStatus}
             onValueChange={(value) => handleInputChange("residencyStatus", value)}
           >
             <SelectTrigger className={errors.residencyStatus ? "border-red-500 bg-white" : "bg-white"}>
-              <SelectValue placeholder="Select your residency status" />
+              <SelectValue placeholder={t.selectResidencyStatus} />
             </SelectTrigger>
             <SelectContent className="bg-white">
               {residencyStatuses.map((status) => (
@@ -373,13 +373,13 @@ export default function LoansSection({}: LoansSectionProps) {
         </div>
 
         <div>
-          <Label htmlFor="countryOfResidence">Country of Residence *</Label>
+          <Label htmlFor="countryOfResidence">{t.countryOfResidence} *</Label>
           <Select
             value={formData.countryOfResidence}
             onValueChange={(value) => handleInputChange("countryOfResidence", value)}
           >
             <SelectTrigger className={errors.countryOfResidence ? "border-red-500 bg-white" : "bg-white"}>
-              <SelectValue placeholder="Select your country of residence" />
+              <SelectValue placeholder={t.selectCountryOfResidence} />
             </SelectTrigger>
             <SelectContent className="bg-white">
               {countries.map((country) => (
@@ -395,17 +395,17 @@ export default function LoansSection({}: LoansSectionProps) {
         </div>
 
         <div>
-          <Label htmlFor="hasMalteseId">Do you have a Maltese ID or residence permit?</Label>
+          <Label htmlFor="hasMalteseId">{t.malteseIdQuestion}</Label>
           <Select
             value={formData.hasMalteseId}
             onValueChange={(value) => handleInputChange("hasMalteseId", value)}
           >
             <SelectTrigger className="bg-white">
-              <SelectValue placeholder="Select an option" />
+              <SelectValue placeholder={t.selectOption} />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <SelectItem value="yes">Yes</SelectItem>
-              <SelectItem value="no">No</SelectItem>
+              <SelectItem value="yes">{t.yes}</SelectItem>
+              <SelectItem value="no">{t.no}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -417,7 +417,7 @@ export default function LoansSection({}: LoansSectionProps) {
           disabled={isSubmitting}
           className="bg-[#b91c1c] hover:bg-[#991b1b] text-white px-8"
         >
-          {isSubmitting ? "Checking..." : "Check Eligibility"}
+          {isSubmitting ? t.checking : t.checkEligibility}
         </Button>
       </div>
     </div>
@@ -427,8 +427,8 @@ export default function LoansSection({}: LoansSectionProps) {
     <div className="space-y-6">
       <div className="text-center mb-8">
         <FileSignature className="h-12 w-12 text-[#b91c1c] mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900">Loan Details</h3>
-        <p className="text-sm text-gray-600 mt-1">Estimated time: 3-5 minutes</p>
+        <h3 className="text-xl font-semibold text-gray-900">{t.loanDetailsTitle}</h3>
+        <p className="text-sm text-gray-600 mt-1">{t.estimatedTime}</p>
       </div>
 
       <div className="space-y-4">
@@ -471,13 +471,13 @@ export default function LoansSection({}: LoansSectionProps) {
           </div>
 
           <div>
-            <Label htmlFor="loanTerm">Loan Term *</Label>
+            <Label htmlFor="loanTerm">{t.loanTerm} *</Label>
             <Select
               value={formData.loanTerm}
               onValueChange={(value) => handleInputChange("loanTerm", value)}
             >
               <SelectTrigger className={errors.loanTerm ? "border-red-500 bg-white" : "bg-white"}>
-                <SelectValue placeholder="Select term" />
+                <SelectValue placeholder={t.selectTerm} />
               </SelectTrigger>
               <SelectContent className="bg-white">
                 {loanTerms.map((term) => (
@@ -495,22 +495,22 @@ export default function LoansSection({}: LoansSectionProps) {
 
         {formData.loanAmount && formData.loanTerm && (
           <div className="bg-white border-l-4 border-l-[#b91c1c] p-4 space-y-2">
-            <h4 className="font-semibold text-gray-900 text-sm">Estimated Loan Calculator</h4>
+            <h4 className="font-semibold text-gray-900 text-sm">{t.estimatedLoanCalculator}</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">Monthly Repayment</p>
+                <p className="text-gray-600">{t.monthlyRepayment}</p>
                 <p className="text-lg font-bold text-gray-900">€{calculateMonthlyPayment()?.monthly}</p>
               </div>
               <div>
-                <p className="text-gray-600">Representative APR</p>
+                <p className="text-gray-600">{t.representativeAPR}</p>
                 <p className="text-lg font-bold text-gray-900">{calculateMonthlyPayment()?.apr}%</p>
               </div>
               <div>
-                <p className="text-gray-600">Total Repayable</p>
+                <p className="text-gray-600">{t.totalRepayable}</p>
                 <p className="text-lg font-bold text-gray-900">€{calculateMonthlyPayment()?.total}</p>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">*This is an example calculation only</p>
+            <p className="text-xs text-gray-500 mt-2">{t.exampleCalculationOnly}</p>
           </div>
         )}
 
@@ -537,7 +537,7 @@ export default function LoansSection({}: LoansSectionProps) {
       <div className="text-center mb-8">
         <Briefcase className="h-12 w-12 text-[#b91c1c] mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-900">
-          Income & Employment
+          {t.incomeAndEmployment}
         </h3>
       </div>
 
@@ -555,8 +555,8 @@ export default function LoansSection({}: LoansSectionProps) {
           </div>
           {expandedHelp === "income" && (
             <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-2 text-sm text-gray-700">
-              <p className="font-semibold mb-1">Why we ask this:</p>
-              <p>We need to verify your income to assess affordability and ensure the loan is sustainable for you.</p>
+              <p className="font-semibold mb-1">{t.whyWeAskThis}</p>
+              <p>{t.incomeVerificationReason}</p>
             </div>
           )}
           <Input
@@ -634,8 +634,8 @@ export default function LoansSection({}: LoansSectionProps) {
               </div>
               {expandedHelp === "employment" && (
                 <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-2 text-sm text-gray-700">
-                  <p className="font-semibold mb-1">Why we ask this:</p>
-                  <p>Employment duration helps us understand your income stability and employment history.</p>
+                  <p className="font-semibold mb-1">{t.whyWeAskThis}</p>
+                  <p>{t.employmentDurationReason}</p>
                 </div>
               )}
               <Input
@@ -664,7 +664,7 @@ export default function LoansSection({}: LoansSectionProps) {
       <div className="text-center mb-8">
         <User className="h-12 w-12 text-[#b91c1c] mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-900">
-          Personal Details
+          {t.personalDetails}
         </h3>
       </div>
 
@@ -800,8 +800,8 @@ export default function LoansSection({}: LoansSectionProps) {
           </div>
           {expandedHelp === "dob" && (
             <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-2 text-sm text-gray-700">
-              <p className="font-semibold mb-1">Why we ask this:</p>
-              <p>Used to verify your identity and confirm you meet age requirements for lending products.</p>
+              <p className="font-semibold mb-1">{t.whyWeAskThis}</p>
+              <p>{t.dobVerificationReason}</p>
             </div>
           )}
           <Input
@@ -824,7 +824,7 @@ export default function LoansSection({}: LoansSectionProps) {
       <div className="text-center mb-8">
         <FileText className="h-12 w-12 text-[#b91c1c] mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-900">
-          Financial Commitments & Consent
+          {t.financialCommitmentsConsent}
         </h3>
       </div>
 
@@ -842,8 +842,8 @@ export default function LoansSection({}: LoansSectionProps) {
           </div>
           {expandedHelp === "ssn" && (
             <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-2 text-sm text-gray-700">
-              <p className="font-semibold mb-1">Why we ask this:</p>
-              <p>Used to verify your identity and assess affordability as required by financial regulations.</p>
+              <p className="font-semibold mb-1">{t.whyWeAskThis}</p>
+              <p>{t.ssnVerificationReason}</p>
             </div>
           )}
           <Input
@@ -855,11 +855,11 @@ export default function LoansSection({}: LoansSectionProps) {
           />
           <div className="flex items-start gap-2 mt-2 text-xs text-gray-600">
             <Lock className="w-3 h-3 mt-0.5 flex-shrink-0" />
-            <p>Encrypted and stored securely</p>
+            <p>{t.encryptedSecurely}</p>
           </div>
           <div className="flex items-start gap-2 mt-1 text-xs text-gray-600">
             <Shield className="w-3 h-3 mt-0.5 flex-shrink-0" />
-            <p>We do not perform a credit check unless you consent</p>
+            <p>{t.noCreditCheckWithoutConsent}</p>
           </div>
           {errors.ssn && (
             <p className="text-red-500 text-sm mt-1">{errors.ssn}</p>
@@ -891,8 +891,8 @@ export default function LoansSection({}: LoansSectionProps) {
           </div>
           {expandedHelp === "debts" && (
             <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-2 text-sm text-gray-700">
-              <p className="font-semibold mb-1">Why we ask this:</p>
-              <p>Understanding your existing financial commitments helps us ensure the loan is affordable and sustainable.</p>
+              <p className="font-semibold mb-1">{t.whyWeAskThis}</p>
+              <p>{t.debtsVerificationReason}</p>
             </div>
           )}
           <Input
@@ -932,7 +932,7 @@ export default function LoansSection({}: LoansSectionProps) {
         </div>
 
         <div className="border-t pt-6 mt-6 space-y-4">
-          <h4 className="font-semibold text-gray-900">Required Consents</h4>
+          <h4 className="font-semibold text-gray-900">{t.requiredConsents}</h4>
 
           <div className="flex items-start gap-3">
             <Checkbox
@@ -942,7 +942,7 @@ export default function LoansSection({}: LoansSectionProps) {
               className={errors.consentAccuracy ? "border-red-500" : ""}
             />
             <label htmlFor="consentAccuracy" className="text-sm text-gray-700 cursor-pointer">
-              I confirm that the information provided is accurate and complete to the best of my knowledge
+              {t.consentAccuracyLabel}
             </label>
           </div>
           {errors.consentAccuracy && (
@@ -957,7 +957,7 @@ export default function LoansSection({}: LoansSectionProps) {
               className={errors.consentPrivacy ? "border-red-500" : ""}
             />
             <label htmlFor="consentPrivacy" className="text-sm text-gray-700 cursor-pointer">
-              I agree to the <a href="#" className="text-[#b91c1c] underline">Privacy Notice</a> and understand how my data will be used
+              {t.consentPrivacyLabel}
             </label>
           </div>
           {errors.consentPrivacy && (
@@ -972,7 +972,7 @@ export default function LoansSection({}: LoansSectionProps) {
               className={errors.consentCreditCheck ? "border-red-500" : ""}
             />
             <label htmlFor="consentCreditCheck" className="text-sm text-gray-700 cursor-pointer">
-              I consent to eligibility checks and credit assessment as required for this application
+              {t.consentCreditCheckLabel}
             </label>
           </div>
           {errors.consentCreditCheck && (
@@ -987,47 +987,47 @@ export default function LoansSection({}: LoansSectionProps) {
     <div className="space-y-6">
       <div className="text-center mb-8">
         <CheckCircle className="h-12 w-12 text-[#b91c1c] mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900">Application Summary</h3>
-        <p className="text-sm text-gray-600 mt-1">Please review your information before submitting</p>
+        <h3 className="text-xl font-semibold text-gray-900">{t.applicationSummary}</h3>
+        <p className="text-sm text-gray-600 mt-1">{t.reviewBeforeSubmitting}</p>
       </div>
 
       <div className="space-y-4">
         <div className="bg-white border-l-4 border-l-[#b91c1c] p-4">
-          <h4 className="font-semibold text-gray-900 mb-3">Loan Information</h4>
+          <h4 className="font-semibold text-gray-900 mb-3">{t.loanInformation}</h4>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-gray-600">Loan Type:</p>
-              <p className="font-medium text-gray-900">{loanTypes.find(t => t.value === formData.loanType)?.label}</p>
+              <p className="text-gray-600">{t.loanType}:</p>
+              <p className="font-medium text-gray-900">{loanTypes.find(lt => lt.value === formData.loanType)?.label}</p>
             </div>
             <div>
-              <p className="text-gray-600">Amount:</p>
+              <p className="text-gray-600">{t.amount}:</p>
               <p className="font-medium text-gray-900">€{formData.loanAmount}</p>
             </div>
             <div>
-              <p className="text-gray-600">Term:</p>
-              <p className="font-medium text-gray-900">{formData.loanTerm} months</p>
+              <p className="text-gray-600">{t.term}:</p>
+              <p className="font-medium text-gray-900">{formData.loanTerm} {t.months}</p>
             </div>
             <div>
-              <p className="text-gray-600">Purpose:</p>
+              <p className="text-gray-600">{t.purpose}:</p>
               <p className="font-medium text-gray-900">{formData.loanPurpose.slice(0, 50)}...</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white border-l-4 border-l-[#b91c1c] p-4">
-          <h4 className="font-semibold text-gray-900 mb-3">Income & Employment</h4>
+          <h4 className="font-semibold text-gray-900 mb-3">{t.incomeAndEmployment}</h4>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-gray-600">Monthly Income:</p>
+              <p className="text-gray-600">{t.monthlyIncomeLabel}:</p>
               <p className="font-medium text-gray-900">€{formData.monthlyIncome}</p>
             </div>
             <div>
-              <p className="text-gray-600">Employment:</p>
+              <p className="text-gray-600">{t.employment}:</p>
               <p className="font-medium text-gray-900">{employmentStatuses.find(s => s.value === formData.employmentStatus)?.label}</p>
             </div>
             {formData.employerName && (
               <div>
-                <p className="text-gray-600">Employer:</p>
+                <p className="text-gray-600">{t.employer}:</p>
                 <p className="font-medium text-gray-900">{formData.employerName}</p>
               </div>
             )}
@@ -1035,22 +1035,22 @@ export default function LoansSection({}: LoansSectionProps) {
         </div>
 
         <div className="bg-white border-l-4 border-l-[#b91c1c] p-4">
-          <h4 className="font-semibold text-gray-900 mb-3">Personal Details</h4>
+          <h4 className="font-semibold text-gray-900 mb-3">{t.personalDetails}</h4>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <p className="text-gray-600">Name:</p>
+              <p className="text-gray-600">{t.name}:</p>
               <p className="font-medium text-gray-900">{formData.firstName} {formData.lastName}</p>
             </div>
             <div>
-              <p className="text-gray-600">Date of Birth:</p>
+              <p className="text-gray-600">{t.dateOfBirth}:</p>
               <p className="font-medium text-gray-900">{formData.dateOfBirth}</p>
             </div>
             <div>
-              <p className="text-gray-600">Email:</p>
+              <p className="text-gray-600">{t.emailAddress}:</p>
               <p className="font-medium text-gray-900">{formData.email}</p>
             </div>
             <div>
-              <p className="text-gray-600">Country:</p>
+              <p className="text-gray-600">{t.country}:</p>
               <p className="font-medium text-gray-900">{getCountryLabel(formData.country)}</p>
             </div>
           </div>
@@ -1058,9 +1058,9 @@ export default function LoansSection({}: LoansSectionProps) {
 
         {formData.existingDebts && (
           <div className="bg-white border-l-4 border-l-[#b91c1c] p-4">
-            <h4 className="font-semibold text-gray-900 mb-3">Financial Commitments</h4>
+            <h4 className="font-semibold text-gray-900 mb-3">{t.financialCommitments}</h4>
             <div className="text-sm">
-              <p className="text-gray-600">Existing Debts:</p>
+              <p className="text-gray-600">{t.existingDebtsLabel}:</p>
               <p className="font-medium text-gray-900">€{formData.existingDebts}</p>
             </div>
           </div>
@@ -1068,8 +1068,8 @@ export default function LoansSection({}: LoansSectionProps) {
       </div>
 
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-gray-700">
-        <p className="font-semibold mb-2">Please Note:</p>
-        <p>By submitting this application, you confirm all information is accurate and consent to the processing of your data in accordance with our Privacy Notice.</p>
+        <p className="font-semibold mb-2">{t.pleaseNote}</p>
+        <p>{t.submitConfirmation}</p>
       </div>
     </div>
   );
@@ -1098,15 +1098,15 @@ export default function LoansSection({}: LoansSectionProps) {
   const getStepLabel = (step: number) => {
     switch (step) {
       case 0:
-        return "Eligibility";
+        return t.eligibility;
       case 1:
-        return "Loan Details";
+        return t.loanDetailsTitle;
       case 2:
-        return "Income & Employment";
+        return t.incomeAndEmployment;
       case 3:
-        return "Personal Details";
+        return t.personalDetails;
       case 4:
-        return "Financial & Consent";
+        return t.financialConsent;
       default:
         return "";
     }
@@ -1121,7 +1121,7 @@ export default function LoansSection({}: LoansSectionProps) {
               {t.loanApplication}
             </h1>
             <p className="text-sm sm:text-base text-gray-600 mt-1">
-              Complete your application in a few simple steps
+              {t.completeApplicationSteps}
             </p>
           </div>
 
@@ -1166,15 +1166,15 @@ export default function LoansSection({}: LoansSectionProps) {
         <Alert className="mb-6 bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none text-gray-900">
           <Info className="h-4 w-4" />
           <AlertDescription>
-            <p className="font-semibold mb-2">Eligibility Notice</p>
+            <p className="font-semibold mb-2">{t.eligibilityNotice}</p>
             <p className="text-sm mb-2">
-              Lending products are currently available only to citizens or permanent residents of Malta.
+              {t.maltaResidentsOnly}
             </p>
             <p className="text-sm mb-2">
-              You can continue to preview the application, but eligibility will be confirmed before submission.
+              {t.previewApplicationNote}
             </p>
             <p className="text-sm">
-              This will not affect your credit score.
+              {t.noCreditScoreImpact}
             </p>
           </AlertDescription>
         </Alert>
@@ -1250,14 +1250,14 @@ export default function LoansSection({}: LoansSectionProps) {
                   onClick={handleNext}
                   className="bg-[#b91c1c] hover:bg-[#991b1b] text-white order-1 sm:order-2"
                 >
-                  {currentStep === 0 ? "Continue to Application" : t.nextStep}
+                  {currentStep === 0 ? t.continueToApplication : t.nextStep}
                 </Button>
               ) : (
                 <Button
                   onClick={handleNext}
                   className="bg-[#b91c1c] hover:bg-[#991b1b] text-white order-1 sm:order-2"
                 >
-                  Review Application
+                  {t.reviewApplication}
                 </Button>
               )}
             </div>
@@ -1312,29 +1312,29 @@ export default function LoansSection({}: LoansSectionProps) {
                 <AlertTriangle className="h-8 w-8 text-[#b91c1c]" />
               </div>
               <DialogTitle className="text-center text-xl font-semibold text-gray-900">
-                Decision: Application Not Available
+                {t.decisionNotAvailable}
               </DialogTitle>
               <DialogDescription className="text-center text-gray-600 mt-4 space-y-4">
                 <div className="bg-gray-50 border-l-4 border-l-[#b91c1c] p-4 text-left">
-                  <p className="font-semibold text-gray-900 mb-2">Reason:</p>
+                  <p className="font-semibold text-gray-900 mb-2">{t.reason}:</p>
                   <p className="text-sm text-gray-700">
-                    Malta Residency Requirement
+                    {t.maltaResidencyRequirement}
                   </p>
                   <p className="text-sm text-gray-700 mt-3">
-                    Our lending products are currently available exclusively to citizens or permanent residents of Malta.
+                    {t.exclusiveToMaltaResidents}
                   </p>
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 rounded p-4 text-left">
-                  <p className="font-semibold text-gray-900 mb-2">Next Steps:</p>
+                  <p className="font-semibold text-gray-900 mb-2">{t.nextSteps}:</p>
                   <p className="text-sm text-gray-700">
-                    If your residency status changes in the future, you are welcome to reapply.
+                    {t.reapplyAfterResidencyChange}
                   </p>
                 </div>
 
                 <div className="text-xs text-gray-500 text-left">
-                  <p>Reference: {Date.now()}</p>
-                  <p>Date: {new Date().toLocaleDateString()}</p>
+                  <p>{t.reference}: {Date.now()}</p>
+                  <p>{t.date}: {new Date().toLocaleDateString()}</p>
                 </div>
               </DialogDescription>
             </DialogHeader>
@@ -1343,7 +1343,7 @@ export default function LoansSection({}: LoansSectionProps) {
                 onClick={() => setShowRestrictionDialog(false)}
                 className="flex-1 bg-[#b91c1c] hover:bg-[#991b1b] text-white"
               >
-                I Understand
+                {t.iUnderstand}
               </Button>
               <Button
                 variant="outline"
@@ -1351,7 +1351,7 @@ export default function LoansSection({}: LoansSectionProps) {
                 onClick={() => window.location.href = "mailto:support@digitalchainbank.com"}
               >
                 <Mail className="w-4 h-4 mr-2" />
-                Contact Support
+                {t.contactSupport}
               </Button>
             </div>
           </DialogContent>
