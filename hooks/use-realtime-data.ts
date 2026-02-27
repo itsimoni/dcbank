@@ -424,18 +424,35 @@ export function useRealtimeData(): RealtimeData {
     };
   };
 
-  // Update exchange rates and crypto prices every 30 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchExchangeRates().then((exchangeRates) => {
-        setData((prev) => ({ ...prev, exchangeRates }));
-      });
-      fetchCryptoPrices().then((cryptoPrices) => {
-        setData((prev) => ({ ...prev, cryptoPrices }));
-      });
-    }, 30000);
+    let intervalId: NodeJS.Timeout | null = null;
 
-    return () => clearInterval(interval);
+    const startPolling = () => {
+      if (intervalId) return;
+      intervalId = setInterval(() => {
+        if (document.hidden) return;
+        fetchExchangeRates().then((exchangeRates) => {
+          setData((prev) => ({ ...prev, exchangeRates }));
+        });
+        fetchCryptoPrices().then((cryptoPrices) => {
+          setData((prev) => ({ ...prev, cryptoPrices }));
+        });
+      }, 30000);
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden && intervalId === null) {
+        startPolling();
+      }
+    };
+
+    startPolling();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {

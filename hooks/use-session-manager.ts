@@ -265,18 +265,22 @@ export function useSessionManager() {
   useEffect(() => {
     const activityEvents = [
       "mousedown",
-      "mousemove",
       "keypress",
-      "scroll",
       "touchstart",
       "click",
     ];
 
+    let lastActivityUpdate = 0;
+    const THROTTLE_MS = 1000;
+
     const handleActivity = () => {
-      updateActivity();
+      const now = Date.now();
+      if (now - lastActivityUpdate >= THROTTLE_MS) {
+        lastActivityUpdate = now;
+        updateActivity();
+      }
     };
 
-    // Add activity listeners
     activityEvents.forEach((event) => {
       document.addEventListener(event, handleActivity, { passive: true });
     });

@@ -702,15 +702,6 @@ function DashboardContent({
     };
   }, [userProfile?.id]);
 
-  // Silent auto-reload every 2 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Force component re-render by updating a state that doesn't affect UI
-      setHasLoaded((prev) => prev);
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Check if user is new and create welcome message
   useEffect(() => {

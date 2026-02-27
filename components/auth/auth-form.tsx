@@ -104,42 +104,22 @@ export default function AuthForm({ onLoginSuccess }: AuthFormProps = {}) {
   const updateUserOnlineStatus = useCallback(
     async (userId: string, isOnline: boolean) => {
       try {
-        const { data: existingRecord, error: selectError } = await supabase
+        const now = new Date().toISOString();
+        const { error } = await supabase
           .from("user_presence")
-          .select("*")
-          .eq("user_id", userId)
-          .single();
+          .upsert(
+            {
+              user_id: userId,
+              is_online: isOnline,
+              last_seen: now,
+              updated_at: now,
+              created_at: now,
+            },
+            { onConflict: "user_id" }
+          );
 
-        if (selectError && (selectError as any).code !== "PGRST116") {
-          console.error("Error checking user presence:", selectError);
-          return;
-        }
-
-        const presenceData = {
-          is_online: isOnline,
-          last_seen: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-
-        if (existingRecord) {
-          const { error: updateError } = await supabase
-            .from("user_presence")
-            .update(presenceData)
-            .eq("user_id", userId);
-
-          if (updateError) {
-            console.error("Error updating user presence:", updateError);
-          }
-        } else {
-          const { error: insertError } = await supabase.from("user_presence").insert({
-            user_id: userId,
-            ...presenceData,
-            created_at: new Date().toISOString(),
-          });
-
-          if (insertError) {
-            console.error("Error inserting user presence:", insertError);
-          }
+        if (error) {
+          console.error("Error updating user presence:", error);
         }
       } catch (err) {
         console.error("Error in updateUserOnlineStatus:", err);

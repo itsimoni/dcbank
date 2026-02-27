@@ -4,17 +4,28 @@ import { useSessionManager } from "@/hooks/use-session-manager";
 import KYCVerification from "./kyc-verification";
 import AuthForm from "./auth-form";
 
-// This would be your dashboard component
 function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Welcome to 
+          Welcome to
         </h1>
         <p className="text-gray-600">
           Your dashboard is ready! KYC verification completed.
         </p>
+      </div>
+    </div>
+  );
+}
+
+function SessionRefreshIndicator({ isRefreshing }: { isRefreshing: boolean }) {
+  if (!isRefreshing) return null;
+  return (
+    <div className="fixed top-4 right-4 z-50 bg-blue-100 border border-blue-200 rounded-lg p-3 shadow-lg">
+      <div className="flex items-center space-x-2">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        <span className="text-sm text-blue-800">Refreshing session...</span>
       </div>
     </div>
   );
@@ -102,25 +113,12 @@ export default function AuthWrapper() {
     return <AuthForm />;
   }
 
-  // Show session refreshing indicator (non-blocking)
-  const SessionRefreshIndicator = () => {
-    if (!isRefreshing) return null;
-
-    return (
-      <div className="fixed top-4 right-4 z-50 bg-blue-100 border border-blue-200 rounded-lg p-3 shadow-lg">
-        <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-          <span className="text-sm text-blue-800">Refreshing session...</span>
-        </div>
-      </div>
-    );
-  };
 
   // Show KYC loading state only when we're actually fetching KYC status
   if (shouldFetchKYC && kycLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <SessionRefreshIndicator />
+        <SessionRefreshIndicator isRefreshing={isRefreshing} />
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto"></div>
           <p className="mt-2 text-gray-600">Checking verification status...</p>
@@ -133,7 +131,7 @@ export default function AuthWrapper() {
   if (kycStatus === "not_started" || kycStatus === null) {
     return (
       <div className="relative">
-        <SessionRefreshIndicator />
+        <SessionRefreshIndicator isRefreshing={isRefreshing} />
         <KYCVerification
           userId={user.id}
           onKYCComplete={async () => {
@@ -157,7 +155,7 @@ export default function AuthWrapper() {
   if (kycStatus === "pending") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <SessionRefreshIndicator />
+        <SessionRefreshIndicator isRefreshing={isRefreshing} />
         <div className="text-center max-w-md mx-auto p-6">
           <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -196,7 +194,7 @@ export default function AuthWrapper() {
   if (kycStatus === "rejected") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <SessionRefreshIndicator />
+        <SessionRefreshIndicator isRefreshing={isRefreshing} />
         <div className="text-center max-w-md mx-auto p-6">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -245,7 +243,7 @@ export default function AuthWrapper() {
   // If KYC is approved, show dashboard
   return (
     <div className="relative">
-      <SessionRefreshIndicator />
+      <SessionRefreshIndicator isRefreshing={isRefreshing} />
       <Dashboard />
     </div>
   );
