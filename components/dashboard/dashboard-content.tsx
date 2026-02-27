@@ -53,6 +53,7 @@ interface DashboardContentProps {
     created_at?: string;
   };
   setActiveTab: (tab: string) => void;
+  balances?: { usd: number; euro: number; cad: number };
   cryptoBalances?: { BTC: number; ETH: number; USDT: number };
   userData?: { first_name: string | null; last_name: string | null; full_name: string | null; email: string | null } | null;
   transactions?: TransactionHistory[];
@@ -205,6 +206,7 @@ const CryptoCard = memo(
 function DashboardContent({
   userProfile,
   setActiveTab,
+  balances: passedBalances,
   cryptoBalances: passedCryptoBalances,
   userData: passedUserData,
   transactions: passedTransactions,
@@ -217,7 +219,10 @@ function DashboardContent({
     messages,
     loading,
     error,
-  } = useRealtimeData();
+  } = useRealtimeData({
+    initialBalances: passedBalances,
+    initialCryptoBalances: passedCryptoBalances,
+  });
   const { latestMessage, markAsRead } = useLatestMessage();
   const [showMessage, setShowMessage] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);

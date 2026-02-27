@@ -1,15 +1,15 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import AuthForm from "@/components/auth/auth-form";
 import Dashboard from "@/components/dashboard/dashboard";
 import KYCVerification from "@/components/auth/kyc-verification";
-import type { User } from "@supabase/supabase-js";
 
 export default function Page() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
   const [kycStatus, setKycStatus] = useState<string | null>(null);
+  const [kycLoading, setKycLoading] = useState(true);
   const hasInitialized = useRef(false);
 
   const fetchKycStatus = useCallback(async (userId: string) => {
@@ -22,59 +22,45 @@ export default function Page() {
   }, []);
 
   const handleLoginSuccess = useCallback(async () => {
-    setLoading(true);
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    if (authUser) {
-      setUser(authUser);
-      const status = await fetchKycStatus(authUser.id);
-      setKycStatus(status);
-    }
-    setLoading(false);
-  }, [fetchKycStatus]);
+  }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setKycLoading(false);
+      return;
+    }
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
-    const initAuth = async () => {
+    const initKyc = async () => {
       try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-
-        if (!authUser) {
-          setLoading(false);
-          return;
-        }
-
-        setUser(authUser);
-        const status = await fetchKycStatus(authUser.id);
+        const status = await fetchKycStatus(user.id);
         setKycStatus(status);
-        setLoading(false);
       } catch (error) {
-        console.error("Auth initialization error:", error);
-        setLoading(false);
+        console.error("KYC fetch error:", error);
+      } finally {
+        setKycLoading(false);
       }
     };
 
-    initAuth();
-  }, [fetchKycStatus]);
+    initKyc();
+  }, [user, authLoading, fetchKycStatus]);
 
-  // Auth state listener - only handle actual sign in/out, ignore token refreshes
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // Ignore events that don't require action
-      if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") return;
-
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "SIGNED_OUT") {
-        setUser(null);
         setKycStatus(null);
-        setLoading(false);
+        setKycLoading(false);
+        hasInitialized.current = false;
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  // Simple loading screen
+  const loading = authLoading || (user && kycLoading);
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-gradient-to-br from-orange-50 to-orange-100">

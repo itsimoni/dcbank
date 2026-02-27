@@ -44,7 +44,7 @@ export default function Dashboard() {
     }
   }, [sectionFromUrl]);
 
-  const { userProfile, cryptoBalances, userData, transactions, loading, error } = useDashboardData();
+  const { userProfile, balances, cryptoBalances, userData, transactions, loading, error } = useDashboardData();
 
   const handleTabChange = useCallback((newTab: string) => {
     setActiveTab(newTab);
@@ -113,6 +113,7 @@ export default function Dashboard() {
           <SectionComponent
             userProfile={userProfile}
             setActiveTab={handleTabChange}
+            balances={balances}
             cryptoBalances={cryptoBalances}
             userData={userData}
             transactions={transactions}

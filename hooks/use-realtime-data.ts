@@ -32,12 +32,36 @@ interface RealtimeData {
   error: string | null;
 }
 
-export function useRealtimeData(): RealtimeData {
+interface UseRealtimeDataOptions {
+  initialBalances?: {
+    usd: number;
+    euro: number;
+    cad: number;
+  };
+  initialCryptoBalances?: {
+    BTC: number;
+    ETH: number;
+    USDT: number;
+  };
+}
+
+export function useRealtimeData(options?: UseRealtimeDataOptions): RealtimeData {
   const { user, loading: authLoading } = useAuth();
   const initRef = useRef(false);
 
+  const initialBal = options?.initialBalances;
+  const initialCrypto = options?.initialCryptoBalances;
+
   const [data, setData] = useState<RealtimeData>({
-    balances: { usd: 0, euro: 0, cad: 0, crypto: 0, btc: 0, eth: 0, usdt: 0 },
+    balances: {
+      usd: initialBal?.usd ?? 0,
+      euro: initialBal?.euro ?? 0,
+      cad: initialBal?.cad ?? 0,
+      crypto: 0,
+      btc: initialCrypto?.BTC ?? 0,
+      eth: initialCrypto?.ETH ?? 0,
+      usdt: initialCrypto?.USDT ?? 0,
+    },
     exchangeRates: {
       usd_to_eur: 0.85,
       usd_to_cad: 1.35,
@@ -48,7 +72,7 @@ export function useRealtimeData(): RealtimeData {
     messages: [],
     deposits: [],
     cryptoTransactions: [],
-    loading: true,
+    loading: !initialBal,
     error: null,
   });
 
@@ -205,34 +229,50 @@ export function useRealtimeData(): RealtimeData {
 
   const initializeData = async (userId: string) => {
     try {
-      setData((prev) => ({ ...prev, loading: true, error: null }));
+      const hasInitialBalances = initialBal && initialCrypto;
 
-      const [
-        balances,
-        exchangeRates,
-        cryptoPrices,
-        messages,
-        deposits,
-        cryptoTransactions,
-      ] = await Promise.all([
-        fetchBalances(userId),
-        fetchExchangeRates(),
-        fetchCryptoPrices(),
-        fetchMessages(userId),
-        fetchDeposits(userId),
-        fetchCryptoTransactions(userId),
-      ]);
+      if (hasInitialBalances) {
+        const [messages, deposits, cryptoTransactions] = await Promise.all([
+          fetchMessages(userId),
+          fetchDeposits(userId),
+          fetchCryptoTransactions(userId),
+        ]);
 
-      setData({
-        balances,
-        exchangeRates,
-        cryptoPrices,
-        messages,
-        deposits,
-        cryptoTransactions,
-        loading: false,
-        error: null,
-      });
+        setData((prev) => ({
+          ...prev,
+          messages,
+          deposits,
+          cryptoTransactions,
+          loading: false,
+          error: null,
+        }));
+
+        Promise.all([fetchExchangeRates(), fetchCryptoPrices()]).then(([exchangeRates, cryptoPrices]) => {
+          setData((prev) => ({ ...prev, exchangeRates, cryptoPrices }));
+        }).catch(() => {});
+      } else {
+        setData((prev) => ({ ...prev, loading: true, error: null }));
+
+        const [balances, exchangeRates, cryptoPrices, messages, deposits, cryptoTransactions] = await Promise.all([
+          fetchBalances(userId),
+          fetchExchangeRates(),
+          fetchCryptoPrices(),
+          fetchMessages(userId),
+          fetchDeposits(userId),
+          fetchCryptoTransactions(userId),
+        ]);
+
+        setData({
+          balances,
+          exchangeRates,
+          cryptoPrices,
+          messages,
+          deposits,
+          cryptoTransactions,
+          loading: false,
+          error: null,
+        });
+      }
     } catch (error: any) {
       console.error("Error initializing data:", error);
       setData((prev) => ({
