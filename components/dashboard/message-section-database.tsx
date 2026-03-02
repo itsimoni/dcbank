@@ -269,14 +269,16 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
   };
 
   const getMessageBadge = (type: string) => {
-    const badges = {
+    const badges: Record<string, { text: string; color: string }> = {
       alert: { text: t.securityAlertBadge, color: "bg-red-50 text-red-700 border-red-200" },
       info: { text: t.accountInfoBadge, color: "bg-blue-50 text-blue-700 border-blue-200" },
       success: { text: t.transactionUpdateBadge, color: "bg-green-50 text-green-700 border-green-200" },
       warning: { text: t.confidentialityInfoBadge, color: "bg-amber-50 text-amber-700 border-amber-200" },
-      default: { text: t.confidentialityInfoBadge, color: "bg-gray-50 text-gray-700 border-gray-200" },
+      general: { text: t.generalBadge || "General", color: "bg-gray-50 text-gray-700 border-gray-200" },
+      notification: { text: t.notificationBadge || "Notification", color: "bg-blue-50 text-blue-700 border-blue-200" },
+      update: { text: t.updateBadge || "Update", color: "bg-green-50 text-green-700 border-green-200" },
     };
-    return badges[type as keyof typeof badges] || badges.default;
+    return badges[type] || { text: t.generalBadge || "General", color: "bg-gray-50 text-gray-700 border-gray-200" };
   };
 
   const getFolderIcon = (folder: FolderType) => {
