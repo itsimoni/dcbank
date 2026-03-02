@@ -157,33 +157,40 @@ interface PaymentWallet {
   updated_at: string;
 }
 
+const CRYPTO_LOGOS = {
+  btc: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23F7931A'/%3E%3Cpath fill='%23FFF' fill-rule='nonzero' d='M23.189 14.02c.314-2.096-1.283-3.223-3.465-3.975l.708-2.84-1.728-.43-.69 2.765c-.454-.113-.921-.22-1.385-.326l.695-2.783L15.596 6l-.708 2.839c-.376-.086-.746-.17-1.104-.26l.002-.009-2.384-.595-.46 1.846s1.283.294 1.256.312c.7.175.827.638.806 1.006l-.808 3.243c.048.012.11.03.18.057l-.183-.046-1.133 4.544c-.086.213-.304.532-.796.41.018.026-1.256-.314-1.256-.314l-.858 1.978 2.25.561c.418.105.828.215 1.231.318l-.715 2.872 1.727.43.708-2.84c.472.127.93.245 1.378.357l-.706 2.828 1.728.43.715-2.866c2.948.558 5.164.333 6.097-2.333.752-2.146-.037-3.385-1.588-4.192 1.13-.26 1.98-1.003 2.207-2.538zm-3.95 5.538c-.533 2.147-4.148.986-5.32.695l.95-3.805c1.172.293 4.929.872 4.37 3.11zm.535-5.569c-.487 1.953-3.495.96-4.47.717l.86-3.45c.975.243 4.118.696 3.61 2.733z'/%3E%3C/g%3E%3C/svg%3E",
+  eth: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23627EEA'/%3E%3Cg fill='%23FFF' fill-rule='nonzero'%3E%3Cpath fill-opacity='.602' d='M16.498 4v8.87l7.497 3.35z'/%3E%3Cpath d='M16.498 4L9 16.22l7.498-3.35z'/%3E%3Cpath fill-opacity='.602' d='M16.498 21.968v6.027L24 17.616z'/%3E%3Cpath d='M16.498 27.995v-6.028L9 17.616z'/%3E%3Cpath fill-opacity='.2' d='M16.498 20.573l7.497-4.353-7.497-3.348z'/%3E%3Cpath fill-opacity='.602' d='M9 16.22l7.498 4.353v-7.701z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E",
+  usdt: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='16' cy='16' r='16' fill='%2326A17B'/%3E%3Cpath fill='%23FFF' d='M17.922 17.383v-.002c-.11.008-.677.042-1.942.042-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658 0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061 1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658 0 .81-2.895 1.485-6.775 1.657m0-3.59v-2.366h5.414V7.819H8.595v3.608h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.118 0 1.044 3.309 1.915 7.709 2.118v7.582h3.913v-7.584c4.393-.202 7.694-1.073 7.694-2.116 0-1.043-3.301-1.914-7.694-2.117'/%3E%3C/g%3E%3C/svg%3E",
+  sol: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='sol-a' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%239945FF'/%3E%3Cstop offset='100%25' stop-color='%2314F195'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='16' fill='url(%23sol-a)'/%3E%3Cpath fill='%23FFF' d='M9.925 18.466a.59.59 0 01.418-.174h12.86c.264 0 .396.319.209.506l-2.576 2.576a.59.59 0 01-.418.174H7.558a.295.295 0 01-.209-.506l2.576-2.576zm0-7.84a.608.608 0 01.418-.174h12.86c.264 0 .396.319.209.506l-2.576 2.576a.59.59 0 01-.418.174H7.558a.295.295 0 01-.209-.506l2.576-2.576zm12.86 3.82H9.925a.59.59 0 00-.418.174l-2.576 2.576a.295.295 0 00.209.506h12.86a.59.59 0 00.418-.174l2.576-2.576a.295.295 0 00-.209-.506z'/%3E%3C/svg%3E",
+};
+
 const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string; symbol: string; logo: string; wallet: string }> = {
   btc: {
     name: "Bitcoin (BTC)",
     network: "Bitcoin Network",
     symbol: "BTC",
-    logo: "https://cryptologos.cc/logos/bitcoin-btc-logo.svg",
+    logo: CRYPTO_LOGOS.btc,
     wallet: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
   },
   eth: {
     name: "Ethereum (ETH)",
     network: "Ethereum Mainnet",
     symbol: "ETH",
-    logo: "https://cryptologos.cc/logos/ethereum-eth-logo.svg",
+    logo: CRYPTO_LOGOS.eth,
     wallet: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD73",
   },
   usdterc20: {
     name: "USDT",
     network: "Ethereum (ERC-20)",
     symbol: "USDT",
-    logo: "https://cryptologos.cc/logos/tether-usdt-logo.svg",
+    logo: CRYPTO_LOGOS.usdt,
     wallet: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD73",
   },
   sol: {
     name: "Solana (SOL)",
     network: "Solana Network",
     symbol: "SOL",
-    logo: "https://cryptologos.cc/logos/solana-sol-logo.svg",
+    logo: CRYPTO_LOGOS.sol,
     wallet: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
   },
 };
