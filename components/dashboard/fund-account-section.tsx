@@ -58,13 +58,13 @@ const CRYPTO_WALLETS = {
 };
 
 const BANK_DETAILS = {
-  bankName: "Malta Global Crypto Bank",
-  accountName: "Malta Global Crypto Bank Holdings Ltd",
-  accountNumber: "8847562910",
-  routingNumber: "021000021",
-  swiftCode: "DGCHUSNY",
-  address: "350 Fifth Avenue, Suite 4200, New York, NY 10118",
-  country: "United States",
+  bankName: "",
+  accountName: "",
+  accountNumber: "",
+  routingNumber: "",
+  swiftCode: "",
+  address: "",
+  country: "",
 };
 
 export default function FundAccountSection({
