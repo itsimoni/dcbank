@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Settings,
   Users,
@@ -1028,241 +1029,203 @@ export default function EnhancedAdminDashboard({
     );
   }
 
-  const navItems = [
-    { id: "UnifiedAdminPanel", label: "Manage Users", icon: Download },
-    { id: "presence", label: "User Presence", icon: Wifi },
-    { id: "messages", label: "Messages", icon: Mail },
-    { id: "users", label: "User Database", icon: Users },
-    { id: "hierarchy", label: "Hierarchy", icon: Shield },
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-gray-50">
       <PresenceManager />
 
-      <div className="flex h-screen">
-        {/* Sidebar Navigation */}
-        <aside className="w-64 bg-slate-900 text-white flex flex-col fixed h-full z-10">
-          {/* Logo/Brand Section */}
-          <div className="p-6 border-b border-slate-700">
-            <h1 className="text-xl font-bold text-white">Admin Panel</h1>
-            <p className="text-xs text-slate-400 mt-1">Management Console</p>
-          </div>
-
-          {/* Admin Info */}
-          <div className="px-4 py-4 border-b border-slate-700">
-            {currentAdmin.is_admin && !currentAdmin.is_superiormanager && !currentAdmin.is_manager && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-red-500/20 rounded-lg">
-                <Shield className="w-4 h-4 text-red-400" />
-                <span className="text-sm text-red-300">Full Administrator</span>
-              </div>
-            )}
-            {currentAdmin.is_admin && currentAdmin.is_superiormanager && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-purple-500/20 rounded-lg">
-                <Crown className="w-4 h-4 text-purple-400" />
-                <span className="text-sm text-purple-300">Superior Manager</span>
-              </div>
-            )}
-            {currentAdmin.is_manager && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/20 rounded-lg">
-                <UserCheck className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-blue-300">Manager</span>
-              </div>
-            )}
-          </div>
-
-          {/* Navigation Items */}
-          <nav className="flex-1 py-4 overflow-y-auto">
-            <ul className="space-y-1 px-3">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <li key={item.id}>
-                    <button
-                      onClick={() => setActiveTab(item.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                        isActive
-                          ? "bg-[#b91c1c] text-white shadow-lg shadow-red-500/20"
-                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          {/* Session Info */}
-          <div className="p-4 border-t border-slate-700 bg-slate-800/50">
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between text-slate-400">
-                <span>Session</span>
-                <span className="font-mono">{sessionId.slice(0, 8)}...</span>
-              </div>
-              <div className={`flex items-center justify-between ${getSessionStatusColor()}`}>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Time Left
-                </span>
-                <span className="font-mono font-bold">{formatTimeRemaining(sessionTimeLeft)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Logout Button */}
-          <div className="p-4 border-t border-slate-700">
-            <Button
-              onClick={onLogout}
-              variant="outline"
-              className="w-full bg-transparent border-red-500/50 text-red-400 hover:bg-red-500/20 hover:text-red-300 hover:border-red-400"
-            >
-              <Lock className="w-4 h-4 mr-2" />
-              Secure Logout
-            </Button>
-          </div>
-        </aside>
-
-        {/* Main Content Area */}
-        <main className="flex-1 ml-64 flex flex-col">
-          {/* Top Header Bar */}
-          <header className="bg-white border-b border-slate-200 px-6 py-3 sticky top-0 z-10 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <h2 className="text-lg font-semibold text-slate-800">
-                  {navItems.find(item => item.id === activeTab)?.label || "Dashboard"}
-                </h2>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-4 text-sm text-slate-500">
-                  <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-full">
-                    <Globe className="w-3.5 h-3.5" />
-                    <span>{locationInfo.ip}</span>
+      {/* Enhanced Header with Current User's Location and Hierarchy Info */}
+      <div className="bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div>
+                <div className="flex items-center space-x-6 text-sm text-gray-600">
+                  <span>Your Session: {sessionId.slice(0, 8)}...</span>
+                  <div
+                    className={`flex items-center ${getSessionStatusColor()}`}
+                  >
+                    <Clock className="w-3 h-3 mr-1" />
+                    <span>{formatTimeRemaining(sessionTimeLeft)}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-full">
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span>{locationInfo.city}, {locationInfo.country}</span>
+                  <div className="flex items-center">
+                    <Globe className="w-3 h-3 mr-1" />
+                    <span>Your IP: {locationInfo.ip}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <MapPin className="w-3 h-3 mr-1" />
+                    <span>Your Location: {locationInfo.country}</span>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefresh}
-                  className="text-slate-600 border-slate-300 hover:bg-slate-100"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Refresh
-                </Button>
               </div>
             </div>
-          </header>
-
-          {/* Content Area */}
-          <div className="flex-1 p-6 overflow-y-auto pb-32" key={refreshKey}>
-            {/* Unified Admin Panel */}
-            {activeTab === "UnifiedAdminPanel" && (
-              accessibleUserIdsLoaded ? (
-                <UnifiedAdminPanel key={`unified-panel-${refreshKey}`} />
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading panel...</p>
-                  </CardContent>
-                </Card>
-              )
-            )}
-
-            {/* Presence */}
-            {activeTab === "presence" && (
-              accessibleUserIdsLoaded ? (
-                <UserPresenceTracker key={`presence-tracker-${refreshKey}`} />
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading presence data...</p>
-                  </CardContent>
-                </Card>
-              )
-            )}
-
-            {/* Messages */}
-            {activeTab === "messages" && (
-              accessibleUserIdsLoaded ? (
-                <MessageManager key={`message-manager-${refreshKey}`} />
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading messages...</p>
-                  </CardContent>
-                </Card>
-              )
-            )}
-
-            {/* Users */}
-            {activeTab === "users" && (
-              accessibleUserIdsLoaded ? (
-                <UserManagementTest key={`user-management-${refreshKey}`} />
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading user data...</p>
-                  </CardContent>
-                </Card>
-              )
-            )}
-
-            {/* Hierarchy */}
-            {activeTab === "hierarchy" && (
-              accessibleUserIdsLoaded ? (
-                <UserHierarchyManager key={`hierarchy-manager-${refreshKey}`} />
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading hierarchy data...</p>
-                  </CardContent>
-                </Card>
-              )
-            )}
-
-            {/* Database */}
-            {activeTab === "database" && (
-              accessibleUserIdsLoaded ? (
-                <DatabaseTest key={`database-test-${refreshKey}`} />
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading database...</p>
-                  </CardContent>
-                </Card>
-              )
-            )}
-
-            {/* Activity */}
-            {activeTab === "activity" && (
-              accessibleUserIdsLoaded ? (
-                <ActivityManager key={`activity-manager-${refreshKey}`} />
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto mb-4"></div>
-                    <p className="text-slate-600">Loading activity data...</p>
-                  </CardContent>
-                </Card>
-              )
-            )}
-
-            <LiveChatAdmin key={`livechat-${refreshKey}`} />
+            <div className="flex items-center space-x-4">
+              {/* Admin Level Badge */}
+              {currentAdmin.is_admin &&
+                !currentAdmin.is_superiormanager &&
+                !currentAdmin.is_manager && (
+                  <Badge className="bg-red-100 text-red-800">
+                    <Shield className="w-3 h-3 mr-1" />
+                    Full Administrator
+                  </Badge>
+                )}
+              {currentAdmin.is_admin && currentAdmin.is_superiormanager && (
+                <Badge className="bg-purple-100 text-purple-800">
+                  <Crown className="w-3 h-3 mr-1" />
+                  Superior Manager
+                </Badge>
+              )}
+              {currentAdmin.is_manager && (
+                <Badge className="bg-blue-100 text-blue-800">
+                  <UserCheck className="w-3 h-3 mr-1" />
+                  Manager
+                </Badge>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                className="text-blue-600 border-blue-200 hover:bg-blue-50 bg-transparent"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onLogout}
+                className="text-red-600 border-red-200 hover:bg-red-50 bg-transparent"
+              >
+                Secure Logout
+              </Button>
+            </div>
           </div>
-        </main>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-36" key={refreshKey}>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="presence" className="flex items-center">
+              <Wifi className="w-4 h-4 mr-2" />
+              Presence
+            </TabsTrigger>
+            <TabsTrigger
+              value="UnifiedAdminPanel"
+              className="flex items-center"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Manage Users
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex items-center">
+              <Mail className="w-4 h-4 mr-2" />
+              Messages
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center">
+              <Users className="w-4 h-4 mr-2" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="hierarchy" className="flex items-center">
+              <Shield className="w-4 h-4 mr-2" />
+              Hierarchy
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="UnifiedAdminPanel" key={`unified-${refreshKey}`}>
+            {accessibleUserIdsLoaded ? (
+              <UnifiedAdminPanel key={`unified-panel-${refreshKey}`} />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading panel...</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="presence" key={`presence-${refreshKey}`}>
+            {accessibleUserIdsLoaded ? (
+              <UserPresenceTracker key={`presence-tracker-${refreshKey}`} />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading presence data...</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="activity" key={`activity-${refreshKey}`}>
+            {accessibleUserIdsLoaded ? (
+              <ActivityManager key={`activity-manager-${refreshKey}`} />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading activity data...</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="messages" key={`messages-${refreshKey}`}>
+            {accessibleUserIdsLoaded ? (
+              <MessageManager key={`message-manager-${refreshKey}`} />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading messages...</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="users" key={`users-${refreshKey}`}>
+            {accessibleUserIdsLoaded ? (
+              <UserManagementTest key={`user-management-${refreshKey}`} />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading user data...</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="hierarchy" key={`hierarchy-${refreshKey}`}>
+            {accessibleUserIdsLoaded ? (
+              <UserHierarchyManager key={`hierarchy-manager-${refreshKey}`} />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading hierarchy data...</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="database" key={`database-${refreshKey}`}>
+            {accessibleUserIdsLoaded ? (
+              <DatabaseTest key={`database-test-${refreshKey}`} />
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading database...</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+        <LiveChatAdmin key={`livechat-${refreshKey}`} />
       </div>
     </div>
   );
