@@ -212,9 +212,9 @@ export default function FundAccountSection({
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Fund Account</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t.fundAccount}</h1>
         <p className="text-gray-600 mt-1">
-          Add funds to your account using cryptocurrency or bank transfer
+          {t.fundAccountSubtitle}
         </p>
       </div>
 
@@ -222,11 +222,11 @@ export default function FundAccountSection({
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="crypto" className="flex items-center gap-2">
             <Bitcoin className="w-4 h-4" />
-            Crypto Deposit
+            {t.cryptoDepositTab}
           </TabsTrigger>
           <TabsTrigger value="bank" className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
-            Bank Transfer
+            {t.bankTransferTab}
           </TabsTrigger>
         </TabsList>
 
@@ -236,7 +236,7 @@ export default function FundAccountSection({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wallet className="w-5 h-5" />
-                  Select Cryptocurrency
+                  {t.selectCryptocurrency}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -263,7 +263,7 @@ export default function FundAccountSection({
 
                 <div className="bg-gray-50 rounded-lg p-4 text-center">
                   <p className="text-sm text-gray-600 mb-3">
-                    Send {CRYPTO_WALLETS[selectedCrypto].name} to this address:
+                    {t.sendCryptoToAddress.replace("{crypto}", CRYPTO_WALLETS[selectedCrypto].name)}
                   </p>
                   <div className="bg-white p-4 rounded-lg border mb-4">
                     <QRCodeSVG
@@ -290,7 +290,7 @@ export default function FundAccountSection({
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 mt-3">
-                    Only send {selectedCrypto} to this address. Sending other assets may result in permanent loss.
+                    {t.cryptoSendWarning.replace("{crypto}", selectedCrypto)}
                   </p>
                 </div>
               </CardContent>
@@ -298,28 +298,28 @@ export default function FundAccountSection({
 
             <Card>
               <CardHeader>
-                <CardTitle>Confirm Your Deposit</CardTitle>
+                <CardTitle>{t.confirmYourDeposit}</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleCryptoSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="crypto-amount">Amount Sent ({selectedCrypto})</Label>
+                    <Label htmlFor="crypto-amount">{t.amountSent} ({selectedCrypto})</Label>
                     <Input
                       id="crypto-amount"
                       type="number"
                       step="any"
-                      placeholder={`Enter ${selectedCrypto} amount`}
+                      placeholder={t.enterCryptoAmount.replace("{crypto}", selectedCrypto)}
                       value={cryptoForm.amount}
                       onChange={(e) => setCryptoForm({ ...cryptoForm, amount: e.target.value })}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="tx-hash">Transaction Hash (Optional)</Label>
+                    <Label htmlFor="tx-hash">{t.transactionHashOptional}</Label>
                     <Input
                       id="tx-hash"
                       type="text"
-                      placeholder="Enter transaction hash for faster verification"
+                      placeholder={t.enterTxHashPlaceholder}
                       value={cryptoForm.txHash}
                       onChange={(e) => setCryptoForm({ ...cryptoForm, txHash: e.target.value })}
                     />
@@ -335,7 +335,7 @@ export default function FundAccountSection({
                   {submitSuccess && (
                     <div className="bg-green-50 text-green-700 p-3 rounded-lg flex items-center gap-2">
                       <Check className="w-4 h-4" />
-                      Deposit request submitted successfully! We will verify and credit your account.
+                      {t.depositRequestSuccess}
                     </div>
                   )}
 
@@ -347,11 +347,11 @@ export default function FundAccountSection({
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <Clock className="w-4 h-4 animate-spin" />
-                        Submitting...
+                        {t.submittingText}
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
-                        Submit Deposit Request
+                        {t.submitDepositRequest}
                         <ArrowRight className="w-4 h-4" />
                       </span>
                     )}
@@ -368,21 +368,21 @@ export default function FundAccountSection({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building2 className="w-5 h-5" />
-                  Bank Transfer Details
+                  {t.bankTransferDetails}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 mb-4">
-                  Transfer funds from your bank to our account using the details below:
+                  {t.bankTransferInstructions}
                 </p>
                 <div className="space-y-4">
                   {[
-                    { label: "Bank Name", value: BANK_DETAILS.bankName, key: "bankName" },
-                    { label: "Account Name", value: BANK_DETAILS.accountName, key: "accountName" },
-                    { label: "Account Number", value: BANK_DETAILS.accountNumber, key: "accountNumber" },
-                    { label: "Routing Number (ABA)", value: BANK_DETAILS.routingNumber, key: "routingNumber" },
-                    { label: "SWIFT Code", value: BANK_DETAILS.swiftCode, key: "swiftCode" },
-                    { label: "Bank Address", value: BANK_DETAILS.address, key: "address" },
+                    { label: t.bankName, value: BANK_DETAILS.bankName, key: "bankName" },
+                    { label: t.accountName, value: BANK_DETAILS.accountName, key: "accountName" },
+                    { label: t.accountNumber, value: BANK_DETAILS.accountNumber, key: "accountNumber" },
+                    { label: t.routingNumberABA, value: BANK_DETAILS.routingNumber, key: "routingNumber" },
+                    { label: t.swiftCode, value: BANK_DETAILS.swiftCode, key: "swiftCode" },
+                    { label: t.bankAddressLabel, value: BANK_DETAILS.address, key: "address" },
                   ].map((item) => (
                     <div key={item.key} className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 mb-1">{item.label}</p>
@@ -404,7 +404,7 @@ export default function FundAccountSection({
                 </div>
                 <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
                   <p className="text-xs text-yellow-800">
-                    <strong>Important:</strong> Include your account email or full name as the payment reference to ensure proper allocation of funds.
+                    {t.bankTransferImportant}
                   </p>
                 </div>
               </CardContent>
@@ -412,72 +412,72 @@ export default function FundAccountSection({
 
             <Card>
               <CardHeader>
-                <CardTitle>Your Bank Details</CardTitle>
+                <CardTitle>{t.yourBankDetails}</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleBankSubmit} className="space-y-4">
                   <div>
-                    <Label htmlFor="bank-amount">Transfer Amount (USD)</Label>
+                    <Label htmlFor="bank-amount">{t.transferAmountUSD}</Label>
                     <Input
                       id="bank-amount"
                       type="number"
                       step="0.01"
-                      placeholder="Enter amount"
+                      placeholder={t.enterAmountPlaceholder}
                       value={bankForm.amount}
                       onChange={(e) => setBankForm({ ...bankForm, amount: e.target.value })}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="client-bank">Your Bank Name</Label>
+                    <Label htmlFor="client-bank">{t.yourBankName}</Label>
                     <Input
                       id="client-bank"
                       type="text"
-                      placeholder="Enter your bank name"
+                      placeholder={t.enterYourBankName}
                       value={bankForm.bankName}
                       onChange={(e) => setBankForm({ ...bankForm, bankName: e.target.value })}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="client-account">Your Account Number</Label>
+                    <Label htmlFor="client-account">{t.yourAccountNumber}</Label>
                     <Input
                       id="client-account"
                       type="text"
-                      placeholder="Enter your account number"
+                      placeholder={t.enterYourAccountNumber}
                       value={bankForm.accountNumber}
                       onChange={(e) => setBankForm({ ...bankForm, accountNumber: e.target.value })}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="client-routing">Routing Number</Label>
+                    <Label htmlFor="client-routing">{t.routingNumber}</Label>
                     <Input
                       id="client-routing"
                       type="text"
-                      placeholder="Enter routing number"
+                      placeholder={t.enterRoutingNumber}
                       value={bankForm.routingNumber}
                       onChange={(e) => setBankForm({ ...bankForm, routingNumber: e.target.value })}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="client-holder">Account Holder Name</Label>
+                    <Label htmlFor="client-holder">{t.accountHolderName}</Label>
                     <Input
                       id="client-holder"
                       type="text"
-                      placeholder="Enter account holder name"
+                      placeholder={t.enterAccountHolderName}
                       value={bankForm.accountHolder}
                       onChange={(e) => setBankForm({ ...bankForm, accountHolder: e.target.value })}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="client-reference">Transfer Reference</Label>
+                    <Label htmlFor="client-reference">{t.transferReference}</Label>
                     <Input
                       id="client-reference"
                       type="text"
-                      placeholder="Reference used in transfer"
+                      placeholder={t.referenceUsedInTransfer}
                       value={bankForm.reference}
                       onChange={(e) => setBankForm({ ...bankForm, reference: e.target.value })}
                     />
@@ -493,7 +493,7 @@ export default function FundAccountSection({
                   {submitSuccess && (
                     <div className="bg-green-50 text-green-700 p-3 rounded-lg flex items-center gap-2">
                       <Check className="w-4 h-4" />
-                      Bank transfer request submitted! We will verify and credit your account.
+                      {t.bankTransferSuccess}
                     </div>
                   )}
 
@@ -505,11 +505,11 @@ export default function FundAccountSection({
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <Clock className="w-4 h-4 animate-spin" />
-                        Submitting...
+                        {t.submittingText}
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
-                        Submit Transfer Request
+                        {t.submitTransferRequest}
                         <ArrowRight className="w-4 h-4" />
                       </span>
                     )}
@@ -525,7 +525,7 @@ export default function FundAccountSection({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
-            Recent Fund Requests
+            {t.recentFundRequests}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -535,17 +535,17 @@ export default function FundAccountSection({
             </div>
           ) : fundRequests.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No fund requests yet. Submit your first deposit above.
+              {t.noFundRequestsYet}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-left">
-                    <th className="pb-3 text-sm font-medium text-gray-500">Date</th>
-                    <th className="pb-3 text-sm font-medium text-gray-500">Type</th>
-                    <th className="pb-3 text-sm font-medium text-gray-500">Amount</th>
-                    <th className="pb-3 text-sm font-medium text-gray-500">Status</th>
+                    <th className="pb-3 text-sm font-medium text-gray-500">{t.dateColumn}</th>
+                    <th className="pb-3 text-sm font-medium text-gray-500">{t.typeColumn}</th>
+                    <th className="pb-3 text-sm font-medium text-gray-500">{t.amountColumn}</th>
+                    <th className="pb-3 text-sm font-medium text-gray-500">{t.statusColumn}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -559,7 +559,7 @@ export default function FundAccountSection({
                           {request.funding_type === "crypto" ? (
                             request.crypto_currency
                           ) : (
-                            "Bank"
+                            t.bankType
                           )}
                         </span>
                       </td>
