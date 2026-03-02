@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -24,7 +24,6 @@ import {
 } from "../ui/dialog";
 import { Checkbox } from "../ui/checkbox";
 import {
-  DollarSign,
   FileText,
   User,
   Briefcase,
@@ -33,17 +32,13 @@ import {
   CheckCircle,
   Info,
   FileSignature,
-  Languages,
-  Check,
-  ChevronDown,
   HelpCircle,
   Shield,
   Lock,
   MapPin,
-  Download,
   Mail,
 } from "lucide-react";
-import { Language, getTranslations } from "../../lib/translations";
+import { getTranslations } from "../../lib/translations";
 import { useLanguage } from "../../contexts/LanguageContext";
 
 type LoansSectionProps = {};
@@ -117,22 +112,11 @@ export default function LoansSection({}: LoansSectionProps) {
   const [showRestrictionDialog, setShowRestrictionDialog] = useState(false);
   const [showReviewStep, setShowReviewStep] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof LoanFormData, string>>>({});
-  const { language, setLanguage } = useLanguage();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { language } = useLanguage();
   const [expandedHelp, setExpandedHelp] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const t = getTranslations(language);
   const totalSteps = 5;
-
-  const languages: { code: Language; label: string }[] = [
-    { code: 'en', label: 'English' },
-    { code: 'fr', label: 'Français' },
-    { code: 'de', label: 'Deutsch' },
-    { code: 'es', label: 'Español' },
-    { code: 'it', label: 'Italiano' },
-    { code: 'el', label: 'Ελληνικά' },
-  ];
 
   const loanTypes = [
     { value: "personal", label: t.personalLoan },
@@ -184,17 +168,6 @@ export default function LoansSection({}: LoansSectionProps) {
     { value: "permanent", label: t.permanentResident },
     { value: "other", label: t.other },
   ];
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const calculateMonthlyPayment = () => {
     const amount = parseFloat(formData.loanAmount);
@@ -1115,52 +1088,13 @@ export default function LoansSection({}: LoansSectionProps) {
   return (
     <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 overflow-auto pt-xs-16">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6 sm:mb-8 flex justify-between items-start gap-4">
-          <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
-              {t.loanApplication}
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">
-              {t.completeApplicationSteps}
-            </p>
-          </div>
-
-          <div ref={dropdownRef} className="relative inline-block flex-shrink-0">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-3 bg-white border-2 border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 hover:border-[#b91c1c] focus:outline-none focus:ring-2 focus:ring-[#b91c1c] focus:border-transparent cursor-pointer transition-all shadow-sm hover:shadow-md min-w-[160px]"
-            >
-              <Languages className="w-4 h-4 text-gray-600" />
-              <span className="flex-1 text-left">
-                {languages.find(lang => lang.code === language)?.label}
-              </span>
-              <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-full bg-white border-2 border-gray-200 shadow-lg overflow-hidden z-10">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => {
-                      setLanguage(lang.code);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
-                      language === lang.code
-                        ? 'bg-red-50 text-[#b91c1c] font-medium'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <span>{lang.label}</span>
-                    {language === lang.code && (
-                      <Check className="w-4 h-4 text-[#b91c1c]" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+            {t.loanApplication}
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
+            {t.completeApplicationSteps}
+          </p>
         </div>
 
         <Alert className="mb-6 bg-white border-l-4 border-l-[#b91c1c] border-y-0 border-r-0 rounded-none text-gray-900">
