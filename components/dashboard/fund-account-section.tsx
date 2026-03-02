@@ -36,49 +36,66 @@ interface FundRequest {
   created_at: string;
 }
 
-const CRYPTO_WALLETS = {
+interface PaymentWallet {
+  id: string;
+  user_id: string;
+  crypto_type: string;
+  wallet_address: string;
+  is_active: boolean;
+}
+
+const CRYPTO_METADATA = {
   BTC: {
-    address: "bc1qn7qsslxz2ngn3x2uyrmyy3sdgv0eq6pcutazmt",
+    dbKey: "btc",
     name: "Bitcoin",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg",
     color: "#F7931A",
     network: "Bitcoin Network",
   },
   ETH: {
-    address: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+    dbKey: "eth",
     name: "Ethereum",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg",
     color: "#627EEA",
     network: "Ethereum Mainnet",
   },
   "USDT-ERC": {
-    address: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+    dbKey: "usdterc",
     name: "USDT (ERC20)",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "#26A17B",
     network: "Ethereum Mainnet (ERC20)",
   },
   "USDT-TRC": {
-    address: "TUKJShLza5hCjeWcNLae3zLe4eWTPFELqT",
+    dbKey: "usdttrc",
     name: "USDT (TRC20)",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "#26A17B",
     network: "Tron Network (TRC20)",
   },
   USDC: {
-    address: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+    dbKey: "usdc",
     name: "USD Coin",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdc.svg",
     color: "#2775CA",
     network: "Ethereum Mainnet (ERC20)",
   },
   SOL: {
-    address: "7i3WnWp1ovKFsKzrpMRqtnjB2aSUiNKEGkAmVG1qDXZY",
+    dbKey: "sol",
     name: "Solana",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg",
     color: "#9945FF",
     network: "Solana Network",
   },
+};
+
+const DEFAULT_WALLETS: Record<string, string> = {
+  btc: "bc1qn7qsslxz2ngn3x2uyrmyy3sdgv0eq6pcutazmt",
+  eth: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+  usdterc: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+  usdttrc: "TUKJShLza5hCjeWcNLae3zLe4eWTPFELqT",
+  usdc: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+  sol: "7i3WnWp1ovKFsKzrpMRqtnjB2aSUiNKEGkAmVG1qDXZY",
 };
 
 const BANK_DETAILS = {
@@ -98,13 +115,15 @@ export default function FundAccountSection({
   const t = useMemo(() => getTranslations(language), [language]);
 
   const [activeMethod, setActiveMethod] = useState<"crypto" | "bank">("crypto");
-  const [selectedCrypto, setSelectedCrypto] = useState<keyof typeof CRYPTO_WALLETS>("BTC");
+  const [selectedCrypto, setSelectedCrypto] = useState<keyof typeof CRYPTO_METADATA>("BTC");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [fundRequests, setFundRequests] = useState<FundRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const [userWallets, setUserWallets] = useState<Record<string, string>>(DEFAULT_WALLETS);
+  const [loadingWallets, setLoadingWallets] = useState(true);
 
   const [cryptoForm, setCryptoForm] = useState({
     amount: "",
@@ -123,8 +142,29 @@ export default function FundAccountSection({
   useEffect(() => {
     if (userProfile?.id) {
       fetchFundRequests();
+      fetchUserWallets();
     }
   }, [userProfile?.id]);
+
+  const fetchUserWallets = async () => {
+    if (!userProfile?.id) return;
+
+    setLoadingWallets(true);
+    const { data, error } = await supabase
+      .from("payment_wallets")
+      .select("*")
+      .eq("user_id", userProfile.id)
+      .eq("is_active", true);
+
+    if (!error && data && data.length > 0) {
+      const walletMap: Record<string, string> = { ...DEFAULT_WALLETS };
+      data.forEach((wallet: PaymentWallet) => {
+        walletMap[wallet.crypto_type] = wallet.wallet_address;
+      });
+      setUserWallets(walletMap);
+    }
+    setLoadingWallets(false);
+  };
 
   const fetchFundRequests = async () => {
     if (!userProfile?.id) return;
@@ -141,6 +181,11 @@ export default function FundAccountSection({
       setFundRequests(data);
     }
     setLoadingRequests(false);
+  };
+
+  const getWalletAddress = (cryptoKey: keyof typeof CRYPTO_METADATA): string => {
+    const dbKey = CRYPTO_METADATA[cryptoKey].dbKey;
+    return userWallets[dbKey] || DEFAULT_WALLETS[dbKey];
   };
 
   const copyToClipboard = async (text: string, field: string) => {
@@ -165,7 +210,7 @@ export default function FundAccountSection({
       user_id: userProfile.id,
       funding_type: "crypto",
       crypto_currency: selectedCrypto,
-      crypto_wallet_address: CRYPTO_WALLETS[selectedCrypto].address,
+      crypto_wallet_address: getWalletAddress(selectedCrypto),
       crypto_tx_hash: cryptoForm.txHash,
       amount: parseFloat(cryptoForm.amount),
       currency: selectedCrypto,
@@ -265,7 +310,7 @@ export default function FundAccountSection({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-6">
-                  {(Object.keys(CRYPTO_WALLETS) as Array<keyof typeof CRYPTO_WALLETS>).map((crypto) => (
+                  {(Object.keys(CRYPTO_METADATA) as Array<keyof typeof CRYPTO_METADATA>).map((crypto) => (
                     <button
                       key={crypto}
                       onClick={() => setSelectedCrypto(crypto)}
@@ -276,7 +321,7 @@ export default function FundAccountSection({
                       }`}
                     >
                       <img
-                        src={CRYPTO_WALLETS[crypto].icon}
+                        src={CRYPTO_METADATA[crypto].icon}
                         alt={crypto}
                         className="w-6 h-6 mx-auto mb-1"
                       />
@@ -285,38 +330,45 @@ export default function FundAccountSection({
                   ))}
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <p className="text-sm text-gray-600 mb-3">
-                    {t.sendCryptoToAddress.replace("{crypto}", CRYPTO_WALLETS[selectedCrypto].name)}
-                  </p>
-                  <div className="bg-white p-4 rounded-lg border mb-4">
-                    <QRCodeSVG
-                      value={CRYPTO_WALLETS[selectedCrypto].address}
-                      size={180}
-                      level="H"
-                      includeMargin
-                      className="mx-auto"
-                    />
+                {loadingWallets ? (
+                  <div className="bg-gray-50 rounded-lg p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c] mx-auto"></div>
+                    <p className="text-sm text-gray-500 mt-2">Loading wallet...</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-white rounded-lg border p-3">
-                    <code className="flex-1 text-xs break-all text-left">
-                      {CRYPTO_WALLETS[selectedCrypto].address}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(CRYPTO_WALLETS[selectedCrypto].address, "crypto")}
-                      className="p-2 hover:bg-gray-100 rounded transition-colors"
-                    >
-                      {copiedField === "crypto" ? (
-                        <Check className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-gray-500" />
-                      )}
-                    </button>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                    <p className="text-sm text-gray-600 mb-3">
+                      {t.sendCryptoToAddress.replace("{crypto}", CRYPTO_METADATA[selectedCrypto].name)}
+                    </p>
+                    <div className="bg-white p-4 rounded-lg border mb-4">
+                      <QRCodeSVG
+                        value={getWalletAddress(selectedCrypto)}
+                        size={180}
+                        level="H"
+                        includeMargin
+                        className="mx-auto"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 bg-white rounded-lg border p-3">
+                      <code className="flex-1 text-xs break-all text-left">
+                        {getWalletAddress(selectedCrypto)}
+                      </code>
+                      <button
+                        onClick={() => copyToClipboard(getWalletAddress(selectedCrypto), "crypto")}
+                        className="p-2 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        {copiedField === "crypto" ? (
+                          <Check className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-gray-500" />
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-3">
+                      {t.cryptoSendWarning.replace("{crypto}", selectedCrypto)}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-3">
-                    {t.cryptoSendWarning.replace("{crypto}", selectedCrypto)}
-                  </p>
-                </div>
+                )}
               </CardContent>
             </Card>
 
