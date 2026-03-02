@@ -38,22 +38,39 @@ interface FundRequest {
 
 const CRYPTO_WALLETS = {
   BTC: {
-    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    address: "bc1qn7qsslxz2ngn3x2uyrmyy3sdgv0eq6pcutazmt",
     name: "Bitcoin",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg",
     color: "#F7931A",
+    network: "Bitcoin Network",
   },
   ETH: {
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD87",
+    address: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
     name: "Ethereum",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg",
     color: "#627EEA",
+    network: "Ethereum Mainnet",
   },
   USDT: {
-    address: "TYDzsYUEpvnYmQk4zGP9sWWcTEd2MiAtW6",
+    address: "TUKJShLza5hCjeWcNLae3zLe4eWTPFELqT",
     name: "Tether (TRC20)",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "#26A17B",
+    network: "Tron Network (TRC20)",
+  },
+  USDC: {
+    address: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+    name: "USD Coin",
+    icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdc.svg",
+    color: "#2775CA",
+    network: "Ethereum Mainnet (ERC20)",
+  },
+  SOL: {
+    address: "7i3WnWp1ovKFsKzrpMRqtnjB2aSUiNKEGkAmVG1qDXZY",
+    name: "Solana",
+    icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg",
+    color: "#9945FF",
+    network: "Solana Network",
   },
 };
 
@@ -74,7 +91,7 @@ export default function FundAccountSection({
   const t = useMemo(() => getTranslations(language), [language]);
 
   const [activeMethod, setActiveMethod] = useState<"crypto" | "bank">("crypto");
-  const [selectedCrypto, setSelectedCrypto] = useState<"BTC" | "ETH" | "USDT">("BTC");
+  const [selectedCrypto, setSelectedCrypto] = useState<"BTC" | "ETH" | "USDT" | "USDC" | "SOL">("BTC");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -240,23 +257,23 @@ export default function FundAccountSection({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="grid grid-cols-5 gap-2 mb-6">
                   {(Object.keys(CRYPTO_WALLETS) as Array<keyof typeof CRYPTO_WALLETS>).map((crypto) => (
                     <button
                       key={crypto}
                       onClick={() => setSelectedCrypto(crypto)}
-                      className={`p-4 border-2 transition-all rounded-none ${
+                      className={`p-3 border-2 transition-all rounded-none ${
                         selectedCrypto === crypto
-                          ? "border-[#b91c1c]"
-                          : "border-gray-200"
+                          ? "border-[#b91c1c] bg-red-50"
+                          : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       <img
                         src={CRYPTO_WALLETS[crypto].icon}
                         alt={crypto}
-                        className="w-8 h-8 mx-auto mb-2"
+                        className="w-7 h-7 mx-auto mb-1"
                       />
-                      <p className="text-sm font-medium text-center">{crypto}</p>
+                      <p className="text-xs font-medium text-center">{crypto}</p>
                     </button>
                   ))}
                 </div>

@@ -145,7 +145,7 @@ interface Payment {
 
 type ViewMode = "new" | "pending" | "history";
 
-type CryptoPaymentType = "btc" | "eth" | "usdterc20" | "sol";
+type CryptoPaymentType = "btc" | "eth" | "usdt" | "usdc" | "sol";
 
 interface PaymentWallet {
   id: string;
@@ -161,6 +161,7 @@ const CRYPTO_LOGOS = {
   btc: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23F7931A'/%3E%3Cpath fill='%23FFF' fill-rule='nonzero' d='M23.189 14.02c.314-2.096-1.283-3.223-3.465-3.975l.708-2.84-1.728-.43-.69 2.765c-.454-.113-.921-.22-1.385-.326l.695-2.783L15.596 6l-.708 2.839c-.376-.086-.746-.17-1.104-.26l.002-.009-2.384-.595-.46 1.846s1.283.294 1.256.312c.7.175.827.638.806 1.006l-.808 3.243c.048.012.11.03.18.057l-.183-.046-1.133 4.544c-.086.213-.304.532-.796.41.018.026-1.256-.314-1.256-.314l-.858 1.978 2.25.561c.418.105.828.215 1.231.318l-.715 2.872 1.727.43.708-2.84c.472.127.93.245 1.378.357l-.706 2.828 1.728.43.715-2.866c2.948.558 5.164.333 6.097-2.333.752-2.146-.037-3.385-1.588-4.192 1.13-.26 1.98-1.003 2.207-2.538zm-3.95 5.538c-.533 2.147-4.148.986-5.32.695l.95-3.805c1.172.293 4.929.872 4.37 3.11zm.535-5.569c-.487 1.953-3.495.96-4.47.717l.86-3.45c.975.243 4.118.696 3.61 2.733z'/%3E%3C/g%3E%3C/svg%3E",
   eth: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23627EEA'/%3E%3Cg fill='%23FFF' fill-rule='nonzero'%3E%3Cpath fill-opacity='.602' d='M16.498 4v8.87l7.497 3.35z'/%3E%3Cpath d='M16.498 4L9 16.22l7.498-3.35z'/%3E%3Cpath fill-opacity='.602' d='M16.498 21.968v6.027L24 17.616z'/%3E%3Cpath d='M16.498 27.995v-6.028L9 17.616z'/%3E%3Cpath fill-opacity='.2' d='M16.498 20.573l7.497-4.353-7.497-3.348z'/%3E%3Cpath fill-opacity='.602' d='M9 16.22l7.498 4.353v-7.701z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E",
   usdt: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='16' cy='16' r='16' fill='%2326A17B'/%3E%3Cpath fill='%23FFF' d='M17.922 17.383v-.002c-.11.008-.677.042-1.942.042-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658 0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061 1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658 0 .81-2.895 1.485-6.775 1.657m0-3.59v-2.366h5.414V7.819H8.595v3.608h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.118 0 1.044 3.309 1.915 7.709 2.118v7.582h3.913v-7.584c4.393-.202 7.694-1.073 7.694-2.116 0-1.043-3.301-1.914-7.694-2.117'/%3E%3C/g%3E%3C/svg%3E",
+  usdc: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='16' cy='16' r='16' fill='%232775CA'/%3E%3Cpath fill='%23FFF' d='M20.022 18.124c0-2.124-1.28-2.852-3.84-3.156-1.828-.243-2.193-.728-2.193-1.578 0-.85.61-1.396 1.828-1.396 1.097 0 1.707.364 2.011 1.275a.458.458 0 00.427.303h.975a.416.416 0 00.427-.425v-.06a3.04 3.04 0 00-2.743-2.489v-1.578c0-.243-.183-.425-.487-.486h-.914c-.244 0-.427.182-.488.486v1.517c-1.89.243-3.108 1.456-3.108 2.974 0 2.002 1.218 2.791 3.778 3.095 1.707.304 2.255.668 2.255 1.639 0 .97-.853 1.638-2.011 1.638-1.585 0-2.133-.668-2.316-1.578-.061-.243-.244-.364-.488-.364h-1.036a.416.416 0 00-.427.425v.06c.244 1.518 1.219 2.61 3.352 2.914v1.578c0 .243.183.425.488.486h.914c.243 0 .426-.182.487-.486v-1.578c1.89-.303 3.169-1.577 3.169-3.216z'/%3E%3Cpath fill='%23FFF' d='M12.957 24.357c-4.634-1.639-7.073-6.815-5.412-11.354.792-2.185 2.56-3.884 4.817-4.673.305-.121.427-.303.427-.607v-.85c0-.242-.122-.424-.366-.485-.061 0-.183 0-.244.06-5.595 1.7-8.704 7.603-7.012 13.205a10.226 10.226 0 006.217 6.226c.305.121.549 0 .61-.243.061-.06.061-.121.061-.182v-.85c0-.182-.183-.425-.427-.546l-.671-.701zm6.148-20.771c-.304-.121-.548 0-.609.242-.061.061-.061.122-.061.182v.85c0 .243.182.486.426.607 4.634 1.64 7.073 6.815 5.412 11.354-.792 2.185-2.56 3.884-4.817 4.673-.305.121-.426.303-.426.607v.85c0 .242.122.424.365.485.061 0 .183 0 .244-.06 5.595-1.7 8.704-7.603 7.012-13.205a10.226 10.226 0 00-6.217-6.226l-.671-.3-.658-.059z'/%3E%3C/g%3E%3C/svg%3E",
   sol: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='sol-a' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%239945FF'/%3E%3Cstop offset='100%25' stop-color='%2314F195'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='16' fill='url(%23sol-a)'/%3E%3Cpath fill='%23FFF' d='M9.925 18.466a.59.59 0 01.418-.174h12.86c.264 0 .396.319.209.506l-2.576 2.576a.59.59 0 01-.418.174H7.558a.295.295 0 01-.209-.506l2.576-2.576zm0-7.84a.608.608 0 01.418-.174h12.86c.264 0 .396.319.209.506l-2.576 2.576a.59.59 0 01-.418.174H7.558a.295.295 0 01-.209-.506l2.576-2.576zm12.86 3.82H9.925a.59.59 0 00-.418.174l-2.576 2.576a.295.295 0 00.209.506h12.86a.59.59 0 00.418-.174l2.576-2.576a.295.295 0 00-.209-.506z'/%3E%3C/svg%3E",
 };
 
@@ -170,28 +171,35 @@ const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string;
     network: "Bitcoin Network",
     symbol: "BTC",
     logo: CRYPTO_LOGOS.btc,
-    wallet: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    wallet: "bc1qn7qsslxz2ngn3x2uyrmyy3sdgv0eq6pcutazmt",
   },
   eth: {
     name: "Ethereum (ETH)",
     network: "Ethereum Mainnet",
     symbol: "ETH",
     logo: CRYPTO_LOGOS.eth,
-    wallet: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD73",
+    wallet: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
   },
-  usdterc20: {
-    name: "USDT",
-    network: "Ethereum (ERC-20)",
+  usdt: {
+    name: "USDT (TRC20)",
+    network: "Tron Network (TRC20)",
     symbol: "USDT",
     logo: CRYPTO_LOGOS.usdt,
-    wallet: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD73",
+    wallet: "TUKJShLza5hCjeWcNLae3zLe4eWTPFELqT",
+  },
+  usdc: {
+    name: "USD Coin (USDC)",
+    network: "Ethereum Mainnet (ERC20)",
+    symbol: "USDC",
+    logo: CRYPTO_LOGOS.usdc,
+    wallet: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
   },
   sol: {
     name: "Solana (SOL)",
     network: "Solana Network",
     symbol: "SOL",
     logo: CRYPTO_LOGOS.sol,
-    wallet: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    wallet: "7i3WnWp1ovKFsKzrpMRqtnjB2aSUiNKEGkAmVG1qDXZY",
   },
 };
 
@@ -396,39 +404,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
 
   const generatePaymentURI = (cryptoType: CryptoPaymentType, amount?: string): string => {
     const walletAddress = getWalletAddress(cryptoType);
-    const parsedAmount = amount ? parseFloat(amount) : 0;
-
-    switch (cryptoType) {
-      case 'btc':
-        if (parsedAmount > 0) {
-          return `bitcoin:${walletAddress}?amount=${parsedAmount}`;
-        }
-        return `bitcoin:${walletAddress}`;
-
-      case 'eth':
-        if (parsedAmount > 0) {
-          const weiAmount = BigInt(Math.floor(parsedAmount * 1e18)).toString();
-          return `ethereum:${walletAddress}@1?value=${weiAmount}`;
-        }
-        return `ethereum:${walletAddress}`;
-
-      case 'usdterc20':
-        const usdtContract = '0xdAC17F958D2ee523a2206206994597C13D831ec7';
-        if (parsedAmount > 0) {
-          const usdtAmount = BigInt(Math.floor(parsedAmount * 1e6)).toString();
-          return `ethereum:${usdtContract}@1/transfer?address=${walletAddress}&uint256=${usdtAmount}`;
-        }
-        return `ethereum:${usdtContract}@1/transfer?address=${walletAddress}`;
-
-      case 'sol':
-        if (parsedAmount > 0) {
-          return `solana:${walletAddress}?amount=${parsedAmount}`;
-        }
-        return `solana:${walletAddress}`;
-
-      default:
-        return walletAddress;
-    }
+    return walletAddress;
   };
 
   const fetchPayments = async () => {
@@ -1023,7 +999,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white border border-gray-200 p-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">{t.selectCryptoPayment}</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
                 {(Object.keys(CRYPTO_OPTIONS) as CryptoPaymentType[]).map((cryptoKey) => (
                   <button
                     key={cryptoKey}
