@@ -278,7 +278,13 @@ export default function MessageSection({ userProfile }: MessageSectionProps) {
       notification: { text: t.notificationBadge || "Notification", color: "bg-blue-50 text-blue-700 border-blue-200" },
       update: { text: t.updateBadge || "Update", color: "bg-green-50 text-green-700 border-green-200" },
     };
-    return badges[type] || { text: t.generalBadge || "General", color: "bg-gray-50 text-gray-700 border-gray-200" };
+    if (badges[type]) {
+      return badges[type];
+    }
+    const formattedType = type
+      ? type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, " ")
+      : "General";
+    return { text: formattedType, color: "bg-gray-50 text-gray-700 border-gray-200" };
   };
 
   const getFolderIcon = (folder: FolderType) => {
