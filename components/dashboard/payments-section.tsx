@@ -145,7 +145,7 @@ interface Payment {
 
 type ViewMode = "new" | "pending" | "history";
 
-type CryptoPaymentType = "btc" | "eth" | "usdt" | "usdc" | "sol";
+type CryptoPaymentType = "btc" | "eth" | "usdterc" | "usdttrc" | "usdc" | "sol";
 
 interface PaymentWallet {
   id: string;
@@ -180,7 +180,14 @@ const CRYPTO_OPTIONS: Record<CryptoPaymentType, { name: string; network: string;
     logo: CRYPTO_LOGOS.eth,
     wallet: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
   },
-  usdt: {
+  usdterc: {
+    name: "USDT (ERC20)",
+    network: "Ethereum Mainnet (ERC20)",
+    symbol: "USDT",
+    logo: CRYPTO_LOGOS.usdt,
+    wallet: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+  },
+  usdttrc: {
     name: "USDT (TRC20)",
     network: "Tron Network (TRC20)",
     symbol: "USDT",
@@ -999,7 +1006,7 @@ export default function PaymentsSection({ userProfile }: PaymentsSectionProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white border border-gray-200 p-8">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">{t.selectCryptoPayment}</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-6">
                 {(Object.keys(CRYPTO_OPTIONS) as CryptoPaymentType[]).map((cryptoKey) => (
                   <button
                     key={cryptoKey}

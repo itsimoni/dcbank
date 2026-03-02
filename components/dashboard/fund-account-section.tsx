@@ -51,9 +51,16 @@ const CRYPTO_WALLETS = {
     color: "#627EEA",
     network: "Ethereum Mainnet",
   },
-  USDT: {
+  "USDT-ERC": {
+    address: "0xcd1d69695884c60d2784c17c8d435a1341a7fbac",
+    name: "USDT (ERC20)",
+    icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
+    color: "#26A17B",
+    network: "Ethereum Mainnet (ERC20)",
+  },
+  "USDT-TRC": {
     address: "TUKJShLza5hCjeWcNLae3zLe4eWTPFELqT",
-    name: "Tether (TRC20)",
+    name: "USDT (TRC20)",
     icon: "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usdt.svg",
     color: "#26A17B",
     network: "Tron Network (TRC20)",
@@ -91,7 +98,7 @@ export default function FundAccountSection({
   const t = useMemo(() => getTranslations(language), [language]);
 
   const [activeMethod, setActiveMethod] = useState<"crypto" | "bank">("crypto");
-  const [selectedCrypto, setSelectedCrypto] = useState<"BTC" | "ETH" | "USDT" | "USDC" | "SOL">("BTC");
+  const [selectedCrypto, setSelectedCrypto] = useState<keyof typeof CRYPTO_WALLETS>("BTC");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -257,12 +264,12 @@ export default function FundAccountSection({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-5 gap-2 mb-6">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-6">
                   {(Object.keys(CRYPTO_WALLETS) as Array<keyof typeof CRYPTO_WALLETS>).map((crypto) => (
                     <button
                       key={crypto}
                       onClick={() => setSelectedCrypto(crypto)}
-                      className={`p-3 border-2 transition-all rounded-none ${
+                      className={`p-2 border-2 transition-all rounded-none ${
                         selectedCrypto === crypto
                           ? "border-[#b91c1c] bg-red-50"
                           : "border-gray-200 hover:border-gray-300"
@@ -271,9 +278,9 @@ export default function FundAccountSection({
                       <img
                         src={CRYPTO_WALLETS[crypto].icon}
                         alt={crypto}
-                        className="w-7 h-7 mx-auto mb-1"
+                        className="w-6 h-6 mx-auto mb-1"
                       />
-                      <p className="text-xs font-medium text-center">{crypto}</p>
+                      <p className="text-xs font-medium text-center truncate">{crypto}</p>
                     </button>
                   ))}
                 </div>
