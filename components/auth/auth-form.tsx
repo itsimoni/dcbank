@@ -242,8 +242,6 @@ const handleSignUp = useCallback(
       if (authError) throw authError;
 
       if (authData.user) {
-        await supabase.auth.signOut();
-
         sessionStorage.setItem("pendingVerificationEmail", formData.email);
         setPendingEmail(formData.email);
         setPendingVerification(true);
@@ -276,6 +274,8 @@ const handleSignUp = useCallback(
         }).catch((err) => {
           console.error("Failed to send verification email:", err);
         });
+
+        await supabase.auth.signOut();
       }
     } catch (err: any) {
       setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
