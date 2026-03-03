@@ -2,28 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Settings,
-  Users,
-  DollarSign,
-  Mail,
-  Database,
-  Shield,
-  Activity,
-  Calculator,
-  Download,
-  Clock,
-  Lock,
-  MapPin,
-  Globe,
-  Monitor,
-  Crown,
-  UserCheck,
-  AlertTriangle,
-  MessageCircle,
-  X,
-  RefreshCw,
-} from "lucide-react";
+import { Settings, Users, DollarSign, Mail, Database, Shield, Activity, Calculator, Download, Clock, Lock, MapPin, Globe, Monitor, Crown, UserCheck, TriangleAlert as AlertTriangle, MessageCircle, X, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
