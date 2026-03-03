@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, AlertCircle, Mail, Globe, ChevronDown, CheckCircle2, Loader2 } from "lucide-react";
+import { Eye, EyeOff, CircleAlert as AlertCircle, Mail, Globe, ChevronDown, CircleCheck as CheckCircle2, Loader as Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
