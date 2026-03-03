@@ -17,17 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import {
-  CheckCircle,
-  Clock,
-  XCircle,
-  AlertCircle,
-  Download,
-  Search,
-  X,
-  ChevronRight,
-  ArrowRightLeft,
-} from "lucide-react";
+import { CircleCheck as CheckCircle, Clock, Circle as XCircle, CircleAlert as AlertCircle, Download, Search, X, ChevronRight, ArrowRightLeft } from "lucide-react";
 import { Alert, AlertDescription } from "../ui/alert";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { getTranslations } from "../../lib/translations";
