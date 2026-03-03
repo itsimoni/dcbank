@@ -4,10 +4,12 @@ import type React from "react";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
+import { SilentPresenceTracker } from "@/components/silent-presence-tracker";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
+      <SilentPresenceTracker />
       <LanguageProvider>
         <Toaster
           position="top-right"
