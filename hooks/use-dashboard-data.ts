@@ -263,5 +263,70 @@ export function useDashboardData() {
     fetchAllData();
   }, [user, authLoading]);
 
+  useEffect(() => {
+    if (!user || authLoading) return;
+
+    const channel = supabase
+      .channel(`balances_${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'usd_balances', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.new && 'balance' in payload.new) {
+            setData(prev => ({
+              ...prev,
+              balances: { ...prev.balances, usd: Number(payload.new.balance) || 0 }
+            }));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'euro_balances', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.new && 'balance' in payload.new) {
+            setData(prev => ({
+              ...prev,
+              balances: { ...prev.balances, euro: Number(payload.new.balance) || 0 }
+            }));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'cad_balances', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.new && 'balance' in payload.new) {
+            setData(prev => ({
+              ...prev,
+              balances: { ...prev.balances, cad: Number(payload.new.balance) || 0 }
+            }));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'newcrypto_balances', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          if (payload.new) {
+            const newData = payload.new as Record<string, unknown>;
+            setData(prev => ({
+              ...prev,
+              cryptoBalances: {
+                BTC: Number(newData.btc_balance) || prev.cryptoBalances.BTC,
+                ETH: Number(newData.eth_balance) || prev.cryptoBalances.ETH,
+                USDT: Number(newData.usdt_balance) || prev.cryptoBalances.USDT,
+              }
+            }));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, authLoading]);
+
   return data;
 }
