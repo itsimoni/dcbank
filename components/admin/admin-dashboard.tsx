@@ -11,7 +11,6 @@ import {
   Shield,
   Activity,
   Calculator,
-  Wifi,
   Download,
   Clock,
   Lock,
@@ -35,8 +34,6 @@ import DatabaseTest from "./database-test";
 import UserManagementTest from "./user-management-test";
 import ActivityManager from "./activity-manager";
 import TaxManager from "./tax-manager";
-import UserPresenceTracker from "./user-presence-tracker";
-import PresenceManager from "./presence-manager";
 import LiveChatAdmin from "./live-chat-admin";
 import UserHierarchyManager from "../../components/user-hierarchy-manager";
 import UnifiedAdminPanel from "./UnifiedAdminPanel";
@@ -1031,7 +1028,6 @@ export default function EnhancedAdminDashboard({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <PresenceManager />
 
       {/* Enhanced Header with Current User's Location and Hierarchy Info */}
       <div className="bg-white border-b shadow-sm">
@@ -1108,11 +1104,7 @@ export default function EnhancedAdminDashboard({
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="presence" className="flex items-center">
-              <Wifi className="w-4 h-4 mr-2" />
-              Presence
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger
               value="UnifiedAdminPanel"
               className="flex items-center"
@@ -1142,19 +1134,6 @@ export default function EnhancedAdminDashboard({
                 <CardContent className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
                   <p className="text-gray-600">Loading panel...</p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="presence" key={`presence-${refreshKey}`}>
-            {accessibleUserIdsLoaded ? (
-              <UserPresenceTracker key={`presence-tracker-${refreshKey}`} />
-            ) : (
-              <Card>
-                <CardContent className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#F26623] mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading presence data...</p>
                 </CardContent>
               </Card>
             )}
