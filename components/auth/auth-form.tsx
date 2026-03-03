@@ -71,6 +71,14 @@ export default function AuthForm({ onLoginSuccess }: AuthFormProps = {}) {
   const t = useMemo(() => getTranslations(language), [language]);
 
   useEffect(() => {
+    const storedPendingEmail = sessionStorage.getItem("pendingVerificationEmail");
+    if (storedPendingEmail) {
+      setPendingEmail(storedPendingEmail);
+      setPendingVerification(true);
+    }
+  }, []);
+
+  useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
     const wasRemembered = localStorage.getItem("rememberMe") === "true";
     if (savedEmail && wasRemembered) {
@@ -236,6 +244,7 @@ const handleSignUp = useCallback(
       if (authData.user) {
         await supabase.auth.signOut();
 
+        sessionStorage.setItem("pendingVerificationEmail", formData.email);
         setPendingEmail(formData.email);
         setPendingVerification(true);
 
@@ -505,6 +514,7 @@ const handleSignUp = useCallback(
                     <Button
                       variant="outline"
                       onClick={() => {
+                        sessionStorage.removeItem("pendingVerificationEmail");
                         setPendingVerification(false);
                         setIsSignUp(false);
                         setFormData(prev => ({ ...prev, email: pendingEmail, password: "" }));
