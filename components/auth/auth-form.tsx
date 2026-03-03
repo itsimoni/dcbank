@@ -234,6 +234,11 @@ const handleSignUp = useCallback(
       if (authError) throw authError;
 
       if (authData.user) {
+        await supabase.auth.signOut();
+
+        setPendingEmail(formData.email);
+        setPendingVerification(true);
+
         if (window.PasswordCredential) {
           try {
             const cred = new window.PasswordCredential({
@@ -246,7 +251,7 @@ const handleSignUp = useCallback(
         }
 
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const response = await fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
+        fetch(`${supabaseUrl}/functions/v1/send-verification-email`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -259,17 +264,9 @@ const handleSignUp = useCallback(
             lastName: formData.lastName,
             baseUrl: window.location.origin,
           }),
+        }).catch((err) => {
+          console.error("Failed to send verification email:", err);
         });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Failed to send verification email:", errorData);
-        }
-
-        await supabase.auth.signOut();
-
-        setPendingEmail(formData.email);
-        setPendingVerification(true);
       }
     } catch (err: any) {
       setError(`${t.signupFailed}: ${err.message || t.unknownError}`);
